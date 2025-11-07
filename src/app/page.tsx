@@ -185,7 +185,7 @@ export default function Home() {
                                   <AiAutomationsIcon className="h-8 w-8 text-primary"/>
                                 </div>
                                 <h3 className="text-xl font-bold font-headline">AI Automations</h3>
-                                <p className="text-muted-foreground mt-2 flex-1">Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies.</p>
+                                <p className="text-muted-foreground mt-2 flex-1">Optimise your workflow operations with AI Automations, use tools like n8n, make.com or zapier to auto-update your CRM.</p>
                                 <Button variant="outline" className="mt-4">Explore <ArrowRight className="ml-2 h-4 w-4"/></Button>
                             </CardContent>
                         </Card>

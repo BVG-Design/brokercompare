@@ -116,8 +116,14 @@ export const AiAutomationsIcon = ({ className }: { className?: string }) => (
         strokeLinecap="round" 
         strokeLinejoin="round"
     >
-        <path d="M18 18.5a2.5 2.5 0 0 1-2.4-2.91 2.5 2.5 0 0 1 4.81-1.18 2.5 2.5 0 0 1-2.4 4.09Z" />
-        <path d="M12 12.5a2.5 2.5 0 0 1-2.4-2.91 2.5 2.5 0 0 1 4.81-1.18 2.5 2.5 0 0 1-2.4 4.09Z" />
-        <path d="M6 6.5a2.5 2.5 0 0 1-2.4-2.91A2.5 2.5 0 0 1 8.4 2.4a2.5 2.5 0 0 1-2.4 4.1Z" />
+        <path d="M12 3a6 6 0 0 0-6 6 6 6 0 0 0 6 6 6 6 0 0 0 6-6 6 6 0 0 0-6-6Z"></path>
+        <path d="M12 3v.01"></path>
+        <path d="M21 12h-.01"></path>
+        <path d="M12 21v-.01"></path>
+        <path d="M3 12h.01"></path>
+        <path d="m18.36 5.64.01.01"></path>
+        <path d="m5.64 18.36.01.01"></path>
+        <path d="m18.36 18.36-.01.01"></path>
+        <path d="m5.64 5.64-.01.01"></path>
     </svg>
 );
