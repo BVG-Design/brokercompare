@@ -48,7 +48,7 @@ export default function Home() {
                 Find Your Brokerage Edge in Australia
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground">
-                BrokerCompare AU is the leading platform for discovering, comparing, and selecting the best marketing, VA, and software partners to grow your business.
+                O Broker Tools is the leading platform for discovering, comparing, and selecting the best marketing, VA, and software partners to grow your business.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">

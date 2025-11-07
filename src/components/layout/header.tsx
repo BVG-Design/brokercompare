@@ -16,6 +16,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, Mountain, User } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 const navItems = [
   { href: "/services", label: "Services" },
@@ -40,8 +41,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Mountain className="h-6 w-6 text-primary-foreground" />
-          <span className="font-headline">BrokerCompare AU</span>
+          <Image src="/logo.svg" alt="O Broker Tools Logo" width={140} height={35} />
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
@@ -49,7 +49,7 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-semibold transition-colors hover:text-accent",
+                "text-sm font-bold transition-colors hover:text-accent",
                 pathname.startsWith(item.href)
                   ? "text-primary-foreground"
                   : "text-primary-foreground"
@@ -101,8 +101,7 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-                  <Mountain className="h-6 w-6 text-primary" />
-                  <span className="font-headline">BrokerCompare AU</span>
+                  <Image src="/logo.svg" alt="O Broker Tools Logo" width={140} height={35} />
                 </Link>
                 <nav className="grid gap-4">
                   {navItems.map((item) => (

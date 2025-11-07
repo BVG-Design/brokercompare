@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Mountain, Twitter, Linkedin, Facebook } from "lucide-react";
+import { Twitter, Linkedin, Facebook } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
@@ -8,8 +9,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
              <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-              <Mountain className="h-6 w-6 text-primary" />
-              <span className="font-headline">BrokerCompare AU</span>
+                <Image src="/logo.svg" alt="O Broker Tools Logo" width={140} height={35} />
             </Link>
             <p className="text-sm text-muted-foreground">Empowering Australian brokers with data-driven decisions.</p>
             <div className="flex gap-4">
@@ -43,7 +43,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; {new Date().getFullYear()} BrokerCompare AU. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} O Broker Tools. All rights reserved.</p>
         </div>
       </div>
     </footer>

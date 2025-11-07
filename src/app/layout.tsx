@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'BrokerCompare AU',
+  title: 'O Broker Tools',
   description: 'Compare marketing, VA, finance providers and software for brokers in Australia.',
 };
 
