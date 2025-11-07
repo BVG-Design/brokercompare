@@ -85,14 +85,9 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button asChild variant="outline" className="hidden sm:inline-flex">
-                <Link href="#">Login</Link>
+             <Button asChild className="hidden sm:inline-flex bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                <Link href="#">Login / Join</Link>
               </Button>
-              <Button asChild className="hidden sm:inline-flex bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                <Link href="#">Join</Link>
-              </Button>
-            </>
           )}
           <Sheet>
             <SheetTrigger asChild>
@@ -134,14 +129,9 @@ export function Header() {
                         </div>
                     </div>
                   ) : (
-                    <>
-                      <Button asChild variant="outline">
-                        <Link href="#">Login</Link>
-                      </Button>
-                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                        <Link href="#">Join</Link>
-                      </Button>
-                    </>
+                    <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                      <Link href="#">Login / Join</Link>
+                    </Button>
                   )}
                 </div>
               </div>
