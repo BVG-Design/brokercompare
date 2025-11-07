@@ -61,14 +61,14 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative w-full bg-primary text-primary-foreground py-24 md:py-32 lg:py-40 overflow-hidden">
+        <section className="relative w-full bg-primary text-primary-foreground py-24 md:py-32 overflow-hidden">
           <div className="absolute inset-0 bg-primary" />
           <div 
             className="absolute bottom-0 left-0 w-full h-32 bg-background" 
             style={{clipPath: "ellipse(80% 100% at 50% 100%)"}}
           />
 
-          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center">
+          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-8 md:pb-12">
             <div className="max-w-4xl mx-auto">
                 <div className="inline-block px-4 py-1.5 bg-gray-700/50 rounded-full text-sm mb-4">
                     <p>+ AI-driven</p>
