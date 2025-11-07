@@ -37,10 +37,10 @@ export function Header() {
   const [user, setUser] = useState<typeof mockUser | null>(null);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-card/80 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Mountain className="h-6 w-6 text-primary" />
+          <Mountain className="h-6 w-6 text-primary-foreground" />
           <span className="font-headline">BrokerCompare AU</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
@@ -49,8 +49,8 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                pathname.startsWith(item.href) ? "text-primary" : "text-muted-foreground"
+                "text-sm font-medium transition-colors hover:text-primary-foreground/80",
+                pathname.startsWith(item.href) ? "text-primary-foreground" : "text-primary-foreground/60"
               )}
             >
               {item.label}
@@ -85,13 +85,13 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-             <Button asChild className="hidden sm:inline-flex bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+             <Button asChild variant="secondary">
                 <Link href="#">Login / Join</Link>
               </Button>
           )}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon" className="md:hidden">
+              <Button variant="outline" size="icon" className="md:hidden text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10">
                 <Menu className="h-6 w-6" />
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
