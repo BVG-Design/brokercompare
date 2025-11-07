@@ -98,8 +98,8 @@ export const TroubleshootIcon = ({ className }: { className?: string }) => (
         strokeLinejoin="round"
     >
         <circle cx="12" cy="12" r="10"></circle>
-        <line x1="12" y1="8" x2="12" y2="12"></line>
-        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
     </svg>
 );
 
@@ -116,9 +116,8 @@ export const AiAutomationsIcon = ({ className }: { className?: string }) => (
         strokeLinecap="round" 
         strokeLinejoin="round"
     >
-        <path d="M12 12v-2a4 4 0 0 0-4-4H4a4 4 0 0 0-4 4v2"/>
-        <path d="M12 12h2a4 4 0 0 0 4-4V4a4 4 0 0 0-4-4h-2"/>
-        <path d="M12 12v2a4 4 0 0 1 4 4h4a4 4 0 0 1 4-4v-2"/>
-        <path d="M12 12H10a4 4 0 0 1-4 4v4a4 4 0 0 1 4 4h2"/>
+        <path d="M18 18.5a2.5 2.5 0 0 1-2.4-2.91 2.5 2.5 0 0 1 4.81-1.18 2.5 2.5 0 0 1-2.4 4.09Z" />
+        <path d="M12 12.5a2.5 2.5 0 0 1-2.4-2.91 2.5 2.5 0 0 1 4.81-1.18 2.5 2.5 0 0 1-2.4 4.09Z" />
+        <path d="M6 6.5a2.5 2.5 0 0 1-2.4-2.91A2.5 2.5 0 0 1 8.4 2.4a2.5 2.5 0 0 1-2.4 4.1Z" />
     </svg>
 );

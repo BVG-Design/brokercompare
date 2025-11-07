@@ -74,7 +74,7 @@ export default function Home() {
             style={{clipPath: "ellipse(80% 100% at 50% 100%)"}}
           />
 
-          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-12 md:pb-16">
+          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-16 md:pb-24">
             <div className="max-w-4xl mx-auto">
                 <div className="inline-block px-4 py-1.5 bg-gray-700/50 rounded-full text-sm mb-4">
                     <p>+ AI-driven</p>
@@ -159,35 +159,35 @@ export default function Home() {
         {/* Personalized Support Section */}
         <section className="py-16 md:py-24 bg-background">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div className="bg-slate-700 rounded-xl p-8 md:p-12 flex flex-col justify-center text-primary-foreground">
-                        <p className="text-sm font-semibold text-accent uppercase tracking-wider">PERSONALISED</p>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                    <div className="bg-primary rounded-xl p-8 md:p-12 flex flex-col justify-center text-primary-foreground text-center">
+                        <p className="text-sm font-semibold text-accent uppercase tracking-wider">ACCELERATE</p>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline mt-2">Streamline your workflow with personalised support</h2>
                         <p className="mt-4 text-primary-foreground/80">Talk with one of our team.</p>
-                        <Button variant="outline" className="mt-6 w-fit bg-transparent border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-                            Connect with an expert <ArrowRight className="ml-2 h-4 w-4"/>
+                        <Button className="mt-6 mx-auto">
+                            Schedule a Chat <ArrowRight className="ml-2 h-4 w-4"/>
                         </Button>
                     </div>
-                    <div className="space-y-8">
-                        <Card className="p-8">
-                            <div className="flex items-start gap-6">
-                                <TroubleshootIcon className="h-10 w-10 text-secondary mt-1"/>
-                                <div>
-                                    <h3 className="text-xl font-bold font-headline">Troubleshoot & VA Support</h3>
-                                    <p className="text-muted-foreground mt-2">A library of guides helping you to troubleshoot common integration and workflow issues.</p>
-                                    <Button variant="outline" className="mt-4">Explore <ArrowRight className="ml-2 h-4 w-4"/></Button>
+                    <div className="space-y-8 flex flex-col">
+                        <Card className="flex-1 flex flex-col">
+                            <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
+                                <div className="p-3 border-2 border-primary/20 rounded-full mb-4">
+                                  <TroubleshootIcon className="h-8 w-8 text-primary"/>
                                 </div>
-                            </div>
+                                <h3 className="text-xl font-bold font-headline">Troubleshoot & VA Support</h3>
+                                <p className="text-muted-foreground mt-2 flex-1">A directory of guides helping you or your VA to trouble shoot common integration and website issues.</p>
+                                <Button variant="outline" className="mt-4">Explore <ArrowRight className="ml-2 h-4 w-4"/></Button>
+                            </CardContent>
                         </Card>
-                        <Card className="p-8">
-                            <div className="flex items-start gap-6">
-                                <AiAutomationsIcon className="h-10 w-10 text-secondary mt-1"/>
-                                <div>
-                                    <h3 className="text-xl font-bold font-headline">AI Automations</h3>
-                                    <p className="text-muted-foreground mt-2">Access cutting-edge automations to make your work day more productive.</p>
-                                    <Button variant="outline" className="mt-4">Explore <ArrowRight className="ml-2 h-4 w-4"/></Button>
+                        <Card className="flex-1 flex flex-col">
+                            <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
+                                <div className="p-3 border-2 border-primary/20 rounded-full mb-4">
+                                  <AiAutomationsIcon className="h-8 w-8 text-primary"/>
                                 </div>
-                            </div>
+                                <h3 className="text-xl font-bold font-headline">AI Automations</h3>
+                                <p className="text-muted-foreground mt-2 flex-1">Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies.</p>
+                                <Button variant="outline" className="mt-4">Explore <ArrowRight className="ml-2 h-4 w-4"/></Button>
+                            </CardContent>
                         </Card>
                     </div>
                 </div>
