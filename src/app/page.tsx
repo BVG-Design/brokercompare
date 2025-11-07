@@ -37,22 +37,28 @@ export default function Home() {
 
   const services = [
     {
+        category: "GUIDE",
         title: "Why hire a dedicated IT Support",
         description: "Explore a range of on-demand and dedicated support platforms.",
         imageUrl: "https://picsum.photos/seed/tech-1/600/400",
-        imageHint: "tech support"
+        imageHint: "tech support",
+        linkText: "Explore"
     },
     {
-        title: "How to leverage Public Ads",
+        category: "RECOMMENDED PROVIDER",
+        title: "How to leverage Paid Ads",
         description: "In-depth analysis of industry-leading technologies.",
         imageUrl: "https://picsum.photos/seed/ads-1/600/400",
-        imageHint: "online advertising"
+        imageHint: "online advertising",
+        linkText: "Listen"
     },
     {
+        category: "PARTNER SERVICE",
         title: "Getting your online marketing going",
         description: "Listen to industry-leaders sharing strategies and insights.",
         imageUrl: "https://picsum.photos/seed/marketing-1/600/400",
-        imageHint: "digital marketing"
+        imageHint: "digital marketing",
+        linkText: "Read"
     }
   ];
 
@@ -68,7 +74,7 @@ export default function Home() {
             style={{clipPath: "ellipse(80% 100% at 50% 100%)"}}
           />
 
-          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-8 md:pb-12">
+          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-12 md:pb-16">
             <div className="max-w-4xl mx-auto">
                 <div className="inline-block px-4 py-1.5 bg-gray-700/50 rounded-full text-sm mb-4">
                     <p>+ AI-driven</p>
@@ -109,26 +115,40 @@ export default function Home() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {services.map(service => (
-                        <Card key={service.title} className="overflow-hidden group">
-                            <div className="aspect-video bg-muted overflow-hidden">
-                                <Image 
-                                    src={service.imageUrl}
-                                    alt={service.title}
-                                    width={600}
-                                    height={400}
-                                    className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
-                                    data-ai-hint={service.imageHint}
-                                />
-                            </div>
-                            <CardContent className="p-6">
-                                <p className="text-xs text-muted-foreground mb-2">INDUSTRY INSIGHTS</p>
+                    {services.map((service, index) => (
+                        <Card key={service.title} className="overflow-hidden group flex flex-col">
+                            {index !== 0 && (
+                                <div className="aspect-video bg-muted overflow-hidden">
+                                    <Image 
+                                        src={service.imageUrl}
+                                        alt={service.title}
+                                        width={600}
+                                        height={400}
+                                        className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
+                                        data-ai-hint={service.imageHint}
+                                    />
+                                </div>
+                            )}
+                            <CardContent className="p-6 flex-1 flex flex-col">
+                                <p className="text-xs text-muted-foreground mb-2">{service.category}</p>
                                 <h3 className="font-bold text-lg mb-2">{service.title}</h3>
-                                <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
-                                <Button variant="link" className="p-0 text-secondary">
-                                    Explore <ArrowRight className="ml-2 h-4 w-4"/>
+                                <p className="text-sm text-muted-foreground mb-4 flex-1">{service.description}</p>
+                                <Button variant="link" className="p-0 text-secondary self-start">
+                                    {service.linkText} <ArrowRight className="ml-2 h-4 w-4"/>
                                 </Button>
                             </CardContent>
+                            {index === 0 && (
+                                <div className="aspect-video bg-muted overflow-hidden mt-auto">
+                                    <Image 
+                                        src={service.imageUrl}
+                                        alt={service.title}
+                                        width={600}
+                                        height={400}
+                                        className="object-cover w-full h-full transform group-hover:scale-105 transition-transform duration-300"
+                                        data-ai-hint={service.imageHint}
+                                    />
+                                </div>
+                            )}
                         </Card>
                     ))}
                 </div>
