@@ -49,10 +49,10 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-accent",
+                "text-sm font-semibold transition-colors hover:text-accent",
                 pathname.startsWith(item.href)
-                  ? "text-primary-foreground font-semibold"
-                  : "text-primary-foreground/70"
+                  ? "text-primary-foreground"
+                  : "text-primary-foreground"
               )}
             >
               {item.label}
