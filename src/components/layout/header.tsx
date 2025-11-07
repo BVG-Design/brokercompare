@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, Mountain, User } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -38,10 +38,10 @@ export function Header() {
   const [user, setUser] = useState<typeof mockUser | null>(null);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-50 w-full border-b border-primary-foreground/10 bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Image src="/logo.svg" alt="O Broker Tools Logo" width={140} height={35} />
+          <Image src="/logo.svg" alt="O Broker Tools Logo" width={140} height={35} className="brightness-0 invert"/>
         </Link>
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
@@ -51,8 +51,8 @@ export function Header() {
               className={cn(
                 "text-sm font-bold transition-colors hover:text-accent",
                 pathname.startsWith(item.href)
-                  ? "text-primary-foreground"
-                  : "text-primary-foreground"
+                  ? "text-white"
+                  : "text-white"
               )}
             >
               {item.label}
