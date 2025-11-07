@@ -49,8 +49,10 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-medium transition-colors hover:text-primary-foreground/80",
-                pathname.startsWith(item.href) ? "text-primary-foreground" : "text-primary-foreground/60"
+                "text-sm font-medium transition-colors hover:text-accent",
+                pathname.startsWith(item.href)
+                  ? "text-primary-foreground font-semibold"
+                  : "text-primary-foreground/70"
               )}
             >
               {item.label}
@@ -108,8 +110,8 @@ export function Header() {
                       key={item.href}
                       href={item.href}
                       className={cn(
-                        "text-base font-medium transition-colors hover:text-primary",
-                        pathname.startsWith(item.href) ? "text-primary" : "text-muted-foreground"
+                        "text-base font-medium transition-colors hover:text-accent",
+                        pathname.startsWith(item.href) ? "text-primary font-semibold" : "text-muted-foreground"
                       )}
                     >
                       {item.label}
