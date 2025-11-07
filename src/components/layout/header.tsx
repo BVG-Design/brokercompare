@@ -21,6 +21,7 @@ import Image from "next/image";
 const navItems = [
   { href: "/services", label: "Services" },
   { href: "/software", label: "Software" },
+  { href: "/resources", label: "Resources" },
   { href: "/recommendations", label: "AI Recommender" },
 ];
 
