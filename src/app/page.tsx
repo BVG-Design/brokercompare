@@ -7,7 +7,8 @@ import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { Input } from "@/components/ui/input";
-import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, TroubleshootIcon, AiAutomationsIcon } from "@/components/shared/icons";
+import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, TroubleshootIcon, AiAutomationsIcon, MarketingLeadGenIcon, BusinessStrategyIcon, LoanStructureIcon, WorkflowOpsIcon } from "@/components/shared/icons";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const workflowImage = PlaceHolderImages.find(p => p.id === 'services');
@@ -32,6 +33,30 @@ export default function Home() {
       icon: <AiSoftwareIcon className="h-8 w-8 text-primary" />,
       title: "AI Software and Services",
       link: "/recommendations",
+    },
+    {
+      icon: <MarketingLeadGenIcon className="h-8 w-8 text-secondary-foreground" />,
+      title: "Marketing & Lead Generation",
+      link: "/services",
+      isNew: true,
+    },
+    {
+      icon: <BusinessStrategyIcon className="h-8 w-8 text-secondary-foreground" />,
+      title: "Business Strategy & Coaching",
+      link: "/services",
+      isNew: true,
+    },
+    {
+      icon: <LoanStructureIcon className="h-8 w-8 text-secondary-foreground" />,
+      title: "Loan Structure & Application Processing",
+      link: "/software",
+      isNew: true,
+    },
+    {
+      icon: <WorkflowOpsIcon className="h-8 w-8 text-secondary-foreground" />,
+      title: "Workflow & Operations",
+      link: "/software",
+      isNew: true,
     },
   ];
 
@@ -74,7 +99,7 @@ export default function Home() {
             style={{clipPath: "ellipse(80% 100% at 50% 100%)"}}
           />
 
-          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-16 md:pb-24">
+          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center pb-24 md:pb-32">
             <div className="max-w-4xl mx-auto">
                 <div className="inline-block px-4 py-1.5 bg-gray-700/50 rounded-full text-sm mb-4">
                     <p>+ AI-driven</p>
@@ -205,13 +230,21 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {categories.map((category) => (
-                <Card key={category.title} className="group hover:shadow-xl transition-shadow">
+                <Card key={category.title} className={cn("group hover:shadow-xl transition-shadow", {
+                  "bg-secondary text-secondary-foreground": category.isNew,
+                })}>
                   <CardContent className="p-6 text-center">
-                    <div className="inline-block p-4 bg-muted rounded-full mb-4 group-hover:bg-accent/10 transition-colors">
+                    <div className={cn("inline-block p-4 rounded-full mb-4 transition-colors", {
+                      "bg-muted group-hover:bg-accent/10": !category.isNew,
+                      "bg-white/20 group-hover:bg-white/30": category.isNew
+                    })}>
                       {category.icon}
                     </div>
                     <h3 className="font-bold text-lg">{category.title}</h3>
-                     <Button asChild variant="link" className="text-secondary mt-2">
+                     <Button asChild variant="link" className={cn("mt-2", {
+                        "text-secondary": !category.isNew,
+                        "text-white hover:text-white/80": category.isNew
+                     })}>
                       <Link href={category.link}>
                         Explore <ArrowRight className="ml-1 h-4 w-4" />
                       </Link>
