@@ -126,9 +126,6 @@ export const AiAutomationsIcon = ({ className }: { className?: string }) => (
 export const MarketingLeadGenIcon = ({ className }: { className?: string }) => (
   <svg
     className={cn("h-6 w-6", className)}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -136,16 +133,14 @@ export const MarketingLeadGenIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.3.05-3.11.65-.66 1.84-1.25 2.95-1.95C14.02 6.3 16 3 16 3l5 5s-3.3 1.98-7.2 5.88c-.7.6-1.29 1.25-1.95 2.95-.81.65-2.27.66-3.11.05z"></path>
+    <path d="M14.23 6.05l-5.18 5.18c-.8.8-.8 2.09 0 2.89l3.54 3.54c.8.8 2.09.8 2.89 0l5.18-5.18c.8-.8.8-2.09 0-2.89l-3.54-3.54c-.8-.8-2.09-.8-2.89 0z"></path>
+    <path d="M9.05 10.77l-2.12-2.12a2.01 2.01 0 0 0-2.89 0l-1.59 1.59c-.8.8-.8 2.09 0 2.89l2.12 2.12"></path>
   </svg>
 );
 
 export const BusinessStrategyIcon = ({ className }: { className?: string }) => (
   <svg
     className={cn("h-6 w-6", className)}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -153,11 +148,11 @@ export const BusinessStrategyIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M14.5 10c-1.7 1.7-4.3 1.7-6 0l-4.5 4.5c-1.7 1.7-1.7 4.3 0 6l4.5-4.5c1.7-1.7 4.3-1.7 6 0l-1.5-1.5-3-3-1.5-1.5z"></path>
-    <path d="m20 8-2-2-4-4-2 2-4 4-2 2 4 4 2 2 4-4 2-2 4-4z"></path>
-    <path d="M9.5 14c1.7-1.7 4.3-1.7 6 0l4.5-4.5c1.7-1.7 1.7-4.3 0-6l-4.5 4.5c-1.7 1.7-4.3 1.7-6 0l1.5 1.5 3 3 1.5 1.5z"></path>
+    <path d="M12.27 10.27L6.41 16.12a2.02 2.02 0 0 0 0 2.86l3.54 3.54a2.02 2.02 0 0 0 2.86 0l5.86-5.86a2.02 2.02 0 0 0 0-2.86l-3.54-3.54a2.02 2.02 0 0 0-2.86 0z"></path>
+    <path d="M18.88 7.88l-3.54-3.54a2.02 2.02 0 0 0-2.86 0L9 7.88"></path>
   </svg>
 );
+
 
 export const LoanStructureIcon = ({ className }: { className?: string }) => (
   <svg
