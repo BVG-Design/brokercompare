@@ -89,7 +89,7 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex items-center gap-2">
-              <Button asChild variant="outline" className="bg-transparent border-primary-foreground/50 hover:bg-primary-foreground/10">
+              <Button asChild variant="outline" className="bg-transparent border-primary-foreground/50 hover:bg-accent hover:text-accent-foreground text-primary-foreground">
                   <Link href="#"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
               </Button>
               <Button asChild variant="secondary">
