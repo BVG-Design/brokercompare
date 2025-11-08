@@ -54,7 +54,7 @@ export default function Home() {
     },
     {
       icon: <WorkflowOpsIcon className="h-8 w-8 text-secondary-foreground" />,
-      title: "Workflow & Operations",
+      title: "Workflow & Daily Operations",
       link: "/software",
       isNew: true,
     },
