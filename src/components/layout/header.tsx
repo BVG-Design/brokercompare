@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User } from "lucide-react";
+import { Menu, User, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
@@ -60,7 +60,7 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -88,9 +88,14 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-             <Button asChild variant="secondary">
-                <Link href="#">Login / Join</Link>
+            <div className="hidden md:flex items-center gap-2">
+              <Button asChild variant="outline" className="bg-transparent border-primary-foreground/50 hover:bg-primary-foreground/10">
+                  <Link href="#"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
               </Button>
+              <Button asChild variant="secondary">
+                  <Link href="#">Login / Join</Link>
+              </Button>
+            </div>
           )}
           <Sheet>
             <SheetTrigger asChild>
@@ -131,9 +136,14 @@ export function Header() {
                         </div>
                     </div>
                   ) : (
-                    <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                      <Link href="#">Login / Join</Link>
-                    </Button>
+                    <>
+                      <Button asChild variant="outline">
+                          <Link href="#"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
+                      </Button>
+                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                        <Link href="#">Login / Join</Link>
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
