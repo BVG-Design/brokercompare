@@ -104,23 +104,23 @@ export const TroubleshootIcon = ({ className }: { className?: string }) => (
 );
 
 export const AiAutomationsIcon = ({ className }: { className?: string }) => (
-  <svg
-    className={cn("h-6 w-6", className)}
-    xmlns="http://www.w3.org/2000/svg"
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" />
-    <path d="M5 2 L6 5 L9 6 L6 7 L5 10 L4 7 L1 6 L4 5 Z" />
-    <path d="M19 5 L18 8 L15 9 L18 10 L19 13 L20 10 L23 9 L20 8 Z" />
-  </svg>
-);
+    <svg
+      className={cn("h-6 w-6", className)}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2 L14.5 9.5 L22 12 L14.5 14.5 L12 22 L9.5 14.5 L2 12 L9.5 9.5 Z" />
+      <path d="M5 2 L6 5 L9 6 L6 7 L5 10 L4 7 L1 6 L4 5 Z" />
+      <path d="M19 5 L18 8 L15 9 L18 10 L19 13 L20 10 L23 9 L20 8 Z" />
+    </svg>
+  );
 
 
 export const MarketingLeadGenIcon = ({ className }: { className?: string }) => (
@@ -136,9 +136,7 @@ export const MarketingLeadGenIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-    <polyline points="15 3 21 3 21 9" />
-    <line x1="10" y1="14" x2="21" y2="3" />
+    <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.3.05-3.11.65-.66 1.84-1.25 2.95-1.95C14.02 6.3 16 3 16 3l5 5s-3.3 1.98-7.2 5.88c-.7.6-1.29 1.25-1.95 2.95-.81.65-2.27.66-3.11.05z"></path>
   </svg>
 );
 
@@ -155,9 +153,9 @@ export const BusinessStrategyIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M2.2 21.8c.2.2.5.3.8.3h18c.3 0 .6-.1.8-.3.2-.2.3-.5.3-.8v-18c0-.3-.1-.6-.3-.8-.2-.2-.5-.3-.8-.3h-18c-.3 0-.6.1-.8.3-.2.2-.3.5-.3.8v18c0 .3.1.6.3.8Z" />
-    <path d="M16 3v18" />
-    <path d="M8 3v18" />
+    <path d="M14.5 10c-1.7 1.7-4.3 1.7-6 0l-4.5 4.5c-1.7 1.7-1.7 4.3 0 6l4.5-4.5c1.7-1.7 4.3-1.7 6 0l-1.5-1.5-3-3-1.5-1.5z"></path>
+    <path d="m20 8-2-2-4-4-2 2-4 4-2 2 4 4 2 2 4-4 2-2 4-4z"></path>
+    <path d="M9.5 14c1.7-1.7 4.3-1.7 6 0l4.5-4.5c1.7-1.7 1.7-4.3 0-6l-4.5 4.5c-1.7 1.7-4.3 1.7-6 0l1.5 1.5 3 3 1.5 1.5z"></path>
   </svg>
 );
 
@@ -174,8 +172,9 @@ export const LoanStructureIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <line x1="12" y1="1" x2="12" y2="23" />
-    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    <path d="M3 21h18"></path>
+    <path d="M5 21V7l7-4 7 4v14"></path>
+    <path d="M11 21V11a1 1 0 0 1 1-1h0a1 1 0 0 1 1 1v10"></path>
   </svg>
 );
 
@@ -192,12 +191,7 @@ export const WorkflowOpsIcon = ({ className }: { className?: string }) => (
     strokeLinecap="round"
     strokeLinejoin="round"
   >
-    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-    <polyline points="14 2 14 8 20 8" />
-    <circle cx="12" cy="15" r="2" />
-    <path d="M12 11.5V13" />
-    <path d="M10.03 16.5l-1.06.9" />
-    <path d="m14 17-1-1" />
-    <path d="m12 19 .01-.01" />
+    <path d="M3 3v18h18"></path>
+    <path d="m19 9-5 5-4-4-3 3"></path>
   </svg>
 );
