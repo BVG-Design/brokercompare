@@ -14,14 +14,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, User, Plus } from "lucide-react";
+import { Menu, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const navItems = [
   { href: "/services", label: "Services" },
   { href: "/software", label: "Software" },
-  { href: "/resources", label: "Resources" },
+  // { href: "/resources", label: "Resources" },
   { href: "/recommendations", label: "AI Recommender" },
 ];
 
@@ -81,7 +81,7 @@ export function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <Link href="/dashboard/broker"><DropdownMenuItem>Dashboard</DropdownMenuItem></Link>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => setUser(null)}>Log out</DropdownMenuItem>
@@ -90,9 +90,9 @@ export function Header() {
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Button asChild variant="outline" className="bg-transparent border-primary-foreground/50 hover:bg-accent hover:text-accent-foreground text-primary-foreground">
-                  <Link href="#"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
+                  <Link href="/apply"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
               </Button>
-              <Button asChild variant="secondary">
+              <Button asChild variant="secondary" onClick={() => setUser(mockUser)}>
                   <Link href="#">Login / Join</Link>
               </Button>
             </div>
@@ -138,9 +138,9 @@ export function Header() {
                   ) : (
                     <>
                       <Button asChild variant="outline">
-                          <Link href="#"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
+                          <Link href="/apply"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
                       </Button>
-                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground" onClick={() => setUser(mockUser)}>
                         <Link href="#">Login / Join</Link>
                       </Button>
                     </>
