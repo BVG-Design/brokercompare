@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
   Card,
@@ -24,6 +24,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import {
   LayoutDashboard,
@@ -51,6 +52,8 @@ import AIChatDialog from '@/components/vendors/AIChatDialog';
 import { services, software } from '@/lib/data';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
+import { ServiceCard } from '@/app/services/service-card';
+import { SoftwareCard } from '@/app/software/software-card';
 
 export default function BrokerDashboard() {
   const router = useRouter();
@@ -75,7 +78,6 @@ export default function BrokerDashboard() {
     profile_image: '',
   });
 
-  // Mock data, in a real app this would come from an API
   const myShortlist = [services[0], software[1]];
   const myLeads = [
     {
@@ -90,7 +92,6 @@ export default function BrokerDashboard() {
   const recentVendors = [...services.slice(0, 3), ...software.slice(0, 3)];
 
   useEffect(() => {
-    // Mock user auth
     const mockUser = {
       id: 'user_123',
       email: 'broker@example.com',
@@ -129,8 +130,8 @@ export default function BrokerDashboard() {
 
   const handleSaveProfile = async () => {
     await new Promise((res) => setTimeout(res, 1000)); // Simulate API call
+    setUser((prevUser) => ({ ...prevUser, ...profileData }));
     toast({ title: 'Profile updated successfully!' });
-    setUser({ ...user, ...profileData });
   };
 
   const referralLink = `${
@@ -172,6 +173,140 @@ export default function BrokerDashboard() {
       </div>
     );
   }
+  
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return (
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-[#132847]">
+                  Welcome back, {user.full_name}!
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { title: "Reviews Written", value: 0, icon: MessageSquare, onClick: () => setShowReviewsDialog(true) },
+                    { title: "Badges Earned", value: 1, icon: Award, onClick: () => setShowBadgesDialog(true) },
+                    { title: "Questions Answered", value: 0, icon: ThumbsUp, onClick: () => setShowQuestionsDialog(true) },
+                    { title: "Referrals Made", value: 0, icon: Star, onClick: () => setShowReferralDialog(true) },
+                  ].map(stat => (
+                    <button key={stat.title} onClick={stat.onClick} className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+                      <div className="flex justify-center mb-2"><stat.icon className="w-8 h-8 text-[#132847]" /></div>
+                      <p className="text-sm text-gray-600">{stat.title}</p>
+                      <p className="text-2xl font-bold text-[#132847]">{stat.value}</p>
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>My Shortlist</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        {myShortlist.map(item => 'pricing' in item ? 
+                            <SoftwareCard key={item.id} software={item} /> :
+                            <ServiceCard key={item.id} service={item} />
+                        )}
+                    </div>
+                </CardContent>
+            </Card>
+          </div>
+        );
+      case 'inbox':
+        return (
+            <Card>
+                <CardHeader><CardTitle>Inbox</CardTitle></CardHeader>
+                <CardContent>
+                    {myLeads.map(lead => (
+                        <div key={lead.id} className="border-b last:border-b-0 py-4">
+                            <div className="flex justify-between items-center">
+                                <p className="font-semibold">{lead.vendor_name}</p>
+                                <Badge variant={lead.status === 'new' ? 'default' : 'outline'}>{lead.status}</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">{lead.message}</p>
+                            <p className="text-xs text-muted-foreground mt-2">{new Date(lead.created_date).toLocaleString()}</p>
+                        </div>
+                    ))}
+                </CardContent>
+            </Card>
+        );
+      case 'products':
+        return (
+          <Card>
+            <CardHeader><CardTitle>My Products</CardTitle></CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {software.slice(0,3).map(item => <SoftwareCard key={item.id} software={item} />)}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case 'services':
+        return (
+          <Card>
+            <CardHeader><CardTitle>My Services</CardTitle></CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {services.slice(0,3).map(item => <ServiceCard key={item.id} service={item} />)}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      case 'settings':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-[#132847] flex items-center gap-2">
+                <Settings className="w-5 h-5" />
+                Profile Settings
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                <div>
+                  <Label>Full Name</Label>
+                  <Input value={profileData.full_name} onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Email</Label>
+                  <Input value={user.email} disabled />
+                </div>
+                <div>
+                  <Label>Phone Number</Label>
+                  <Input value={profileData.phone} onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Company</Label>
+                  <Input value={profileData.company} onChange={(e) => setProfileData({ ...profileData, company: e.target.value })} />
+                </div>
+                <div>
+                  <Label>Broker Type</Label>
+                  <Select value={profileData.broker_type} onValueChange={(value) => setProfileData({ ...profileData, broker_type: value })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="mortgage_broker">Mortgage Broker</SelectItem>
+                      <SelectItem value="asset_finance_broker">Asset Finance Broker</SelectItem>
+                      <SelectItem value="commercial_finance_broker">Commercial Finance Broker</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button onClick={handleSaveProfile} className="w-full bg-[#132847] hover:bg-[#1a3a5f]">Save Changes</Button>
+                <div className="pt-4 border-t">
+                  <button className="text-sm text-red-600 hover:text-red-700 underline">Deactivate Account</button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      default:
+        return <Card><CardContent className="pt-6 text-center text-muted-foreground">This section is coming soon.</CardContent></Card>;
+    }
+  };
 
   return (
     <>
@@ -179,256 +314,84 @@ export default function BrokerDashboard() {
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid lg:grid-cols-4 gap-6">
-            {/* Left Sidebar */}
             <div className="lg:col-span-1">
               <Card>
                 <CardContent className="p-6">
-                  {/* Profile Section */}
                   <div className="text-center mb-6">
                     <label className="cursor-pointer group relative block">
                       <Avatar className="w-20 h-20 mx-auto mb-3 ring-2 ring-gray-200 group-hover:ring-[#132847] transition-all">
                         {profileData.profile_image ? (
-                          <AvatarImage
-                            src={profileData.profile_image}
-                            alt="Profile"
-                            className="w-full h-full object-cover"
-                          />
+                          <AvatarImage src={profileData.profile_image} alt="Profile" className="w-full h-full object-cover" />
                         ) : (
-                          <AvatarFallback className="bg-[#132847] text-white text-2xl">
-                            {user?.full_name?.substring(0, 2).toUpperCase() ||
-                              user?.email?.substring(0, 2).toUpperCase()}
-                          </AvatarFallback>
+                          <AvatarFallback className="bg-[#132847] text-white text-2xl">{user.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
                         )}
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full flex items-center justify-center">
-                          <Upload className="w-6 h-6 text-white" />
+                          {uploading ? <Loader2 className="w-6 h-6 text-white animate-spin" /> : <Upload className="w-6 h-6 text-white" />}
                         </div>
                       </Avatar>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleProfileImageUpload}
-                        disabled={uploading}
-                      />
+                      <input type="file" className="hidden" accept="image/*" onChange={handleProfileImageUpload} disabled={uploading} />
                     </label>
-                    <h3 className="font-bold text-lg text-[#132847]">
-                      {user?.full_name || 'Broker'}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Member since{' '}
-                      {new Date(user?.created_date).getFullYear()}
-                    </p>
+                    <h3 className="font-bold text-lg text-[#132847]">{user.full_name}</h3>
+                    <p className="text-sm text-gray-500">Member since {new Date(user.created_date).getFullYear()}</p>
                   </div>
-
-                  {/* Navigation Menu */}
                   <nav className="space-y-1">
                     {menuItems.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setActiveSection(item.id)}
                         className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-                          activeSection === item.id
-                            ? 'bg-[#132847] text-white'
-                            : 'text-gray-700 hover:bg-gray-100'
+                          activeSection === item.id ? 'bg-[#132847] text-white' : 'text-gray-700 hover:bg-gray-100'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <item.icon className="w-5 h-5" />
-                          <span className="font-medium">{item.label}</span>
-                        </div>
-                        {item.badge > 0 && (
-                          <Badge className="bg-[#ef4e23] text-white">
-                            {item.badge}
-                          </Badge>
-                        )}
+                        <div className="flex items-center gap-3"><item.icon className="w-5 h-5" /><span>{item.label}</span></div>
+                        {item.badge > 0 && <Badge className="bg-[#ef4e23] text-white">{item.badge}</Badge>}
                       </button>
                     ))}
                   </nav>
                 </CardContent>
               </Card>
             </div>
-
-            {/* Main Content */}
             <div className="lg:col-span-3">
-              {activeSection === 'dashboard' && (
-                <div className="space-y-6">
-                  {/* Welcome Stats */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-[#132847]">
-                        Welcome back, {user?.full_name || 'Broker'}! Check out
-                        your current stats:
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <button
-                          onClick={() => setShowReviewsDialog(true)}
-                          className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <div className="flex justify-center mb-2">
-                            <MessageSquare className="w-8 h-8 text-[#132847]" />
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            You&apos;ve written
-                          </p>
-                          <p className="text-2xl font-bold text-[#132847]">0</p>
-                          <p className="text-sm text-gray-600">reviews</p>
-                        </button>
-                        <button
-                          onClick={() => setShowBadgesDialog(true)}
-                          className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <div className="flex justify-center mb-2">
-                            <Award className="w-8 h-8 text-[#05d8b5]" />
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            You&apos;ve earned
-                          </p>
-                          <p className="text-2xl font-bold text-[#132847]">1</p>
-                          <p className="text-sm text-gray-600">badge</p>
-                        </button>
-                        <button
-                          onClick={() => setShowQuestionsDialog(true)}
-                          className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <div className="flex justify-center mb-2">
-                            <ThumbsUp className="w-8 h-8 text-[#ef4e23]" />
-                          </div>
-                          <p className="text-sm text-gray-600">
-                            You&apos;ve answered
-                          </p>
-                          <p className="text-2xl font-bold text-[#132847]">0</p>
-                          <p className="text-sm text-gray-600">questions</p>
-                        </button>
-                        <button
-                          onClick={() => setShowReferralDialog(true)}
-                          className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
-                        >
-                          <div className="flex justify-center mb-2">
-                            <Star className="w-8 h-8 text-yellow-500" />
-                          </div>
-                          <p className="text-sm text-gray-600">Referrals</p>
-                          <p className="text-2xl font-bold text-[#132847]">0</p>
-                          <p className="text-sm text-gray-600">You&apos;ve made</p>
-                        </button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  {/* Other dashboard sections */}
-                </div>
-              )}
-              {activeSection === 'settings' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-[#132847] flex items-center gap-2">
-                      <Settings className="w-5 h-5" />
-                      Profile Settings
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-6">
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">
-                          Full Name
-                        </Label>
-                        <Input
-                          type="text"
-                          value={profileData.full_name}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              full_name: e.target.value,
-                            })
-                          }
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">
-                          Email
-                        </Label>
-                        <Input type="email" value={user?.email} disabled />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">
-                          Phone Number
-                        </Label>
-                        <Input
-                          type="tel"
-                          value={profileData.phone}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              phone: e.target.value,
-                            })
-                          }
-                          placeholder="+44 7XXX XXXXXX"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">
-                          Company
-                        </Label>
-                        <Input
-                          type="text"
-                          value={profileData.company}
-                          onChange={(e) =>
-                            setProfileData({
-                              ...profileData,
-                              company: e.target.value,
-                            })
-                          }
-                          placeholder="Your company name"
-                        />
-                      </div>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-700 mb-2">
-                          Broker Type
-                        </Label>
-                        <Select
-                          value={profileData.broker_type}
-                          onValueChange={(value) =>
-                            setProfileData({
-                              ...profileData,
-                              broker_type: value,
-                            })
-                          }
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Select broker type" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="mortgage_broker">
-                              Mortgage Broker
-                            </SelectItem>
-                            <SelectItem value="asset_finance_broker">
-                              Asset Finance Broker
-                            </SelectItem>
-                            <SelectItem value="commercial_finance_broker">
-                              Commercial Finance Broker
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <Button
-                        onClick={handleSaveProfile}
-                        className="w-full bg-[#132847] hover:bg-[#1a3a5f]"
-                      >
-                        Save Changes
-                      </Button>
-                      <div className="pt-4 border-t">
-                        <button className="text-sm text-red-600 hover:text-red-700 underline">
-                          Deactivate Account
-                        </button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              {renderContent()}
             </div>
           </div>
         </div>
       </div>
+
+      <Dialog open={showReferralDialog} onOpenChange={setShowReferralDialog}>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Refer a Friend</DialogTitle></DialogHeader>
+              <p>Share your unique referral link to earn rewards!</p>
+              <div className="flex items-center space-x-2">
+                <Input value={referralLink} readOnly />
+                <Button onClick={copyReferralLink}>Copy</Button>
+                <Button onClick={shareReferral}><Share className="mr-2 h-4 w-4"/>Share</Button>
+              </div>
+          </DialogContent>
+      </Dialog>
+       <Dialog open={showReviewsDialog} onOpenChange={setShowReviewsDialog}>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Your Reviews</DialogTitle></DialogHeader>
+              <p className="text-center text-muted-foreground p-8">You haven't written any reviews yet.</p>
+          </DialogContent>
+      </Dialog>
+      <Dialog open={showBadgesDialog} onOpenChange={setShowBadgesDialog}>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Your Badges</DialogTitle></DialogHeader>
+              <div className="text-center p-8">
+                <Award className="mx-auto w-16 h-16 text-yellow-500 mb-4"/>
+                <p className="font-semibold">Early Adopter</p>
+                <p className="text-sm text-muted-foreground">Thanks for joining us in the beginning!</p>
+              </div>
+          </DialogContent>
+      </Dialog>
+      <Dialog open={showQuestionsDialog} onOpenChange={setShowQuestionsDialog}>
+          <DialogContent>
+              <DialogHeader><DialogTitle>Your Answers</DialogTitle></DialogHeader>
+               <p className="text-center text-muted-foreground p-8">You haven't answered any questions yet.</p>
+          </DialogContent>
+      </Dialog>
+
       <Footer />
     </>
   );
