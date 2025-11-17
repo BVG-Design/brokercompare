@@ -16,12 +16,12 @@ export default function VendorCard({ vendor }) {
   const tierBadges = {
     featured: {
       label: 'Featured',
-      color: 'bg-gradient-to-r from-[#ef4e23] to-[#05d8b5] text-white',
+      color: 'bg-gradient-to-r from-secondary to-accent text-white',
       icon: Award,
     },
     premium: {
       label: 'Premium',
-      color: 'bg-[#132847] text-white',
+      color: 'bg-primary text-primary-foreground',
       icon: TrendingUp,
     },
     free: null,
@@ -49,12 +49,12 @@ export default function VendorCard({ vendor }) {
 
   return (
     <div
-      className={`group relative bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${
+      className={`group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${
         vendor.listing_tier === 'featured'
-          ? 'border-[#ef4e23]'
+          ? 'border-secondary'
           : vendor.listing_tier === 'premium'
-          ? 'border-[#132847]'
-          : 'border-gray-200'
+          ? 'border-primary'
+          : 'border-border'
       }`}
     >
       {tierInfo && (
@@ -78,12 +78,12 @@ export default function VendorCard({ vendor }) {
               className="w-16 h-16 rounded-lg object-contain bg-gray-50 border border-gray-200"
             />
           ) : (
-            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[#132847] to-[#05d8b5] flex items-center justify-center text-white text-2xl font-bold">
+            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-2xl font-bold">
               {vendor.company_name?.[0] || 'V'}
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-bold text-[#132847] mb-1 truncate group-hover:text-[#ef4e23] transition-colors">
+            <h3 className="text-lg font-bold text-primary mb-1 truncate group-hover:text-secondary transition-colors">
               {vendor.company_name}
             </h3>
             {vendor.tagline && (
@@ -146,7 +146,7 @@ export default function VendorCard({ vendor }) {
         {/* Actions */}
         <div className="flex gap-2">
           <Link href={`/vendors/${vendor.id}`} className="flex-1">
-            <Button className="w-full bg-[#132847] hover:bg-[#1a3a5f] text-white">
+            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               View Details
             </Button>
           </Link>
@@ -155,7 +155,7 @@ export default function VendorCard({ vendor }) {
               <Button
                 variant="outline"
                 size="icon"
-                className="border-[#132847] text-[#132847] hover:bg-[#132847] hover:text-white"
+                className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
               >
                 <ExternalLink className="w-4 h-4" />
               </Button>
@@ -165,7 +165,7 @@ export default function VendorCard({ vendor }) {
       </div>
 
       {/* Hover effect overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#05d8b5]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 }

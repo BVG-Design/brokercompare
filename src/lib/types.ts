@@ -5,6 +5,17 @@ export interface Review {
   rating: number;
   comment: string;
   date: string;
+  // Enhanced review metadata (G2-style)
+  helpfulCount?: number;
+  notHelpfulCount?: number;
+  verified?: boolean;
+  pros?: string[];
+  cons?: string[];
+  useCase?: string;
+  userSegment?: 'Solo Broker' | 'Small Team (2-5)' | 'Mid-Size (6-20)' | 'Large (20+)';
+  brokerType?: 'Mortgage' | 'Asset Finance' | 'Commercial';
+  timeUsed?: string; // e.g., "6 months", "2 years"
+  recommendation?: boolean;
 }
 
 export interface Service {
@@ -18,6 +29,15 @@ export interface Service {
   website: string;
   reviews: Review[];
   features: string[];
+  // Enhanced service fields
+  pricingModel?: 'Fixed' | 'Hourly' | 'Project-based' | 'Retainer';
+  pricingRange?: { min?: number; max?: number } | string;
+  serviceAreas?: string[]; // types of services offered
+  brokerTypes?: Array<'Mortgage' | 'Asset Finance' | 'Commercial'>;
+  caseStudies?: Array<{ title: string; url?: string; summary?: string }>;
+  badges?: string[]; // e.g., ['Leader', 'High Performer']
+  alternatives?: string[]; // related service IDs
+  availability?: string; // e.g., "Australia-wide", "NSW, VIC"
 }
 
 export interface Software {
@@ -31,4 +51,24 @@ export interface Software {
   compatibility: string[];
   reviews: Review[];
   features: string[];
+  // Enhanced software fields
+  pricingTiers?: Array<{
+    name: string; // e.g., "Starter", "Pro", "Enterprise"
+    price?: string; // human-readable (e.g., "$99/mo")
+    features?: string[];
+  }>;
+  deployment?: 'Cloud' | 'On-Premise' | 'Hybrid';
+  supportOptions?: Array<'Email' | 'Phone' | 'Chat' | 'Dedicated'>;
+  integrations?: Array<{ name: string; category?: 'Lender' | 'Accounting' | 'Marketing' | 'Other' }>;
+  userSegments?: Array<'Solo Broker' | 'Small Team (2-5)' | 'Mid-Size (6-20)' | 'Large (20+)'>;
+  marketPresence?: { activeUsers?: number; adoptionRate?: number }; // percentages 0-100
+  screenshots?: string[];
+  badges?: string[]; // e.g., ['Leader', 'Best Value']
+  featureMatrix?: Array<{ category: string; items: Array<{ name: string; available: boolean }> }>;
+  alternatives?: string[]; // related software IDs
+  brokerSpecific?: {
+    lenderConnections?: string[];
+    complianceTools?: string[];
+    commissionTracking?: boolean;
+  };
 }

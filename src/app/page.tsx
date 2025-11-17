@@ -318,6 +318,8 @@ export default function Home() {
         </section>
       </main>
       <Footer />
+      {/* Spacer for comparison bar */}
+      <div className="h-20" />
     </>
   );
 }

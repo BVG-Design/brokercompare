@@ -19,9 +19,9 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const navItems = [
+  { href: "/vendors", label: "Directory" },
   { href: "/services", label: "Services" },
   { href: "/software", label: "Software" },
-  // { href: "/resources", label: "Resources" },
   { href: "/recommendations", label: "AI Recommender" },
 ];
 
