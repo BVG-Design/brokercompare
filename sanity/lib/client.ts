@@ -1,8 +1,16 @@
 // /sanity/lib/client.ts
 import { createClient } from 'next-sanity';
 
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+
+if (!projectId) {
+  throw new Error(
+    'Missing Sanity configuration: NEXT_PUBLIC_SANITY_PROJECT_ID is not set.'
+  );
+}
+
 export const client = createClient({
-  projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
+  projectId,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET || 'production',
   apiVersion: '2025-10-01', // or a recent date
   useCdn: true, // faster, cache-enabled (safe for public data)
