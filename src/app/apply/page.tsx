@@ -152,7 +152,7 @@ export default function ApplyVendor() {
       title: 'Success!',
       description: 'Your application has been submitted.',
     });
-    router.push('/thank-you');
+    router.push('/');
   };
 
   const toggleCategory = (value) => {
