@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Tag } from 'lucide-react';
-import { client } from '@/sanity/lib/client';
+import { client, sanityConfigured } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { PortableText } from '@portabletext/react';
 
@@ -54,7 +54,9 @@ const categoryColors: Record<string, string> = {
 // Fetch a single post by slug
 
 async function getPost(slug: string): Promise<BlogPost | null> {
-    return client.fetch(
+    if (!sanityConfigured) return null;
+
+    const post = await client.fetch<BlogPost | null>(
       `
       *[_type == "blog" && slug.current == $slug][0]{
         _id,
@@ -75,15 +77,19 @@ async function getPost(slug: string): Promise<BlogPost | null> {
     `,
       { slug }
     );
+
+    return post ?? null;
   }
 
 // For static generation of all blog/[slug] pages
 export async function generateStaticParams() {
-  const slugs: string[] = await client.fetch(
+  if (!sanityConfigured) return [];
+
+  const slugs: string[] | null = await client.fetch(
     `*[_type == "blog" && defined(slug.current)][].slug.current`
   );
 
-  return slugs.map((slug) => ({ slug }));
+  return Array.isArray(slugs) ? slugs.map((slug) => ({ slug })) : [];
 }
 
 // Optional: SEO metadata per post

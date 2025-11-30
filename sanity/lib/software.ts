@@ -4,6 +4,6 @@ import { productsAsSoftwareQuery } from './queries';
 import type { Software } from '../../src/lib/types';
 
 export async function getSoftwareFromSanity(): Promise<Software[]> {
-  const data = await client.fetch<Software[]>(productsAsSoftwareQuery);
-  return data;
+  const data = await client.fetch<Software[] | null>(productsAsSoftwareQuery);
+  return Array.isArray(data) ? data : [];
 }

@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { BlogSearchForm } from '../../components/blog/BlogSearchForm';
 import { Calendar, Eye } from 'lucide-react';
 import { format } from 'date-fns';
-import { client } from '@/sanity/lib/client';
+import { client, sanityConfigured } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 
 export const revalidate = 60;
@@ -30,9 +30,11 @@ type BlogPost = {
 };
 
 async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
+  if (!sanityConfigured) return [];
+
   const searchPattern = searchTerm ? `${searchTerm}*` : '';
 
-  return client.fetch(
+  const data = await client.fetch<BlogPost[] | null>(
     `
     *[
       _type == "blog" &&
@@ -59,6 +61,8 @@ async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
   `,
     { search: searchPattern }
   );
+
+  return Array.isArray(data) ? data : [];
 }
 
 
