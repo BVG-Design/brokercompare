@@ -42,6 +42,7 @@ export interface Service {
 
 export interface Software {
   id: string;
+  slug: string;
   name: string;
   category: 'CRM' | 'Loan Processing' | 'Compliance' | 'Marketing Automation';
   logoUrl: string;
@@ -49,7 +50,14 @@ export interface Software {
   description: string;
   pricing: string;
   compatibility: string[];
-  reviews: Review[];
+  reviews?: Review[];
+  websiteUrl?: string;
+  pricingNotes?: string;
+  tags?: string[];
+  rating?: {
+    average: number;
+    reviewCount: number;
+  };
   features: string[];
   // Enhanced software fields
   pricingTiers?: Array<{

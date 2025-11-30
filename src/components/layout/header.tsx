@@ -23,6 +23,7 @@ const navItems = [
   { href: "/services", label: "Services" },
   { href: "/software", label: "Software" },
   { href: "/recommendations", label: "AI Recommender" },
+  { href: "/blog", label: "Blog" },
 ];
 
 // Mock user object. In a real app, this would come from an auth hook.

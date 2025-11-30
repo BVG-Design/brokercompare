@@ -18,9 +18,20 @@ interface SoftwareCardProps {
 
 export function SoftwareCard({ software }: SoftwareCardProps) {
   const { addItem, isInComparison, canAddMore } = useComparison();
-  const averageRating = software.reviews.length > 0 
-    ? software.reviews.reduce((acc, review) => acc + review.rating, 0) / software.reviews.length
-    : 0;
+
+ // Make reviews safe (Sanity may not provide them)
+const reviews = software.reviews ?? [];
+
+// If reviews exist (static data), use them. Otherwise use Sanity rating.
+const averageRating = reviews.length > 0
+  ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+  : software.rating?.average ?? 0;
+
+const reviewCount = reviews.length > 0
+  ? reviews.length
+  : software.rating?.reviewCount ?? 0;
+
+
 
   const inComparison = isInComparison(software.id);
 
@@ -100,7 +111,7 @@ export function SoftwareCard({ software }: SoftwareCardProps) {
             </Button>
           )}
           <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary">
-            <Link href={`/software/${software.id}`}>
+            <Link href={`/software/${software.slug}`}>
               View Details <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
