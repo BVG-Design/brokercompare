@@ -62,6 +62,15 @@ async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
     { search: searchPattern }
   );
 
+  // Debug helper (leave commented for production builds)
+  // console.log('getPosts', {
+  //   sanityConfigured,
+  //   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
+  //   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET,
+  //   searchPattern,
+  //   fetchedCount: Array.isArray(data) ? data.length : null,
+  // });
+
   return Array.isArray(data) ? data : [];
 }
 

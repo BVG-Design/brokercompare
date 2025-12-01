@@ -1,10 +1,20 @@
 // /sanity/lib/client.ts
 import { createClient } from 'next-sanity';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const projectId =
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
+  // Fallback to the studio config so Netlify deploys don't silently disable Sanity when env vars are missing
+  'vrf26tjl';
 const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
 
-export const sanityConfigured = Boolean(projectId);
+export const sanityConfigured = Boolean(projectId && dataset);
+
+// Debug helper (leave commented for production builds)
+// console.log('Sanity client init', {
+//   sanityConfigured,
+//   projectId,
+//   dataset,
+// });
 
 type SanityClient = ReturnType<typeof createClient>;
 
