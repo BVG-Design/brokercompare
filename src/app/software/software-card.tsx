@@ -62,12 +62,7 @@ const reviewCount = reviews.length > 0
   return (
     <Card className="flex flex-col h-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
       <div className="absolute top-3 right-3 z-10">
-        <Checkbox
-          checked={inComparison}
-          onCheckedChange={handleAddToCompare}
-          className="bg-background border-2"
-          aria-label={`Add ${software.name} to comparison`}
-        />
+      <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">Editor's Choice</Badge>
       </div>
       <CardHeader className="flex-row gap-4 items-start">
         <Image
@@ -87,7 +82,6 @@ const reviewCount = reviews.length > 0
         <div className="flex items-center gap-2">
             <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">{software.category}</Badge>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <DollarSign className="h-4 w-4" />
                 <span>{software.pricing}</span>
             </div>
         </div>
