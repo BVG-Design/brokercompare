@@ -91,10 +91,10 @@ export function Header() {
           ) : (
             <div className="hidden md:flex items-center gap-2">
               <Button asChild variant="outline" className="bg-transparent border-primary-foreground/50 hover:bg-accent hover:text-accent-foreground text-primary-foreground">
-                  <Link href="/apply"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
+                  <Link href="/login"><Plus className="mr-1 h-4 w-4" /> Login</Link>
               </Button>
-              <Button asChild variant="secondary" onClick={() => setUser(mockUser)}>
-                  <Link href="#">Login / Join</Link>
+              <Button asChild variant="secondary">
+                  <Link href="/signup">Join</Link>
               </Button>
             </div>
           )}
@@ -139,10 +139,10 @@ export function Header() {
                   ) : (
                     <>
                       <Button asChild variant="outline">
-                          <Link href="/apply"><Plus className="mr-1 h-4 w-4" /> List Your Business</Link>
+                          <Link href="/login"><Plus className="mr-1 h-4 w-4" /> Login</Link>
                       </Button>
-                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground" onClick={() => setUser(mockUser)}>
-                        <Link href="#">Login / Join</Link>
+                      <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                        <Link href="/signup">Join</Link>
                       </Button>
                     </>
                   )}
