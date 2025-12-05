@@ -1,17 +1,19 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const prefillEmail = useMemo(() => searchParams.get('email') || '', [searchParams]);
 
   const [email, setEmail] = useState(prefillEmail);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [consent, setConsent] = useState(false);
+  const [aiConsent, setAiConsent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -55,7 +57,7 @@ export default function SignupPage() {
       }
   
       // ✅ Success: user created + confirmation email sent
-      setMessage('Check your email to confirm your new account.');
+      router.push(`/signup/thank-you?email=${encodeURIComponent(email)}`);
   
     } catch (err: any) {
       setMessage(err.message || 'Signup failed. Please try again.');
@@ -109,37 +111,41 @@ export default function SignupPage() {
             />
             <span>
               By signing up and checking this box, you agree to our{' '}
-              <a className="underline" href="/terms">
+              <a className="underline" href="/terms" target="_blank" rel="noreferrer">
                 Terms of Service
               </a>{' '}
               and{' '}
-              <a className="underline" href="/privacy">
+              <a className="underline" href="/privacy" target="_blank" rel="noreferrer">
                 Privacy Policy
               </a>
               , and consent to receive marketing communications. You can opt out at any time in your settings.
             </span>
           </label>
+          <label className="flex items-start gap-2 text-sm text-gray-600">
+            <input
+              type="checkbox"
+              checked={aiConsent}
+              onChange={(e) => setAiConsent(e.target.checked)}
+              className="mt-1 h-4 w-4 rounded border-gray-300 text-primary focus:ring-2 focus:ring-primary"
+              required
+            />
+            <span>
+              You acknowledge that this platform uses AI to generate recommendations and analyse data for software and services benchmarking. No personal data is sold. You may opt out at any time. For details, view the{' '}
+              <a className="underline" href="/ai-data-use-policy" target="_blank" rel="noreferrer">
+                AI &amp; Data Use Policy
+              </a>
+              .
+            </span>
+          </label>
 
           <button
             type="submit"
-            disabled={loading || !consent}
+            disabled={loading || !consent || !aiConsent}
             className="w-full bg-secondary text-secondary-foreground rounded-lg py-3 font-medium hover:brightness-95 disabled:opacity-60"
           >
             {loading ? 'Please wait...' : 'Create account'}
           </button>
         </form>
-
-        <p className="text-xs text-center text-gray-500">
-          By proceeding, you agree to our{' '}
-          <a className="underline" href="/terms">
-            Terms of Use
-          </a>{' '}
-          and{' '}
-          <a className="underline" href="/privacy">
-            Privacy Policy
-          </a>
-          .
-        </p>
 
         <a
           href="/login"
