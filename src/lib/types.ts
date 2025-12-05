@@ -23,6 +23,7 @@ export interface Service {
   name: string;
   category: 'Marketing' | 'Virtual Assistant' | 'Commercial Finance';
   logoUrl: string;
+  images?: string[]; // Array of image URLs
   tagline: string;
   description: string;
   location: string;

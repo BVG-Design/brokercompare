@@ -18,7 +18,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({ service }: ServiceCardProps) {
   const { addItem, isInComparison, canAddMore } = useComparison();
-  const averageRating = service.reviews.length > 0 
+  const averageRating = service.reviews.length > 0
     ? service.reviews.reduce((acc, review) => acc + review.rating, 0) / service.reviews.length
     : 0;
 
@@ -50,23 +50,17 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
   return (
     <Card className="flex flex-col h-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
-      <div className="absolute top-3 right-3 z-10">
-        <Checkbox
-          checked={inComparison}
-          onCheckedChange={handleAddToCompare}
-          className="bg-background border-2"
-          aria-label={`Add ${service.name} to comparison`}
-        />
-      </div>
       <CardHeader className="flex-row gap-4 items-start">
-        <Image
-          src={service.logoUrl}
-          alt={`${service.name} logo`}
-          width={64}
-          height={64}
-          className="rounded-lg border bg-card"
-          data-ai-hint="company logo"
-        />
+        {(service.images?.[0] || service.logoUrl) && (
+          <Image
+            src={service.images?.[0] || service.logoUrl}
+            alt={`${service.name} logo`}
+            width={64}
+            height={64}
+            className="rounded-lg border bg-card"
+            data-ai-hint="company logo"
+          />
+        )}
         <div className="flex-1">
           <CardTitle className="font-headline text-xl mb-1">{service.name}</CardTitle>
           <CardDescription>{service.tagline}</CardDescription>
@@ -74,11 +68,11 @@ export function ServiceCard({ service }: ServiceCardProps) {
       </CardHeader>
       <CardContent className="flex-1 space-y-4">
         <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">{service.category}</Badge>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <MapPin className="h-4 w-4" />
-                <span>{service.location}</span>
-            </div>
+          <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">{service.category}</Badge>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <MapPin className="h-4 w-4" />
+            <span>{service.location}</span>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground line-clamp-3">
           {service.description}
