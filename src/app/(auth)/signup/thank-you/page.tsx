@@ -1,11 +1,13 @@
 'use client';
-export const dynamic = "force-dynamic";
+
 
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, MailCheck, Mail } from 'lucide-react';
+
+export const dynamic = "force-dynamic";
 
 export default function SignupThankYouPage() {
 function SignupThankYouContent() {
