@@ -146,7 +146,7 @@ export async function getVendorReviews(
 }
 
 export async function getAdminStats(supabase: SupabaseClient) {
-  const [vendors, applications, leads, reviews] = await Promise.all([
+  const [vendorsResult, applicationsResult, leadsResult, reviewsResult] = await Promise.all([
     supabase.from('vendors').select('id, status'),
     supabase.from('vendor_applications').select('id, status'),
     supabase.from('leads').select('id, status'),
@@ -159,14 +159,14 @@ export async function getAdminStats(supabase: SupabaseClient) {
       : 0;
 
   return {
-    vendorsTotal: count(vendors.data as any[]),
-    vendorsApproved: count(vendors.data as any[], 'approved'),
-    applicationsTotal: count(applications.data as any[]),
-    applicationsPending: count(applications.data as any[], 'pending'),
-    leadsTotal: count(leads.data as any[]),
-    leadsNew: count(leads.data as any[], 'new'),
-    reviewsTotal: count(reviews.data as any[]),
-    reviewsPending: count(reviews.data as any[], 'pending'),
+    vendorsTotal: count(vendorsResult.data as any[]),
+    vendorsApproved: count(vendorsResult.data as any[], 'approved'),
+    applicationsTotal: count(applicationsResult.data as any[]),
+    applicationsPending: count(applicationsResult.data as any[], 'pending'),
+    leadsTotal: count(leadsResult.data as any[]),
+    leadsNew: count(leadsResult.data as any[], 'new'),
+    reviewsTotal: count(reviewsResult.data as any[]),
+    reviewsPending: count(reviewsResult.data as any[], 'pending'),
   };
 }
 
@@ -204,10 +204,18 @@ export async function getBrokerLeads(
   userId: string,
   email?: string | null
 ): SafeQuery<LeadRecord[]> {
-  const base = supabase.from('leads').select('*').order('created_at', { ascending: false });
-  const { data, error } = email
-    ? await base.or(`broker_id.eq.${userId},broker_email.eq.${email}`)
-    : await base.eq('broker_id', userId);
+  let query = supabase
+    .from('leads')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (email) {
+    query = query.or(`broker_id.eq.${userId},broker_email.eq.${email}`);
+  } else {
+    query = query.eq('broker_id', userId);
+  }
+  
+  const { data, error } = await query;
   if (error) {
     console.warn('getBrokerLeads error', error);
     return null;
