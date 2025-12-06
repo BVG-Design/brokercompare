@@ -214,15 +214,29 @@ export default async function SoftwareDetailPage({
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
-                    {item.compatibility?.map((comp) => (
-                      <li
-                        key={comp}
-                        className="flex items-center gap-2 text-sm"
-                      >
-                        <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-                        <span>{comp}</span>
-                      </li>
-                    ))}
+                    {item.compatibility?.map((comp) => {
+                      const compatibleSoftware = software.find(
+                        (s) => s.name === comp
+                      );
+                      return (
+                        <li
+                          key={comp}
+                          className="flex items-center gap-2 text-sm"
+                        >
+                          <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                          {compatibleSoftware ? (
+                            <Link
+                              href={`/software/${compatibleSoftware.slug}`}
+                              className="hover:underline hover:text-primary transition-colors"
+                            >
+                              {comp}
+                            </Link>
+                          ) : (
+                            <span>{comp}</span>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </CardContent>
               </Card>
