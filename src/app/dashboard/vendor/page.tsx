@@ -1,5 +1,5 @@
 'use client';
-export const dynamic = "force-dynamic";
+
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
@@ -35,6 +35,8 @@ import {
 import { toast } from '@/hooks/use-toast';
 // TODO: Replace with Supabase queries when tables are ready
 // import { supabase } from '@/lib/supabase';
+
+export const dynamic = "force-dynamic";
 
 function VendorDashboardContent() {
   const router = useRouter();
