@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 export default async function VendorDashboardPage() {
+  const dynamic = "force-dynamic";
   const supabase = createServerSupabaseClient();
   const {
     data: { session },
