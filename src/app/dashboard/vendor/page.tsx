@@ -33,69 +33,77 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-// TODO: Replace with Supabase queries when tables are ready
-// import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/client';
+import {
+  getProfile,
+  getVendorForUser,
+  getVendorLeads,
+  getVendorReviews,
+  type LeadRecord,
+  type ReviewRecord,
+  type VendorRecord,
+  type UserProfile,
+} from '@/lib/dashboard-data';
 
 export const dynamic = "force-dynamic";
 
 function VendorDashboardContent() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [uploading, setUploading] = useState(false);
-  const [editedVendor, setEditedVendor] = useState<any>(null);
-  const [vendor, setVendor] = useState<any>(null);
+  const [editedVendor, setEditedVendor] = useState<VendorRecord | null>(null);
+  const [vendor, setVendor] = useState<VendorRecord | null>(null);
   const [vendorLoading, setVendorLoading] = useState(true);
-  const [leads, setLeads] = useState<any[]>([]);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [leads, setLeads] = useState<LeadRecord[]>([]);
+  const [reviews, setReviews] = useState<ReviewRecord[]>([]);
 
-  // TODO: Replace with Supabase auth when ready
+  // Auth + profile + vendor bootstrap
   useEffect(() => {
-    // Placeholder: Check authentication
-    // const checkAuth = async () => {
-    //   const { data: { user } } = await supabase.auth.getUser();
-    //   if (!user) {
-    //     router.push('/');
-    //     return;
-    //   }
-    //   setUser(user);
-    // };
-    // checkAuth();
-    
-    // For now, set a placeholder user
-    setUser({ email: 'vendor@example.com' });
+    const init = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      setUser(user);
+
+      const profile = await getProfile(supabase, user.id);
+      setProfile(profile);
+
+      const vendorRecord = profile
+        ? await getVendorForUser(supabase, profile)
+        : null;
+
+      setVendor(vendorRecord);
+      setEditedVendor(
+        vendorRecord
+          ? {
+              ...vendorRecord,
+              categories: vendorRecord.categories || [],
+            }
+          : null
+      );
+
+      if (vendorRecord?.id) {
+        const [leadRows, reviewRows] = await Promise.all([
+          getVendorLeads(supabase, vendorRecord.id),
+          getVendorReviews(supabase, vendorRecord.id),
+        ]);
+        setLeads(leadRows || []);
+        setReviews(reviewRows || []);
+      }
+
+      setVendorLoading(false);
+    };
+
+    init();
   }, [router]);
-
-  // TODO: Replace with Supabase query when tables are ready
-  useEffect(() => {
-    if (!user) return;
-    
-    // Placeholder: Fetch vendor data
-    // const fetchVendor = async () => {
-    //   const { data, error } = await supabase
-    //     .from('vendors')
-    //     .select('*')
-    //     .eq('email', user.email)
-    //     .single();
-    //   
-    //   if (error || !data) {
-    //     setVendorLoading(false);
-    //     return;
-    //   }
-    //   
-    //   setVendor(data);
-    //   setEditedVendor({
-    //     ...data,
-    //     categories: data.categories || [],
-    //     features: data.features || [],
-    //     integrations: data.integrations || []
-    //   });
-    //   setVendorLoading(false);
-    // };
-    // fetchVendor();
-    
-    setVendorLoading(false);
-  }, [user]);
 
   const categories = [
     { value: 'mortgage_software', label: 'Mortgage Software' },
@@ -124,7 +132,6 @@ function VendorDashboardContent() {
 
   const handleSaveProfile = () => {
     if (!editedVendor) return;
-    
     // TODO: Implement Supabase mutation
     toast({
       title: 'Profile updated',

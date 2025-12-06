@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -56,6 +57,15 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ServiceCard } from '@/app/services/service-card';
 import { SoftwareCard } from '@/app/software/software-card';
+import { supabase } from '@/lib/supabase/client';
+import {
+  getProfile,
+  getBrokerLeads,
+  getBrokerShortlist,
+  type UserProfile,
+  type LeadRecord,
+  type ShortlistRecord,
+} from '@/lib/dashboard-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -64,6 +74,7 @@ export default function BrokerDashboard() {
   const { toast } = useToast();
 
   const [user, setUser] = useState(null);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showReviewsDialog, setShowReviewsDialog] = useState(false);
   const [showBadgesDialog, setShowBadgesDialog] = useState(false);
@@ -82,50 +93,56 @@ export default function BrokerDashboard() {
     profile_image: '',
   });
 
-  const myShortlist = [services[0], software[1]];
-  const myLeads = [
-    {
-      id: '1',
-      vendor_name: 'Marketing Pro AU',
-      message: 'Following up on your inquiry about our SEO services...',
-      created_date: new Date().toISOString(),
-      status: 'new',
-      source: 'profile_view',
-    },
-  ];
+  const [myShortlist, setMyShortlist] = useState<(ShortlistRecord | any)[]>([]);
+  const [myLeads, setMyLeads] = useState<LeadRecord[]>([]);
   const recentVendors = [...services.slice(0, 3), ...software.slice(0, 3)];
 
   useEffect(() => {
-    const mockUser = {
-      id: 'user_123',
-      email: 'broker@example.com',
-      full_name: 'Alex Broker',
-      phone: '0400 123 456',
-      company: 'Future Finance',
-      broker_type: 'mortgage_broker',
-      notification_frequency: 'daily',
-      display_name: 'full_name',
-      profile_image: 'https://picsum.photos/seed/user-alex/100/100',
-      created_date: new Date(2023, 5, 15).toISOString(),
+    const init = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push('/login');
+        return;
+      }
+
+      setUser(user);
+
+      const prof = await getProfile(supabase, user.id);
+      setProfile(prof);
+      setProfileData({
+        full_name: prof?.full_name || '',
+        phone: prof?.phone || '',
+        company: prof?.company || '',
+        broker_type: (prof?.broker_type as string) || 'mortgage_broker',
+        notification_frequency: (prof?.notification_frequency as string) || 'daily',
+        display_name: prof?.display_name || 'full_name',
+        profile_image: prof?.profile_image || '',
+      });
+
+      const [shortlist, leads] = await Promise.all([
+        getBrokerShortlist(supabase, user.id),
+        getBrokerLeads(supabase, user.id, user.email),
+      ]);
+
+      setMyShortlist(
+        (shortlist && shortlist.length > 0 ? shortlist : [services[0], software[1]]) as any[]
+      );
+      setMyLeads(leads || []);
     };
-    setUser(mockUser);
-    setProfileData({
-      full_name: mockUser.full_name,
-      phone: mockUser.phone,
-      company: mockUser.company,
-      broker_type: mockUser.broker_type,
-      notification_frequency: mockUser.notification_frequency,
-      display_name: mockUser.display_name,
-      profile_image: mockUser.profile_image,
-    });
-  }, []);
+
+    init();
+  }, [router]);
 
   const handleProfileImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     setUploading(true);
-    await new Promise((res) => setTimeout(res, 1500)); // Simulate upload
+    // TODO: Swap for Supabase Storage upload
+    await new Promise((res) => setTimeout(res, 1500));
     const file_url = URL.createObjectURL(file);
     setProfileData({ ...profileData, profile_image: file_url });
     toast({ title: 'Profile image updated!' });
