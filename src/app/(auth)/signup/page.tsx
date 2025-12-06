@@ -1,9 +1,10 @@
 'use client';
-export const dynamic = "force-dynamic";
 
 import { useState, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
+
+export const dynamic = "force-dynamic";
 
 export default function SignupPage() {
   const searchParams = useSearchParams();
