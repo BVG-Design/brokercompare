@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { Suspense, useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase/client';
 
 export const dynamic = "force-dynamic";
 
-export default function SignupPage() {
+function SignupContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const prefillEmail = useMemo(() => searchParams.get('email') || '', [searchParams]);
@@ -66,7 +66,7 @@ export default function SignupPage() {
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-primary px-4 text-primary-foreground">
@@ -163,5 +163,23 @@ export default function SignupPage() {
         )}
       </div>
     </div>
+  );
+}
+
+function SignupPageFallback() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-primary px-4 text-primary-foreground">
+      <div className="w-full max-w-md bg-white text-foreground shadow-lg rounded-xl p-8 text-center">
+        <p className="text-sm text-gray-600">Loading sign up...</p>
+      </div>
+    </div>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupPageFallback />}>
+      <SignupContent />
+    </Suspense>
   );
 }
