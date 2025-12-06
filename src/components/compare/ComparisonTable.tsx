@@ -68,8 +68,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
         } else {
           const service = item.data as Service;
           return {
-            pricing: typeof service.pricingRange === 'string' 
-              ? service.pricingRange 
+            pricing: typeof service.pricingRange === 'string'
+              ? service.pricingRange
               : service.pricingModel || 'Contact for pricing',
           };
         }
@@ -82,7 +82,7 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
       })),
     },
     {
-      label: 'Deployment/Service Type',
+      label: items[0]?.type === 'service' ? 'Location' : 'Deployment',
       cells: items.map(item => {
         if (item.type === 'software') {
           const software = item.data as Software;
@@ -92,6 +92,42 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
           return { location: service.location || 'N/A' };
         }
       }),
+    },
+    {
+      label: 'Service Areas',
+      cells: items.map(item => {
+        if (item.type === 'service') {
+          const service = item.data as Service;
+          return { serviceAreas: service.serviceAreas || [] };
+        }
+        return { serviceAreas: [] };
+      }),
+    },
+    {
+      label: 'Broker Types',
+      cells: items.map(item => {
+        if (item.type === 'service') {
+          const service = item.data as Service;
+          return { brokerTypes: service.brokerTypes || [] };
+        }
+        return { brokerTypes: [] };
+      }),
+    },
+    {
+      label: 'Availability',
+      cells: items.map(item => {
+        if (item.type === 'service') {
+          const service = item.data as Service;
+          return { availability: service.availability || 'N/A' };
+        }
+        return { availability: 'N/A' };
+      }),
+    },
+    {
+      label: 'Badges',
+      cells: items.map(item => ({
+        badges: item.data.badges || [],
+      })),
     },
     {
       label: 'Support Options',
@@ -109,8 +145,8 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
       cells: items.map(item => {
         if (item.type === 'software') {
           const software = item.data as Software;
-          return { 
-            integrations: software.integrations?.map(i => i.name || i) || software.compatibility || [] 
+          return {
+            integrations: software.integrations?.map(i => i.name || i) || software.compatibility || []
           };
         } else {
           return { integrations: [] };
@@ -136,14 +172,16 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
             </Button>
             <CardHeader className="pb-3">
               <div className="flex flex-col items-center text-center space-y-3">
-                <Image
-                  src={item.logoUrl}
-                  alt={item.name}
-                  width={64}
-                  height={64}
-                  className="rounded-lg border bg-card"
-                  data-ai-hint="product logo"
-                />
+                {item.logoUrl && (
+                  <Image
+                    src={item.logoUrl}
+                    alt={item.name}
+                    width={64}
+                    height={64}
+                    className="rounded-lg border bg-card"
+                    data-ai-hint="product logo"
+                  />
+                )}
                 <div>
                   <Badge variant="secondary" className="mb-2 text-xs">
                     {item.category}
@@ -158,16 +196,16 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
             <CardContent className="pt-0">
               <div className="space-y-2 text-center">
                 <div className="flex items-center justify-center gap-1">
-                  <StarRating 
-                    rating={getAverageRating(item.data.reviews)} 
-                    size={16} 
+                  <StarRating
+                    rating={getAverageRating(item.data.reviews)}
+                    size={16}
                     showText={false}
                   />
                   <span className="text-xs text-muted-foreground">
                     ({item.data.reviews?.length || 0} reviews)
                   </span>
                 </div>
-                {item.data.website && (
+                {('website' in item.data && item.data.website) && (
                   <Button
                     asChild
                     variant="outline"
@@ -187,125 +225,178 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
       </div>
 
       {/* Comparison Rows */}
-      <div className="space-y-4">
+      <div className="space-y-0 border rounded-lg overflow-hidden">
         {comparisonRows.map((row, rowIndex) => (
-          <Card key={rowIndex}>
-            <CardHeader>
-              <CardTitle className="text-base font-headline">{row.label}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div 
-                className="grid gap-4" 
-                style={{ gridTemplateColumns: `repeat(${items.length}, 1fr)` }}
-              >
-                {row.cells.map((cell, cellIndex) => (
-                  <div key={cellIndex} className="min-h-[60px]">
-                    {row.label === 'Overview' && 'name' in cell && (
-                      <div className="space-y-2">
-                        <h4 className="font-semibold">{cell.name}</h4>
-                        <p className="text-sm text-muted-foreground">{cell.tagline}</p>
-                      </div>
-                    )}
-                    
-                    {row.label === 'Rating' && 'rating' in cell && (
-                      <div className="flex flex-col items-center gap-2">
-                        <StarRating rating={cell.rating} size={20} />
-                        <span className="text-xs text-muted-foreground">
-                          {cell.reviewCount} {cell.reviewCount === 1 ? 'review' : 'reviews'}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {row.label === 'Pricing' && 'pricing' in cell && (
-                      <div className="space-y-2">
-                        <p className="font-medium">{cell.pricing}</p>
-                        {cell.tiers && cell.tiers.length > 0 && (
-                          <div className="text-xs text-muted-foreground space-y-1">
-                            {cell.tiers.map((tier, i) => (
-                              <div key={i}>
-                                {tier.name}: {tier.price || 'Contact'}
-                              </div>
-                            ))}
+          <div
+            key={rowIndex}
+            className={`grid gap-4 p-4 ${rowIndex % 2 === 0 ? 'bg-muted/30' : 'bg-background'}`}
+            style={{ gridTemplateColumns: `200px repeat(${items.length}, 1fr)` }}
+          >
+            {/* Row Label Column */}
+            <div className="flex items-center font-semibold text-sm">
+              {row.label}
+            </div>
+
+            {/* Data Columns */}
+            {row.cells.map((cell, cellIndex) => (
+              <div key={cellIndex} className="min-h-[60px] flex items-center">
+                {row.label === 'Overview' && 'name' in cell && (
+                  <div className="space-y-2 w-full">
+                    <h4 className="font-semibold">{cell.name}</h4>
+                    <p className="text-sm text-muted-foreground">{cell.tagline}</p>
+                  </div>
+                )}
+
+                {row.label === 'Rating' && 'rating' in cell && (
+                  <div className="flex flex-col items-center gap-2 w-full">
+                    <StarRating rating={cell.rating} size={20} />
+                    <span className="text-xs text-muted-foreground">
+                      {cell.reviewCount} {cell.reviewCount === 1 ? 'review' : 'reviews'}
+                    </span>
+                  </div>
+                )}
+
+                {row.label === 'Pricing' && 'pricing' in cell && (
+                  <div className="space-y-2 w-full">
+                    <p className="font-medium">{cell.pricing}</p>
+                    {cell.tiers && cell.tiers.length > 0 && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        {cell.tiers.map((tier, i) => (
+                          <div key={i}>
+                            {tier.name}: {tier.price || 'Contact'}
                           </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {row.label === 'Key Features' && 'features' in cell && (
-                      <ul className="space-y-1">
-                        {cell.features.slice(0, 5).map((feature, i) => (
-                          <li key={i} className="flex items-start gap-2 text-sm">
-                            <Check className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
-                            <span>{feature}</span>
-                          </li>
                         ))}
-                        {cell.features.length > 5 && (
-                          <li className="text-xs text-muted-foreground">
-                            +{cell.features.length - 5} more
-                          </li>
-                        )}
-                      </ul>
-                    )}
-                    
-                    {row.label === 'Deployment/Service Type' && (
-                      <div className="text-sm">
-                        {'deployment' in cell && <p>{cell.deployment}</p>}
-                        {'location' in cell && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span>{cell.location}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    
-                    {row.label === 'Support Options' && 'support' in cell && (
-                      <div className="text-sm">
-                        {Array.isArray(cell.support) && cell.support.length > 0 ? (
-                          <ul className="space-y-1">
-                            {cell.support.map((opt, i) => (
-                              <li key={i} className="flex items-center gap-2">
-                                <Check className="h-3 w-3 text-accent" />
-                                <span>{opt}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <span className="text-muted-foreground">{cell.support}</span>
-                        )}
-                      </div>
-                    )}
-                    
-                    {row.label === 'Integrations' && 'integrations' in cell && (
-                      <div className="text-sm">
-                        {Array.isArray(cell.integrations) && cell.integrations.length > 0 ? (
-                          <ul className="space-y-1">
-                            {cell.integrations.slice(0, 5).map((integration, i) => (
-                              <li key={i} className="flex items-center gap-2">
-                                <Check className="h-3 w-3 text-accent" />
-                                <span>{typeof integration === 'string' ? integration : integration.name}</span>
-                              </li>
-                            ))}
-                            {cell.integrations.length > 5 && (
-                              <li className="text-xs text-muted-foreground">
-                                +{cell.integrations.length - 5} more
-                              </li>
-                            )}
-                          </ul>
-                        ) : (
-                          <span className="text-muted-foreground">None listed</span>
-                        )}
                       </div>
                     )}
                   </div>
-                ))}
+                )}
+
+                {row.label === 'Key Features' && 'features' in cell && (
+                  <ul className="space-y-1 w-full">
+                    {cell.features.slice(0, 5).map((feature, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm">
+                        <Check className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                    {cell.features.length > 5 && (
+                      <li className="text-xs text-muted-foreground">
+                        +{cell.features.length - 5} more
+                      </li>
+                    )}
+                  </ul>
+                )}
+
+                {(row.label === 'Deployment/Service Type' || row.label === 'Location' || row.label === 'Deployment') && (
+                  <div className="text-sm w-full">
+                    {'deployment' in cell && <p>{cell.deployment}</p>}
+                    {'location' in cell && (
+                      <div className="flex items-center gap-1">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <span>{cell.location}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {row.label === 'Service Areas' && 'serviceAreas' in cell && (
+                  <div className="text-sm w-full">
+                    {Array.isArray(cell.serviceAreas) && cell.serviceAreas.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {cell.serviceAreas.map((area, i) => (
+                          <Badge key={i} variant="outline" className="text-xs">
+                            {area}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">None listed</span>
+                    )}
+                  </div>
+                )}
+
+                {row.label === 'Broker Types' && 'brokerTypes' in cell && (
+                  <div className="text-sm w-full">
+                    {Array.isArray(cell.brokerTypes) && cell.brokerTypes.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {cell.brokerTypes.map((type, i) => (
+                          <Badge key={i} variant="secondary" className="text-xs">
+                            {type}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">None listed</span>
+                    )}
+                  </div>
+                )}
+
+                {row.label === 'Availability' && 'availability' in cell && (
+                  <div className="text-sm w-full">
+                    <p>{cell.availability}</p>
+                  </div>
+                )}
+
+                {row.label === 'Badges' && 'badges' in cell && (
+                  <div className="text-sm w-full">
+                    {Array.isArray(cell.badges) && cell.badges.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {cell.badges.map((badge, i) => (
+                          <Badge key={i} variant="default" className="text-xs bg-accent">
+                            {badge}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">None</span>
+                    )}
+                  </div>
+                )}
+
+
+                {row.label === 'Support Options' && 'support' in cell && (
+                  <div className="text-sm w-full">
+                    {Array.isArray(cell.support) && cell.support.length > 0 ? (
+                      <ul className="space-y-1">
+                        {cell.support.map((opt, i) => (
+                          <li key={i} className="flex items-center gap-2">
+                            <Check className="h-3 w-3 text-accent" />
+                            <span>{opt}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <span className="text-muted-foreground">{cell.support}</span>
+                    )}
+                  </div>
+                )}
+
+                {row.label === 'Integrations' && 'integrations' in cell && (
+                  <div className="text-sm w-full">
+                    {Array.isArray(cell.integrations) && cell.integrations.length > 0 ? (
+                      <ul className="space-y-1">
+                        {cell.integrations.slice(0, 5).map((integration, i) => (
+                          <li key={i} className="flex items-center gap-2">
+                            <Check className="h-3 w-3 text-accent" />
+                            <span>{typeof integration === 'string' ? integration : integration.name}</span>
+                          </li>
+                        ))}
+                        {cell.integrations.length > 5 && (
+                          <li className="text-xs text-muted-foreground">
+                            +{cell.integrations.length - 5} more
+                          </li>
+                        )}
+                      </ul>
+                    ) : (
+                      <span className="text-muted-foreground">None listed</span>
+                    )}
+                  </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
+            ))}
+          </div>
         ))}
       </div>
     </div>
   );
 }
-
-

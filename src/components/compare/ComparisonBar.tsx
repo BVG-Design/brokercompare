@@ -5,8 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useComparison } from './ComparisonContext';
 import { Button } from '@/components/ui/button';
-import { X, GitCompare } from 'lucide-react';
+import { X, GitCompare, Plus } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { ProductSelector } from './ProductSelector';
 import {
   Sheet,
   SheetContent,
@@ -33,7 +34,7 @@ export function ComparisonBar() {
               <span className="hidden sm:inline">Comparing:</span>
               <span className="text-secondary">{items.length} of {maxItems}</span>
             </div>
-            
+
             <ScrollArea className="flex-1 max-w-[calc(100vw-300px)]">
               <div className="flex items-center gap-2">
                 {items.map((item) => (
@@ -41,14 +42,16 @@ export function ComparisonBar() {
                     key={item.id}
                     className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 flex-shrink-0"
                   >
-                    <Image
-                      src={item.logoUrl}
-                      alt={item.name}
-                      width={24}
-                      height={24}
-                      className="rounded object-contain"
-                      data-ai-hint="product logo"
-                    />
+                    {item.logoUrl && (
+                      <Image
+                        src={item.logoUrl}
+                        alt={item.name}
+                        width={24}
+                        height={24}
+                        className="rounded object-contain"
+                        data-ai-hint="product logo"
+                      />
+                    )}
                     <span className="text-xs font-medium truncate max-w-[100px]">
                       {item.name}
                     </span>
@@ -66,6 +69,36 @@ export function ComparisonBar() {
           </div>
 
           <div className="flex items-center gap-2 flex-shrink-0">
+            {canAddMore && (
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Plus className="h-4 w-4 mr-1" />
+                    Add More
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-lg flex flex-col">
+                  <SheetHeader className="flex-shrink-0">
+                    <SheetTitle>
+                      {items.length > 0
+                        ? `Add ${items[0].type === 'service' ? 'Services' : 'Software'} to Compare`
+                        : 'Add Items to Compare'
+                      }
+                    </SheetTitle>
+                    <SheetDescription>
+                      {items.length > 0
+                        ? `Comparing ${items[0].type === 'service' ? 'services' : 'software'}. Select up to ${maxItems} items. Currently: ${items.length} of ${maxItems}.`
+                        : `Select items to add to your comparison list (max ${maxItems})`
+                      }
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto mt-6">
+                    <ProductSelector />
+                  </div>
+                </SheetContent>
+              </Sheet>
+            )}
+
             {items.length > 1 ? (
               <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
                 <Link href="/compare">
@@ -77,7 +110,7 @@ export function ComparisonBar() {
                 Add {maxItems - items.length} more to compare
               </Button>
             )}
-            
+
             {items.length > 0 && (
               <Button
                 variant="ghost"
@@ -94,5 +127,3 @@ export function ComparisonBar() {
     </div>
   );
 }
-
-
