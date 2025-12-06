@@ -3,10 +3,12 @@ export const dynamic = "force-dynamic";
 
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, MailCheck, Mail } from 'lucide-react';
 
 export default function SignupThankYouPage() {
+function SignupThankYouContent() {
   const searchParams = useSearchParams();
   const email = useMemo(() => searchParams.get('email') || '', [searchParams]);
   const inboxLinks = useMemo(
@@ -32,21 +34,7 @@ export default function SignupThankYouPage() {
           </p>
         </div>
 
-        <div className="space-y-3 rounded-lg border border-gray-200 p-4 bg-gray-50">
-          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-            <MailCheck className="w-4 h-4" />
-            What to do next
-          </div>
-          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-            <li>Open the verification email and click the confirm link.</li>
-            <li>Check your spam or promotions folder if you do not see it.</li>
-            <li>Once confirmed, sign in to access your dashboard.</li>
-          </ul>
-        </div>
-
-        <div className="space-y-2">
-          <div className="w-full rounded-lg border border-orange-200 p-4 bg-orange-100 text-center space-y-2">
-            <div className="text-sm font-semibold text-primary text-center">OPEN YOUR INBOX</div>
+@@ -50,25 +50,41 @@ export default function SignupThankYouPage() {
             <div className="flex items-center justify-center gap-2 text-sm text-accent font-semibold">
               {inboxLinks.map((item, idx) => (
                 <span key={item.label} className="flex items-center gap-1">
@@ -70,5 +58,21 @@ export default function SignupThankYouPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignupThankYouPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-primary px-4 text-primary-foreground">
+          <div className="w-full max-w-md bg-white text-foreground shadow-lg rounded-xl p-8 text-center">
+            <p className="text-sm text-gray-600">Loading your confirmation details...</p>
+          </div>
+        </div>
+      }
+    >
+      <SignupThankYouContent />
+    </Suspense>
   );
 }
