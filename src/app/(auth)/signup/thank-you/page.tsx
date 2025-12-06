@@ -1,4 +1,5 @@
 'use client';
+export const dynamic = "force-dynamic";
 
 import Link from 'next/link';
 import { useMemo } from 'react';
@@ -6,7 +7,6 @@ import { useSearchParams } from 'next/navigation';
 import { CheckCircle2, MailCheck, Mail } from 'lucide-react';
 
 export default function SignupThankYouPage() {
-  const dynamic = "force-dynamic";
   const searchParams = useSearchParams();
   const email = useMemo(() => searchParams.get('email') || '', [searchParams]);
   const inboxLinks = useMemo(
