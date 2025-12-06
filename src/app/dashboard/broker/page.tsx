@@ -1,5 +1,5 @@
 'use client';
-export const dynamic = "force-dynamic";
+
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -56,6 +56,8 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { ServiceCard } from '@/app/services/service-card';
 import { SoftwareCard } from '@/app/software/software-card';
+
+export const dynamic = 'force-dynamic';
 
 export default function BrokerDashboard() {
   const router = useRouter();
