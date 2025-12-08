@@ -49,7 +49,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
   };
 
   return (
-    <Card className="flex flex-col h-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
+    <Card className="flex flex-col h-full w-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
       <CardHeader className="flex-row gap-4 items-start">
         {(service.images?.[0] || service.logoUrl) && (
           <Image
@@ -61,8 +61,8 @@ export function ServiceCard({ service }: ServiceCardProps) {
             data-ai-hint="company logo"
           />
         )}
-        <div className="flex-1">
-          <CardTitle className="font-headline text-xl mb-1">{service.name}</CardTitle>
+        <div className="flex-1 min-w-0">
+          <CardTitle className="font-headline text-xl mb-1 break-words">{service.name}</CardTitle>
           <CardDescription>{service.tagline}</CardDescription>
         </div>
       </CardHeader>
@@ -78,24 +78,24 @@ export function ServiceCard({ service }: ServiceCardProps) {
           {service.description}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-between items-center gap-2">
+      <CardFooter className="flex flex-wrap justify-between items-center gap-3 p-4 pt-0">
         <StarRating rating={averageRating} size={18} />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-end">
           {!inComparison && (
             <Button
               variant="outline"
               size="sm"
               onClick={handleAddToCompare}
               disabled={!canAddMore}
-              className="text-xs"
+              className="text-xs h-8 px-2"
             >
               <Plus className="h-3 w-3 mr-1" />
               Compare
             </Button>
           )}
-          <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary">
+          <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary text-xs h-8 px-2">
             <Link href={`/services/${service.id}`}>
-              View Details <ArrowRight className="ml-2 h-4 w-4" />
+              View Details <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </Button>
         </div>

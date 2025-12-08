@@ -19,17 +19,17 @@ interface SoftwareCardProps {
 export function SoftwareCard({ software }: SoftwareCardProps) {
   const { addItem, isInComparison, canAddMore } = useComparison();
 
- // Make reviews safe (Sanity may not provide them)
-const reviews = software.reviews ?? [];
+  // Make reviews safe (Sanity may not provide them)
+  const reviews = software.reviews ?? [];
 
-// If reviews exist (static data), use them. Otherwise use Sanity rating.
-const averageRating = reviews.length > 0
-  ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-  : software.rating?.average ?? 0;
+  // If reviews exist (static data), use them. Otherwise use Sanity rating.
+  const averageRating = reviews.length > 0
+    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
+    : software.rating?.average ?? 0;
 
-const reviewCount = reviews.length > 0
-  ? reviews.length
-  : software.rating?.reviewCount ?? 0;
+  const reviewCount = reviews.length > 0
+    ? reviews.length
+    : software.rating?.reviewCount ?? 0;
 
 
 
@@ -60,9 +60,9 @@ const reviewCount = reviews.length > 0
   };
 
   return (
-    <Card className="flex flex-col h-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
+    <Card className="flex flex-col h-full w-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
       <div className="absolute top-3 right-3 z-10">
-      <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">Editor's Choice</Badge>
+        <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">Editor's Choice</Badge>
       </div>
       <CardHeader className="flex-row gap-4 items-start">
         <Image
@@ -73,40 +73,40 @@ const reviewCount = reviews.length > 0
           className="rounded-lg border bg-card"
           data-ai-hint="tech logo"
         />
-        <div className="flex-1">
-          <CardTitle className="font-headline text-xl mb-1">{software.name}</CardTitle>
+        <div className="flex-1 min-w-0">
+          <CardTitle className="font-headline text-xl mb-1 break-words">{software.name}</CardTitle>
           <CardDescription>{software.tagline}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-1 space-y-4">
         <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">{software.category}</Badge>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <span>{software.pricing}</span>
-            </div>
+          <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">{software.category}</Badge>
+          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+            <span>{software.pricing}</span>
+          </div>
         </div>
         <p className="text-sm text-muted-foreground line-clamp-3">
           {software.description}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-between items-center gap-2">
+      <CardFooter className="flex flex-wrap justify-between items-center gap-3 p-4 pt-0">
         <StarRating rating={averageRating} size={18} />
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-end">
           {!inComparison && (
             <Button
               variant="outline"
               size="sm"
               onClick={handleAddToCompare}
               disabled={!canAddMore}
-              className="text-xs"
+              className="text-xs h-8 px-2"
             >
               <Plus className="h-3 w-3 mr-1" />
               Compare
             </Button>
           )}
-          <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary">
+          <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary text-xs h-8 px-2">
             <Link href={`/software/${software.slug}`}>
-              View Details <ArrowRight className="ml-2 h-4 w-4" />
+              View Details <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </Button>
         </div>
