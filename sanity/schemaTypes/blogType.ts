@@ -75,7 +75,7 @@ export const blogType = defineType({
       type: 'number',
       validation: Rule => Rule.min(1).max(60),
     }),
-    
+
     defineField({
       name: 'authors',
       title: 'Additional authors',
@@ -92,6 +92,19 @@ export const blogType = defineType({
         { name: 'description', title: 'Meta description', type: 'text' },
         { name: 'canonicalUrl', title: 'Canonical URL', type: 'url' },
       ],
-    })
+    }),
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured on Homepage?',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'featuredLabel',
+      title: 'Featured Label',
+      type: 'string',
+      description: 'Label to show on homepage (e.g. "GUIDE")',
+      hidden: ({ document }) => !document?.isFeatured,
+    }),
   ]
 })

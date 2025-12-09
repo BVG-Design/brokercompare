@@ -1,5 +1,3 @@
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { RecommendationForm } from "./recommendation-form";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -9,7 +7,6 @@ export default function RecommendationsPage() {
     
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
             <main className="flex-1 relative flex items-center justify-center py-16 md:py-24">
                 {bgImage && (
                     <Image
@@ -28,7 +25,6 @@ export default function RecommendationsPage() {
                     </div>
                 </div>
             </main>
-            <Footer />
         </div>
     );
 }

@@ -4,8 +4,6 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -162,8 +160,6 @@ function VendorDashboardContent() {
 
   if (!user) {
     return (
-      <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="flex items-center justify-center min-h-[400px]">
@@ -171,15 +167,11 @@ function VendorDashboardContent() {
             </div>
           </div>
         </main>
-        <Footer />
-      </>
     );
   }
 
   if (vendorLoading) {
     return (
-      <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="flex items-center justify-center min-h-[400px]">
@@ -187,15 +179,11 @@ function VendorDashboardContent() {
             </div>
           </div>
         </main>
-        <Footer />
-      </>
     );
   }
 
   if (!vendor) {
     return (
-      <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <Card className="max-w-md mx-auto">
@@ -213,14 +201,10 @@ function VendorDashboardContent() {
             </Card>
           </div>
         </main>
-        <Footer />
-      </>
     );
   }
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="grid lg:grid-cols-4 gap-8">
@@ -508,8 +492,6 @@ function VendorDashboardContent() {
           </div>
         </div>
       </main>
-      <Footer />
-    </>
   );
 }
 
@@ -517,7 +499,6 @@ export default function VendorDashboardPage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -525,7 +506,6 @@ export default function VendorDashboardPage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     }>
       <VendorDashboardContent />

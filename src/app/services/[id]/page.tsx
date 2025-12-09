@@ -5,8 +5,6 @@ import Link from 'next/link';
 import { sanity } from '../../../../lib/sanity';
 import { SERVICE_BY_ID_QUERY, SERVICES_SLUGS_QUERY } from '@/sanity/queries';
 import type { Service } from '@/lib/types';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -37,8 +35,6 @@ export default async function ServiceDetailPage({ params }: { params: { id: stri
     : 0;
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           {/* Header */}
@@ -166,7 +162,5 @@ export default async function ServiceDetailPage({ params }: { params: { id: stri
           </div>
         </div>
       </main>
-      <Footer />
-    </>
   );
 }

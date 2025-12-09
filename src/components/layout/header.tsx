@@ -19,9 +19,9 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const navItems = [
-  { href: "/vendors", label: "Directory" },
-  { href: "/services", label: "Services" },
-  { href: "/software", label: "Software" },
+  { href: "/directory", label: "Directory" },
+  { href: "/directory?category=services", label: "Services" },
+  { href: "/directory?category=software", label: "Software" },
   { href: "/recommendations", label: "AI Recommender" },
   { href: "/blog", label: "Blog" },
 ];
@@ -41,14 +41,14 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-primary-foreground/10 bg-primary text-primary-foreground">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <Image 
-            src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/BrokerTools%20Logo.png" 
-            alt="Broker Tools Logo" 
-            width={140} 
-            height={35} 
+          <Image
+            src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/BrokerTools%20Logo.png"
+            alt="Broker Tools Logo"
+            width={140}
+            height={35}
           />
         </Link>
-        
+
         <nav className="hidden md:flex items-center gap-6">
           {navItems.map((item) => (
             <Link
@@ -63,7 +63,7 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        
+
         <div className="flex items-center gap-2">
           {user ? (
             <DropdownMenu>
@@ -97,9 +97,9 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <div className="hidden md:flex items-center gap-2">
-              <Button 
-                asChild 
-                variant="outline" 
+              <Button
+                asChild
+                variant="outline"
                 className="bg-transparent border-primary-foreground/50 hover:bg-accent hover:text-accent-foreground text-primary-foreground"
               >
                 <Link href="/login">
@@ -111,12 +111,12 @@ export function Header() {
               </Button>
             </div>
           )}
-          
+
           <Sheet>
             <SheetTrigger asChild>
-              <Button 
-                variant="outline" 
-                size="icon" 
+              <Button
+                variant="outline"
+                size="icon"
                 className="md:hidden text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10"
               >
                 <Menu className="h-6 w-6" />
@@ -126,14 +126,14 @@ export function Header() {
             <SheetContent side="right">
               <div className="grid gap-6 p-6">
                 <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-                  <Image 
-                    src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/BrokerTools%20Logo.png" 
-                    alt="Broker Tools Logo" 
-                    width={140} 
-                    height={35} 
+                  <Image
+                    src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/BrokerTools%20Logo.png"
+                    alt="Broker Tools Logo"
+                    width={140}
+                    height={35}
                   />
                 </Link>
-                
+
                 <nav className="grid gap-4">
                   {navItems.map((item) => (
                     <Link
@@ -141,8 +141,8 @@ export function Header() {
                       href={item.href}
                       className={cn(
                         "text-base font-medium transition-colors hover:text-accent",
-                        pathname.startsWith(item.href) 
-                          ? "text-primary font-semibold" 
+                        pathname.startsWith(item.href)
+                          ? "text-primary font-semibold"
                           : "text-muted-foreground"
                       )}
                     >
@@ -150,7 +150,7 @@ export function Header() {
                     </Link>
                   ))}
                 </nav>
-                
+
                 <div className="flex flex-col gap-4">
                   {user ? (
                     <div className="flex items-center gap-4">
@@ -160,9 +160,9 @@ export function Header() {
                       </Avatar>
                       <div>
                         <p className="font-semibold">{user.name}</p>
-                        <Button 
-                          variant="link" 
-                          className="p-0 h-auto" 
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto"
                           onClick={() => setUser(null)}
                         >
                           Log out
@@ -176,8 +176,8 @@ export function Header() {
                           <Plus className="mr-1 h-4 w-4" /> Login
                         </Link>
                       </Button>
-                      <Button 
-                        asChild 
+                      <Button
+                        asChild
                         className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
                       >
                         <Link href="/signup">Join</Link>

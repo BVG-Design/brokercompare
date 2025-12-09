@@ -1,27 +1,61 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { StarRating } from '@/components/shared/star-rating';
 import { ThumbsUp, ThumbsDown, Trash2, Star } from 'lucide-react';
-import { services, software } from '@/lib/data';
-
-const mockReviews = [
-  ...services.flatMap(s => s.reviews.map(r => ({ ...r, vendorName: s.name, status: 'approved' }))),
-  ...software.flatMap(s => s.reviews.map(r => ({ ...r, vendorName: s.name, status: 'pending' }))),
-].slice(0, 5);
-
+import { supabase } from '@/lib/supabase/client';
+import type { ReviewRecord } from '@/lib/dashboard-data';
+import { Loader2 } from 'lucide-react';
 
 export default function ReviewsManagement() {
-  const [reviews, setReviews] = useState(mockReviews);
+  const [reviews, setReviews] = useState<
+    (ReviewRecord & { vendorName?: string | null })[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const handleStatusChange = (reviewId, status) => {
-    setReviews(prev => prev.map(r => r.id === reviewId ? { ...r, status } : r));
+  useEffect(() => {
+    const loadReviews = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('reviews')
+        .select('*, vendors:vendor_id (company_name)')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        setLoadError('Could not load reviews');
+      } else {
+        const normalized =
+          data?.map((review: any) => ({
+            ...review,
+            vendorName: review.vendors?.company_name ?? null,
+          })) ?? [];
+        setReviews(normalized);
+      }
+      setIsLoading(false);
+    };
+
+    loadReviews();
+  }, []);
+
+  const handleStatusChange = async (reviewId, status) => {
+    const { error } = await supabase
+      .from('reviews')
+      .update({ status })
+      .eq('id', reviewId);
+
+    if (!error) {
+      setReviews(prev => prev.map(r => r.id === reviewId ? { ...r, status } : r));
+    }
   };
   
-  const handleDelete = (reviewId) => {
-     setReviews(prev => prev.filter(r => r.id !== reviewId));
+  const handleDelete = async (reviewId) => {
+    const { error } = await supabase.from('reviews').delete().eq('id', reviewId);
+    if (!error) {
+      setReviews(prev => prev.filter(r => r.id !== reviewId));
+    }
   };
 
   return (
@@ -30,14 +64,25 @@ export default function ReviewsManagement() {
         <CardTitle className="text-[#132847]">Review Moderation</CardTitle>
       </CardHeader>
       <CardContent>
-         {reviews.length > 0 ? (
+         {isLoading ? (
+          <div className="flex items-center gap-2 text-gray-600">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Loading reviews...</span>
+          </div>
+        ) : loadError ? (
+          <p className="text-sm text-red-600">{loadError}</p>
+        ) : reviews.length > 0 ? (
           <div className="space-y-4 max-h-[600px] overflow-y-auto">
             {reviews.map((review) => (
               <div key={review.id} className="p-4 border rounded-lg">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <p className="font-semibold">{review.author} on {review.vendorName}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(review.date).toLocaleDateString()}</p>
+                    <p className="font-semibold">{review.author} on {review.vendorName || review.vendor_id}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {review.created_at
+                        ? new Date(review.created_at).toLocaleDateString()
+                        : 'No date'}
+                    </p>
                   </div>
                   <Badge variant={review.status === 'approved' ? 'default' : 'outline'}
                     className={review.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
@@ -45,8 +90,8 @@ export default function ReviewsManagement() {
                     {review.status}
                   </Badge>
                 </div>
-                <StarRating rating={review.rating} className="mb-2" />
-                <p className="text-sm text-muted-foreground mb-4">{review.comment}</p>
+                <StarRating rating={review.rating || 0} className="mb-2" />
+                <p className="text-sm text-muted-foreground mb-4">{review.comment || 'No comment provided.'}</p>
                 <div className="flex gap-2">
                   {review.status !== 'approved' && (
                     <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700" onClick={() => handleStatusChange(review.id, 'approved')}>

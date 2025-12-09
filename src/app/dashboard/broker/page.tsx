@@ -53,8 +53,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import AIChatDialog from '@/components/vendors/AIChatDialog';
 import { services, software } from '@/lib/data';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { ServiceCard } from '@/app/services/service-card';
 import { SoftwareCard } from '@/app/software/software-card';
 import { supabase } from '@/lib/supabase/client';
@@ -331,7 +329,6 @@ export default function BrokerDashboard() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid lg:grid-cols-4 gap-6">
@@ -413,7 +410,6 @@ export default function BrokerDashboard() {
           </DialogContent>
       </Dialog>
 
-      <Footer />
     </>
   );
 }

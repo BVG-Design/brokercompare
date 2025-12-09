@@ -1,5 +1,3 @@
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Scale, ShieldCheck, FileText } from 'lucide-react';
 
 export const metadata = {
@@ -9,8 +7,6 @@ export const metadata = {
 
 export default function TermsPage() {
   return (
-    <>
-      <Header />
       <main className="bg-background text-foreground">
         <section className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-16">
           <div className="container mx-auto px-4 md:px-6">
@@ -88,7 +84,5 @@ export default function TermsPage() {
           </div>
         </section>
       </main>
-      <Footer />
-    </>
   );
 }

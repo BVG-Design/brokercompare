@@ -138,5 +138,18 @@ export const serviceProviderType = defineType({
                 },
             ],
         }),
+        defineField({
+            name: 'isFeatured',
+            title: 'Featured on Homepage?',
+            type: 'boolean',
+            initialValue: false,
+        }),
+        defineField({
+            name: 'featuredLabel',
+            title: 'Featured Label',
+            type: 'string',
+            description: 'Label to show on homepage (e.g. "PARTNER SERVICE")',
+            hidden: ({ document }) => !document?.isFeatured,
+        }),
     ],
 })

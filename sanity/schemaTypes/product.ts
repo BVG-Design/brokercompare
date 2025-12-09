@@ -164,16 +164,38 @@ export const productType = defineType({
       ],
       description: 'Other products this one integrates with.',
     }),
-  
+
     defineField({
-        name: 'slug',
-        title: 'Slug',
-        type: 'slug',
-        options: {
-          source: 'name',
-          maxLength: 96,
-        },
-        validation: (Rule) => Rule.required(),
-      }),
-      ]
+      name: 'slug',
+      title: 'Slug',
+      type: 'slug',
+      options: {
+        source: 'name',
+        maxLength: 96,
+      },
+      validation: (Rule) => Rule.required(),
+    }),
+
+    // Relationship to Vendor (Service Provider)
+    defineField({
+      name: 'vendor',
+      title: 'Vendor / Owner',
+      type: 'reference',
+      to: [{ type: 'serviceProvider' }],
+      description: 'The vendor who owns this product/listing.',
+    }),
+    defineField({
+      name: 'isFeatured',
+      title: 'Featured on Homepage?',
+      type: 'boolean',
+      initialValue: false,
+    }),
+    defineField({
+      name: 'featuredLabel',
+      title: 'Featured Label',
+      type: 'string',
+      description: 'Label to show on homepage (e.g. "RECOMMENDED PROVIDER")',
+      hidden: ({ document }) => !document?.isFeatured,
+    }),
+  ]
 });

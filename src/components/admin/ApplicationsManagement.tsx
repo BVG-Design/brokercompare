@@ -1,64 +1,47 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import {
   FileText,
   Clock,
-  CheckCircle,
-  X,
   Loader2,
   Inbox,
 } from 'lucide-react';
-
-// Mock data
-const mockApplications = [
-  {
-    id: 'app1',
-    company_name: 'Creative Marketing Co',
-    contact_name: 'Alice',
-    email: 'alice@creative.com',
-    status: 'pending',
-    business_type: 'service',
-    categories: ['marketing_services', 'lead_generation'],
-  },
-  {
-    id: 'app2',
-    company_name: 'CRM Innovators',
-    contact_name: 'Bob',
-    email: 'bob@crminnovate.com',
-    status: 'approved',
-    business_type: 'software',
-    categories: ['crm_systems'],
-  },
-  {
-    id: 'app3',
-    company_name: 'Finance Solutions Ltd',
-    contact_name: 'Charlie',
-    email: 'charlie@finance.com',
-    status: 'rejected',
-    business_type: 'both',
-    categories: ['commercial_finance', 'asset_finance_tools'],
-  },
-];
+import { supabase } from '@/lib/supabase/client';
+import type { ApplicationRecord } from '@/lib/dashboard-data';
 
 export default function ApplicationsManagement() {
   const { toast } = useToast();
-  const [applications, setApplications] = useState(mockApplications);
-  const [isLoading, setIsLoading] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState(null);
-  const [adminNotes, setAdminNotes] = useState('');
-  const [rejectReason, setRejectReason] = useState('');
-  const [isMutating, setIsMutating] = useState(false);
+  const [applications, setApplications] = useState<ApplicationRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadApplications = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('vendor_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        setLoadError('Could not load applications');
+        toast({
+          title: 'Error loading applications',
+          description: error.message,
+          variant: 'destructive',
+        });
+      } else {
+        setApplications(data ?? []);
+      }
+      setIsLoading(false);
+    };
+
+    loadApplications();
+  }, [toast]);
 
   const pendingApplications = applications.filter(
     (app) => app.status === 'pending'
@@ -67,29 +50,32 @@ export default function ApplicationsManagement() {
     (app) => app.status !== 'pending'
   );
 
-  const updateApplicationStatus = async (app, status, reason = '') => {
-    setIsMutating(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  const updateApplicationStatus = async (
+    appId: string,
+    status: ApplicationRecord['status'],
+    reason = ''
+  ) => {
+    const { error } = await supabase
+      .from('vendor_applications')
+      .update({ status, reject_reason: reason || null })
+      .eq('id', appId);
+
+    if (error) {
+      toast({
+        title: 'Update failed',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setApplications((prev) =>
-      prev.map((a) => (a.id === app.id ? { ...a, status } : a))
+      prev.map((a) => (a.id === appId ? { ...a, status } : a))
     );
     toast({
       title: `Application ${status}`,
-      description: `${app.company_name}'s application has been ${status}.`,
+      description: 'Status updated.',
     });
-    setSelectedApplication(null);
-    setIsMutating(false);
-  };
-
-  const saveNotes = async (app) => {
-    setIsMutating(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setApplications((prev) =>
-      prev.map((a) => (a.id === app.id ? { ...a, admin_notes: adminNotes } : a))
-    );
-    toast({ title: 'Notes saved' });
-    setIsMutating(false);
   };
 
   return (
@@ -102,7 +88,14 @@ export default function ApplicationsManagement() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          {pendingApplications.length === 0 ? (
+          {isLoading ? (
+            <div className="flex items-center gap-2 text-gray-600">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span>Loading applications...</span>
+            </div>
+          ) : loadError ? (
+            <p className="text-sm text-red-600">{loadError}</p>
+          ) : pendingApplications.length === 0 ? (
             <div className="text-center py-8">
               <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">No pending applications</p>
@@ -113,11 +106,6 @@ export default function ApplicationsManagement() {
                 <div
                   key={app.id}
                   className="flex items-start justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50"
-                  onClick={() => {
-                    setSelectedApplication(app);
-                    setAdminNotes(app.admin_notes || '');
-                    setRejectReason('');
-                  }}
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">

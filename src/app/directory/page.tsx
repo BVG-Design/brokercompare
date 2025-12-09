@@ -2,8 +2,6 @@
 
 import React, { useState, useMemo, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +9,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Filter, Sparkles } from 'lucide-react';
 import VendorCard from '@/components/vendors/VendorCard';
 import AIChatDialog from '@/components/vendors/AIChatDialog';
-// TODO: Replace with Supabase queries when tables are ready
-// import { vendorQueries } from '@/lib/supabase';
+import { fetchDirectoryListings, fetchCategories } from '@/services/sanity';
 
 function BrowseVendorsContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'all';
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(initialCategory);
   const [brokerTypeFilter, setBrokerTypeFilter] = useState('all');
@@ -26,19 +23,50 @@ function BrowseVendorsContent() {
   const [vendors, setVendors] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // TODO: Replace with Supabase query when tables are ready
+  // Fetch data from Sanity
   React.useEffect(() => {
-    // Placeholder: This will be replaced with actual Supabase query
-    // const fetchVendors = async () => {
-    //   const data = await vendorQueries.getAll({ status: 'approved' });
-    //   setVendors(data);
-    //   setIsLoading(false);
-    // };
-    // fetchVendors();
-    
-    // For now, use empty array
-    setIsLoading(false);
-  }, []);
+    const loadData = async () => {
+      setIsLoading(true);
+      try {
+        const [fetchedListings, fetchedCategories] = await Promise.all([
+          fetchDirectoryListings({
+            search: searchTerm,
+            category: categoryFilter,
+            tier: tierFilter  // Note: brokerType filtering logic needs schema support
+          }),
+          fetchCategories()
+        ]);
+
+        // Map Sanity products to the vendor format expected by the UI if needed
+        // For now, assuming direct mapping or slight adjustment
+        const mappedVendors = fetchedListings.map(p => ({
+          id: p.id,
+          company_name: p.name,
+          description: p.description,
+          logo_url: p.logoUrl,
+          categories: p.categories,
+          listing_tier: p.listingTier,
+          slug: p.slug,
+          // Add other fields as needed
+        }));
+
+        setVendors(mappedVendors);
+        // Note: We might want to use the fetched categories instead of static ones
+        // setDynamicCategories(fetchedCategories); 
+      } catch (err) {
+        console.error("Failed to fetch vendors:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    // Debounce search slightly or just call on effect change
+    const timer = setTimeout(() => {
+      loadData();
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, categoryFilter, tierFilter, brokerTypeFilter]);
 
   const categories = [
     { value: 'all', label: 'All Categories' },
@@ -65,16 +93,16 @@ function BrowseVendorsContent() {
   const filteredVendors = useMemo(() => {
     return vendors.filter(vendor => {
       const matchesSearch = vendor.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           vendor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           vendor.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = categoryFilter === 'all' || 
-                             vendor.categories?.includes(categoryFilter);
-      
-      const matchesBrokerType = brokerTypeFilter === 'all' || 
-                                vendor.broker_types?.includes(brokerTypeFilter) ||
-                                vendor.broker_types?.includes('all_brokers');
-      
+        vendor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        vendor.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
+
+      const matchesCategory = categoryFilter === 'all' ||
+        vendor.categories?.includes(categoryFilter);
+
+      const matchesBrokerType = brokerTypeFilter === 'all' ||
+        vendor.broker_types?.includes(brokerTypeFilter) ||
+        vendor.broker_types?.includes('all_brokers');
+
       const matchesTier = tierFilter === 'all' || vendor.listing_tier === tierFilter;
 
       return matchesSearch && matchesCategory && matchesBrokerType && matchesTier;
@@ -84,10 +112,10 @@ function BrowseVendorsContent() {
   // Sort: featured first, then premium, then by view count
   const sortedVendors = useMemo(() => {
     return [...filteredVendors].sort((a, b) => {
-      const tierWeight = { featured: 3, premium: 2, free: 1 };
+      const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
       const aTier = tierWeight[a.listing_tier] || 0;
       const bTier = tierWeight[b.listing_tier] || 0;
-      
+
       if (aTier !== bTier) return bTier - aTier;
       return (b.view_count || 0) - (a.view_count || 0);
     });
@@ -99,7 +127,6 @@ function BrowseVendorsContent() {
 
   return (
     <>
-      <Header />
       <main className="flex-1 bg-background">
         {/* Header Section */}
         <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-16">
@@ -109,7 +136,7 @@ function BrowseVendorsContent() {
                 Search the Directory
               </h1>
               <p className="text-xl text-primary-foreground/80">
-                Find the perfect solution for your brokerage
+                Find the perfect solution for your brokerage - Software, Services & More
               </p>
             </div>
 
@@ -128,9 +155,9 @@ function BrowseVendorsContent() {
                       className="pl-12 pr-4 h-14 text-lg border-0 focus-visible:ring-0"
                     />
                   </div>
-                  <Button 
+                  <Button
                     onClick={handleSearch}
-                    size="lg" 
+                    size="lg"
                     className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 h-14"
                   >
                     <Search className="w-5 h-5" />
@@ -162,7 +189,7 @@ function BrowseVendorsContent() {
               <Filter className="w-5 h-5 text-primary" />
               <h3 className="font-semibold text-primary">Filters</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
@@ -276,7 +303,6 @@ function BrowseVendorsContent() {
         {/* AI Chat Dialog */}
         <AIChatDialog open={showAIChat} onOpenChange={setShowAIChat} />
       </main>
-      <Footer />
     </>
   );
 }
@@ -285,7 +311,6 @@ export default function BrowseVendorsPage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -293,7 +318,6 @@ export default function BrowseVendorsPage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     }>
       <BrowseVendorsContent />

@@ -24,8 +24,6 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 
 export default function ApplyVendor() {
   const router = useRouter();
@@ -205,9 +203,7 @@ export default function ApplyVendor() {
   const showReferralName = formData.referral_source === 'friend_referral';
 
   return (
-    <>
-      <Header />
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
         {/* Header */}
         <div className="bg-gradient-to-br from-[#132847] to-[#1a3a5f] text-white py-16">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -817,7 +813,6 @@ export default function ApplyVendor() {
           </Card>
         </div>
       </div>
-      <Footer />
-    </>
+    </div>
   );
 }

@@ -1,39 +1,47 @@
 'use client';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Edit } from 'lucide-react';
+import { Plus, Edit, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase/client';
 
-const mockPosts = [
-  {
-    id: 'post1',
-    title: '5 Ways to Boost Your Brokerage in 2024',
-    excerpt:
-      'Discover the top strategies to increase your leads and close more deals this year.',
-    published: true,
-    categories: ['broker_tips'],
-    view_count: 1204,
-    reading_time: 5,
-    featured_image: 'https://picsum.photos/seed/blog1/200/150',
-  },
-  {
-    id: 'post2',
-    title: 'Review: The Best CRM for Mortgage Brokers',
-    excerpt: 'We take a deep dive into the top CRM platforms on the market.',
-    published: false,
-    categories: ['product_reviews', 'crm_systems'],
-    view_count: 0,
-    reading_time: 8,
-    featured_image: 'https://picsum.photos/seed/blog2/200/150',
-  },
-];
+type BlogPost = {
+  id: string;
+  title: string;
+  excerpt?: string | null;
+  published?: boolean | null;
+  categories?: string[] | null;
+  view_count?: number | null;
+  reading_time?: number | null;
+  featured_image?: string | null;
+};
 
 export default function BlogManagement() {
   const router = useRouter();
-  const [posts, setPosts] = React.useState(mockPosts);
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [posts, setPosts] = React.useState<BlogPost[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPosts = async () => {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('blog_posts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        setLoadError('Could not load blog posts');
+      } else {
+        setPosts(data ?? []);
+      }
+      setIsLoading(false);
+    };
+
+    loadPosts();
+  }, []);
 
   const categoryLabels = {
     industry_news: 'Industry News',

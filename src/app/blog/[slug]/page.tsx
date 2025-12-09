@@ -2,8 +2,6 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, Tag } from 'lucide-react';
 import { client, sanityConfigured } from '@/sanity/lib/client';
@@ -170,11 +168,8 @@ export default async function BlogPostPage({
   
     const mainCategory = post.categories?.[0];
   
-    return (
-      <>
-        <Header />
-  
-        <main className="min-h-screen bg-[#f4f6fb]">
+  return (
+      <main className="min-h-screen bg-[#f4f6fb]">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             {/* HERO IMAGE – centred and wide like the reference */}
             {post.heroImage && (
@@ -316,10 +311,7 @@ export default async function BlogPostPage({
             </div>
           </div>
         </main>
-  
-        <Footer />
-      </>
-    );
-  }
+  );
+}
   
   

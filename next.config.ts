@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
         hostname: 'cdn.sanity.io',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'izjekecdocekznhwqivo.supabase.co',
+        port: '',
+        pathname: '/**',
       }
     ],
   },

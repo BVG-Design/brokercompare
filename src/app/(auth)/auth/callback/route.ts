@@ -21,13 +21,28 @@ export async function GET(request: Request) {
         .join(' ')
         .trim();
 
-      // Ensure a user profile exists and default to broker dashboard
-      await supabase.from('user_profiles').upsert({
-        id: user.id,
-        email: user.email,
-        full_name: fullName || user.email,
-        user_type: 'broker',
-      });
+      // Check if profile exists and getting onboarding status
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('onboarding_completed')
+        .eq('id', user.id)
+        .single();
+
+      // Ensure a user profile exists
+      if (!profile) {
+        await supabase.from('user_profiles').upsert({
+          id: user.id,
+          email: user.email,
+          full_name: fullName || user.email,
+          user_type: 'broker',
+          onboarding_completed: false, // Default to false for new profiles
+        });
+      }
+
+      // If onboarding is NOT completed, redirect to welcome
+      if (!profile?.onboarding_completed) {
+        return NextResponse.redirect(new URL('/welcome', requestUrl.origin));
+      }
     }
   }
 

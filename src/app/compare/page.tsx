@@ -6,8 +6,6 @@ import { useComparison } from '@/components/compare/ComparisonContext';
 import { ComparisonTable } from '@/components/compare/ComparisonTable';
 import { ProductSelector } from '@/components/compare/ProductSelector';
 import { FeatureMatrix } from '@/components/compare/FeatureMatrix';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -54,8 +52,6 @@ function ComparePageContent() {
 
   if (items.length === 0) {
     return (
-      <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -80,15 +76,11 @@ function ComparePageContent() {
             </div>
           </div>
         </main>
-        <Footer />
-      </>
     );
   }
 
   if (items.length === 1) {
     return (
-      <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="max-w-4xl mx-auto space-y-6">
@@ -110,14 +102,11 @@ function ComparePageContent() {
             </div>
           </div>
         </main>
-        <Footer />
-      </>
     );
   }
 
   return (
     <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="space-y-6">
@@ -168,17 +157,14 @@ function ComparePageContent() {
             </Tabs>
           </div>
         </div>
-      </main>
-      <Footer />
-    </>
-  );
-}
+        </main>
+    );
+  }
 
 export default function ComparePage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -186,7 +172,6 @@ export default function ComparePage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     }>
       <ComparePageContent />

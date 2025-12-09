@@ -1,7 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogSearchForm } from '../../components/blog/BlogSearchForm';
 import { Calendar, Eye } from 'lucide-react';
@@ -22,20 +20,23 @@ type BlogPost = {
   tags?: string[];
   viewCount?: number;
   readTime?: number | null;
-  author?: {                 
+  author?: {
     _id: string;
     name: string;
     image?: any;
   };
 };
 
-async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
+async function getPosts(searchTerm?: string, category?: string): Promise<BlogPost[]> {
   if (!sanityConfigured) return [];
 
   const searchPattern = searchTerm ? `${searchTerm}*` : '';
 
-  const data = await client.fetch<BlogPost[] | null>(
-    `
+  // NOTE: Simple GROQ filter update. 
+  // If category is selected, we filter by references -> title or simple strings depending on schema.
+  // Schema for blog categories is array of references.
+
+  const query = `
     *[
       _type == "blog" &&
       (
@@ -45,6 +46,7 @@ async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
         count(tags[@ match $search]) > 0 ||
         count(categories[@->title match $search]) > 0
       )
+      ${category && category !== 'all' ? '&& count(categories[@->title == $category]) > 0' : ''}
     ] | order(publishedAt desc) {
       _id,
       title,
@@ -58,13 +60,15 @@ async function getPosts(searchTerm?: string): Promise<BlogPost[]> {
       readTime,
       author->{ _id, name, image }
     }
-  `,
-    { search: searchPattern }
+  `;
+
+  const data = await client.fetch<BlogPost[] | null>(
+    query,
+    { search: searchPattern, category }
   );
 
   return Array.isArray(data) ? data : [];
 }
-
 
 const categoryColors: Record<string, string> = {
   Marketing: 'bg-accent/20 text-accent',
@@ -79,14 +83,24 @@ const categoryColors: Record<string, string> = {
 type BlogPageProps = {
   searchParams?: {
     q?: string;
+    category?: string;
   };
 };
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const searchTerm = searchParams?.q?.trim() ?? '';
-  const posts = await getPosts(searchTerm);
+  const categoryFilter = searchParams?.category?.trim() ?? 'all';
 
-  // Build a simple category count for the sidebar
+  const posts = await getPosts(searchTerm, categoryFilter);
+
+  // Build a simple category count for the sidebar and extraction for the dropdown
+  // Ideally we fetch ALL categories for the dropdown, but for now we'll collect from displayed posts 
+  // OR better: ensure we have a list of available categories. 
+  // For robustness, let's fetch all used categories in a separate small query (optional but better UX).
+  // For this iteration, let's use what we have or a fixed list if known, or derived from all posts.
+  // Actually, to populate the dropdown *fully*, we might want to fetch all categories separately.
+  // Let's defer that optimization and just collect from the loaded posts + maybe a fallback list.
+
   const categoryMap = new Map<
     string,
     { title: string; count: number }
@@ -104,10 +118,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   }
 
   const categories = Array.from(categoryMap.values());
+  const categoryNames = categories.map(c => c.title);
 
   return (
     <>
-      <Header />
 
       <div className="min-h-screen bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -116,7 +130,11 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
               Discover insights, guides, and strategies for Australian finance brokers to grow and optimize your brokerage.
             </p>
-            <BlogSearchForm initialValue={searchTerm} />
+            <BlogSearchForm
+              initialValue={searchTerm}
+              initialCategory={categoryFilter}
+              categories={categoryNames}
+            />
             {searchTerm && (
               <p className="text-sm text-muted-foreground">
                 Showing {posts.length} {posts.length === 1 ? 'result' : 'results'} for "{searchTerm}"
@@ -126,7 +144,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
           {posts.length === 0 ? (
             <div className="text-center py-20">
-              {searchTerm ? (
+              {searchTerm || categoryFilter !== 'all' ? (
                 <>
                   <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                     <Calendar className="w-10 h-10 text-muted-foreground" />
@@ -173,10 +191,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                           />
                           {post.categories && post.categories[0] && (
                             <span
-                              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${
-                                categoryColors[post.categories[0].title] ??
+                              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-sm ${categoryColors[post.categories[0].title] ??
                                 'bg-primary text-primary-foreground'
-                              }`}
+                                }`}
                             >
                               {post.categories[0].title}
                             </span>
@@ -222,38 +239,38 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                         </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-3 text-xs md:text-sm text-muted-foreground mt-2">
-  <div className="flex items-center gap-2">
-    <span className="inline-flex items-center gap-1">
-      <Calendar className="w-4 h-4" />
-      <span>
-        {post.publishedAt
-          ? format(new Date(post.publishedAt), 'MMM d, yyyy')
-          : 'Draft'}
-      </span>
-    </span>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center gap-1">
+                              <Calendar className="w-4 h-4" />
+                              <span>
+                                {post.publishedAt
+                                  ? format(new Date(post.publishedAt), 'MMM d, yyyy')
+                                  : 'Draft'}
+                              </span>
+                            </span>
 
-    {post.readTime && (
-      <>
-        <span className="text-muted-foreground/60">•</span>
-        <span>{post.readTime} min read</span>
-      </>
-    )}
-  </div>
+                            {post.readTime && (
+                              <>
+                                <span className="text-muted-foreground/60">•</span>
+                                <span>{post.readTime} min read</span>
+                              </>
+                            )}
+                          </div>
 
-  <div className="flex items-center gap-3">
-    {typeof post.viewCount === 'number' && (
-      <span className="inline-flex items-center gap-1">
-        <Eye className="w-4 h-4" />
-        <span>{post.viewCount.toLocaleString()} views</span>
-      </span>
-    )}
-    {post.categories && post.categories.length > 1 && (
-      <span className="text-xs text-muted-foreground">
-        +{post.categories.length - 1} more categories
-      </span>
-    )}
-  </div>
-</div>
+                          <div className="flex items-center gap-3">
+                            {typeof post.viewCount === 'number' && (
+                              <span className="inline-flex items-center gap-1">
+                                <Eye className="w-4 h-4" />
+                                <span>{post.viewCount.toLocaleString()} views</span>
+                              </span>
+                            )}
+                            {post.categories && post.categories.length > 1 && (
+                              <span className="text-xs text-muted-foreground">
+                                +{post.categories.length - 1} more categories
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
                       </CardContent>
                     </Link>
@@ -319,7 +336,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
       </div>
 
-      <Footer />
     </>
   );
 }

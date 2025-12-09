@@ -3,8 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import type { Software } from '@/lib/types';
 import { SoftwareCard } from './software-card';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
@@ -33,8 +31,6 @@ export default function SoftwarePageClient({ software }: Props) {
   const categories = ['All', ...Array.from(new Set(software.map(s => s.category)))];
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="space-y-4 mb-12 text-center">
@@ -82,7 +78,5 @@ export default function SoftwarePageClient({ software }: Props) {
           )}
         </div>
       </main>
-      <Footer />
-    </>
   );
 }

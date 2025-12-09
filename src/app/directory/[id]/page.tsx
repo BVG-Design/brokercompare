@@ -5,8 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,86 +19,73 @@ import { ExternalLink, Award, Star, CheckCircle, Bookmark, ArrowLeftRight, Send,
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import VendorCard from '@/components/vendors/VendorCard';
-// TODO: Replace with Supabase queries when tables are ready
-// import { vendorQueries } from '@/lib/supabase';
+import { fetchDirectoryListingBySlug } from '@/services/sanity';
 
 function VendorProfileContent() {
   const params = useParams();
   const router = useRouter();
-  const vendorId = params.id as string;
-  
-  const [user, setUser] = useState<any>(null);
+  const slug = params.id as string; // in file-based routing [id] captures the segment, assuming we renamed folder to use [slug] or we treat id as slug
+
   const [vendor, setVendor] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
-  const [isShortlisted, setIsShortlisted] = useState(false);
   const [reviews, setReviews] = useState<any[]>([]);
   const [similarVendors, setSimilarVendors] = useState<any[]>([]);
-  const [worksWellWithVendors, setWorksWellWithVendors] = useState<any[]>([]);
-  const [alternativeVendors, setAlternativeVendors] = useState<any[]>([]);
 
+  // Form states...
   const [leadData, setLeadData] = useState({
-    broker_name: '',
-    broker_email: '',
-    broker_phone: '',
-    broker_type: 'mortgage_broker',
-    company_name: '',
-    team_size: '',
-    aggregator: '',
-    enquiry_about: '',
-    message: ''
+    broker_name: '', broker_email: '', broker_phone: '', broker_type: 'mortgage_broker', company_name: '', team_size: '', aggregator: '', enquiry_about: '', message: ''
   });
+  const [reviewData, setReviewData] = useState({ rating: 5, review_title: '', review_content: '' });
 
-  const [reviewData, setReviewData] = useState({
-    rating: 5,
-    review_title: '',
-    review_content: ''
-  });
-
-  // TODO: Replace with Supabase auth when ready
   useEffect(() => {
-    // Placeholder: Check authentication
-    // const checkAuth = async () => {
-    //   const { data: { user } } = await supabase.auth.getUser();
-    //   setUser(user);
-    // };
-    // checkAuth();
-  }, []);
-
-  // TODO: Replace with Supabase query when tables are ready
-  useEffect(() => {
-    if (!vendorId) return;
+    if (!slug) return;
 
     const fetchVendor = async () => {
       setIsLoading(true);
       try {
-        // Placeholder: This will be replaced with actual Supabase query
-        // const data = await vendorQueries.getById(vendorId);
-        // if (!data) {
-        //   notFound();
-        // }
-        // setVendor(data);
-        
-        // For now, show not found
-        setIsLoading(false);
+        const data = await fetchDirectoryListingBySlug(slug);
+
+        if (!data) {
+          // notFound(); // This might cause issues if rendered client side during hydration?
+          console.error("Vendor not found");
+          // maybe redirect or show error state
+        } else {
+          // Map data to component expectations if needed
+          // Currently component expects snake_case for some, camelCase for others?
+          // Let's look at the component usage: vendor.logo_url, vendor.company_name
+          // We need to map our DirectoryListing to this shape
+
+          const mapped = {
+            id: data.id,
+            company_name: data.name,
+            logo_url: data.logoUrl,
+            tagline: (data as any).tagline || data.description.substring(0, 50) + '...', // Fallback
+            description: data.description,
+            listing_tier: data.listingTier,
+            categories: data.categories,
+            features: (data as any).features || [],
+            integrations: (data as any).integrations || [],
+            website: data.websiteUrl,
+            broker_types: data.brokerTypes
+          };
+          setVendor(mapped);
+        }
       } catch (error) {
         console.error('Error fetching vendor:', error);
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchVendor();
-  }, [vendorId]);
+  }, [slug]);
 
-  // TODO: Fetch reviews, similar vendors, etc. when Supabase is ready
+  // Placeholder for reviews/similar fetching
   useEffect(() => {
     if (!vendor) return;
-    
-    // Fetch reviews
-    // Fetch similar vendors
-    // Fetch works well with vendors
-    // Fetch alternative vendors
+    // fetchReviews(vendor.id)...
   }, [vendor]);
 
   const handleSubmitLead = async () => {
@@ -139,17 +124,13 @@ function VendorProfileContent() {
 
   if (isLoading) {
     return (
-      <>
-        <Header />
-        <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-            </div>
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-4 md:px-6 py-12">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
           </div>
-        </main>
-        <Footer />
-      </>
+        </div>
+      </main>
     );
   }
 
@@ -157,15 +138,13 @@ function VendorProfileContent() {
     notFound();
   }
 
-  const averageRating = reviews.length > 0 
+  const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
 
   const approvedReviews = reviews.filter(r => r.status === 'approved');
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           {/* Header Section */}
@@ -435,11 +414,10 @@ function VendorProfileContent() {
                     <button
                       key={rating}
                       onClick={() => setReviewData({ ...reviewData, rating })}
-                      className={`p-2 rounded ${
-                        reviewData.rating >= rating
+                      className={`p-2 rounded ${reviewData.rating >= rating
                           ? 'text-yellow-400'
                           : 'text-gray-300'
-                      }`}
+                        }`}
                     >
                       <Star className="w-6 h-6 fill-current" />
                     </button>
@@ -475,8 +453,6 @@ function VendorProfileContent() {
           </DialogContent>
         </Dialog>
       </main>
-      <Footer />
-    </>
   );
 }
 
@@ -484,7 +460,6 @@ export default function VendorProfilePage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -492,7 +467,6 @@ export default function VendorProfilePage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     }>
       <VendorProfileContent />

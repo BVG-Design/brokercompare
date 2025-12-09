@@ -16,8 +16,6 @@ import {
   FileText,
   BarChart3,
 } from 'lucide-react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase/client';
 import { getAdminStats } from '@/lib/dashboard-data';
@@ -87,7 +85,6 @@ export default function AdminDashboard() {
 
   return (
     <>
-      <Header />
       <div className="min-h-screen bg-gray-50">
         <div className="bg-gradient-to-br from-[#132847] to-[#1a3a5f] text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -163,7 +160,6 @@ export default function AdminDashboard() {
           </Tabs>
         </div>
       </div>
-      <Footer />
     </>
   );
 }

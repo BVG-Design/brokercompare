@@ -5,8 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight, Check, Search } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
 import { Input } from "@/components/ui/input";
 import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, TroubleshootIcon, AiAutomationsIcon, MarketingLeadGenIcon, BusinessStrategyIcon, LoanStructureIcon, WorkflowOpsIcon } from "@/components/shared/icons";
 import { cn } from "@/lib/utils";
@@ -90,7 +88,6 @@ export default function Home() {
 
   return (
     <>
-      <Header />
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative w-full bg-primary text-primary-foreground py-24 md:py-32 overflow-hidden">
@@ -318,7 +315,6 @@ export default function Home() {
           </div>
         </section>
       </main>
-      <Footer />
       {/* Spacer for comparison bar */}
       <div className="h-20" />
     </>

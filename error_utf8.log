@@ -1,0 +1,970 @@
+﻿sanity/lib/client.ts(11,14): error TS2322: Type 'SanityClient | { fetch: () => Promise<null>; }' is not assignable to type 'Pick<SanityClient, "fetch">'.
+  Type '{ fetch: () => Promise<null>; }' is not assignable to type 'Pick<SanityClient, "fetch">'.
+    The types returned by 'fetch(...)' are incompatible between these types.
+      Type 'Promise<null>' is not assignable to type 'Promise<RawQueryResponse<any>>'.
+        Type 'null' is not assignable to type 'RawQueryResponse<any>'.
+sanity/sanity.config.ts(3,26): error TS2307: Cannot find module '@sanity/vision' or its corresponding type declarations.
+src/app/apply/page.tsx(116,31): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/apply/page.tsx(158,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/apply/page.tsx(159,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ categories: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; category_other: string; ... 11 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'categories' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/apply/page.tsx(161,44): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(167,47): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/apply/page.tsx(168,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ commercial_finance_subcategories: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; ... 12 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'commercial_finance_subcategories' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/apply/page.tsx(171,56): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(177,29): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/apply/page.tsx(178,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ broker_types: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; ... 11 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'broker_types' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/apply/page.tsx(180,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(186,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/apply/page.tsx(200,34): error TS2345: Argument of type '"commercial_finance"' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(201,58): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(202,62): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(204,56): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(486,31): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(536,33): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/apply/page.tsx(592,69): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/base44/adminDashboard.tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(5,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(6,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(18,33): error TS2307: Cannot find module '../components/admin/DirectoryManagement' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(19,36): error TS2307: Cannot find module '../components/admin/ApplicationsManagement' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(20,29): error TS2307: Cannot find module '../components/admin/LeadsManagement' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(21,31): error TS2307: Cannot find module '../components/admin/ReviewsManagement' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(22,32): error TS2307: Cannot find module '../components/admin/AnalyticsReporting' or its corresponding type declarations.
+src/app/base44/adminDashboard.tsx(29,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/base44/adminDashboard.tsx(67,39): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/adminDashboard.tsx(74,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/adminDashboard.tsx(82,27): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/base44/adminDashboard.tsx(90,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(5,35): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(6,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(34,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(35,26): error TS2307: Cannot find module '../components/vendors/AIChatDialog' or its corresponding type declarations.
+src/app/base44/brokerDashboard.tsx(58,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(75,38): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(76,67): error TS18047: 'user' is possibly 'null'.
+src/app/base44/brokerDashboard.tsx(81,34): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(82,64): error TS18047: 'user' is possibly 'null'.
+src/app/base44/brokerDashboard.tsx(91,43): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(101,17): error TS2698: Spread types may only be created from object types.
+src/app/base44/brokerDashboard.tsx(112,16): error TS2698: Spread types may only be created from object types.
+src/app/base44/brokerDashboard.tsx(118,87): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(172,34): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(172,84): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(187,75): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(188,85): error TS2339: Property 'created_date' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(227,44): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/base44/brokerDashboard.tsx(309,50): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(347,54): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(423,36): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/brokerDashboard.tsx(676,38): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/components/admin/analyticsReporting.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/admin/analyticsReporting.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/admin/analyticsReporting.tsx(49,40): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(50,42): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(51,46): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(52,48): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(55,60): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(57,44): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(67,15): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(68,16): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(69,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/app/base44/components/admin/analyticsReporting.tsx(69,42): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/app/base44/components/admin/analyticsReporting.tsx(73,23): error TS2571: Object is of type 'unknown'.
+src/app/base44/components/admin/analyticsReporting.tsx(73,30): error TS2571: Object is of type 'unknown'.
+src/app/base44/components/admin/analyticsReporting.tsx(76,37): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(86,24): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(87,7): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/app/base44/components/admin/analyticsReporting.tsx(87,39): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{}'.
+src/app/base44/components/admin/analyticsReporting.tsx(91,23): error TS2571: Object is of type 'unknown'.
+src/app/base44/components/admin/analyticsReporting.tsx(91,30): error TS2571: Object is of type 'unknown'.
+src/app/base44/components/admin/analyticsReporting.tsx(94,37): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/components/admin/analyticsReporting.tsx(207,62): error TS2322: Type 'unknown' is not assignable to type 'string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<...> | null | undefined'.
+src/app/base44/components/admin/analyticsReporting.tsx(235,62): error TS2322: Type 'unknown' is not assignable to type 'string | number | bigint | boolean | ReactElement<any, string | JSXElementConstructor<any>> | Iterable<ReactNode> | ReactPortal | Promise<...> | null | undefined'.
+src/app/base44/components/admin/applicationManagement.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/admin/applicationManagement.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/admin/applicationManagement.tsx(10,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/components/admin/applicationManagement.tsx(24,24): error TS7006: Parameter 'application' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(40,90): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(69,24): error TS7006: Parameter 'application' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(94,18): error TS7006: Parameter 'application' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(105,51): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(106,53): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(122,40): error TS7006: Parameter 'app' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(167,40): error TS7006: Parameter 'app' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(194,70): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(202,69): error TS2339: Property 'business_type' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(207,41): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(208,41): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(211,42): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(222,69): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(226,50): error TS2339: Property 'website' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(227,44): error TS2339: Property 'website' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(232,71): error TS2339: Property 'company_description' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(243,69): error TS2339: Property 'contact_name' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(247,69): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(249,40): error TS2339: Property 'phone' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(252,71): error TS2339: Property 'phone' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(259,36): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(259,70): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(263,42): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(263,58): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(263,63): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(267,40): error TS2339: Property 'category_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(269,68): error TS2339: Property 'category_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(276,36): error TS2339: Property 'commercial_finance_subcategories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(276,92): error TS2339: Property 'commercial_finance_subcategories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(280,42): error TS2339: Property 'commercial_finance_subcategories' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(280,80): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(280,85): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(284,40): error TS2339: Property 'commercial_finance_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(286,68): error TS2339: Property 'commercial_finance_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(293,36): error TS2339: Property 'broker_types' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(293,72): error TS2339: Property 'broker_types' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(297,42): error TS2339: Property 'broker_types' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(297,60): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(297,66): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/applicationManagement.tsx(301,40): error TS2339: Property 'broker_type_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(303,68): error TS2339: Property 'broker_type_other' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(310,36): error TS2339: Property 'product_service_features' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(314,42): error TS2339: Property 'product_service_features' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(320,36): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(324,42): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(330,36): error TS2339: Property 'pricing_structure' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(335,74): error TS2339: Property 'pricing_structure' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(336,42): error TS2339: Property 'pricing_details' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(339,75): error TS2339: Property 'pricing_details' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(347,36): error TS2339: Property 'special_offer' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(351,42): error TS2339: Property 'special_offer' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(357,36): error TS2339: Property 'why_join' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(361,42): error TS2339: Property 'why_join' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(367,36): error TS2339: Property 'referral_source' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(371,69): error TS2339: Property 'referral_source' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(372,42): error TS2339: Property 'referral_name' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(374,59): error TS2339: Property 'referral_name' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(385,60): error TS2339: Property 'admin_notes' does not exist on type 'never'.
+src/app/base44/components/admin/applicationManagement.tsx(402,36): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/admin/directoryManagement.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/admin/directoryManagement.tsx(13,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/components/admin/directoryManagement.tsx(14,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/components/admin/directoryManagement.tsx(15,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/components/admin/directoryManagement.tsx(30,20): error TS7031: Binding element 'id' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(30,24): error TS7031: Binding element 'data' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(39,18): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(47,31): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(47,39): error TS7006: Parameter 'newStatus' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(54,29): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(54,37): error TS7006: Parameter 'newTier' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(61,31): error TS7006: Parameter 'vendorId' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(67,36): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(76,37): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(76,43): error TS7006: Parameter 'vendorId' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(77,25): error TS18047: 'selectedVendor' is possibly 'null'.
+src/app/base44/components/admin/directoryManagement.tsx(79,28): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(82,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/directoryManagement.tsx(87,11): error TS18047: 'selectedVendor' is possibly 'null'.
+src/app/base44/components/admin/directoryManagement.tsx(89,9): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/directoryManagement.tsx(90,26): error TS18047: 'selectedVendor' is possibly 'null'.
+src/app/base44/components/admin/directoryManagement.tsx(91,33): error TS18047: 'selectedVendor' is possibly 'null'.
+src/app/base44/components/admin/directoryManagement.tsx(97,42): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(103,42): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(103,99): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(145,36): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(230,73): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(239,40): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(243,49): error TS2339: Property 'works_well_with' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(257,45): error TS2339: Property 'works_well_with' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(266,40): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/base44/components/admin/directoryManagement.tsx(270,49): error TS2339: Property 'suggested_alternatives' does not exist on type 'never'.
+src/app/base44/components/admin/directoryManagement.tsx(284,45): error TS2339: Property 'suggested_alternatives' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/admin/LeadManagement.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/admin/LeadManagement.tsx(15,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/components/admin/LeadManagement.tsx(16,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/components/admin/LeadManagement.tsx(17,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/components/admin/LeadManagement.tsx(33,49): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(34,67): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(44,20): error TS7031: Binding element 'id' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(44,24): error TS7031: Binding element 'data' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(52,18): error TS7006: Parameter 'activity' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(61,24): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(83,24): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(85,9): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(92,33): error TS7006: Parameter 'field' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(93,27): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(93,54): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(95,37): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(99,16): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(101,52): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(108,19): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(110,7): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(114,37): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(119,16): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(126,29): error TS7006: Parameter 'taskIndex' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(127,24): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(129,27): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(131,37): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(135,16): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(142,29): error TS7006: Parameter 'taskIndex' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(143,24): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(145,27): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(147,37): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(157,16): error TS18047: 'selectedLead' is possibly 'null'.
+src/app/base44/components/admin/LeadManagement.tsx(189,24): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(266,30): error TS2339: Property 'data_anonymized' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(300,43): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(302,43): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(304,70): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(323,64): error TS2339: Property 'broker_name' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(327,64): error TS2339: Property 'broker_email' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(329,33): error TS2339: Property 'broker_phone' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(332,66): error TS2339: Property 'broker_phone' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(335,33): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(338,66): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(344,43): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(346,43): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(348,70): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(366,43): error TS2339: Property 'assigned_to' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(367,58): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(377,77): error TS2339: Property 'vendor_name' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(378,78): error TS2339: Property 'vendor_id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(388,31): error TS2339: Property 'message' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(388,56): error TS2339: Property 'data_anonymized' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(392,86): error TS2339: Property 'message' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(413,34): error TS2339: Property 'data_anonymized' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(435,47): error TS2339: Property 'profile_created' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(446,47): error TS2339: Property 'welcome_email_sent' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(457,47): error TS2339: Property 'follow_up_required' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(469,31): error TS2339: Property 'follow_up_required' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(474,43): error TS2339: Property 'follow_up_date' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(476,43): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(478,70): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(488,35): error TS2339: Property 'tasks' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(488,47): error TS7006: Parameter 'task' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(488,53): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(567,36): error TS7006: Parameter 'activity' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(567,46): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(603,37): error TS2339: Property 'products_interested' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(603,63): error TS7006: Parameter 'product' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(603,72): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(612,37): error TS2339: Property 'services_interested' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(612,63): error TS7006: Parameter 'service' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(612,72): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(620,31): error TS2339: Property 'growth_metrics' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(626,68): error TS2339: Property 'growth_metrics' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(630,68): error TS2339: Property 'growth_metrics' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(634,68): error TS2339: Property 'growth_metrics' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(638,68): error TS2339: Property 'growth_metrics' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(648,35): error TS2339: Property 'referral_partnerships' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(648,63): error TS7006: Parameter 'partner' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(648,72): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/admin/LeadManagement.tsx(659,32): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(660,32): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(665,36): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(666,36): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(669,82): error TS2339: Property 'risk_level' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(673,41): error TS2339: Property 'risk_notes' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(675,41): error TS2698: Spread types may only be created from object types.
+src/app/base44/components/admin/LeadManagement.tsx(681,81): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(690,31): error TS2339: Property 'application_id' does not exist on type 'never'.
+src/app/base44/components/admin/LeadManagement.tsx(695,92): error TS2339: Property 'application_id' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/admin/reviewsManagement.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/admin/reviewsManagement.tsx(10,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/components/admin/reviewsManagement.tsx(11,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/components/admin/reviewsManagement.tsx(12,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/components/admin/reviewsManagement.tsx(25,24): error TS7006: Parameter 'review' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(36,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(36,58): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(58,26): error TS7031: Binding element 'review' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(58,34): error TS7031: Binding element 'reason' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(78,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(78,58): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(100,41): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(101,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(102,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(118,35): error TS7006: Parameter 'review' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(169,36): error TS7006: Parameter 'review' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(210,36): error TS7006: Parameter 'review' implicitly has an 'any' type.
+src/app/base44/components/admin/reviewsManagement.tsx(243,36): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(244,36): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(246,37): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(248,35): error TS2339: Property 'verified' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(251,52): error TS2339: Property 'verification_method' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(259,68): error TS2339: Property 'rating' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(262,72): error TS2339: Property 'rating' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(270,64): error TS2339: Property 'reviewer_name' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(274,64): error TS2339: Property 'reviewer_email' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(276,33): error TS2339: Property 'reviewer_company' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(279,66): error TS2339: Property 'reviewer_company' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(284,73): error TS2339: Property 'created_date' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(292,79): error TS2339: Property 'vendor_name' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(293,78): error TS2339: Property 'vendor_id' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(305,84): error TS2339: Property 'review_title' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(310,86): error TS2339: Property 'review_content' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(316,31): error TS2339: Property 'helpful_count' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(319,35): error TS2339: Property 'helpful_count' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(324,31): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(339,31): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(351,33): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(379,33): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/admin/reviewsManagement.tsx(397,33): error TS2339: Property 'status' does not exist on type 'never'.
+src/app/base44/components/Listings/aiChat.tsx(2,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/Listings/aiChat.tsx(9,40): error TS7031: Binding element 'open' implicitly has an 'any' type.
+src/app/base44/components/Listings/aiChat.tsx(9,46): error TS7031: Binding element 'onOpenChange' implicitly has an 'any' type.
+src/app/base44/components/Listings/vendorCard.tsx(2,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/components/Listings/vendorCard.tsx(3,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/components/Listings/vendorCard.tsx(8,38): error TS7031: Binding element 'vendor' implicitly has an 'any' type.
+src/app/base44/components/Listings/vendorCard.tsx(15,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: { label: string; color: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; }; premium: { ...; }; free: null; }'.
+src/app/base44/components/Listings/vendorCard.tsx(82,49): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/base44/components/Listings/vendorCard.tsx(82,54): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/Listings/vendorCard.tsx(84,18): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ mortgage_software: string; asset_finance_tools: string; commercial_finance: string; crm_systems: string; lead_generation: string; compliance_tools: string; document_management: string; ... 7 more ...; other: string; }'.
+src/app/base44/components/vendor/Analytics.tsx(6,37): error TS7031: Binding element 'vendor' implicitly has an 'any' type.
+src/app/base44/components/vendor/Analytics.tsx(6,45): error TS7031: Binding element 'leads' implicitly has an 'any' type.
+src/app/base44/components/vendor/Analytics.tsx(23,19): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/components/vendor/Analytics.tsx(25,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ new: number; contacted: number; qualified: number; converted: number; lost: number; }'.
+src/app/base44/components/vendor/Analytics.tsx(35,25): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/components/vendor/Analytics.tsx(140,44): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/base44/components/vendor/Analytics.tsx(159,44): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(2,45): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/components/vendor/editProfile.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/components/vendor/editProfile.tsx(12,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/components/vendor/editProfile.tsx(14,39): error TS7031: Binding element 'vendor' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(38,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(53,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(56,64): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(62,23): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(68,26): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(69,67): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(73,18): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(83,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(209,39): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(209,48): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/components/vendor/editProfile.tsx(224,39): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/components/vendor/editProfile.tsx(225,28): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/FAQCentre.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/FAQCentre.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/FAQCentre.tsx(18,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/FAQCentre.tsx(38,24): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(51,24): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(59,28): error TS7006: Parameter 'faqId' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(61,29): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(81,17): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(84,30): error TS7006: Parameter 'k' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(89,85): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(123,36): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(128,26): error TS7006: Parameter 'k' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(294,40): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/base44/FAQCentre.tsx(294,45): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/vendorDashboard.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/vendorDashboard.tsx(4,35): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/vendorDashboard.tsx(5,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/vendorDashboard.tsx(32,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/vendorDashboard.tsx(43,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(51,35): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(53,68): error TS18047: 'user' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(83,18): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(90,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(97,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(98,37): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(110,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(111,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(113,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(113,79): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(115,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(119,23): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(120,21): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(121,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(121,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(125,26): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(126,23): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(126,50): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(126,79): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(129,27): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(130,25): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(131,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(131,60): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(135,30): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(136,23): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(136,54): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorDashboard.tsx(136,87): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(157,81): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(225,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(226,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(228,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(228,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(375,48): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(460,34): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(532,49): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(533,63): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(539,49): error TS2339: Property 'tagline' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(540,63): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(547,49): error TS2339: Property 'description' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(548,63): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(562,49): error TS2339: Property 'website' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(563,63): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(570,49): error TS2339: Property 'phone' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(571,63): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorDashboard.tsx(586,53): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(603,41): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(603,56): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(603,65): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(618,51): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorDashboard.tsx(619,40): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorDashboard.tsx(631,41): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(631,60): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(631,73): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorDashboard.tsx(646,55): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorDashboard.tsx(647,40): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorDashboard.tsx(658,45): error TS2339: Property 'pricing_info' does not exist on type 'never'.
+src/app/base44/vendorDashboard.tsx(659,59): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/base44/vendorProfile.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/base44/vendorProfile.tsx(14,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/base44/vendorProfile.tsx(16,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/base44/vendorProfile.tsx(17,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/base44/vendorProfile.tsx(56,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(113,35): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(115,18): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(117,26): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(130,15): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(130,60): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(137,38): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(143,38): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(160,33): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(160,76): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(163,18): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(170,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(199,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(206,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(215,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(216,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(218,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(218,79): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(220,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(224,23): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(225,20): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(225,46): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(226,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(226,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(230,26): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(231,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(232,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(232,52): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(232,81): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(236,27): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(237,24): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(237,54): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(238,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(238,60): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(242,30): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(243,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(244,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(244,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(244,89): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(249,33): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(252,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(255,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(255,59): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(260,28): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(261,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(263,9): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(264,22): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(264,55): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(264,58): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(270,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(273,61): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(276,25): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(276,64): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(281,33): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(282,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(284,9): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(285,27): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(285,65): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(285,68): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(290,36): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(290,39): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(312,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(337,28): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(338,29): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(349,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(356,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(360,24): error TS18047: 'user' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(360,42): error TS18047: 'user' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(361,25): error TS18047: 'user' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(368,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(368,58): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(386,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(399,23): error TS18047: 'user' is possibly 'null'.
+src/app/base44/vendorProfile.tsx(406,17): error TS7006: Parameter 'added' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(411,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(417,29): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(422,31): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(450,82): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(450,147): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(451,74): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(451,131): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(510,31): error TS2339: Property 'logo_url' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(513,41): error TS2339: Property 'logo_url' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(514,41): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(522,56): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(561,41): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(562,56): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(581,39): error TS2339: Property 'tagline' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(582,54): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(671,43): error TS2339: Property 'description' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(672,58): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(691,43): error TS2339: Property 'pricing_info' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(692,58): error TS2698: Spread types may only be created from object types.
+src/app/base44/vendorProfile.tsx(737,49): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(769,39): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(769,57): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(769,70): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(784,53): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorProfile.tsx(785,38): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorProfile.tsx(793,54): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(793,67): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(829,39): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(829,53): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(829,62): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(844,49): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorProfile.tsx(845,38): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/base44/vendorProfile.tsx(853,50): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(853,59): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(891,43): error TS2339: Property 'demo_videos' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(891,60): error TS7006: Parameter 'video' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(891,67): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(974,53): error TS7006: Parameter 'video' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(974,60): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1017,43): error TS2339: Property 'walkthrough_pdfs' does not exist on type 'never'.
+src/app/base44/vendorProfile.tsx(1017,65): error TS7006: Parameter 'pdf' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1017,70): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1104,58): error TS7006: Parameter 'pdf' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1104,63): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1187,41): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1187,44): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1225,51): error TS7006: Parameter 'relatedVendor' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1261,49): error TS7006: Parameter 'altVendor' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1297,45): error TS7006: Parameter 'similar' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1576,51): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1576,56): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1589,53): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/base44/vendorProfile.tsx(1589,59): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/dashboard/broker/page.tsx(111,15): error TS2345: Argument of type 'User' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type 'User' provides no match for the signature '(prevState: null): null'.
+src/app/dashboard/broker/page.tsx(139,43): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/dashboard/broker/page.tsx(154,30): error TS2698: Spread types may only be created from object types.
+src/app/dashboard/broker/page.tsx(160,18): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(206,39): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(249,68): error TS2339: Property 'vendor_name' does not exist on type 'LeadRecord'.
+src/app/dashboard/broker/page.tsx(253,94): error TS2551: Property 'created_date' does not exist on type 'LeadRecord'. Did you mean 'created_at'?
+src/app/dashboard/broker/page.tsx(298,38): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(347,94): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(355,76): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(356,86): error TS2339: Property 'created_date' does not exist on type 'never'.
+src/app/dashboard/broker/page.tsx(368,26): error TS18048: 'item.badge' is possibly 'undefined'.
+src/app/pages/AdminDashboard.tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(5,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(6,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(18,33): error TS2307: Cannot find module '../components/admin/DirectoryManagement' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(19,36): error TS2307: Cannot find module '../components/admin/ApplicationsManagement' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(20,29): error TS2307: Cannot find module '../components/admin/LeadsManagement' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(21,31): error TS2307: Cannot find module '../components/admin/ReviewsManagement' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(22,28): error TS2307: Cannot find module '../components/admin/BlogManagement' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(23,32): error TS2307: Cannot find module '../components/admin/AnalyticsReporting' or its corresponding type declarations.
+src/app/pages/AdminDashboard.tsx(30,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/pages/AdminDashboard.tsx(74,39): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/AdminDashboard.tsx(81,34): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/pages/AdminDashboard.tsx(89,27): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/pages/AdminDashboard.tsx(97,29): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/pages/AdminDashboard.tsx(105,27): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(3,29): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/ApplyVendor.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/ApplyVendor.tsx(5,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/ApplyVendor.tsx(6,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/ApplyVendor.tsx(16,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/ApplyVendor.tsx(97,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(103,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(109,25): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(130,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(131,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ categories: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; category_other: string; ... 11 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'categories' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/pages/ApplyVendor.tsx(133,44): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(139,47): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(140,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ commercial_finance_subcategories: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; ... 12 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'commercial_finance_subcategories' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/pages/ApplyVendor.tsx(142,88): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(148,29): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(149,17): error TS2345: Argument of type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to parameter of type 'SetStateAction<{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }>'.
+  Type '(prev: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }' is not assignable to type '(prevState: { business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }) => { ...; }'.
+    Call signature return types '{ broker_types: any[]; business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; ... 11 more ...; referral_name: string; }' and '{ business_type: string; company_name: string; contact_name: string; email: string; phone: string; website: string; company_description: string; logo_url: string; categories: never[]; category_other: string; ... 11 more ...; referral_name: string; }' are incompatible.
+      The types of 'broker_types' are incompatible between these types.
+        Type 'any[]' is not assignable to type 'never[]'.
+          Type 'any' is not assignable to type 'never'.
+src/app/pages/ApplyVendor.tsx(151,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(157,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/ApplyVendor.tsx(174,75): error TS2345: Argument of type '"commercial_finance"' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(175,58): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(176,62): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(177,89): error TS2345: Argument of type '"other"' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(387,65): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(421,89): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/pages/ApplyVendor.tsx(457,67): error TS2345: Argument of type 'string' is not assignable to parameter of type 'never'.
+src/app/pages/BlogComposer.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(4,29): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(5,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(9,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(10,26): error TS7016: Could not find a declaration file for module 'lodash'. 'C:/Users/maria/Downloads/brokercompare/node_modules/lodash/lodash.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/lodash` if it exists or add a new declaration (.d.ts) file containing `declare module 'lodash';`
+src/app/pages/BlogComposer.tsx(13,24): error TS2307: Cannot find module '../components/blog/BlogEditor' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(14,25): error TS2307: Cannot find module '../components/blog/BlogPreview' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(15,32): error TS2307: Cannot find module '../components/blog/PublishingSettings' or its corresponding type declarations.
+src/app/pages/BlogComposer.tsx(54,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/pages/BlogComposer.tsx(107,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/BlogComposer.tsx(114,17): error TS7006: Parameter 'savedPost' implicitly has an 'any' type.
+src/app/pages/BlogComposer.tsx(116,20): error TS2345: Argument of type 'Date' is not assignable to parameter of type 'SetStateAction<null>'.
+  Type 'Date' provides no match for the signature '(prevState: null): null'.
+src/app/pages/BlogComposer.tsx(130,15): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/BlogComposer.tsx(138,5): error TS2322: Type 'Timeout' is not assignable to type 'null'.
+src/app/pages/BlogComposer.tsx(197,51): error TS2345: Argument of type '"desktop"' is not assignable to parameter of type 'SetStateAction<null>'.
+src/app/pages/BlogComposer.tsx(205,51): error TS2345: Argument of type '"tablet"' is not assignable to parameter of type 'SetStateAction<null>'.
+src/app/pages/BlogComposer.tsx(213,51): error TS2345: Argument of type '"mobile"' is not assignable to parameter of type 'SetStateAction<null>'.
+src/app/pages/BlogComposer.tsx(260,38): error TS2339: Property 'toLocaleTimeString' does not exist on type 'never'.
+src/app/pages/BlogComposer.tsx(288,47): error TS2345: Argument of type '"desktop"' is not assignable to parameter of type 'SetStateAction<null>'.
+src/app/pages/BrokerDashboard.tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(5,35): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(6,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(34,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(35,26): error TS2307: Cannot find module '../components/vendors/AIChatDialog' or its corresponding type declarations.
+src/app/pages/BrokerDashboard.tsx(58,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/pages/BrokerDashboard.tsx(75,38): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(76,67): error TS18047: 'user' is possibly 'null'.
+src/app/pages/BrokerDashboard.tsx(81,34): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(82,64): error TS18047: 'user' is possibly 'null'.
+src/app/pages/BrokerDashboard.tsx(91,43): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/BrokerDashboard.tsx(101,17): error TS2698: Spread types may only be created from object types.
+src/app/pages/BrokerDashboard.tsx(112,16): error TS2698: Spread types may only be created from object types.
+src/app/pages/BrokerDashboard.tsx(118,87): error TS2339: Property 'id' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(172,34): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(172,84): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(187,75): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(188,85): error TS2339: Property 'created_date' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(227,44): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/pages/BrokerDashboard.tsx(309,50): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/pages/BrokerDashboard.tsx(347,54): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/app/pages/BrokerDashboard.tsx(423,36): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/pages/BrokerDashboard.tsx(676,38): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/BrowseVendors.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(4,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(5,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(11,24): error TS2307: Cannot find module '../components/vendors/VendorCard' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(12,26): error TS2307: Cannot find module '../components/vendors/AIChatDialog' or its corresponding type declarations.
+src/app/pages/BrowseVendors.tsx(52,42): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/BrowseVendors.tsx(72,19): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: number; premium: number; free: number; }'.
+src/app/pages/BrowseVendors.tsx(73,19): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: number; premium: number; free: number; }'.
+src/app/pages/CompareVendors.tsx(2,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/CompareVendors.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/CompareVendors.tsx(4,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/CompareVendors.tsx(5,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/CompareVendors.tsx(24,45): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(44,31): error TS7006: Parameter 'vendorId' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(59,24): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(59,32): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(136,29): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(137,26): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(203,39): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(255,43): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(267,39): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/CompareVendors.tsx(277,39): error TS7006: Parameter 'vendor' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/FAQCentre.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/FAQCentre.tsx(18,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/FAQCentre.tsx(38,24): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(51,24): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(59,28): error TS7006: Parameter 'faqId' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(61,29): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(81,17): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(84,30): error TS7006: Parameter 'k' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(89,85): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(123,36): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(128,26): error TS7006: Parameter 'k' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(294,40): error TS7006: Parameter 'faq' implicitly has an 'any' type.
+src/app/pages/FAQCentre.tsx(294,45): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/VendorDashboard.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/VendorDashboard.tsx(4,35): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/VendorDashboard.tsx(5,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/VendorDashboard.tsx(32,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/VendorDashboard.tsx(43,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(51,35): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(53,68): error TS18047: 'user' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(83,18): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(90,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(97,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(98,37): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(110,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(111,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(113,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(113,79): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(115,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(119,23): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(120,21): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(121,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(121,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(125,26): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(126,23): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(126,50): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(126,79): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(129,27): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(130,25): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(131,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(131,60): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(135,30): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(136,23): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(136,54): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorDashboard.tsx(136,87): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(157,81): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(225,38): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(226,42): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(228,31): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(228,36): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(375,48): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(460,34): error TS7006: Parameter 'lead' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(532,49): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(533,63): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(539,49): error TS2339: Property 'tagline' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(540,63): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(547,49): error TS2339: Property 'description' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(548,63): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(562,49): error TS2339: Property 'website' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(563,63): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(570,49): error TS2339: Property 'phone' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(571,63): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorDashboard.tsx(586,53): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(603,41): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(603,56): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(603,65): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(618,51): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorDashboard.tsx(619,40): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorDashboard.tsx(631,41): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(631,60): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(631,73): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorDashboard.tsx(646,55): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorDashboard.tsx(647,40): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorDashboard.tsx(658,45): error TS2339: Property 'pricing_info' does not exist on type 'never'.
+src/app/pages/VendorDashboard.tsx(659,59): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(2,55): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/app/pages/VendorProfile.tsx(3,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/app/pages/VendorProfile.tsx(14,23): error TS2307: Cannot find module 'sonner' or its corresponding type declarations.
+src/app/pages/VendorProfile.tsx(16,22): error TS2307: Cannot find module 'react-router-dom' or its corresponding type declarations.
+src/app/pages/VendorProfile.tsx(17,31): error TS2307: Cannot find module '@/utils' or its corresponding type declarations.
+src/app/pages/VendorProfile.tsx(56,27): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(113,35): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(115,18): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(117,26): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(130,15): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(130,60): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(137,38): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(143,38): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(160,33): error TS2339: Property 'role' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(160,76): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(163,18): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(170,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(199,35): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(206,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(215,27): error TS7006: Parameter 'value' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(216,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(218,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(218,79): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(220,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(224,23): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(225,20): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(225,46): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(226,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(226,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(230,26): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(231,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(232,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(232,52): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(232,81): error TS7006: Parameter 'f' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(236,27): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(237,24): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(237,54): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(238,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(238,60): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(242,30): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(243,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(244,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(244,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(244,89): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(249,33): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(252,56): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(255,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(255,59): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(260,28): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(261,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(263,9): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(264,22): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(264,55): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(264,58): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(270,31): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(273,61): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(276,25): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(276,64): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(281,33): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(282,9): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(284,9): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(285,27): error TS18047: 'editedVendor' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(285,65): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(285,68): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(290,36): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(290,39): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(312,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(337,28): error TS2339: Property 'full_name' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(338,29): error TS2339: Property 'email' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(349,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(356,24): error TS7006: Parameter 'data' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(360,24): error TS18047: 'user' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(360,42): error TS18047: 'user' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(361,25): error TS18047: 'user' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(368,53): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(368,58): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(386,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(399,23): error TS18047: 'user' is possibly 'null'.
+src/app/pages/VendorProfile.tsx(406,17): error TS7006: Parameter 'added' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(411,15): error TS7006: Parameter 'error' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(417,29): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(422,31): error TS7006: Parameter 'e' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(450,82): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(450,147): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(451,74): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(451,131): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(510,31): error TS2339: Property 'logo_url' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(513,41): error TS2339: Property 'logo_url' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(514,41): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(522,56): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(561,41): error TS2339: Property 'company_name' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(562,56): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(581,39): error TS2339: Property 'tagline' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(582,54): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(671,43): error TS2339: Property 'description' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(672,58): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(691,43): error TS2339: Property 'pricing_info' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(692,58): error TS2698: Spread types may only be created from object types.
+src/app/pages/VendorProfile.tsx(737,49): error TS2339: Property 'categories' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(769,39): error TS2339: Property 'integrations' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(769,57): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(769,70): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(784,53): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorProfile.tsx(785,38): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorProfile.tsx(793,54): error TS7006: Parameter 'integration' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(793,67): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(829,39): error TS2339: Property 'features' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(829,53): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(829,62): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(844,49): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorProfile.tsx(845,38): error TS2339: Property 'value' does not exist on type 'EventTarget'.
+src/app/pages/VendorProfile.tsx(853,50): error TS7006: Parameter 'feature' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(853,59): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(891,43): error TS2339: Property 'demo_videos' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(891,60): error TS7006: Parameter 'video' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(891,67): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(974,53): error TS7006: Parameter 'video' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(974,60): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1017,43): error TS2339: Property 'walkthrough_pdfs' does not exist on type 'never'.
+src/app/pages/VendorProfile.tsx(1017,65): error TS7006: Parameter 'pdf' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1017,70): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1104,58): error TS7006: Parameter 'pdf' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1104,63): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1187,41): error TS7006: Parameter '_' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1187,44): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1225,51): error TS7006: Parameter 'relatedVendor' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1261,49): error TS7006: Parameter 'altVendor' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1297,45): error TS7006: Parameter 'similar' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1576,51): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1576,56): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1589,53): error TS7006: Parameter 'type' implicitly has an 'any' type.
+src/app/pages/VendorProfile.tsx(1589,59): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/app/vendors/page.tsx(88,21): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: number; premium: number; free: number; }'.
+src/app/vendors/page.tsx(89,21): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: number; premium: number; free: number; }'.
+src/blog.tsx(3,26): error TS2307: Cannot find module '@tanstack/react-query' or its corresponding type declarations.
+src/blog.tsx(4,24): error TS2307: Cannot find module '@/api/base44Client' or its corresponding type declarations.
+src/blog.tsx(74,24): error TS7006: Parameter 'post' implicitly has an 'any' type.
+src/blog.tsx(88,56): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/blog.tsx(89,56): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; }'.
+src/blog.tsx(90,28): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; }'.
+src/components/admin/AnalyticsManagement.tsx(6,21): error TS7031: Binding element 'title' implicitly has an 'any' type.
+src/components/admin/AnalyticsManagement.tsx(6,28): error TS7031: Binding element 'value' implicitly has an 'any' type.
+src/components/admin/AnalyticsManagement.tsx(6,41): error TS7031: Binding element 'Icon' implicitly has an 'any' type.
+src/components/admin/AnalyticsManagement.tsx(6,47): error TS7031: Binding element 'change' implicitly has an 'any' type.
+src/components/admin/BlogsManagement.tsx(117,32): error TS7053: Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; crm_systems: string; }'.
+  No index signature with a parameter of type 'string' was found on type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; crm_systems: string; }'.
+src/components/admin/DirectoryManagement.tsx(70,31): error TS7006: Parameter 'vendorId' implicitly has an 'any' type.
+src/components/admin/ReviewsManagement.tsx(43,37): error TS7006: Parameter 'reviewId' implicitly has an 'any' type.
+src/components/admin/ReviewsManagement.tsx(43,47): error TS7006: Parameter 'status' implicitly has an 'any' type.
+src/components/admin/ReviewsManagement.tsx(54,31): error TS7006: Parameter 'reviewId' implicitly has an 'any' type.
+src/components/blog/BlogPreview.tsx(7,39): error TS7031: Binding element 'postData' implicitly has an 'any' type.
+src/components/blog/BlogPreview.tsx(69,72): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ narrow: string; medium: string; wide: string; full: string; }'.
+src/components/blog/BlogPreview.tsx(74,40): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/components/blog/BlogPreview.tsx(75,45): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; }'.
+src/components/blog/BlogPreview.tsx(76,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ industry_news: string; broker_tips: string; product_reviews: string; case_studies: string; guides: string; sponsored_post: string; }'.
+src/components/blog/BlogPreview.tsx(150,38): error TS7006: Parameter 'tag' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(5,43): error TS7031: Binding element 'items' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(20,22): error TS7031: Binding element 'id' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(28,24): error TS7006: Parameter 'id' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(49,27): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(49,33): error TS7006: Parameter 'index' implicitly has an 'any' type.
+src/components/blog/TableOfContents.tsx(79,25): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/components/sanityTemplateComponents/Posts.tsx(3,27): error TS2307: Cannot find module '@/sanity/lib/live' or its corresponding type declarations.
+src/components/sanityTemplateComponents/Posts.tsx(4,45): error TS2307: Cannot find module '@/sanity/lib/queries' or its corresponding type declarations.
+src/components/sanityTemplateComponents/Posts.tsx(5,53): error TS2307: Cannot find module '@/sanity.types' or its corresponding type declarations.
+src/components/sanityTemplateComponents/Posts.tsx(6,27): error TS2307: Cannot find module '@/app/components/Date' or its corresponding type declarations.
+src/components/sanityTemplateComponents/Posts.tsx(7,24): error TS2307: Cannot find module '@/app/components/Onboarding' or its corresponding type declarations.
+src/components/sanityTemplateComponents/Posts.tsx(8,20): error TS2307: Cannot find module '@/app/components/Avatar' or its corresponding type declarations.
+src/components/vendors/AIChatDialog.tsx(16,40): error TS7031: Binding element 'open' implicitly has an 'any' type.
+src/components/vendors/AIChatDialog.tsx(16,46): error TS7031: Binding element 'onOpenChange' implicitly has an 'any' type.
+src/components/vendors/VendorCard.tsx(15,38): error TS7031: Binding element 'vendor' implicitly has an 'any' type.
+src/components/vendors/VendorCard.tsx(30,20): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ featured: { label: string; color: string; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>; }; premium: { ...; }; free: null; }'.
+src/components/vendors/VendorCard.tsx(107,49): error TS7006: Parameter 'cat' implicitly has an 'any' type.
+src/components/vendors/VendorCard.tsx(107,54): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/components/vendors/VendorCard.tsx(113,18): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ mortgage_software: string; asset_finance_tools: string; commercial_finance: string; crm_systems: string; lead_generation: string; compliance_tools: string; document_management: string; ... 7 more ...; other: string; }'.
+src/lib/data.ts(109,3): error TS2741: Property 'slug' is missing in type '{ id: string; name: string; category: "CRM"; logoUrl: string; tagline: string; description: string; pricing: string; compatibility: string[]; reviews: { userSegment: "Small Team (2-5)"; brokerType: "Mortgage"; ... 13 more ...; recommendation?: boolean; }[]; ... 8 more ...; brokerSpecific: { ...; }; }' but required in type 'Software'.
+src/lib/data.ts(143,3): error TS2741: Property 'slug' is missing in type '{ id: string; name: string; category: "Loan Processing"; logoUrl: string; tagline: string; description: string; pricing: string; compatibility: string[]; reviews: Review[]; features: string[]; ... 7 more ...; brokerSpecific: { ...; }; }' but required in type 'Software'.
+src/lib/data.ts(165,3): error TS2741: Property 'slug' is missing in type '{ id: string; name: string; category: "Compliance"; logoUrl: string; tagline: string; description: string; pricing: string; compatibility: string[]; reviews: Review[]; features: string[]; deployment: "Cloud"; supportOptions: "Email"[]; userSegments: ("Mid-Size (6-20)" | "Large (20+)")[]; badges: string[]; brokerSpec...' but required in type 'Software'.
+src/lib/data.ts(182,3): error TS2741: Property 'slug' is missing in type '{ id: string; name: string; category: "Marketing Automation"; logoUrl: string; tagline: string; description: string; pricing: string; compatibility: string[]; reviews: Review[]; features: string[]; ... 6 more ...; badges: string[]; }' but required in type 'Software'.
+src/sanity/lib/client.ts(11,14): error TS2322: Type 'SanityClient | { fetch: () => Promise<null>; }' is not assignable to type 'Pick<SanityClient, "fetch">'.
+  Type '{ fetch: () => Promise<null>; }' is not assignable to type 'Pick<SanityClient, "fetch">'.
+    The types returned by 'fetch(...)' are incompatible between these types.
+      Type 'Promise<null>' is not assignable to type 'Promise<RawQueryResponse<any>>'.
+        Type 'null' is not assignable to type 'RawQueryResponse<any>'.

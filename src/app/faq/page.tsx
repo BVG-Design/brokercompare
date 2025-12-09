@@ -1,8 +1,6 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -105,8 +103,6 @@ function FAQContent() {
   });
 
   return (
-    <>
-      <Header />
       <main className="flex-1 bg-background">
         {/* Header */}
         <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-16">
@@ -334,8 +330,6 @@ function FAQContent() {
           </div>
         </div>
       </main>
-      <Footer />
-    </>
   );
 }
 
@@ -343,7 +337,6 @@ export default function FAQPage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -351,7 +344,6 @@ export default function FAQPage() {
             </div>
           </div>
         </main>
-        <Footer />
       </>
     }>
       <FAQContent />
