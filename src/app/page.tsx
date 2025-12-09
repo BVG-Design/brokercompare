@@ -3,24 +3,19 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Sparkles, ArrowRight, Users, MessageSquare, FileText, Megaphone, Target, Home as HomeIcon, BarChart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+
+import { FEATURED_BLOGS_QUERY } from "@/sanity/queries";
+import { client } from "@/sanity/lib/client";
 import { fetchResourcePosts } from '@/services/sanity';
 import { ResourcePost } from '@/types';
 import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 
 const Home: React.FC = () => {
-  const router = useRouter();
-  const [posts, setPosts] = useState<ResourcePost[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    fetchResourcePosts().then(setPosts);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/directory?q=${encodeURIComponent(searchQuery)}`);
-  };
 
   const categories = [
     { name: 'CRM Systems', icon: Users, slug: 'crm', bg: 'bg-white' },
@@ -33,6 +28,36 @@ const Home: React.FC = () => {
     { name: 'Loan Structure & Application Processing', icon: HomeIcon, slug: 'loan-structure', bg: 'bg-brand-grey' },
     { name: 'Workflow & Daily Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
   ];
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [posts, setPosts] = useState<ResourcePost[]>([]);
+  const [featuredBlogs, setFeaturedBlogs] = useState<any[]>([]);
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implement search functionality as needed
+    console.log('Search query:', searchQuery);
+  };
+
+  useEffect(() => {
+    fetchResourcePosts().then(setPosts);
+  }, []);
+
+  useEffect(() => {
+    client.fetch(FEATURED_BLOGS_QUERY).then(setFeaturedBlogs);
+  }, []);
+
+
+  const blogPosts = (featuredBlogs ?? []).map((blog) => ({
+    category: blog.category || "Blog",
+    title: blog.title,
+    description: blog.description,
+    imageUrl: blog.imageUrl || "https://picsum.photos/seed/blog/600/400",
+    imageHint: blog.title,
+    linkText: "Read Article",
+    link: `/blog/${blog.slug}`,
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -83,7 +108,7 @@ const Home: React.FC = () => {
 
           <div className="mt-12 flex justify-center gap-4">
             <button onClick={() => router.push('/directory')} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
-              Browse All Directory
+              Browse All
             </button>
             <button className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
               List Your Business
@@ -151,12 +176,40 @@ const Home: React.FC = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <button onClick={() => router.push('/resources')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
+            <button onClick={() => router.push('/blog')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
               More resources <ArrowRight size={16} />
             </button>
           </div>
         </div>
       </section>
+
+      {/* Blog Section */}
+      <section className="py-24 bg-brand-cream">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="text-center mb-16">
+            <span className="text-xs font-bold tracking-widest text-gray-500 uppercase mb-2 block">Featured</span>
+            <h2 className="text-3xl md:text-4xl font-bold text-brand-blue mb-4">Latest Blog Posts</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">Insights and updates from our team.</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {blogPosts.map((post, idx) => (
+              <Card key={idx} className={idx === 0 ? 'bg-white' : 'bg-gray-100'}>
+                <CardHeader className="p-0">
+                  <Image src={post.imageUrl} alt={post.imageHint} width={600} height={400} className="w-full h-48 object-cover rounded-t-2xl" />
+                </CardHeader>
+                <CardContent className="p-6">
+                  <CardTitle className="text-brand-blue mb-2">{post.title}</CardTitle>
+                  <p className="text-gray-600 mb-4">{post.description}</p>
+                  <Button asChild variant="link" className="text-brand-blue hover:text-brand-orange">
+                    <Link href={post.link}>{post.linkText} <ArrowRight size={16} /></Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
       {/* Promo Grid */}
       <section className="py-16 bg-white">
