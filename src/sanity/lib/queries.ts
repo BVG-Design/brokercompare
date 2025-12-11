@@ -38,3 +38,18 @@ export const productsAsSoftwareQuery = groq`
 }
 `;
 
+
+export const FEATURED_BLOGS_QUERY = groq`
+  *[_type == "blog"] | order(publishedAt desc)[0...3] {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    summary,
+    "imageUrl": heroImage.asset->url,
+    "author": author->name,
+    "categories": categories[]->title
+  }
+`;
+
+

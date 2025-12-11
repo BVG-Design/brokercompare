@@ -13,6 +13,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
         { name: 'CRMs & Fact Finds', path: '/directory?category=crm' },
         { name: 'VA Services', path: '/directory?category=va' },
         { name: 'Marketing & Sales', path: '/directory?category=marketing' },
+        { name: 'Other', path: '/directory?category=other' },
         { name: 'Resources', path: '/blog' },
     ];
 

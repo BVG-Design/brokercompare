@@ -5,8 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
-import { Header } from '@/components/layout/header';
-import { Footer } from '@/components/layout/footer';
+
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,7 +27,7 @@ function VendorProfileContent() {
   const params = useParams();
   const router = useRouter();
   const vendorId = params.id as string;
-  
+
   const [user, setUser] = useState<any>(null);
   const [vendor, setVendor] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -81,7 +80,7 @@ function VendorProfileContent() {
         //   notFound();
         // }
         // setVendor(data);
-        
+
         // For now, show not found
         setIsLoading(false);
       } catch (error) {
@@ -96,7 +95,7 @@ function VendorProfileContent() {
   // TODO: Fetch reviews, similar vendors, etc. when Supabase is ready
   useEffect(() => {
     if (!vendor) return;
-    
+
     // Fetch reviews
     // Fetch similar vendors
     // Fetch works well with vendors
@@ -140,7 +139,7 @@ function VendorProfileContent() {
   if (isLoading) {
     return (
       <>
-        <Header />
+
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="flex items-center justify-center min-h-[400px]">
@@ -148,7 +147,7 @@ function VendorProfileContent() {
             </div>
           </div>
         </main>
-        <Footer />
+
       </>
     );
   }
@@ -157,7 +156,7 @@ function VendorProfileContent() {
     notFound();
   }
 
-  const averageRating = reviews.length > 0 
+  const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
 
@@ -165,7 +164,7 @@ function VendorProfileContent() {
 
   return (
     <>
-      <Header />
+
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           {/* Header Section */}
@@ -435,11 +434,10 @@ function VendorProfileContent() {
                     <button
                       key={rating}
                       onClick={() => setReviewData({ ...reviewData, rating })}
-                      className={`p-2 rounded ${
-                        reviewData.rating >= rating
+                      className={`p-2 rounded ${reviewData.rating >= rating
                           ? 'text-yellow-400'
                           : 'text-gray-300'
-                      }`}
+                        }`}
                     >
                       <Star className="w-6 h-6 fill-current" />
                     </button>
@@ -475,7 +473,7 @@ function VendorProfileContent() {
           </DialogContent>
         </Dialog>
       </main>
-      <Footer />
+
     </>
   );
 }
@@ -484,7 +482,7 @@ export default function VendorProfilePage() {
   return (
     <Suspense fallback={
       <>
-        <Header />
+
         <main className="flex-1 bg-background">
           <div className="container mx-auto px-4 md:px-6 py-12">
             <div className="text-center">
@@ -492,7 +490,7 @@ export default function VendorProfilePage() {
             </div>
           </div>
         </main>
-        <Footer />
+
       </>
     }>
       <VendorProfileContent />

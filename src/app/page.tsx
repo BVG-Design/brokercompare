@@ -6,14 +6,15 @@ import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
-
-import { FEATURED_BLOGS_QUERY } from "@/sanity/queries";
+import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, TroubleshootIcon, AiAutomationsIcon, MarketingLeadGenIcon, BusinessStrategyIcon, LoanStructureIcon, WorkflowOpsIcon } from "@/components/shared/icons";
+import { cn } from "@/lib/utils";
+import { FEATURED_BLOGS_QUERY } from "@/sanity/lib/queries";
 import { client } from "@/sanity/lib/client";
 import { fetchResourcePosts } from '@/services/sanity';
 import { ResourcePost } from '@/types';
 import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
+import BetaConsentModal from "@/components/shared/BetaConsentModal";
 
 const Home: React.FC = () => {
 
@@ -22,11 +23,10 @@ const Home: React.FC = () => {
     { name: 'Document Collection', icon: FileText, slug: 'docs', bg: 'bg-white' },
     { name: 'VA Services', icon: MessageSquare, slug: 'va', bg: 'bg-white' },
     { name: 'AI Software and Services', icon: Sparkles, slug: 'ai', bg: 'bg-white' },
-    // New categories with grey background
     { name: 'Marketing & Lead Generation', icon: Megaphone, slug: 'marketing', bg: 'bg-brand-grey' },
     { name: 'Business Strategy & Coaching', icon: Target, slug: 'strategy', bg: 'bg-brand-grey' },
     { name: 'Loan Structure & Application Processing', icon: HomeIcon, slug: 'loan-structure', bg: 'bg-brand-grey' },
-    { name: 'Workflow & Daily Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
+    { name: 'Workflow, Reporting & Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
   ];
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,6 +61,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <BetaConsentModal />
       {/* Hero Section */}
       <section className="bg-brand-blue relative overflow-hidden pt-24 pb-32 px-4">
         {/* Abstract Background Shapes (CSS/SVG) */}
