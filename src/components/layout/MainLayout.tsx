@@ -136,7 +136,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <div>
                             <h4 className="font-bold mb-4">Company</h4>
                             <ul className="space-y-2 text-sm text-white/60">
-                                <li><Link href="/about" className="hover:text-brand-orange transition-colors">About Us</Link></li>
+                                <li><Link href="/ai-data-use-policy" className="hover:text-brand-orange transition-colors">AI & Data Collection Policy</Link></li>
                                 <li><Link href="/faq" className="hover:text-brand-orange transition-colors">FAQs</Link></li>
                                 <li><Link href="/terms" className="hover:text-brand-orange transition-colors">Terms & Conditions</Link></li>
                             </ul>
@@ -146,7 +146,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                             <h4 className="font-bold mb-4">Engage</h4>
                             <ul className="space-y-2 text-sm text-white/60">
                                 <li className="group relative w-fit">
-                                    <Link href="/contact" className="hover:text-brand-orange transition-colors" title="Support, media, partnerships or general enquiries.">Contact Us</Link>
+                                    <Link href="/write-review" className="hover:text-brand-orange transition-colors" title="Review a software or servicet.">Write a Review</Link>
                                 </li>
                                 <li className="group relative w-fit">
                                     <Link href="/partner" className="hover:text-brand-orange transition-colors" title="Work with us as a vendor, educator or integration partner.">Partner With Us</Link>

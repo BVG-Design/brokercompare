@@ -29,14 +29,14 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 font-headline">Company</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">About Us</Link></li>
+              <li><Link href="/ai-data-use-policy" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">AI & Data Collection Policy</Link></li>
               <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Terms & Conditions</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 font-headline">Engage</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Contact Us</Link></li>
+              <li><Link href="/write-review" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Write a Review</Link></li>
               <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Partner with us</Link></li>
             </ul>
           </div>
