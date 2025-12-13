@@ -25,6 +25,8 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
     const averageRating = rating?.average || 0;
     const reviewCount = rating?.count || 0;
 
+    const actionButtonClasses = "min-w-[160px] justify-center";
+
     return (
         <div className="max-w-6xl mx-auto px-4 -mt-32 relative z-10 mb-8">
             <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6 md:p-8">
@@ -81,7 +83,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                             href={`${websiteUrl.split('?')[0]}?utm_source=broker-tools-profile`}
                                             target="_blank"
                                             rel="noreferrer"
-                                            className="bg-brand-orange hover:bg-orange-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors"
+                                            className={`bg-brand-orange hover:bg-orange-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                         >
                                             Visit Website
                                             <ExternalLink size={14} />
@@ -90,7 +92,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
 
                                     <Link
                                         href="/write-review"
-                                        className="bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors"
+                                        className={`bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                     >
                                         <ShieldCheck size={14} />
                                         Write Review
@@ -98,10 +100,12 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
 
                                     <Link
                                         href="/compare"
-                                        className="bg-brand-green hover:bg-green-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors"
+                                        className={`bg-brand-green hover:bg-brand-green text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                     >
                                         Compare
-                                        <Plus size={14} />
+                                        <span className="flex items-center justify-center w-5 h-5 rounded border-2 border-white/80 bg-white/10 text-white font-bold leading-none">
+                                            <Plus size={12} />
+                                        </span>
                                     </Link>
                                 </div>
 
