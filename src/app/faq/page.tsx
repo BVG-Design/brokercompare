@@ -16,6 +16,7 @@ import {
   ChevronUp
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import StillNotSure from '@/components/product-page/StillNotSure';
 // TODO: Replace with Supabase queries when tables are ready
 // import { faqQueries } from '@/lib/supabase';
 
@@ -310,19 +311,8 @@ function FAQContent() {
               </CardContent>
             </Card>
 
-            {/* Contact Support CTA */}
-            <Card className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground border-0">
-              <CardContent className="pt-6 text-center">
-                <MessageSquare className="w-12 h-12 mx-auto mb-4 text-accent" />
-                <h3 className="text-2xl font-bold mb-2">Still need help?</h3>
-                <p className="text-primary-foreground/80 mb-6">
-                  Our support team is here to help you with any questions
-                </p>
-                <Button className="bg-accent hover:bg-accent/90 text-accent-foreground font-semibold">
-                  Contact Support
-                </Button>
-              </CardContent>
-            </Card>
+            {/* CTA */}
+            <StillNotSure />
           </div>
         </div>
       </div>
