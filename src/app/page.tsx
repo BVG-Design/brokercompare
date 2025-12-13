@@ -111,7 +111,7 @@ const Home: React.FC = () => {
             <button onClick={() => router.push('/directory')} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
               Browse All
             </button>
-            <button className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
+            <button onClick={() => router.push('/apply')} className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
               List Your Business
             </button>
           </div>
@@ -180,33 +180,6 @@ const Home: React.FC = () => {
             <button onClick={() => router.push('/blog')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
               More resources <ArrowRight size={16} />
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* Blog Section */}
-      <section className="py-24 bg-brand-cream">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="text-center mb-16">
-            <span className="text-xs font-bold tracking-widest text-gray-500 uppercase mb-2 block">Featured</span>
-            <h2 className="text-3xl md:text-4xl font-bold text-brand-blue mb-4">Latest Blog Posts</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">Insights and updates from our team.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {blogPosts.map((post, idx) => (
-              <Card key={idx} className={idx === 0 ? 'bg-white' : 'bg-gray-100'}>
-                <CardHeader className="p-0">
-                  <Image src={post.imageUrl} alt={post.imageHint} width={600} height={400} className="w-full h-48 object-cover rounded-t-2xl" />
-                </CardHeader>
-                <CardContent className="p-6">
-                  <CardTitle className="text-brand-blue mb-2">{post.title}</CardTitle>
-                  <p className="text-gray-600 mb-4">{post.description}</p>
-                  <Button asChild variant="link" className="text-brand-blue hover:text-brand-orange">
-                    <Link href={post.link}>{post.linkText} <ArrowRight size={16} /></Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>

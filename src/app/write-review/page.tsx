@@ -83,11 +83,11 @@ export default function WriteReviewPage() {
                 <div className="container mx-auto px-4 md:px-6 text-center">
                     <Badge className="bg-secondary text-secondary-foreground mb-4 font-semibold px-4 py-1">Feature Coming Soon</Badge>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4 font-headline">
-                        Your insights are valuable.
+                        Help a Broker out - Write a Review.
                     </h1>
                     <p className="max-w-2xl mx-auto text-lg md:text-xl text-primary-foreground/90">
-                        Your peers come to O Broker Tools to get an inside look at business solutions.
-                        Adding perspective on software and services will help others pick the right solution based on real user experiences.
+                        Nobody knows a software or a service better than a fellow broker. 
+                        So share your insights and help another broker optimise the way they work.
                     </p>
                 </div>
             </div>

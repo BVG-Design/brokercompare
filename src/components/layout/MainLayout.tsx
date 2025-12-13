@@ -3,9 +3,11 @@
 import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
+import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
 
 const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [feedbackOpen, setFeedbackOpen] = useState(false);
 
     const navLinks = [
         { name: 'AI Recommender', path: '/recommendations' },
@@ -136,7 +138,15 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                         <div>
                             <h4 className="font-bold mb-4">Company</h4>
                             <ul className="space-y-2 text-sm text-white/60">
-                                <li><Link href="/ai-data-use-policy" className="hover:text-brand-orange transition-colors">AI & Data Collection Policy</Link></li>
+                                <li>
+                                    <button
+                                        type="button"
+                                        onClick={() => setFeedbackOpen(true)}
+                                        className="hover:text-brand-orange transition-colors"
+                                    >
+                                        Give Feedback
+                                    </button>
+                                </li>
                                 <li><Link href="/faq" className="hover:text-brand-orange transition-colors">FAQs</Link></li>
                                 <li><Link href="/terms" className="hover:text-brand-orange transition-colors">Terms & Conditions</Link></li>
                             </ul>
@@ -159,10 +169,11 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                     </div>
 
                     <div className="border-t border-white/10 pt-8 text-center text-sm text-white/40">
-                        © 2025 BrokerTools. All rights reserved.
+                        (c) 2025 BrokerTools. All rights reserved.
                     </div>
                 </div>
             </footer>
+            <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
         </div>
     );
 };

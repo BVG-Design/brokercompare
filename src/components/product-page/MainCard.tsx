@@ -1,11 +1,45 @@
+'use client';
+
+'use client';
+
 import React from 'react';
-import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus } from 'lucide-react';
+import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus, Brain } from 'lucide-react';
 import { SoftwareListing } from './types';
 import Link from 'next/link';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface MainCardProps {
     listing: SoftwareListing;
 }
+
+// Helper function to get tooltip description for service areas
+const getServiceAreaDescription = (area: string): string => {
+  const descriptions: Record<string, string> = {
+    'Managed IT': 'Comprehensive IT management and support services',
+    'Cybersecurity': 'Security services to protect your business from threats',
+    'Microsoft 365': 'Microsoft 365 implementation, management, and support',
+    'Cloud Infrastructure': 'Cloud computing and infrastructure services',
+    'Helpdesk Support': 'Technical support and helpdesk services',
+    'Network Management': 'Network setup, monitoring, and management',
+  };
+  return descriptions[area] || `${area} services`;
+};
+
+// Helper function to get tooltip description for broker types
+const getBrokerTypeDescription = (type: string): string => {
+  const descriptions: Record<string, string> = {
+    'Mortgage': 'Services designed for mortgage brokers',
+    'Asset': 'Services for asset finance brokers',
+    'Commercial': 'Services for commercial finance brokers',
+    'Asset Finance': 'Services for asset finance brokers',
+  };
+  return descriptions[type] || `Ideal for ${type} brokers`;
+};
 
 const MainCard: React.FC<MainCardProps> = ({ listing }) => {
     const {
@@ -159,22 +193,46 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                         {serviceArea.length > 0 && (
                             <div className="mb-6">
                                 <h4 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">Service Areas</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {serviceArea.map((area, idx) => (
-                                        <span key={idx} className="px-2 py-1 bg-white border border-gray-200 rounded text-xs text-gray-600">{area}</span>
-                                    ))}
-                                </div>
+                                <TooltipProvider>
+                                    <div className="flex flex-wrap gap-2">
+                                        {serviceArea.map((area, idx) => (
+                                            <Tooltip key={idx}>
+                                                <TooltipTrigger asChild>
+                                                    <span className="px-2 py-1 bg-white border border-gray-200 rounded text-xs text-gray-600 cursor-pointer group relative inline-flex items-center gap-1">
+                                                        {area}
+                                                        <Brain className="w-3 h-3 text-gray-400 group-hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{getServiceAreaDescription(area)}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        ))}
+                                    </div>
+                                </TooltipProvider>
                             </div>
                         )}
 
                         {brokerType.length > 0 && (
                             <div>
                                 <h4 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">Broker Type</h4>
-                                <div className="flex flex-wrap gap-2">
-                                    {brokerType.map((type, idx) => (
-                                        <span key={idx} className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-100 rounded text-xs">{type}</span>
-                                    ))}
-                                </div>
+                                <TooltipProvider>
+                                    <div className="flex flex-wrap gap-2">
+                                        {brokerType.map((type, idx) => (
+                                            <Tooltip key={idx}>
+                                                <TooltipTrigger asChild>
+                                                    <span className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-100 rounded text-xs cursor-pointer group relative inline-flex items-center gap-1">
+                                                        {type}
+                                                        <Brain className="w-3 h-3 text-purple-500 group-hover:text-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                    </span>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>{getBrokerTypeDescription(type)}</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+                                        ))}
+                                    </div>
+                                </TooltipProvider>
                             </div>
                         )}
                     </div>
