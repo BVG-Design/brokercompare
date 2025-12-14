@@ -2,10 +2,11 @@
 
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus, Brain } from 'lucide-react';
 import { SoftwareListing } from './types';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import {
   Tooltip,
   TooltipContent,
@@ -56,8 +57,33 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
         category
     } = listing;
 
+    const searchParams = useSearchParams();
     const averageRating = rating?.average || 0;
     const reviewCount = rating?.count || 0;
+
+    const utmMedium = useMemo(() => {
+        const mediumParam = searchParams?.get('utm_medium') || '';
+        const sourceParam = searchParams?.get('source') || searchParams?.get('ref') || '';
+        const mediumIsAiChat = mediumParam.toLowerCase() === 'aichat';
+        const sourceIsAiChat = sourceParam.toLowerCase() === 'ai_chat';
+        if (mediumIsAiChat || sourceIsAiChat) {
+            return 'AIChat';
+        }
+        return 'profile';
+    }, [searchParams]);
+
+    const trackedWebsiteUrl = useMemo(() => {
+        if (!websiteUrl) return null;
+        try {
+            const normalisedUrl = websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`;
+            const url = new URL(normalisedUrl);
+            url.searchParams.set('utm_source', 'BrokerTools');
+            url.searchParams.set('utm_medium', utmMedium);
+            return url.toString();
+        } catch {
+            return websiteUrl;
+        }
+    }, [websiteUrl, utmMedium]);
 
     const actionButtonClasses = "min-w-[160px] justify-center";
 
@@ -112,9 +138,9 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                 </p>
 
                                 <div className="flex flex-wrap gap-3 mb-8">
-                                    {websiteUrl && (
+                                    {trackedWebsiteUrl && (
                                         <a
-                                            href={`${websiteUrl.split('?')[0]}?utm_source=broker-tools-profile`}
+                                            href={trackedWebsiteUrl}
                                             target="_blank"
                                             rel="noreferrer"
                                             className={`bg-brand-orange hover:bg-orange-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}

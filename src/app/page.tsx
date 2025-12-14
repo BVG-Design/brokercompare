@@ -207,7 +207,10 @@ const Home: React.FC = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <div className="font-bold text-2xl">?</div>
                 </div>
-                <h4 className="text-xl font-bold text-brand-blue mb-3">Troubleshoot & VA Support</h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="text-xl font-bold text-brand-blue">Troubleshoot & VA Support</h4>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/30">Coming Soon</span>
+                </div>
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   A directory of guides helping you or your VA to trouble shoot common integration and website issues
                 </p>
@@ -220,7 +223,10 @@ const Home: React.FC = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <Sparkles size={24} />
                 </div>
-                <h4 className="text-xl font-bold text-brand-blue mb-3">AI Automations</h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="text-xl font-bold text-brand-blue">AI Automations</h4>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/30">Coming Soon</span>
+                </div>
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies
                 </p>
