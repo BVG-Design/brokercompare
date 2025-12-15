@@ -1,8 +1,14 @@
+'use client';
+
 import Link from "next/link";
 import { Twitter, Linkedin, Facebook } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
+import { FeedbackDialog } from "@/components/shared/FeedbackDialog";
 
 export function Footer() {
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+
   return (
     <footer className="bg-primary text-primary-foreground border-t border-primary-foreground/10">
       <div className="container mx-auto px-4 md:px-6 py-12">
@@ -29,14 +35,22 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 font-headline">Company</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">About Us</Link></li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setFeedbackOpen(true)}
+                  className="text-sm text-primary-foreground/80 hover:text-primary-foreground"
+                >
+                  Give Feedback
+                </button>
+              </li>
               <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Terms & Conditions</Link></li>
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4 font-headline">Engage</h4>
             <ul className="space-y-2">
-              <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Contact Us</Link></li>
+              <li><Link href="/write-review" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Write a Review</Link></li>
               <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Partner with us</Link></li>
             </ul>
           </div>
@@ -45,6 +59,7 @@ export function Footer() {
           <p>&copy; {new Date().getFullYear()} O Broker Tools. All rights reserved.</p>
         </div>
       </div>
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </footer>
   );
 }

@@ -70,17 +70,32 @@ function BrowseVendorsContent() {
 
   const categories = [
     { value: 'all', label: 'All Categories' },
-    { value: 'crm_systems', label: 'CRM Systems' },
-    { value: 'document_management', label: 'Document Collection' },
-    { value: 'va_services', label: 'VA Services' },
-    { value: 'marketing_services', label: 'Marketing & Sales' },
+    // Top Priority
+    { value: 'ai_workflow_design', label: 'AI & Workflow Design' },
     { value: 'mortgage_software', label: 'Mortgage Software' },
-    { value: 'asset_finance_tools', label: 'Asset Finance Tools' },
-    { value: 'commercial_finance', label: 'Commercial Finance' },
-    { value: 'lead_generation', label: 'Lead Generation' },
-    { value: 'compliance_tools', label: 'Compliance Tools' },
-    { value: 'loan_origination', label: 'Loan Origination' },
-    { value: 'broker_tools', label: 'Broker Tools' },
+    { value: 'asset_software', label: 'Asset Software' },
+    { value: 'commercial_software', label: 'Commercial Software' },
+    { value: 'crm_document_collection', label: 'CRM & Document Collection' },
+    // Alphabetical
+    { value: 'accounting_tax', label: 'Accounting & Tax' },
+    { value: 'admin_ops', label: 'Admin & Ops' },
+    { value: 'brand_media', label: 'Brand & Media' },
+    { value: 'broker_coaching', label: 'Broker Coaching' },
+    { value: 'client_experience_retention', label: 'Client Experience & Retention' },
+    { value: 'compliance_risk_legal', label: 'Compliance, Risk & Legal' },
+    { value: 'data_reporting', label: 'Data & Reporting' },
+    { value: 'finance_strategy_virtual_cfo', label: 'Finance Strategy & Virtual CFO' },
+    { value: 'it_support_cyber_security', label: 'IT Support & Cyber Security' },
+    { value: 'loan_processing_credit_support', label: 'Loan Processing & Credit Support' },
+    { value: 'marketing_automation', label: 'Marketing Automation' },
+    { value: 'mindset_performance', label: 'Mindset & Performance' },
+    { value: 'organic_social_traffic', label: 'Organic Social Traffic' },
+    { value: 'other', label: 'Other' },
+    { value: 'paid_advertising', label: 'Paid Advertising' },
+    { value: 'public_speaking_authority', label: 'Public Speaking & Authority' },
+    { value: 'recruitment_team_building', label: 'Recruitment & Team Building' },
+    { value: 'sales_training', label: 'Sales Training' },
+    { value: 'virtual_assistants_outsourcing', label: 'Virtual Assistants & Outsourcing' },
   ];
 
   const brokerTypes = [
