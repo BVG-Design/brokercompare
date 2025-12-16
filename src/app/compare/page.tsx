@@ -157,9 +157,10 @@ function ComparePageContent() {
             </Tabs>
           </div>
         </div>
-        </main>
-    );
-  }
+      </main>
+    </>
+  );
+}
 
 export default function ComparePage() {
   return (
@@ -178,4 +179,3 @@ export default function ComparePage() {
     </Suspense>
   );
 }
-
