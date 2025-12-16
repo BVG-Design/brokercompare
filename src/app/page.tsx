@@ -3,39 +3,65 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Sparkles, ArrowRight, Users, MessageSquare, FileText, Megaphone, Target, Home as HomeIcon, BarChart } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, TroubleshootIcon, AiAutomationsIcon, MarketingLeadGenIcon, BusinessStrategyIcon, LoanStructureIcon, WorkflowOpsIcon } from "@/components/shared/icons";
+import { cn } from "@/lib/utils";
+import { FEATURED_BLOGS_QUERY } from "@/sanity/lib/queries";
+import { client } from "@/sanity/lib/client";
 import { fetchResourcePosts } from '@/services/sanity';
 import { ResourcePost } from '@/types';
 import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
+import BetaConsentModal from "@/components/shared/BetaConsentModal";
 
 const Home: React.FC = () => {
-  const router = useRouter();
-  const [posts, setPosts] = useState<ResourcePost[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-
-  useEffect(() => {
-    fetchResourcePosts().then(setPosts);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    router.push(`/directory?q=${encodeURIComponent(searchQuery)}`);
-  };
 
   const categories = [
     { name: 'CRM Systems', icon: Users, slug: 'crm', bg: 'bg-white' },
     { name: 'Document Collection', icon: FileText, slug: 'docs', bg: 'bg-white' },
     { name: 'VA Services', icon: MessageSquare, slug: 'va', bg: 'bg-white' },
     { name: 'AI Software and Services', icon: Sparkles, slug: 'ai', bg: 'bg-white' },
-    // New categories with grey background
     { name: 'Marketing & Lead Generation', icon: Megaphone, slug: 'marketing', bg: 'bg-brand-grey' },
     { name: 'Business Strategy & Coaching', icon: Target, slug: 'strategy', bg: 'bg-brand-grey' },
     { name: 'Loan Structure & Application Processing', icon: HomeIcon, slug: 'loan-structure', bg: 'bg-brand-grey' },
-    { name: 'Workflow & Daily Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
+    { name: 'Workflow, Reporting & Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
   ];
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [posts, setPosts] = useState<ResourcePost[]>([]);
+  const [featuredBlogs, setFeaturedBlogs] = useState<any[]>([]);
+  const router = useRouter();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Implement search functionality as needed
+    console.log('Search query:', searchQuery);
+  };
+
+  useEffect(() => {
+    fetchResourcePosts().then(setPosts);
+  }, []);
+
+  useEffect(() => {
+    client.fetch(FEATURED_BLOGS_QUERY).then(setFeaturedBlogs);
+  }, []);
+
+
+  const blogPosts = (featuredBlogs ?? []).map((blog) => ({
+    category: blog.category || "Blog",
+    title: blog.title,
+    description: blog.description,
+    imageUrl: blog.imageUrl || "https://picsum.photos/seed/blog/600/400",
+    imageHint: blog.title,
+    linkText: "Read Article",
+    link: `/blog/${blog.slug}`,
+  }));
 
   return (
     <div className="flex flex-col min-h-screen">
+      <BetaConsentModal />
       {/* Hero Section */}
       <section className="bg-brand-blue relative overflow-hidden pt-24 pb-32 px-4">
         {/* Abstract Background Shapes (CSS/SVG) */}
@@ -83,9 +109,9 @@ const Home: React.FC = () => {
 
           <div className="mt-12 flex justify-center gap-4">
             <button onClick={() => router.push('/directory')} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
-              Browse All Directory
+              Browse All
             </button>
-            <button className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
+            <button onClick={() => router.push('/apply')} className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
               List Your Business
             </button>
           </div>
@@ -151,12 +177,13 @@ const Home: React.FC = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <button onClick={() => router.push('/resources')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
+            <button onClick={() => router.push('/blog')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
               More resources <ArrowRight size={16} />
             </button>
           </div>
         </div>
       </section>
+
 
       {/* Promo Grid */}
       <section className="py-16 bg-white">
@@ -180,7 +207,10 @@ const Home: React.FC = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <div className="font-bold text-2xl">?</div>
                 </div>
-                <h4 className="text-xl font-bold text-brand-blue mb-3">Troubleshoot & VA Support</h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="text-xl font-bold text-brand-blue">Troubleshoot & VA Support</h4>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/30">Coming Soon</span>
+                </div>
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   A directory of guides helping you or your VA to trouble shoot common integration and website issues
                 </p>
@@ -193,7 +223,10 @@ const Home: React.FC = () => {
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <Sparkles size={24} />
                 </div>
-                <h4 className="text-xl font-bold text-brand-blue mb-3">AI Automations</h4>
+                <div className="flex items-center gap-3 mb-3">
+                  <h4 className="text-xl font-bold text-brand-blue">AI Automations</h4>
+                  <span className="text-xs font-semibold px-3 py-1 rounded-full bg-brand-orange/10 text-brand-orange border border-brand-orange/30">Coming Soon</span>
+                </div>
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies
                 </p>

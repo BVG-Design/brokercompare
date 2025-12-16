@@ -542,5 +542,6 @@ export default function ApplyVendor() {
         </Card>
       </div>
     </div>
+
   );
 }

@@ -1,23 +1,7 @@
-import { Shield, Sparkles, Lock, Mail, SlidersHorizontal } from 'lucide-react';
+import { Shield, Mail, Scale, ShieldCheck, HelpCircle, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
-const commitments = [
-  {
-    icon: <Sparkles className="w-5 h-5 text-accent" />,
-    title: 'Purpose-built AI',
-    copy: 'We use AI to surface recommendations and benchmarks that help brokers compare software and services.',
-  },
-  {
-    icon: <Lock className="w-5 h-5 text-accent" />,
-    title: 'No selling of personal data',
-    copy: 'Personal data is never sold. We only use what is needed to deliver and improve the platform.',
-  },
-  {
-    icon: <SlidersHorizontal className="w-5 h-5 text-accent" />,
-    title: 'Control and opt-outs',
-    copy: 'You can opt out of AI-driven personalization at any time without losing access to your account.',
-  },
-];
+
 
 export const metadata = {
   title: 'AI & Data Use Policy',
@@ -45,16 +29,53 @@ export default function AIDataUsePolicyPage() {
       </section>
 
       <section className="container mx-auto px-4 md:px-6 py-12 space-y-10">
+
+
         <div className="grid gap-6 md:grid-cols-3">
-          {commitments.map((item) => (
-            <div key={item.title} className="p-6 rounded-xl border bg-card shadow-sm space-y-3">
-              <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-accent/10">
-                {item.icon}
+          <Link href="/terms" className="group block h-full">
+            <div className="p-6 rounded-xl border bg-card shadow-sm space-y-3 h-full cursor-pointer hover:border-primary/50 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-accent/10">
+                  <Scale className="w-5 h-5 text-accent" />
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
               </div>
-              <h2 className="text-lg font-semibold">{item.title}</h2>
-              <p className="text-sm text-muted-foreground">{item.copy}</p>
+              <h2 className="text-lg font-semibold group-hover:text-primary transition-colors">Terms of Service</h2>
+              <p className="text-sm text-muted-foreground">
+                The rules for using BrokerCompare, including acceptable use and liability.
+              </p>
             </div>
-          ))}
+          </Link>
+
+          <Link href="/privacy" className="group block h-full">
+            <div className="p-6 rounded-xl border bg-card shadow-sm space-y-3 h-full cursor-pointer hover:border-primary/50 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-accent/10">
+                  <ShieldCheck className="w-5 h-5 text-accent" />
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <h2 className="text-lg font-semibold group-hover:text-primary transition-colors">Privacy Policy</h2>
+              <p className="text-sm text-muted-foreground">
+                How we collect, use, share, and protect your information.
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/faq" className="group block h-full">
+            <div className="p-6 rounded-xl border bg-card shadow-sm space-y-3 h-full cursor-pointer hover:border-primary/50 transition-colors">
+              <div className="flex items-center justify-between">
+                <div className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-accent/10">
+                  <HelpCircle className="w-5 h-5 text-accent" />
+                </div>
+                <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+              <h2 className="text-lg font-semibold group-hover:text-primary transition-colors">FAQs</h2>
+              <p className="text-sm text-muted-foreground">
+                Find answers to common questions about using BrokerCompare.
+              </p>
+            </div>
+          </Link>
         </div>
 
         <div className="grid gap-8 md:grid-cols-2">

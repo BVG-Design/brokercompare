@@ -52,56 +52,56 @@ function ComparePageContent() {
 
   if (items.length === 0) {
     return (
-        <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="max-w-4xl mx-auto text-center space-y-6">
-              <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-                Compare Products & Services
-              </h1>
-              <p className="text-lg text-muted-foreground">
-                Select products and services to compare side-by-side. Add items from the listings to get started.
-              </p>
-              <div className="flex gap-4 justify-center">
-                <Button asChild>
-                  <Link href="/software">Browse Software</Link>
-                </Button>
-                <Button asChild variant="outline">
-                  <Link href="/services">Browse Services</Link>
-                </Button>
-              </div>
-            </div>
-
-            <div className="mt-12">
-              <ProductSelector />
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-4 md:px-6 py-12">
+          <div className="max-w-4xl mx-auto text-center space-y-6">
+            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
+              Compare Products & Services
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Select products and services to compare side-by-side. Add items from the listings to get started.
+            </p>
+            <div className="flex gap-4 justify-center">
+              <Button asChild>
+                <Link href="/software">Browse Software</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/services">Browse Services</Link>
+              </Button>
             </div>
           </div>
-        </main>
+
+          <div className="mt-12">
+            <ProductSelector />
+          </div>
+        </div>
+      </main>
     );
   }
 
   if (items.length === 1) {
     return (
-        <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="max-w-4xl mx-auto space-y-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-                    Compare Products & Services
-                  </h1>
-                  <p className="text-muted-foreground mt-2">
-                    Add at least one more item to compare
-                  </p>
-                </div>
-                <Button variant="outline" onClick={clearAll}>
-                  Clear All
-                </Button>
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-4 md:px-6 py-12">
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
+                  Compare Products & Services
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                  Add at least one more item to compare
+                </p>
               </div>
-
-              <ProductSelector />
+              <Button variant="outline" onClick={clearAll}>
+                Clear All
+              </Button>
             </div>
+
+            <ProductSelector />
           </div>
-        </main>
+        </div>
+      </main>
     );
   }
 

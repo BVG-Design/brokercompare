@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import type { Software } from '@/lib/types';
 import { SoftwareCard } from './software-card';
+
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search } from 'lucide-react';
@@ -31,6 +32,8 @@ export default function SoftwarePageClient({ software }: Props) {
   const categories = ['All', ...Array.from(new Set(software.map(s => s.category)))];
 
   return (
+    <>
+
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
           <div className="space-y-4 mb-12 text-center">
@@ -66,7 +69,7 @@ export default function SoftwarePageClient({ software }: Props) {
           </div>
 
           {filteredSoftware.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
               {filteredSoftware.map((item: Software) => (
                 <SoftwareCard key={item.id} software={item} />
               ))}
@@ -78,5 +81,7 @@ export default function SoftwarePageClient({ software }: Props) {
           )}
         </div>
       </main>
+
+    </>
   );
 }
