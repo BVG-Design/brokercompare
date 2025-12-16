@@ -319,7 +319,7 @@ export default function ApplyVendor() {
                         <Checkbox
                           id={category.value}
                           checked={formData.categories.includes(category.value)}
-                          onCheckedChange={() => toggleValue('categories', category.value)}
+                          onCheckedChange={(_checked) => toggleValue('categories', category.value)}
                         />
                         <label htmlFor={category.value} className="text-sm text-gray-700 cursor-pointer">
                           {category.label}
@@ -350,7 +350,7 @@ export default function ApplyVendor() {
                           <Checkbox
                             id={`cf_${subcat.value}`}
                             checked={formData.commercial_finance_subcategories.includes(subcat.value)}
-                            onCheckedChange={() => toggleValue('commercial_finance_subcategories', subcat.value)}
+                            onCheckedChange={(_checked) => toggleValue('commercial_finance_subcategories', subcat.value)}
                           />
                           <label htmlFor={`cf_${subcat.value}`} className="text-sm text-gray-700 cursor-pointer">
                             {subcat.label}
@@ -384,7 +384,7 @@ export default function ApplyVendor() {
                         <Checkbox
                           id={type.value}
                           checked={formData.broker_types.includes(type.value)}
-                          onCheckedChange={() => toggleValue('broker_types', type.value)}
+                          onCheckedChange={(_checked) => toggleValue('broker_types', type.value)}
                         />
                         <label htmlFor={type.value} className="text-sm text-gray-700 cursor-pointer">
                           {type.label}
