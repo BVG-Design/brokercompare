@@ -24,16 +24,10 @@ export const serviceProviderType = defineType({
         defineField({
             name: 'category',
             title: 'Category',
-            type: 'string',
-            options: {
-                list: [
-                    { title: 'Marketing', value: 'Marketing' },
-                    { title: 'Virtual Assistant', value: 'Virtual Assistant' },
-                    { title: 'Commercial Finance', value: 'Commercial Finance' },
-                ],
-            },
+            type: 'reference',
+            to: [{ type: 'category' }],
             validation: (rule) => rule.required(),
-        }),
+          }),
         defineField({
             name: 'logo',
             title: 'Logo',
@@ -94,8 +88,8 @@ export const serviceProviderType = defineType({
             name: 'serviceAreas',
             title: 'Service Areas',
             type: 'array',
-            of: [{ type: 'string' }],
-        }),
+            of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }],
+          }),
         defineField({
             name: 'brokerTypes',
             title: 'Broker Types',
@@ -138,6 +132,18 @@ export const serviceProviderType = defineType({
                 },
             ],
         }),
+        defineField({
+            name: 'author',
+            title: 'Author',
+            type: 'reference',
+            to: [{ type: 'author' }], // or 'user'
+          }),
+          defineField({
+            name: 'editorNotes',
+            title: 'Editor Notes',
+            type: 'text',
+            description: 'Internal notes – not public',
+          }),
         defineField({
             name: 'isFeatured',
             title: 'Featured on Homepage?',

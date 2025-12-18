@@ -1,8 +1,8 @@
 import { defineField, defineType } from 'sanity'
 
-export const categoryType = defineType({
-  name: 'category',
-  title: 'Category',
+export const serviceAreaType = defineType({
+  name: 'serviceArea',
+  title: 'Service Area',
   type: 'document',
   fields: [
     defineField({
@@ -11,13 +11,13 @@ export const categoryType = defineType({
       type: 'string',
       validation: Rule => Rule.required()
     }),
-    
+
     defineField({
-      name: 'slug',
-      type: 'slug',
-      options: { source: 'title' },
-      validation: (rule) => rule.required(),
-    }),
+        name: 'slug',
+        type: 'slug',
+        options: { source: 'title' },
+        validation: (rule) => rule.required(),
+      }),
 
     defineField({
       name: 'description',
@@ -40,6 +40,7 @@ export const categoryType = defineType({
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Optional related keywords used for SEO, tagging, and AI context.'
-    })
+    }),
+   
   ]
 })
