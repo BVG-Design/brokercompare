@@ -195,7 +195,7 @@ const Home: React.FC = () => {
                 <span className="text-xs font-bold tracking-widest text-white/50 uppercase mb-4 block">Accelerate</span>
                 <h3 className="text-4xl font-bold mb-6">Streamline your<br />workflow with<br />personalised support</h3>
                 <p className="text-white/70 mb-8 max-w-sm mx-auto">Talk with one of our team</p>
-                <button onClick={() => router.push('/optimise-workflow')} className="bg-[#2a4069] border border-white/20 hover:bg-[#355082] text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors">
+                <button onClick={() => router.push('/workflow-optimisation')} className="bg-[#2a4069] border border-white/20 hover:bg-[#355082] text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors">
                   Schedule a Chat <ArrowRight size={16} />
                 </button>
               </div>
