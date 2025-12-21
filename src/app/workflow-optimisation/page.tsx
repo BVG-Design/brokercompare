@@ -448,7 +448,7 @@ export default function WorkflowOptimisationPage() {
                 <div className="container mx-auto max-w-7xl text-center relative z-10">
                     <h2 className="text-4xl md:text-5xl font-bold text-brand-orange mb-6">Ready to Optimise the Way you Work?</h2>
                     <p className="text-xl text-brand-green mb-12 max-w-2xl mx-auto">
-                        Book a free Workflow Assessment Session today.
+                        Book a free Workflow Assessment today.
                         <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white">
                             No pressure. Just practical advice on how to optimise your broker business.</span>
                     </p>

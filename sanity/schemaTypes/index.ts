@@ -5,6 +5,7 @@ import { productType } from './product'
 import { serviceProviderType } from './serviceProvider'
 import { serviceAreaType } from './serviceArea'
 import { worksWithType } from './worksWith'
+import { softwareType } from './software'
 
 export const schemaTypes = [
   blogType,
@@ -14,4 +15,5 @@ export const schemaTypes = [
   serviceAreaType,
   serviceProviderType,
   worksWithType,
+  softwareType,
 ]
