@@ -31,7 +31,6 @@ const Home: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState<ResourcePost[]>([]);
-  const [featuredBlogs, setFeaturedBlogs] = useState<any[]>([]);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
@@ -44,20 +43,6 @@ const Home: React.FC = () => {
     fetchResourcePosts().then(setPosts);
   }, []);
 
-  useEffect(() => {
-    client.fetch(FEATURED_BLOGS_QUERY).then(setFeaturedBlogs);
-  }, []);
-
-
-  const blogPosts = (featuredBlogs ?? []).map((blog) => ({
-    category: blog.category || "Blog",
-    title: blog.title,
-    description: blog.description,
-    imageUrl: blog.imageUrl || "https://picsum.photos/seed/blog/600/400",
-    imageHint: blog.title,
-    linkText: "Read Article",
-    link: `/blog/${blog.slug}`,
-  }));
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -163,10 +148,17 @@ const Home: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Placeholder Icon Area */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gray-200/50 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                    <FileText className="text-gray-400" size={48} />
-                  </div>
+                  {/* Image Area */}
+                  {post.imageUrl && (
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none overflow-hidden">
+                      <Image
+                        src={post.imageUrl}
+                        alt={post.title}
+                        fill
+                        className="object-cover rounded-xl"
+                      />
+                    </div>
+                  )}
 
                   <button className="inline-flex items-center gap-2 text-brand-orange font-bold text-sm hover:gap-3 transition-all">
                     {post.ctaText} <ArrowRight size={16} />
@@ -195,7 +187,7 @@ const Home: React.FC = () => {
                 <span className="text-xs font-bold tracking-widest text-white/50 uppercase mb-4 block">Accelerate</span>
                 <h3 className="text-4xl font-bold mb-6">Streamline your<br />workflow with<br />personalised support</h3>
                 <p className="text-white/70 mb-8 max-w-sm mx-auto">Talk with one of our team</p>
-                <button onClick={() => router.push('/optimise-workflow')} className="bg-[#2a4069] border border-white/20 hover:bg-[#355082] text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors">
+                <button onClick={() => router.push('/workflow-optimisation')} className="bg-[#2a4069] border border-white/20 hover:bg-[#355082] text-white px-6 py-3 rounded-lg flex items-center gap-2 mx-auto transition-colors">
                   Schedule a Chat <ArrowRight size={16} />
                 </button>
               </div>
@@ -203,7 +195,7 @@ const Home: React.FC = () => {
 
             {/* Right Side Cards */}
             <div className="flex flex-col gap-8">
-              <div className="flex-1 bg-white rounded-3xl border border-gray-100 p-10 flex flex-col items-center text-center shadow-lg shadow-gray-100/50 hover:shadow-xl transition-shadow">
+              <div className="flex-1 bg-white rounded-3xl border-gray-300 border-2 p-10 flex flex-col items-center text-center shadow-lg shadow-gray-100/50 hover:shadow-xl transition-shadow">
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <div className="font-bold text-2xl">?</div>
                 </div>
@@ -214,12 +206,12 @@ const Home: React.FC = () => {
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   A directory of guides helping you or your VA to trouble shoot common integration and website issues
                 </p>
-                <button onClick={() => router.push('/directory?cat=support')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
+                <button onClick={() => router.push('/blog?category=va_training_development')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
                   Explore <ArrowRight size={14} />
                 </button>
               </div>
 
-              <div className="flex-1 bg-white rounded-3xl border border-gray-100 p-10 flex flex-col items-center text-center shadow-lg shadow-gray-100/50 hover:shadow-xl transition-shadow">
+              <div className="flex-1 bg-white rounded-3xl border-gray-300 border-2 p-10 flex flex-col items-center text-center shadow-lg shadow-gray-100/50 hover:shadow-xl transition-shadow">
                 <div className="w-16 h-16 rounded-full border-2 border-brand-blue/10 flex items-center justify-center mb-6 text-brand-blue">
                   <Sparkles size={24} />
                 </div>
@@ -230,7 +222,7 @@ const Home: React.FC = () => {
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies
                 </p>
-                <button onClick={() => router.push('/directory?cat=ai')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
+                <button onClick={() => router.push('/blog?category=workbooks_guides')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
                   Explore <ArrowRight size={14} />
                 </button>
               </div>
