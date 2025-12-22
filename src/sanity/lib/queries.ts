@@ -52,4 +52,30 @@ export const FEATURED_BLOGS_QUERY = groq`
   }
 `;
 
+export const UNIFIED_SEARCH_QUERY = groq`
+*[_type in $contentTypes && (
+  count($searchTerms[
+    title match @ ||
+    name match @ ||
+    description match @ ||
+    slug.current match @ ||
+    category match @ ||
+    categories[]->title match @
+  ]) > 0
+)]{
+  _id,
+  _type,
+  title,
+  name,
+  description,
+  "slug": slug.current,
+  "category": coalesce(category, categories[0]->title, "Uncategorized"),
+  "logoUrl": select(
+    defined(logo.asset->url) => logo.asset->url,
+    defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+    defined(images[0].asset->url) => images[0].asset->url
+  ),
+  "heroImageUrl": heroImage.asset->url
+}
+`;
 
