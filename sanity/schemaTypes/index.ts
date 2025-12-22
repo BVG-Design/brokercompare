@@ -6,6 +6,7 @@ import { serviceProviderType } from './serviceProvider'
 import { serviceAreaType } from './serviceArea'
 import { worksWithType } from './worksWith'
 import { softwareType } from './software'
+import { searchIntentType } from './searchIntent'
 
 export const schemaTypes = [
   blogType,
@@ -16,4 +17,5 @@ export const schemaTypes = [
   serviceProviderType,
   worksWithType,
   softwareType,
+  searchIntentType,
 ]
