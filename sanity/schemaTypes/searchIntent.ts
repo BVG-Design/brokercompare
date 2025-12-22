@@ -9,47 +9,19 @@ export const searchIntentType = defineType({
       name: 'title',
       title: 'Title',
       type: 'string',
-      validation: (Rule) => Rule.required(),
+      validation: Rule => Rule.required()
     }),
     defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: { source: 'title', maxLength: 96 },
-      validation: (Rule) => Rule.required(),
+      options: { source: 'title' },
+      validation: Rule => Rule.required()
     }),
     defineField({
-      name: 'searchTerms',
-      title: 'Search Terms',
-      type: 'array',
-      of: [{ type: 'string' }],
-      description: 'Search phrases and synonyms tied to this intent.',
-    }),
-    defineField({
-      name: 'contentTypes',
-      title: 'Content Types',
-      type: 'array',
-      of: [{ type: 'string' }],
-      options: {
-        list: [
-          { title: 'Product', value: 'product' },
-          { title: 'Software', value: 'software' },
-          { title: 'Service Provider', value: 'serviceProvider' },
-        ],
-      },
-      description: 'Document types associated with this intent.',
-    }),
-    defineField({
-      name: 'showInNav',
-      title: 'Show in Navigation',
-      type: 'boolean',
-      initialValue: false,
-    }),
-    defineField({
-      name: 'order',
-      title: 'Order',
-      type: 'number',
-      description: 'Lower numbers appear first when sorting navigation items.',
+      name: 'description',
+      title: 'Description',
+      type: 'text',
     }),
   ],
 })
