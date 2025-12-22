@@ -5,19 +5,19 @@ import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
 
-const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+type NavLink = {
+    name: string;
+    path: string;
+};
+
+type MainLayoutProps = {
+    children: React.ReactNode;
+    navLinks: NavLink[];
+};
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [feedbackOpen, setFeedbackOpen] = useState(false);
-
-    const navLinks = [
-        { name: 'AI Recommender', path: '/recommendations' },
-        { name: 'Workflow Automations', path: '/directory?category=ai' },
-        { name: 'CRMs & Fact Finds', path: '/directory?category=crm' },
-        { name: 'VA Services', path: '/directory?category=va' },
-        { name: 'Marketing & Sales', path: '/directory?category=marketing' },
-        { name: 'Other', path: '/directory?category=other' },
-        { name: 'Resources', path: '/blog' },
-    ];
 
     return (
         <div className="min-h-screen flex flex-col bg-brand-cream text-brand-blue font-sans">
