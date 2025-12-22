@@ -38,3 +38,22 @@ export const productsAsSoftwareQuery = groq`
 }
 `;
 
+export const searchResultsQuery = groq`
+*[_type in ["blog", "product", "serviceProvider", "software"] && (
+  title match $term ||
+  name match $term ||
+  summary match $term ||
+  description match $term
+)]{
+  _id,
+  _type,
+  "title": coalesce(title, name),
+  "summary": coalesce(summary, description),
+  "slug": slug.current,
+  "imageUrl": coalesce(
+    heroImage.asset->url,
+    logo.asset->url,
+    images[0].asset->url
+  )
+}
+`;
