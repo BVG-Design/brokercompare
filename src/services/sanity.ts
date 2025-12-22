@@ -1,5 +1,6 @@
 import { client } from '@/../sanity/lib/client';
-import { ResourcePost } from '@/types';
+import { UNIFIED_SEARCH_QUERY } from '@/sanity/lib/queries';
+import { DirectoryListing, ResourcePost } from '@/types';
 
 export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
   const query = `*[_type in ["blog", "product", "serviceProvider"] && isFeatured == true]{
@@ -29,7 +30,42 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
   }));
 };
 
-import { DirectoryListing } from '@/types';
+export interface UnifiedSearchResult {
+  _id: string;
+  _type: string;
+  title?: string;
+  name?: string;
+  description?: string;
+  slug?: string;
+  category?: string;
+  logoUrl?: string;
+  heroImageUrl?: string;
+}
+
+export const fetchUnifiedSearchResults = async (
+  searchTerms: string[],
+  contentTypes: string[]
+): Promise<UnifiedSearchResult[]> => {
+  const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
+  if (normalizedTerms.length === 0 || contentTypes.length === 0) {
+    return [];
+  }
+
+  const searchPatterns = normalizedTerms.map((term) => `${term}*`);
+  const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
+    searchTerms: searchPatterns,
+    contentTypes
+  });
+
+  const deduped = new Map<string, UnifiedSearchResult>();
+  results.forEach((item) => {
+    if (!deduped.has(item._id)) {
+      deduped.set(item._id, item);
+    }
+  });
+
+  return Array.from(deduped.values());
+};
 
 export const fetchDirectoryListings = async (filters: {
   category?: string;

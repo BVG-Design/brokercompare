@@ -1,136 +1,74 @@
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import type { Metadata } from 'next';
 
-import { client } from '@/../sanity/lib/client';
-import { searchResultsQuery } from '@/../sanity/lib/queries';
-import { Card, CardContent } from '@/components/ui/card';
+import { fetchUnifiedSearchResults } from '@/services/sanity';
 
-type SearchIntent = {
-  _id: string;
-  title: string;
-  searchTerms?: string[];
-};
-
-type SearchResult = {
-  _id: string;
-  _type: string;
-  title?: string;
-  summary?: string;
-  slug?: string;
-  imageUrl?: string;
-};
-
-const searchIntentQuery = `*[_type == "searchIntent" && slug.current == $slug][0]{
-  _id,
-  title,
-  searchTerms
-}`;
-
-const getResultHref = (result: SearchResult) => {
-  if (!result.slug) return '#';
-  if (result._type === 'blog') return `/blog/${result.slug}`;
-  return `/directory/${result.slug}`;
-};
-
-const fetchIntent = async (slug: string) =>
-  client.fetch<SearchIntent | null>(searchIntentQuery, { slug });
-
-const fetchResultsForTerm = async (term: string) =>
-  client.fetch<SearchResult[]>(searchResultsQuery, {
-    term: `${term}*`,
-  });
-
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
-  const intent = await fetchIntent(params.slug);
-
-  if (!intent) {
-    return { title: 'Search' };
-  }
-
-  return {
-    title: `Search: ${intent.title}`,
+interface SearchPageProps {
+  params: {
+    slug: string;
   };
 }
 
-export default async function SearchIntentPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  const intent = await fetchIntent(params.slug);
+const CONTENT_TYPES = ['blog', 'product', 'serviceProvider'];
 
-  if (!intent) {
-    notFound();
-  }
-
-  const searchTerms = intent.searchTerms?.filter(Boolean) ?? [];
-  const resultsByTerm = await Promise.all(
-    searchTerms.map((term) => fetchResultsForTerm(term)),
-  );
-  const dedupedResults = new Map<string, SearchResult>();
-
-  resultsByTerm.flat().forEach((result) => {
-    if (!dedupedResults.has(result._id)) {
-      dedupedResults.set(result._id, result);
-    }
-  });
-
-  const results = Array.from(dedupedResults.values());
+export default async function SearchPage({ params }: SearchPageProps) {
+  const rawTerm = decodeURIComponent(params.slug);
+  const searchTerms = rawTerm.split(/[\s-]+/).filter(Boolean);
+  const results = await fetchUnifiedSearchResults(searchTerms, CONTENT_TYPES);
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <main className="container mx-auto px-4 md:px-6 py-12">
       <div className="mb-8">
-        <p className="text-sm font-semibold uppercase text-muted-foreground">
-          Search Intent
+        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Search results</h1>
+        <p className="text-muted-foreground mt-2">
+          {results.length} {results.length === 1 ? 'result' : 'results'} for "{rawTerm}"
         </p>
-        <h1 className="text-3xl font-bold text-primary">{intent.title}</h1>
-        {searchTerms.length > 0 && (
-          <p className="mt-2 text-muted-foreground">
-            Searching for: {searchTerms.join(', ')}
-          </p>
-        )}
       </div>
 
       {results.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center text-muted-foreground">
-            No results found for this intent.
-          </CardContent>
-        </Card>
+        <div className="rounded-lg border border-dashed border-muted-foreground/40 p-8 text-center">
+          <p className="text-lg font-medium">No results found.</p>
+          <p className="text-muted-foreground mt-2">Try another search term.</p>
+        </div>
       ) : (
-        <div className="grid gap-4">
-          {results.map((result) => (
-            <Card key={result._id}>
-              <CardContent className="flex flex-col gap-2 p-6">
-                <div className="text-xs font-semibold uppercase text-muted-foreground">
-                  {result._type}
+        <div className="grid gap-6 md:grid-cols-2">
+          {results.map((item) => {
+            const title = item.title || item.name || 'Untitled';
+            const imageUrl = item.logoUrl || item.heroImageUrl;
+            const href = item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`;
+
+            return (
+              <Link
+                key={item._id}
+                href={href}
+                className="group rounded-xl border border-border bg-card p-5 transition hover:shadow-md"
+              >
+                <div className="flex gap-4">
+                  {imageUrl ? (
+                    <img
+                      src={imageUrl}
+                      alt={title}
+                      className="h-16 w-16 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 shrink-0 rounded-lg bg-muted" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-primary">{item.category}</p>
+                    <h2 className="text-xl font-semibold text-foreground group-hover:text-primary">
+                      {title}
+                    </h2>
+                    {item.description ? (
+                      <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">
+                        {item.description}
+                      </p>
+                    ) : null}
+                  </div>
                 </div>
-                <h2 className="text-lg font-semibold text-primary">
-                  {result.title ?? 'Untitled'}
-                </h2>
-                {result.summary && (
-                  <p className="text-sm text-muted-foreground">
-                    {result.summary}
-                  </p>
-                )}
-                {result.slug && (
-                  <Link
-                    className="text-sm font-semibold text-primary hover:underline"
-                    href={getResultHref(result)}
-                  >
-                    View details
-                  </Link>
-                )}
-              </CardContent>
-            </Card>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       )}
-    </div>
+    </main>
   );
 }
