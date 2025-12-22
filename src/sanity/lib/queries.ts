@@ -79,3 +79,12 @@ export const UNIFIED_SEARCH_QUERY = groq`
 }
 `;
 
+export const SEARCH_INTENT_NAV_QUERY = groq`
+  *[_type == "searchIntent" && showInNav == true]
+  | order(order asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    order
+  }
+`;
