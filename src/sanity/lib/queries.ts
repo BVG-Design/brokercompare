@@ -58,6 +58,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
     title match @ ||
     name match @ ||
     description match @ ||
+    tagline match @ ||
     slug.current match @ ||
     category match @ ||
     categories[]->title match @

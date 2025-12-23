@@ -76,7 +76,7 @@ const Home: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search for vendors, products, or services..."
-                className="w-full px-4 py-3 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                className="w-full px-4 py-3 outline-none text-gray-700 caret-blue-600 placeholder-gray-400 bg-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
