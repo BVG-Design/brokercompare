@@ -22,37 +22,23 @@ function BrowseVendorsContent() {
   const [showAIChat, setShowAIChat] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dynamicCategories, setDynamicCategories] = useState<{ label: string, value: string }[]>([]);
 
-  // Fetch data from Sanity
   React.useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [fetchedListings, fetchedCategories] = await Promise.all([
+        const [fetchedListings, fetchedCats] = await Promise.all([
           fetchDirectoryListings({
             search: searchTerm,
             category: categoryFilter,
-            tier: tierFilter  // Note: brokerType filtering logic needs schema support
+            tier: tierFilter
           }),
           fetchCategories()
         ]);
 
-        // Map Sanity products to the vendor format expected by the UI if needed
-        // For now, assuming direct mapping or slight adjustment
-        const mappedVendors = fetchedListings.map(p => ({
-          id: p.id,
-          company_name: p.name,
-          description: p.description,
-          logo_url: p.logoUrl,
-          categories: p.categories,
-          listing_tier: p.listingTier,
-          slug: p.slug,
-          // Add other fields as needed
-        }));
-
-        setVendors(mappedVendors);
-        // Note: We might want to use the fetched categories instead of static ones
-        // setDynamicCategories(fetchedCategories); 
+        setVendors(fetchedListings);
+        setDynamicCategories([{ value: 'all', label: 'All Categories' }, ...fetchedCats.map(c => ({ value: c.value, label: c.title }))]);
       } catch (err) {
         console.error("Failed to fetch vendors:", err);
       } finally {
@@ -60,7 +46,6 @@ function BrowseVendorsContent() {
       }
     };
 
-    // Debounce search slightly or just call on effect change
     const timer = setTimeout(() => {
       loadData();
     }, 300);
@@ -68,71 +53,30 @@ function BrowseVendorsContent() {
     return () => clearTimeout(timer);
   }, [searchTerm, categoryFilter, tierFilter, brokerTypeFilter]);
 
-  const categories = [
-    { value: 'all', label: 'All Categories' },
-    // Top Priority
-    { value: 'ai_workflow_design', label: 'AI & Workflow Design' },
-    { value: 'mortgage_software', label: 'Mortgage Software' },
-    { value: 'asset_software', label: 'Asset Software' },
-    { value: 'commercial_software', label: 'Commercial Software' },
-    { value: 'crm_document_collection', label: 'CRM & Document Collection' },
-    // Alphabetical
-    { value: 'accounting_tax', label: 'Accounting & Tax' },
-    { value: 'admin_ops', label: 'Admin & Ops' },
-    { value: 'brand_media', label: 'Brand & Media' },
-    { value: 'broker_coaching', label: 'Broker Coaching' },
-    { value: 'client_experience_retention', label: 'Client Experience & Retention' },
-    { value: 'compliance_risk_legal', label: 'Compliance, Risk & Legal' },
-    { value: 'data_reporting', label: 'Data & Reporting' },
-    { value: 'finance_strategy_virtual_cfo', label: 'Finance Strategy & Virtual CFO' },
-    { value: 'it_support_cyber_security', label: 'IT Support & Cyber Security' },
-    { value: 'loan_processing_credit_support', label: 'Loan Processing & Credit Support' },
-    { value: 'marketing_automation', label: 'Marketing Automation' },
-    { value: 'mindset_performance', label: 'Mindset & Performance' },
-    { value: 'organic_social_traffic', label: 'Organic Social Traffic' },
-    { value: 'other', label: 'Other' },
-    { value: 'paid_advertising', label: 'Paid Advertising' },
-    { value: 'public_speaking_authority', label: 'Public Speaking & Authority' },
-    { value: 'recruitment_team_building', label: 'Recruitment & Team Building' },
-    { value: 'sales_training', label: 'Sales Training' },
-    { value: 'virtual_assistants_outsourcing', label: 'Virtual Assistants & Outsourcing' },
-  ];
-
   const brokerTypes = [
     { value: 'all', label: 'All Broker Types' },
-    { value: 'mortgage_broker', label: 'Mortgage Brokers' },
-    { value: 'asset_finance_broker', label: 'Asset Finance Brokers' },
-    { value: 'commercial_finance_broker', label: 'Commercial Finance Brokers' },
+    { value: 'Mortgage', label: 'Mortgage' },
+    { value: 'Asset Finance', label: 'Asset Finance' },
+    { value: 'Commercial', label: 'Commercial' },
   ];
 
   const filteredVendors = useMemo(() => {
     return vendors.filter(vendor => {
-      const matchesSearch = vendor.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesCategory = categoryFilter === 'all' ||
-        vendor.categories?.includes(categoryFilter);
-
       const matchesBrokerType = brokerTypeFilter === 'all' ||
-        vendor.broker_types?.includes(brokerTypeFilter) ||
-        vendor.broker_types?.includes('all_brokers');
+        vendor.brokerTypes?.includes(brokerTypeFilter);
 
-      const matchesTier = tierFilter === 'all' || vendor.listing_tier === tierFilter;
-
-      return matchesSearch && matchesCategory && matchesBrokerType && matchesTier;
+      return matchesBrokerType;
     });
-  }, [vendors, searchTerm, categoryFilter, brokerTypeFilter, tierFilter]);
+  }, [vendors, brokerTypeFilter]);
 
-  // Sort: featured first, then premium, then by view count
   const sortedVendors = useMemo(() => {
     return [...filteredVendors].sort((a, b) => {
       const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
-      const aTier = tierWeight[a.listing_tier] || 0;
-      const bTier = tierWeight[b.listing_tier] || 0;
+      const aTier = tierWeight[a.listingTier] || 0;
+      const bTier = tierWeight[b.listingTier] || 0;
 
       if (aTier !== bTier) return bTier - aTier;
-      return (b.view_count || 0) - (a.view_count || 0);
+      return a.name.localeCompare(b.name);
     });
   }, [filteredVendors]);
 
@@ -213,7 +157,7 @@ function BrowseVendorsContent() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(cat => (
+                    {dynamicCategories.map((cat: { label: string, value: string }) => (
                       <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
                     ))}
                   </SelectContent>

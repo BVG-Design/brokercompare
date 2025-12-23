@@ -4,6 +4,11 @@ export interface Interaction {
     logo?: string;
 }
 
+export interface Badge {
+    title: string;
+    color?: string;
+}
+
 export interface SoftwareListing {
     name: string;
     slug: string;
@@ -13,7 +18,7 @@ export interface SoftwareListing {
     websiteUrl?: string;
     location?: string;
     logoUrl?: string;
-    badges?: string[];
+    badges?: Badge[];
     serviceArea?: string[];
     brokerType?: string[];
     features?: string[];

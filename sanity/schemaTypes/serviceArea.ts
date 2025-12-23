@@ -13,11 +13,11 @@ export const serviceAreaType = defineType({
     }),
 
     defineField({
-        name: 'slug',
-        type: 'slug',
-        options: { source: 'title' },
-        validation: (rule) => rule.required(),
-      }),
+      name: 'slug',
+      type: 'slug',
+      options: { source: 'title' },
+      validation: (rule) => rule.required(),
+    }),
 
     defineField({
       name: 'description',
@@ -35,12 +35,25 @@ export const serviceAreaType = defineType({
     }),
 
     defineField({
+      name: 'group',
+      title: 'Group / Category',
+      type: 'string',
+      description: 'e.g. Technology, IT & Infrastructure'
+    }),
+
+    defineField({
+      name: 'icon',
+      title: 'Icon (Emoji or Reference)',
+      type: 'string'
+    }),
+
+    defineField({
       name: 'synonyms',
       title: 'Synonyms / Related Keywords',
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Optional related keywords used for SEO, tagging, and AI context.'
     }),
-   
+
   ]
 })

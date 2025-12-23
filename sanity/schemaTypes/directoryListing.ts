@@ -130,7 +130,45 @@ export const directoryListingType = defineType({
             name: 'worksWith',
             title: 'Works With / Integrations',
             type: 'array',
-            of: [{ type: 'reference', to: [{ type: 'worksWith' }] }]
+            of: [
+                {
+                    type: 'reference',
+                    to: [{ type: 'directoryListing' }],
+                    options: {
+                        filter: 'listingType == "software"'
+                    }
+                }
+            ],
+            description: 'Other software tools this listing integrates with',
+            validation: Rule =>
+                Rule.custom((refs, context) => {
+                    if (!refs || !Array.isArray(refs)) return true
+
+                    const selfId = context.document?._id
+                    if (!selfId) return true
+
+                    const hasSelfReference = refs.some(
+                        (ref: any) => ref._ref === selfId
+                    )
+
+                    return hasSelfReference
+                        ? 'A listing cannot reference itself in “Works With”.'
+                        : true
+                })
+        }),
+
+        defineField({
+            name: 'author',
+            title: 'Author',
+            type: 'reference',
+            to: [{ type: 'author' }],
+        }),
+
+        defineField({
+            name: 'editorNotes',
+            title: 'Editor Notes',
+            type: 'text',
+            description: 'Public Commentary',
         }),
 
         defineField({
@@ -155,6 +193,19 @@ export const directoryListingType = defineType({
             title: 'Featured Listing',
             type: 'boolean',
             initialValue: false
+        }),
+
+        defineField({
+            name: 'badges',
+            title: 'Badges',
+            type: 'array',
+            of: [
+                {
+                    type: 'reference',
+                    to: [{ type: 'badge' }]
+                }
+            ],
+            description: 'Editorial or commercial badges applied to this listing'
         })
     ],
     preview: {

@@ -8,10 +8,10 @@ import { SoftwareListing } from './types';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip';
 
 interface MainCardProps {
@@ -20,26 +20,36 @@ interface MainCardProps {
 
 // Helper function to get tooltip description for service areas
 const getServiceAreaDescription = (area: string): string => {
-  const descriptions: Record<string, string> = {
-    'Managed IT': 'Comprehensive IT management and support services',
-    'Cybersecurity': 'Security services to protect your business from threats',
-    'Microsoft 365': 'Microsoft 365 implementation, management, and support',
-    'Cloud Infrastructure': 'Cloud computing and infrastructure services',
-    'Helpdesk Support': 'Technical support and helpdesk services',
-    'Network Management': 'Network setup, monitoring, and management',
-  };
-  return descriptions[area] || `${area} services`;
+    const descriptions: Record<string, string> = {
+        'Managed IT': 'Comprehensive IT management and support services',
+        'Cybersecurity': 'Security services to protect your business from threats',
+        'Microsoft 365': 'Microsoft 365 implementation, management, and support',
+        'Cloud Infrastructure': 'Cloud computing and infrastructure services',
+        'Helpdesk Support': 'Technical support and helpdesk services',
+        'Network Management': 'Network setup, monitoring, and management',
+    };
+    return descriptions[area] || `${area} services`;
 };
 
 // Helper function to get tooltip description for broker types
 const getBrokerTypeDescription = (type: string): string => {
-  const descriptions: Record<string, string> = {
-    'Mortgage': 'Services designed for mortgage brokers',
-    'Asset': 'Services for asset finance brokers',
-    'Commercial': 'Services for commercial finance brokers',
-    'Asset Finance': 'Services for asset finance brokers',
-  };
-  return descriptions[type] || `Ideal for ${type} brokers`;
+    const descriptions: Record<string, string> = {
+        'Mortgage': 'Services designed for mortgage brokers',
+        'Asset': 'Services for asset finance brokers',
+        'Commercial': 'Services for commercial finance brokers',
+        'Asset Finance': 'Services for asset finance brokers',
+    };
+    return descriptions[type] || `Ideal for ${type} brokers`;
+};
+
+const BADGE_STYLES: Record<string, string> = {
+    gold: 'bg-[#B45309] text-white',
+    purple: 'bg-[#6D28D9] text-white',
+    pink: 'bg-[#BE185D] text-white',
+    green: 'bg-[#047857] text-white',
+    blue: 'bg-[#1D4ED8] text-white',
+    orange: 'bg-[#C2410C] text-white',
+    grey: 'bg-[#374151] text-white'
 };
 
 const MainCard: React.FC<MainCardProps> = ({ listing }) => {
@@ -108,11 +118,16 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                             <div>
                                 <div className="flex flex-wrap items-center gap-2 mb-2">
                                     <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
-                                    {badges.map((badge, idx) => (
-                                        <span key={idx} className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded border border-orange-200 font-medium">
-                                            {badge}
-                                        </span>
-                                    ))}
+                                    {badges.map((badge, idx) => {
+                                        const badgeColor = badge.color ? badge.color.toLowerCase() : 'orange';
+                                        const badgeStyle = BADGE_STYLES[badgeColor] || BADGE_STYLES.orange;
+
+                                        return (
+                                            <span key={idx} className={`${badgeStyle} text-xs px-2 py-0.5 rounded font-medium`}>
+                                                {badge.title}
+                                            </span>
+                                        );
+                                    })}
                                 </div>
 
                                 <div className="flex items-center gap-2 mb-3 text-sm">

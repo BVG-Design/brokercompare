@@ -11,6 +11,7 @@ import { directoryListingType } from './directoryListing'
 import { featureType } from './feature'
 import { featureCategoryType } from './featureCategory'
 import { listingFeatureType } from './listingFeature'
+import { badgeType } from './badge'
 
 export const schemaTypes = [
   blogType,
@@ -26,4 +27,5 @@ export const schemaTypes = [
   featureType,
   featureCategoryType,
   listingFeatureType,
+  badgeType,
 ]

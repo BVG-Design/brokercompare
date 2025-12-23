@@ -60,7 +60,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
     description match @ ||
     tagline match @ ||
     slug.current match @ ||
-    category match @ ||
+    category->title match @ ||
     categories[]->title match @
   ]) > 0
 )]{
@@ -70,7 +70,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
   name,
   description,
   "slug": slug.current,
-  "category": coalesce(category, categories[0]->title, "Uncategorized"),
+  "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,

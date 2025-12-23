@@ -12,8 +12,8 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-export default function VendorCard({ vendor }) {
-  const tierBadges = {
+export default function VendorCard({ vendor }: { vendor: any }) {
+  const tierBadges: Record<string, any> = {
     featured: {
       label: 'Featured',
       color: 'bg-gradient-to-r from-secondary to-accent text-white',
@@ -29,33 +29,14 @@ export default function VendorCard({ vendor }) {
 
   const tierInfo = tierBadges[vendor.listing_tier];
 
-  const categoryLabels = {
-    mortgage_software: 'Mortgage Software',
-    asset_finance_tools: 'Asset Finance',
-    commercial_finance: 'Commercial Finance',
-    crm_systems: 'CRM',
-    lead_generation: 'Lead Gen',
-    compliance_tools: 'Compliance',
-    document_management: 'Documents',
-    loan_origination: 'Loan Origination',
-    broker_tools: 'Broker Tools',
-    marketing_services: 'Marketing',
-    legal_services: 'Legal',
-    insurance_products: 'Insurance',
-    training_education: 'Training',
-    data_analytics: 'Analytics',
-    other: 'Other',
-  };
-
   return (
     <div
-      className={`group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${
-        vendor.listing_tier === 'featured'
+      className={`group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${vendor.listing_tier === 'featured'
           ? 'border-secondary'
           : vendor.listing_tier === 'premium'
-          ? 'border-primary'
-          : 'border-border'
-      }`}
+            ? 'border-primary'
+            : 'border-border'
+        }`}
     >
       {tierInfo && (
         <div
@@ -70,13 +51,14 @@ export default function VendorCard({ vendor }) {
         {/* Logo & Company Name */}
         <div className="flex items-start gap-4 mb-4">
           {vendor.logo_url ? (
-            <Image
-              src={vendor.logo_url}
-              alt={vendor.company_name}
-              width={64}
-              height={64}
-              className="w-16 h-16 rounded-lg object-contain bg-gray-50 border border-gray-200"
-            />
+            <div className="w-16 h-16 relative">
+              <Image
+                src={vendor.logo_url}
+                alt={vendor.company_name}
+                fill
+                className="rounded-lg object-contain bg-gray-50 border border-gray-200 p-1"
+              />
+            </div>
           ) : (
             <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-2xl font-bold">
               {vendor.company_name?.[0] || 'V'}
@@ -96,7 +78,7 @@ export default function VendorCard({ vendor }) {
 
         {/* Description */}
         {vendor.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+          <p className="text-sm text-gray-600 mb-4 line-clamp-3 h-15">
             {vendor.description}
           </p>
         )}
@@ -104,54 +86,27 @@ export default function VendorCard({ vendor }) {
         {/* Categories */}
         {vendor.categories && vendor.categories.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {vendor.categories.slice(0, 3).map((cat, idx) => (
+            {vendor.categories.slice(0, 3).map((cat: any, idx: number) => (
               <Badge
                 key={idx}
                 variant="secondary"
                 className="text-xs bg-gray-100 text-gray-700"
               >
-                {categoryLabels[cat] || cat}
+                {typeof cat === 'string' ? cat : (cat.title || cat.slug?.current || cat)}
               </Badge>
             ))}
-            {vendor.categories.length > 3 && (
-              <Badge
-                variant="secondary"
-                className="text-xs bg-gray-100 text-gray-700"
-              >
-                +{vendor.categories.length - 3}
-              </Badge>
-            )}
           </div>
         )}
 
-        {/* Stats */}
-        <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-          {vendor.rating && (
-            <div className="flex items-center gap-1">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{vendor.rating.toFixed(1)}</span>
-              {vendor.review_count > 0 && (
-                <span className="text-xs">({vendor.review_count})</span>
-              )}
-            </div>
-          )}
-          {vendor.view_count > 0 && (
-            <div className="flex items-center gap-1">
-              <Eye className="w-4 h-4" />
-              <span className="text-xs">{vendor.view_count} views</span>
-            </div>
-          )}
-        </div>
-
         {/* Actions */}
-        <div className="flex gap-2">
-          <Link href={`/vendors/${vendor.id}`} className="flex-1">
+        <div className="flex gap-2 mt-auto">
+          <Link href={`/directory/${vendor.slug}`} className="flex-1">
             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               View Details
             </Button>
           </Link>
-          {vendor.website && (
-            <a href={vendor.website} target="_blank" rel="noopener noreferrer">
+          {vendor.websiteUrl && (
+            <a href={vendor.websiteUrl} target="_blank" rel="noopener noreferrer">
               <Button
                 variant="outline"
                 size="icon"

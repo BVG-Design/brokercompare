@@ -75,31 +75,24 @@ export const fetchDirectoryListings = async (filters: {
 } = {}): Promise<DirectoryListing[]> => {
   const { category, brokerType, tier, search } = filters;
 
-  // Query for both Products (Software) and ServiceProviders
-  // We can join them in a single query or mapping
-  const query = `*[(_type == "product" || _type == "software" || _type == "serviceProvider")
-    ${category && category !== 'all' ? '&& ($category in categories[] || category == $category)' : ''}
+  const query = `*[_type == "directoryListing"
+    ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
-    ${search ? '&& (name match $search + "*" || description match $search + "*")' : ''}
+    ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
   ]{
     _id,
     _type,
-    name,
+    "name": title,
     description,
-    "logoUrl": select(
-      _type == "product" => images[0].asset->url,
-      _type == "serviceProvider" => logo.asset->url
-      _type == "software" => images[0].asset->url
-    ),
-    "categories": select(
-      defined(categories) => categories,
-      defined(category) => [category]
-    ),
-    "brokerTypes": brokerTypes,
+    "logoUrl": logo.asset->url,
+    "categories": [category->title],
+    brokerType,
     "slug": slug.current,
-    "rating": reviews[0].rating, // simplistic, maybe avg in query later
-    websiteUrl, // Note: serviceProvider has 'website', create alias if needed or map below
-    pricingModel
+    "rating": 5, // Placeholder for now
+    websiteURL,
+    pricing,
+    listingType,
+    isFeatured
   }`;
 
   const params: Record<string, any> = {};
@@ -113,66 +106,24 @@ export const fetchDirectoryListings = async (filters: {
     name: item.name,
     description: item.description,
     logoUrl: item.logoUrl,
-    categories: Array.isArray(item.categories) ? item.categories : (item.categories ? [item.categories] : []),
-    brokerTypes: item.brokerTypes || [],
-    listingTier: item.isFeatured ? 'featured' : 'free', // Inference
+    categories: item.categories || [],
+    brokerTypes: item.brokerType || [],
+    listingTier: item.isFeatured ? 'featured' : 'free',
     slug: item.slug,
     rating: item.rating,
-    websiteUrl: item.websiteUrl || item.website, // map serviceProvider 'website' field if returned as such
-    pricingModel: item.pricingModel,
-    type: item._type === 'product' ? 'software' : 'service'
+    websiteUrl: item.websiteURL,
+    pricingModel: item.pricing?.type,
+    type: item.listingType
   }));
 };
 
 export const fetchCategories = async (): Promise<{ title: string, value: string }[]> => {
-  // Fetch unique categories from both products and serviceProviders
-  // serviceProvider has 'category' (string), product has 'categories' (array of strings)
-  const query = `array::unique(*[_type == "product"].categories[] + *[_type == "serviceProvider"].category)`;
-  const categories = await client.fetch<string[]>(query);
-  return categories.map((c) => ({ title: c, value: c }));
+  const query = `*[_type == "category"] { title, "value": slug.current } | order(title asc)`;
+  return await client.fetch(query);
 };
 
-export const fetchDirectoryListingBySlug = async (slug: string): Promise<DirectoryListing | null> => {
-  const query = `*[(_type == "product" || _type == "serviceProvider") && slug.current == $slug][0]{
-    _id,
-    _type,
-    name,
-    description,
-    "logoUrl": select(
-      _type == "product" => images[0].asset->url,
-      _type == "serviceProvider" => logo.asset->url
-    ),
-    "categories": select(
-      defined(categories) => categories,
-      defined(category) => [category]
-    ),
-    "brokerTypes": brokerTypes,
-    "slug": slug.current,
-    "rating": reviews[0].rating, 
-    websiteUrl,
-    pricingModel,
-    tagline, // Add these to query/type as they are used in profile
-    features,
-    "integrations": badges // assuming using badges or similar for integrations, or add field
-  }`;
+import { DirectoryProxy } from '@/sanity/lib/proxy';
 
-  const result = await client.fetch(query, { slug });
-  if (!result) return null;
-
-  return {
-    id: result._id,
-    name: result.name,
-    description: result.description,
-    logoUrl: result.logoUrl,
-    categories: Array.isArray(result.categories) ? result.categories : (result.categories ? [result.categories] : []),
-    brokerTypes: result.brokerTypes || [],
-    listingTier: result.isFeatured ? 'featured' : 'free',
-    slug: result.slug,
-    rating: result.rating,
-    websiteUrl: result.websiteUrl || result.website,
-    pricingModel: result.pricingModel,
-    type: result._type === 'product' ? 'software' : 'service',
-    tags: result.tagline ? [result.tagline] : [], // mapping tagline to tags or explicit tagline field
-    // We might need to extend DirectoryListing type if we want to pass these explicitly
-  } as DirectoryListing & { tagline?: string, features?: string[], integrations?: string[] };
+export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
+  return await DirectoryProxy.getListingBySlug(slug);
 };

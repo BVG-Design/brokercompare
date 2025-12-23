@@ -17,14 +17,14 @@ export default function NotFound() {
       </div>
 
       {/* 404 Simba Video */}
-      <div className="mt-8 max-w-4xl w-full">
+      <div className="mt-8 max-w-2xl w-full">
         <video
           src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/404%20Simba.mp4"
           autoPlay
           loop
           muted
           playsInline
-          className="w-full h-auto rounded-lg shadow-lg"
+          className="w-full h-auto max-h-[50vh] rounded-lg shadow-lg object-contain"
         >
           Your browser does not support the video tag.
         </video>
