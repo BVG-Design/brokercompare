@@ -55,13 +55,13 @@ export const FEATURED_BLOGS_QUERY = groq`
 export const UNIFIED_SEARCH_QUERY = groq`
 *[_type in $contentTypes && (
   count($searchTerms[
-    title match @ ||
-    name match @ ||
-    description match @ ||
-    tagline match @ ||
-    slug.current match @ ||
-    category->title match @ ||
-    categories[]->title match @
+    ^.title match @ ||
+    ^.name match @ ||
+    ^.description match @ ||
+    ^.tagline match @ ||
+    ^.slug.current match @ ||
+    ^.category->title match @ ||
+    ^.categories[]->title match @
   ]) > 0
 )]{
   _id,

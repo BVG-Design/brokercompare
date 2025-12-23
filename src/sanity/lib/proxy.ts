@@ -101,8 +101,13 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       badgeType,
       color,
       "iconUrl": icon.asset->url,
-      priority
+      priority,
+      description
     },
+    "author": author->{
+      name
+    },
+    editorNotes,
     metaDescription,
     synonyms
   }

@@ -8,7 +8,7 @@ interface SearchPageProps {
   };
 }
 
-const CONTENT_TYPES = ['blog', 'product', 'serviceProvider'];
+const CONTENT_TYPES = ['blog', 'product', 'serviceProvider', 'directoryListing'];
 
 export default async function SearchPage({ params }: SearchPageProps) {
   const rawTerm = decodeURIComponent(params.slug);

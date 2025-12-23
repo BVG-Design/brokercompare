@@ -7,6 +7,7 @@ export interface Interaction {
 export interface Badge {
     title: string;
     color?: string;
+    description?: string;
 }
 
 export interface SoftwareListing {

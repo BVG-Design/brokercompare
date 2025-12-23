@@ -35,8 +35,8 @@ const Home: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality as needed
-    console.log('Search query:', searchQuery);
+    if (!searchQuery.trim()) return;
+    router.push(`/search/${encodeURIComponent(searchQuery)}`);
   };
 
   useEffect(() => {

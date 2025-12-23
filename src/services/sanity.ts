@@ -55,7 +55,7 @@ export const fetchUnifiedSearchResults = async (
   const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
     searchTerms: searchPatterns,
     contentTypes
-  });
+  }, { useCdn: false });
 
   const deduped = new Map<string, UnifiedSearchResult>();
   results.forEach((item) => {

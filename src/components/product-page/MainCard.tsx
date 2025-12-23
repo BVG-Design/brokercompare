@@ -116,19 +116,28 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
 
                             {/* Title & Badges */}
                             <div>
-                                <div className="flex flex-wrap items-center gap-2 mb-2">
-                                    <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
-                                    {badges.map((badge, idx) => {
-                                        const badgeColor = badge.color ? badge.color.toLowerCase() : 'orange';
-                                        const badgeStyle = BADGE_STYLES[badgeColor] || BADGE_STYLES.orange;
+                                <TooltipProvider>
+                                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                                        <h1 className="text-2xl font-bold text-gray-900">{name}</h1>
+                                        {badges.map((badge, idx) => {
+                                            const badgeColor = badge.color ? badge.color.toLowerCase() : 'orange';
+                                            const badgeStyle = BADGE_STYLES[badgeColor] || BADGE_STYLES.orange;
 
-                                        return (
-                                            <span key={idx} className={`${badgeStyle} text-xs px-2 py-0.5 rounded font-medium`}>
-                                                {badge.title}
-                                            </span>
-                                        );
-                                    })}
-                                </div>
+                                            return (
+                                                <Tooltip key={idx}>
+                                                    <TooltipTrigger asChild>
+                                                        <span className={`${badgeStyle} text-xs px-2 py-0.5 rounded font-medium cursor-help`}>
+                                                            {badge.title}
+                                                        </span>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p className="max-w-xs">{badge.description || badge.title}</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            );
+                                        })}
+                                    </div>
+                                </TooltipProvider>
 
                                 <div className="flex items-center gap-2 mb-3 text-sm">
                                     {/* Rating - simplified logic for display */}
