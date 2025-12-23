@@ -72,13 +72,15 @@ export const fetchDirectoryListings = async (filters: {
   brokerType?: string;
   tier?: string;
   search?: string;
+  type?: string;
 } = {}): Promise<DirectoryListing[]> => {
-  const { category, brokerType, tier, search } = filters;
+  const { category, brokerType, tier, search, type } = filters;
 
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
+    ${type && type !== 'all' ? '&& listingType == $type' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
-    ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
+    ${search ? '&& (title match $search + "*" || description match $search + "*" || serviceArea[] match $search + "*" || features[] match $search + "*")' : ''}
   ]{
     _id,
     _type,
@@ -88,15 +90,18 @@ export const fetchDirectoryListings = async (filters: {
     "categories": [category->title],
     brokerType,
     "slug": slug.current,
-    "rating": 5, // Placeholder for now
+    "rating": 5,
     websiteURL,
     pricing,
     listingType,
-    isFeatured
+    isFeatured,
+    serviceArea,
+    features
   }`;
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
+  if (type && type !== 'all') params.type = type;
   if (search) params.search = search;
 
   const results = await client.fetch(query, params);
@@ -113,16 +118,21 @@ export const fetchDirectoryListings = async (filters: {
     rating: item.rating,
     websiteUrl: item.websiteURL,
     pricingModel: item.pricing?.type,
-    type: item.listingType
+    type: item.listingType,
+    serviceAreas: item.serviceArea || [],
+    features: item.features || []
   }));
 };
 
-export const fetchCategories = async (): Promise<{ title: string, value: string }[]> => {
-  const query = `*[_type == "category"] { title, "value": slug.current } | order(title asc)`;
-  return await client.fetch(query);
-};
+
 
 import { DirectoryProxy } from '@/sanity/lib/proxy';
+
+export const fetchCategories = async (): Promise<{ title: string; value: string }[]> => {
+  const query = `*[_type == "category"]{title, "value": slug.current}`;
+  const results = await client.fetch(query);
+  return results.map((cat: any) => ({ title: cat.title, value: cat.value }));
+};
 
 export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
   return await DirectoryProxy.getListingBySlug(slug);

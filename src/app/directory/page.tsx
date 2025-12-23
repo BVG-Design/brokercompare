@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Search, Filter, Sparkles } from 'lucide-react';
 import VendorCard from '@/components/vendors/VendorCard';
 import AIChatDialog from '@/components/vendors/AIChatDialog';
-import { fetchDirectoryListings, fetchCategories } from '@/services/sanity';
+import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
 
 function BrowseVendorsContent() {
   const searchParams = useSearchParams();
@@ -18,9 +18,10 @@ function BrowseVendorsContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState(initialCategory);
   const [brokerTypeFilter, setBrokerTypeFilter] = useState('all');
-  const [tierFilter, setTierFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
   const [showAIChat, setShowAIChat] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [resourcePosts, setResourcePosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dynamicCategories, setDynamicCategories] = useState<{ label: string, value: string }[]>([]);
 
@@ -28,17 +29,34 @@ function BrowseVendorsContent() {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [fetchedListings, fetchedCats] = await Promise.all([
-          fetchDirectoryListings({
-            search: searchTerm,
-            category: categoryFilter,
-            tier: tierFilter
-          }),
-          fetchCategories()
-        ]);
+        let fetchedListings = [];
+        let fetchedCats = [];
+        if (typeFilter === 'resourceGuide') {
+          // Fetch resource guide posts
+          const [posts, cats] = await Promise.all([
+            fetchResourcePosts(),
+            fetchCategories()
+          ]);
+          fetchedListings = [];
+          setResourcePosts(posts);
+          fetchedCats = cats;
+        } else {
+          const [listings, cats] = await Promise.all([
+            fetchDirectoryListings({
+              search: searchTerm,
+              category: categoryFilter,
+              brokerType: brokerTypeFilter,
+              type: typeFilter !== 'all' ? typeFilter : undefined
+            }),
+            fetchCategories()
+          ]);
+          fetchedListings = listings;
+          fetchedCats = cats;
+        }
 
-        setVendors(fetchedListings);
-        setDynamicCategories([{ value: 'all', label: 'All Categories' }, ...fetchedCats.map(c => ({ value: c.value, label: c.title }))]);
+
+
+
       } catch (err) {
         console.error("Failed to fetch vendors:", err);
       } finally {
@@ -51,7 +69,7 @@ function BrowseVendorsContent() {
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, categoryFilter, tierFilter, brokerTypeFilter]);
+  }, [searchTerm, categoryFilter, typeFilter, brokerTypeFilter]);
 
   const brokerTypes = [
     { value: 'all', label: 'All Broker Types' },
@@ -74,11 +92,12 @@ function BrowseVendorsContent() {
       const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
       const aTier = tierWeight[a.listingTier] || 0;
       const bTier = tierWeight[b.listingTier] || 0;
-
       if (aTier !== bTier) return bTier - aTier;
       return a.name.localeCompare(b.name);
     });
   }, [filteredVendors]);
+
+
 
   const handleSearch = () => {
     // Search is handled by the searchTerm state
@@ -180,21 +199,21 @@ function BrowseVendorsContent() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Listing Type</label>
-                <Select value={tierFilter} onValueChange={setTierFilter}>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Listings</SelectItem>
-                    <SelectItem value="featured">Featured Only</SelectItem>
-                    <SelectItem value="premium">Premium Only</SelectItem>
-                    <SelectItem value="free">Free Listings</SelectItem>
+                    <SelectItem value="service">Services</SelectItem>
+                    <SelectItem value="software">Software</SelectItem>
+                    <SelectItem value="resourceGuide">Resource Guide</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {(categoryFilter !== 'all' || brokerTypeFilter !== 'all' || tierFilter !== 'all') && (
+            {(categoryFilter !== 'all' || brokerTypeFilter !== 'all' || typeFilter !== 'all') && (
               <div className="mt-4 pt-4 border-t">
                 <Button
                   variant="ghost"
@@ -202,7 +221,7 @@ function BrowseVendorsContent() {
                   onClick={() => {
                     setCategoryFilter('all');
                     setBrokerTypeFilter('all');
-                    setTierFilter('all');
+                    setTypeFilter('all');
                   }}
                   className="text-secondary hover:text-secondary/80"
                 >
@@ -215,7 +234,7 @@ function BrowseVendorsContent() {
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
-              <span className="font-semibold text-primary">{sortedVendors.length}</span> vendors found
+              <span className="font-semibold text-primary">{typeFilter === 'resourceGuide' ? resourcePosts.length : sortedVendors.length}</span> items found
             </p>
           </div>
 
@@ -231,6 +250,12 @@ function BrowseVendorsContent() {
                 </div>
               ))}
             </div>
+          ) : typeFilter === 'resourceGuide' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resourcePosts.map(post => (
+                <VendorCard key={post.id} vendor={post} />
+              ))}
+            </div>
           ) : sortedVendors.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
@@ -243,7 +268,7 @@ function BrowseVendorsContent() {
                   setSearchTerm('');
                   setCategoryFilter('all');
                   setBrokerTypeFilter('all');
-                  setTierFilter('all');
+                  setTypeFilter('all');
                 }}
                 variant="outline"
               >
@@ -256,7 +281,7 @@ function BrowseVendorsContent() {
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}
             </div>
-          )}
+          )
         </div>
 
         {/* AI Chat Dialog */}

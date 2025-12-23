@@ -103,16 +103,14 @@ export default function AIChatDialog({ open, onOpenChange }) {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                  message.role === 'user'
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
                     ? 'bg-[#132847] text-white'
                     : 'bg-gray-100 text-gray-900'
-                }`}
+                  }`}
               >
                 <ReactMarkdown
                   className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"

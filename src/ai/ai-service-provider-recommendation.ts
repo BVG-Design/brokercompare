@@ -8,8 +8,8 @@
  * - RecommendationOutput - The return type for the recommendServiceProviders function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import { ai } from '@/ai/genkit';
+import { z } from 'genkit';
 
 const BrokerProfileSchema = z.object({
   businessType: z.string().describe('The type of brokerage business (e.g., residential, commercial).'),
@@ -39,8 +39,8 @@ export async function recommendServiceProviders(profile: BrokerProfile): Promise
 
 const prompt = ai.definePrompt({
   name: 'recommendServiceProvidersPrompt',
-  input: {schema: BrokerProfileSchema},
-  output: {schema: RecommendationOutputSchema},
+  input: { schema: BrokerProfileSchema },
+  output: { schema: RecommendationOutputSchema },
   prompt: `You are an AI assistant specializing in recommending service providers (marketing, virtual assistants, and commercial finance providers) to brokers in Australia.
 
   Based on the following broker profile, provide a list of service provider recommendations, including a suitability score and a rationale for each recommendation.
@@ -68,7 +68,7 @@ const recommendServiceProvidersFlow = ai.defineFlow(
     outputSchema: RecommendationOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
+    const { output } = await prompt(input);
     return output!;
   }
 );
