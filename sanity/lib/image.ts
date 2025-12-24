@@ -1,5 +1,5 @@
-import imageUrlBuilder from "@sanity/image-url";
-import { client, sanityConfigured } from "./client";
+import imageUrlBuilder from '@sanity/image-url';
+import { client, sanityConfigured } from './client';
 
 const builder = sanityConfigured ? imageUrlBuilder(client as any) : null;
 
@@ -8,7 +8,7 @@ export function urlFor(source: any) {
     const emptyBuilder = {
       width: () => emptyBuilder,
       height: () => emptyBuilder,
-      url: () => "",
+      url: () => '',
     } as any;
 
     return emptyBuilder.image ? emptyBuilder.image(source) : emptyBuilder;
@@ -16,3 +16,4 @@ export function urlFor(source: any) {
 
   return builder.image(source);
 }
+

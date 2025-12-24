@@ -1,4 +1,4 @@
-import { client } from "@/../sanity/lib/client";
+import { client } from "@/sanity/lib/client";
 import { UNIFIED_SEARCH_QUERY } from "@/sanity/lib/queries";
 import { DirectoryListing, ResourcePost } from "@/types";
 import { DirectoryProxy } from "@/sanity/lib/proxy";
