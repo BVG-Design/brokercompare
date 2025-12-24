@@ -70,11 +70,15 @@ export const UNIFIED_SEARCH_QUERY = groq`
       ^.slug.current match @ ||
       ^.category->title match @ ||
       ^.categories[]->title match @ ||
+      ^.serviceAreas[]->title match @ ||
+      ^.brokerType[] match @ ||
+      ^.listingType match @ ||
+      ^.badges[]->title match @ ||
       ^.features[]->title match @ ||
       ^.features[].title match @ ||
       ^.featureCategory->title match @ ||
-      ^.serviceAreas[]->title match @ ||
       ^.worksWith[]->name match @ ||
+      ^.worksWith[]->title match @ ||
       ^.integrations[]->name match @ ||
       ^.synonyms[] match @
     ]
@@ -110,16 +114,27 @@ export const UNIFIED_SEARCH_QUERY = groq`
     select(tagline match $searchQuery => 3, 0) +
     select(category->title match $searchQuery => 4, 0) +
     select(categories[]->title match $searchQuery => 4, 0) +
-    select(features[]->title match $searchQuery => 2, 0) +
     select(serviceAreas[]->title match $searchQuery => 2, 0) +
+    select(brokerType[] match $searchQuery => 3, 0) +
+    select(listingType match $searchQuery => 3, 0) +
+    select(badges[]->title match $searchQuery => 2, 0) +
+    select(features[]->title match $searchQuery => 2, 0) +
+    select(features[].title match $searchQuery => 2, 0) +
     select(worksWith[]->name match $searchQuery => 1, 0) +
+    select(worksWith[]->title match $searchQuery => 1, 0) +
     select(synonyms[] match $searchQuery => 2, 0) +
 
     select(title match $intentTerms => 6, 0) +
     select(description match $intentTerms => 8, 0) +
-    select(features[]->title match $intentTerms => 5, 0) +
-    select(serviceAreas[]->title match $intentTerms => 5, 0) +
+    select(category->title match $intentTerms => 6, 0) +
     select(categories[]->title match $intentTerms => 6, 0) +
+    select(serviceAreas[]->title match $intentTerms => 5, 0) +
+    select(brokerType[] match $intentTerms => 4, 0) +
+    select(listingType match $intentTerms => 4, 0) +
+    select(badges[]->title match $intentTerms => 3, 0) +
+    select(features[]->title match $intentTerms => 5, 0) +
+    select(worksWith[]->name match $intentTerms => 3, 0) +
+    select(worksWith[]->title match $intentTerms => 3, 0) +
     select(synonyms[] match $intentTerms => 4, 0)
   ),
 
@@ -132,16 +147,27 @@ export const UNIFIED_SEARCH_QUERY = groq`
       select(tagline match $searchQuery => 3, 0) +
       select(category->title match $searchQuery => 4, 0) +
       select(categories[]->title match $searchQuery => 4, 0) +
-      select(features[]->title match $searchQuery => 2, 0) +
       select(serviceAreas[]->title match $searchQuery => 2, 0) +
+      select(brokerType[] match $searchQuery => 3, 0) +
+      select(listingType match $searchQuery => 3, 0) +
+      select(badges[]->title match $searchQuery => 2, 0) +
+      select(features[]->title match $searchQuery => 2, 0) +
+      select(features[].title match $searchQuery => 2, 0) +
       select(worksWith[]->name match $searchQuery => 1, 0) +
+      select(worksWith[]->title match $searchQuery => 1, 0) +
       select(synonyms[] match $searchQuery => 2, 0) +
 
       select(title match $intentTerms => 6, 0) +
       select(description match $intentTerms => 8, 0) +
-      select(features[]->title match $intentTerms => 5, 0) +
-      select(serviceAreas[]->title match $intentTerms => 5, 0) +
+      select(category->title match $intentTerms => 6, 0) +
       select(categories[]->title match $intentTerms => 6, 0) +
+      select(serviceAreas[]->title match $intentTerms => 5, 0) +
+      select(brokerType[] match $intentTerms => 4, 0) +
+      select(listingType match $intentTerms => 4, 0) +
+      select(badges[]->title match $intentTerms => 3, 0) +
+      select(features[]->title match $intentTerms => 5, 0) +
+      select(worksWith[]->name match $intentTerms => 3, 0) +
+      select(worksWith[]->title match $intentTerms => 3, 0) +
       select(synonyms[] match $intentTerms => 4, 0)
     )
   ),
@@ -149,16 +175,28 @@ export const UNIFIED_SEARCH_QUERY = groq`
   "whyMatched": [
     select(title match $searchQuery => "Title (Exact)"),
     select(description match $searchQuery => "Description (Exact)"),
-    select(features[]->title match $searchQuery => "Feature (Exact)"),
-    select(serviceAreas[]->title match $searchQuery => "Service Area (Exact)"),
+    select(category->title match $searchQuery => "Category (Exact)"),
     select(categories[]->title match $searchQuery => "Category (Exact)"),
+    select(serviceAreas[]->title match $searchQuery => "Service Area (Exact)"),
+    select(brokerType[] match $searchQuery => "Broker Type (Exact)"),
+    select(listingType match $searchQuery => "Listing Type (Exact)"),
+    select(badges[]->title match $searchQuery => "Badge (Exact)"),
+    select(features[]->title match $searchQuery => "Feature (Exact)"),
+    select(worksWith[]->name match $searchQuery => "Works With (Exact)"),
+    select(worksWith[]->title match $searchQuery => "Works With (Exact)"),
     select(synonyms[] match $searchQuery => "Synonym (Exact)"),
 
     select(title match $intentTerms => "Title (Intent)"),
     select(description match $intentTerms => "Description (Intent)"),
-    select(features[]->title match $intentTerms => "Feature (Intent)"),
-    select(serviceAreas[]->title match $intentTerms => "Service Area (Intent)"),
+    select(category->title match $intentTerms => "Category (Intent)"),
     select(categories[]->title match $intentTerms => "Category (Intent)"),
+    select(serviceAreas[]->title match $intentTerms => "Service Area (Intent)"),
+    select(brokerType[] match $intentTerms => "Broker Type (Intent)"),
+    select(listingType match $intentTerms => "Listing Type (Intent)"),
+    select(badges[]->title match $intentTerms => "Badge (Intent)"),
+    select(features[]->title match $intentTerms => "Feature (Intent)"),
+    select(worksWith[]->name match $intentTerms => "Works With (Intent)"),
+    select(worksWith[]->title match $intentTerms => "Works With (Intent)"),
     select(synonyms[] match $intentTerms => "Synonym (Intent)")
   ],
 

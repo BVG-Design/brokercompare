@@ -34,11 +34,105 @@ export const blogType = defineType({
     }),
 
     defineField({
-      name: 'categories',
-      title: 'Categories',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'category' }] }],
-    }),
+      name: 'category',
+      title: 'Category',
+      type: 'reference',
+      to: [{ type: 'category' }],
+      validation: Rule => Rule.required()
+  }),
+
+  defineField({
+    name: 'serviceAreas',
+    title: 'Service Areas',
+    type: 'array',
+    of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
+}),
+
+defineField({
+  name: 'brokerType',
+  title: 'Broker Types',
+  type: 'array',
+  of: [{ type: 'string' }],
+  options: {
+      list: [
+          { title: 'Mortgage', value: 'Mortgage' },
+          { title: 'Asset Finance', value: 'Asset Finance' },
+          { title: 'Commercial', value: 'Commercial' }
+      ]
+  }
+}),
+
+defineField({
+  name: 'worksWith',
+  title: 'Works With / Integrations',
+  type: 'array',
+  of: [
+      {
+          type: 'reference',
+          to: [{ type: 'directoryListing' }],
+          options: {
+              filter: 'listingType == "software"'
+          }
+      }
+  ],
+  description: 'Other software tools this listing integrates with',
+  validation: Rule =>
+      Rule.custom((refs, context) => {
+          if (!refs || !Array.isArray(refs)) return true
+
+          const selfId = context.document?._id
+          if (!selfId) return true
+
+          const hasSelfReference = refs.some(
+              (ref: any) => ref._ref === selfId
+          )
+
+          return hasSelfReference
+              ? 'A listing cannot reference itself in “Works With”.'
+              : true
+      })
+}),
+
+defineField({
+  name: 'author',
+  title: 'Author',
+  type: 'reference',
+  to: [{ type: 'author' }],
+}),
+
+defineField({
+  name: 'editorNotes',
+  title: 'Editor Notes',
+  type: 'text',
+  description: 'Public Commentary',
+}),
+
+defineField({
+  name: 'listingType',
+  title: 'Listing Type',
+  type: 'string',
+  options: {
+      list: [
+          { title: 'Software', value: 'software' },
+          { title: 'Service', value: 'service' }
+      ],
+      layout: 'radio'
+  },
+  validation: Rule => Rule.required()
+}),
+
+defineField({
+  name: 'badges',
+  title: 'Badges',
+  type: 'array',
+  of: [
+      {
+          type: 'reference',
+          to: [{ type: 'badge' }]
+      }
+  ],
+  description: 'Editorial or commercial badges applied to this listing'
+}),
 
     defineField({
       name: 'heroImage',

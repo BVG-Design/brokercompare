@@ -14,6 +14,10 @@ export const client: Pick<SanityClient, 'fetch'> = sanityConfigured
       dataset,
       apiVersion: '2023-10-01', // must not be in the future
       useCdn: true, // faster, cache-enabled (safe for public data)
+      perspective: 'published', // Only fetch published documents
+      stega: {
+        enabled: false, // Disable stega encoding for cleaner queries
+      },
     })
   : {
       fetch: async (
@@ -21,10 +25,12 @@ export const client: Pick<SanityClient, 'fetch'> = sanityConfigured
         _params?: Record<string, any>,
         _options?: Record<string, any>
       ) => {
-        console.warn(
-          'Sanity client disabled: NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Returning empty results for query.',
-          query
-        );
+        if (process.env.NODE_ENV === 'development') {
+          console.warn(
+            'Sanity client disabled: NEXT_PUBLIC_SANITY_PROJECT_ID is not set. Returning empty results for query.',
+            query
+          );
+        }
         return [];
       },
     } as unknown as Pick<SanityClient, 'fetch'>;
