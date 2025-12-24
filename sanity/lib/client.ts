@@ -1,7 +1,8 @@
 import { createClient } from 'next-sanity';
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET || 'production';
+// Trim env values to avoid accidental whitespace in .env files
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID?.trim();
+const dataset = (process.env.NEXT_PUBLIC_SANITY_DATASET || 'production').trim();
 
 export const sanityConfigured = Boolean(projectId);
 

@@ -1,22 +1,30 @@
-// src/sanity/lib/queries.ts
-import { groq } from "next-sanity";
-
 export const UNIFIED_SEARCH_QUERY = groq`
 *[
   _type in $contentTypes &&
   count(
-    array::concat($searchTerms, $intentTerms)[
+    $searchTerms[
+      // Core text relevance
       ^.title match @ ||
       ^.name match @ ||
       ^.description match @ ||
       ^.tagline match @ ||
       ^.slug.current match @ ||
+
+      // Categories
       ^.category->title match @ ||
       ^.categories[]->title match @ ||
+
+      // Features
       ^.features[]->title match @ ||
       ^.features[].title match @ ||
+
+      // Feature Categories
       ^.featureCategory->title match @ ||
+
+      // Directory Listing: Service Areas
       ^.serviceAreas[]->title match @ ||
+
+      // Works With / Integrations
       ^.worksWith[]->name match @ ||
       ^.integrations[]->name match @
     ]
@@ -28,40 +36,64 @@ export const UNIFIED_SEARCH_QUERY = groq`
   name,
   description,
   tagline,
+
   "slug": coalesce(slug.current, _id),
+
+  /* ---------------------------------------------------- */
+  /* CATEGORY + FILTER FIELDS                              */
+  /* ---------------------------------------------------- */
+
   "category": coalesce(
     category->title,
     categories[0]->title,
     "Uncategorized"
   ),
+
   "categories": coalesce(
     categories[]->title,
     select(defined(category->title) => [category->title], [])
   ),
+
   brokerType,
   listingType,
+
+  /* ---------------------------------------------------- */
+  /* BADGE PRIORITY (1 = highest)                          */
+  /* ---------------------------------------------------- */
+
   "badgePriority": coalesce(
     badges[].priority | order(@ asc)[0],
     999
   ),
 
+  /* ---------------------------------------------------- */
+  /* COMPUTED RELEVANCE SCORE                              */
+  /* Lower = better (like badgePriority)                  */
+  /* ---------------------------------------------------- */
+
   "relevanceScore": (
+    // Strong intent matches
     select(title match $searchQuery => 1, 0) +
     select(name match $searchQuery => 1, 0) +
+
+    // Medium relevance
     select(description match $searchQuery => 3, 0) +
     select(tagline match $searchQuery => 3, 0) +
+
+    // Supporting context
     select(category->title match $searchQuery => 4, 0) +
     select(categories[]->title match $searchQuery => 4, 0) +
+
+    // Feature + service alignment
     select(features[]->title match $searchQuery => 2, 0) +
     select(serviceAreas[]->title match $searchQuery => 2, 0) +
-    select(worksWith[]->name match $searchQuery => 1, 0) +
-
-    select(title match $intentTerms => 6, 0) +
-    select(description match $intentTerms => 8, 0) +
-    select(features[]->title match $intentTerms => 5, 0) +
-    select(serviceAreas[]->title match $intentTerms => 5, 0) +
-    select(categories[]->title match $intentTerms => 6, 0)
+    select(worksWith[]->name match $searchQuery => 1, 0)
   ),
+
+  /* ---------------------------------------------------- */
+  /* FINAL RANKING SCORE                                   */
+  /* badgePriority has more weight than relevance          */
+  /* ---------------------------------------------------- */
 
   "rankingScore": (
     coalesce(badges[].priority | order(@ asc)[0], 999) * 10 +
@@ -74,29 +106,13 @@ export const UNIFIED_SEARCH_QUERY = groq`
       select(categories[]->title match $searchQuery => 4, 0) +
       select(features[]->title match $searchQuery => 2, 0) +
       select(serviceAreas[]->title match $searchQuery => 2, 0) +
-      select(worksWith[]->name match $searchQuery => 1, 0) +
-
-      select(title match $intentTerms => 6, 0) +
-      select(description match $intentTerms => 8, 0) +
-      select(features[]->title match $intentTerms => 5, 0) +
-      select(serviceAreas[]->title match $intentTerms => 5, 0) +
-      select(categories[]->title match $intentTerms => 6, 0)
+      select(worksWith[]->name match $searchQuery => 1, 0)
     )
   ),
 
-  "whyMatched": [
-    select(title match $searchQuery => "Title (Exact)"),
-    select(description match $searchQuery => "Description (Exact)"),
-    select(features[]->title match $searchQuery => "Feature (Exact)"),
-    select(serviceAreas[]->title match $searchQuery => "Service Area (Exact)"),
-    select(categories[]->title match $searchQuery => "Category (Exact)"),
-
-    select(title match $intentTerms => "Title (Intent)"),
-    select(description match $intentTerms => "Description (Intent)"),
-    select(features[]->title match $intentTerms => "Feature (Intent)"),
-    select(serviceAreas[]->title match $intentTerms => "Service Area (Intent)"),
-    select(categories[]->title match $intentTerms => "Category (Intent)")
-  ],
+  /* ---------------------------------------------------- */
+  /* RESULT GROUPING (UI Buckets)                          */
+  /* ---------------------------------------------------- */
 
   "resultGroup": select(
     _type == "product" => "Software",
@@ -105,6 +121,10 @@ export const UNIFIED_SEARCH_QUERY = groq`
     _type == "blog" => "Resource Guides",
     "Other"
   ),
+
+  /* ---------------------------------------------------- */
+  /* MEDIA                                                 */
+  /* ---------------------------------------------------- */
 
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
@@ -115,14 +135,4 @@ export const UNIFIED_SEARCH_QUERY = groq`
   "heroImageUrl": heroImage.asset->url
 }
 | order(rankingScore asc)
-`;
-
-export const SEARCH_INTENT_NAV_QUERY = groq`
-*[_type == "searchIntent" && showInNav == true]
-| order(order asc) {
-  _id,
-  title,
-  "slug": slug.current,
-  order
-}
 `;
