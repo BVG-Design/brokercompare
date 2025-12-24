@@ -20,6 +20,10 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
 
   try {
     const results = await client.fetch(query);
+    
+    if (!Array.isArray(results)) {
+      return [];
+    }
 
     return results.map((item: any) => ({
       id: item._id,
@@ -32,8 +36,11 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
       link: item._type === "blog" ? `/blog/${item.slug}` : `/directory/${item.slug}`,
       featuredLabel: item.featuredLabel
     }));
-  } catch (error) {
-    console.error("Failed to fetch resource posts from Sanity", error);
+  } catch (error: any) {
+    // Silently handle errors - data might not exist yet in Sanity
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("Failed to fetch resource posts from Sanity:", error?.message || error);
+    }
     return [];
   }
 };
@@ -89,8 +96,11 @@ export const fetchUnifiedSearchResults = async (
       },
       { useCdn: false }
     );
-  } catch (error) {
-    console.error("Unified search failed to fetch from Sanity", error);
+  } catch (error: any) {
+    // Silently handle errors - data might not exist yet in Sanity
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("Unified search failed to fetch from Sanity:", error?.message || error);
+    }
     return [];
   }
 
@@ -178,6 +188,10 @@ export const fetchDirectoryListings = async (filters: {
 
   try {
     const results = await client.fetch(query, params);
+    
+    if (!Array.isArray(results)) {
+      return [];
+    }
 
     return results.map((item: any) => ({
       id: item._id,
@@ -198,8 +212,11 @@ export const fetchDirectoryListings = async (filters: {
         ...(item.badges?.map((b: any) => b?.priority).filter((p: number) => typeof p === "number") ?? [999])
       )
     }));
-  } catch (error) {
-    console.error("Failed to fetch directory listings from Sanity", error);
+  } catch (error: any) {
+    // Silently handle errors - data might not exist yet in Sanity
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("Failed to fetch directory listings from Sanity:", error?.message || error);
+    }
     return [];
   }
 };
@@ -209,12 +226,20 @@ export const fetchCategories = async (): Promise<{ title: string; value: string 
 
   try {
     const results = await client.fetch(query);
+    
+    if (!Array.isArray(results)) {
+      return [];
+    }
+    
     return results.map((cat: any) => ({
       title: cat.title,
       value: cat.value
     }));
-  } catch (error) {
-    console.error("Failed to fetch categories from Sanity", error);
+  } catch (error: any) {
+    // Silently handle errors - data might not exist yet in Sanity
+    if (process.env.NODE_ENV === 'development') {
+      console.warn("Failed to fetch categories from Sanity:", error?.message || error);
+    }
     return [];
   }
 };

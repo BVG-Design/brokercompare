@@ -94,13 +94,6 @@ defineField({
 }),
 
 defineField({
-  name: 'author',
-  title: 'Author',
-  type: 'reference',
-  to: [{ type: 'author' }],
-}),
-
-defineField({
   name: 'editorNotes',
   title: 'Editor Notes',
   type: 'text',
