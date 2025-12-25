@@ -237,4 +237,3 @@ export const DirectoryProxy = {
     return Object.values(groups).sort((a, b) => a.order - b.order);
   }
 };
-

@@ -162,14 +162,7 @@ defineField({
       type: 'number',
       validation: Rule => Rule.min(1).max(60),
     }),
-
-    defineField({
-      name: 'authors',
-      title: 'Additional authors',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'author' }] }],
-      description: 'Use this to show “Name A & Name B” like Mangools.',
-    }),
+    
     defineField({
       name: 'seo',
       title: 'SEO settings',

@@ -176,13 +176,13 @@ export const productType = defineType({
       validation: (Rule) => Rule.required(),
     }),
 
-    // Relationship to Vendor (Service Provider)
+    // Relationship to Organisation (Organisation)
     defineField({
-      name: 'vendor',
-      title: 'Vendor / Owner',
+      name: 'organisation',
+      title: 'Organisation / Owner',
       type: 'reference',
-      to: [{ type: 'serviceProvider' }],
-      description: 'The vendor who owns this product/listing.',
+      to: [{ type: 'organisation' }],
+      description: 'The organisation or individual that owns this listing.',
     }),
     defineField({
       name: 'isFeatured',
