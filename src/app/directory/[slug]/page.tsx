@@ -1,13 +1,14 @@
 
 import React from 'react';
 import { notFound } from 'next/navigation';
-import { fetchDirectoryListingBySlug } from '@/services/sanity';
 import HeroSection from '@/components/product-page/HeroSection';
 import MainCard from '@/components/product-page/MainCard';
 import InfoGrid from '@/components/product-page/InfoGrid';
 import StillNotSure from '@/components/product-page/StillNotSure';
 import ReviewsSection from '@/components/product-page/ReviewsSection';
-import { SoftwareListing } from '@/components/product-page/types';
+import ComparisonSummary from '@/components/product-page/ComparisonSummary';
+import ProvidersSection from '@/components/product-page/ProvidersSection';
+import { buildDirectoryPageData } from './comparisonData';
 
 // Mock blogs for the InfoGrid sidebar
 const MOCK_BLOGS = [
@@ -42,58 +43,31 @@ export default async function DirectoryProfilePage(props: PageProps) {
     const params = await props.params;
     const { slug } = params;
 
-    // Fetch data on the server
-    const listing = await fetchDirectoryListingBySlug(slug);
+    const pageData = await buildDirectoryPageData(slug);
 
-    if (!listing) {
+    if (!pageData) {
         notFound();
     }
 
-    // Map Sanity data to SoftwareListing interface for components
-    const mappedListing: SoftwareListing = {
-        name: listing.title,
-        slug: listing.slug,
-        tagline: listing.tagline,
-        description: listing.description,
-        category: listing.category?.title,
-        websiteUrl: listing.websiteURL,
-        logoUrl: listing.logoUrl,
-        badges: (listing.badges || []).map((b: any) => ({ title: b.title, color: b.color })),
-        // For services, we use serviceAreas. For software, we might use a different field, 
-        // but here we align with what the component expects.
-        serviceArea: (listing.serviceAreas || []).filter((sa: any) => sa).map((sa: any) => sa.title || sa),
-        brokerType: listing.brokerType || [],
-        features: (listing.features || []).filter((f: any) => f).map((f: any) => f.title || (typeof f === 'string' ? f : f.feature?.title)),
-        pricing: {
-            model: listing.pricing?.type,
-            min: listing.pricing?.min,
-            max: listing.pricing?.max,
-            notes: listing.pricing?.notes
-        },
-        worksWith: (listing.worksWith || []).map((ww: any) => ({
-            name: ww.title,
-            slug: ww.slug
-        })),
-        editor: {
-            author: listing.author?.name || 'Broker Tools Editor',
-            notes: listing.editorNotes
-        },
-        rating: {
-            average: 0,
-            count: 0
-        }
-    };
+    const { listing, summaryProducts, summaryFeatures, providers } = pageData;
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-50/50">
-            <HeroSection tagline={mappedListing.tagline} />
+            <HeroSection tagline={listing.tagline} />
 
             <main className="flex-grow">
-                <MainCard listing={mappedListing} />
-                <InfoGrid listing={mappedListing} blogs={MOCK_BLOGS} />
+                <MainCard listing={listing} />
+                <InfoGrid listing={listing} blogs={MOCK_BLOGS} />
                 <ReviewsSection />
-                <div className="max-w-6xl mx-auto px-4">
+                <div className="max-w-6xl mx-auto px-4 space-y-12">
                     <StillNotSure />
+                    <ComparisonSummary
+                        products={summaryProducts}
+                        features={summaryFeatures}
+                        focusName={listing.name}
+                        comparisonHref={`/directory/${slug}/comparison`}
+                    />
+                    <ProvidersSection providers={providers} />
                 </div>
             </main>
         </div>

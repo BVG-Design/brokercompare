@@ -11,7 +11,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Download, Share2 } from 'lucide-react';
 import Link from 'next/link';
-import { software, services } from '@/lib/data';
 
 function ComparePageContent() {
   const { items, clearAll, addItem } = useComparison();
@@ -143,7 +142,7 @@ function ComparePageContent() {
                 <TabsTrigger value="add">Add More</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="overview" className="space-y-6">
+              <TabsContent value="overview" className="space-y-6 pb-2">
                 <ComparisonTable items={items} />
               </TabsContent>
 

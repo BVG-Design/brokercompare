@@ -21,6 +21,31 @@ export const DIRECTORY_LISTING_QUERY = groq`
     "logoUrl": logo.asset->url,
     websiteURL,
     brokerType,
+    "similarTo": similarTo[]{
+      priority,
+      "listing": listing->{
+        title,
+        listingType,
+        "slug": slug.current,
+        "logoUrl": logo.asset->url
+      }
+    },
+    "serviceProviders": serviceProviders[]->{
+      _id,
+      title,
+      listingType,
+      "slug": slug.current,
+      description,
+      "logoUrl": logo.asset->url,
+      websiteURL,
+      brokerType,
+      "badges": badges[]->{
+        title,
+        color,
+        "iconUrl": icon.asset->url
+      },
+      rating
+    },
     "features": features[]{
       availability,
       limitationType,
@@ -73,6 +98,31 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
     "logoUrl": logo.asset->url,
     websiteURL,
     brokerType,
+    "similarTo": similarTo[]{
+      priority,
+      "listing": listing->{
+        title,
+        listingType,
+        "slug": slug.current,
+        "logoUrl": logo.asset->url
+      }
+    },
+    "serviceProviders": serviceProviders[]->{
+      _id,
+      title,
+      listingType,
+      "slug": slug.current,
+      description,
+      "logoUrl": logo.asset->url,
+      websiteURL,
+      brokerType,
+      "badges": badges[]->{
+        title,
+        color,
+        "iconUrl": icon.asset->url
+      },
+      rating
+    },
     "features": features[]{
       availability,
       limitationType,
@@ -122,6 +172,17 @@ export const COMPARISON_QUERY = groq`
     title,
     "slug": slug.current,
     "logoUrl": logo.asset->url,
+    tagline,
+    listingType,
+    brokerType,
+    pricing,
+    websiteURL,
+    rating,
+    "badges": badges[]->{
+      title,
+      color,
+      "iconUrl": icon.asset->url
+    },
     "features": features[]{
       availability,
       limitationType,
@@ -188,7 +249,9 @@ export const DirectoryProxy = {
       serviceAreas: listing.serviceAreas || [],
       worksWith: listing.worksWith || [],
       features: listing.features || [],
-      badges: listing.badges || []
+      badges: listing.badges || [],
+      similarTo: listing.similarTo || [],
+      serviceProviders: listing.serviceProviders || []
     };
   },
 
