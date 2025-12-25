@@ -8,10 +8,15 @@ export interface ComparisonProduct {
   priceText?: string;
   rating?: number | null;
   isCurrent?: boolean;
+  websiteUrl?: string;
+  worksWith?: { title: string; slug?: string; logoUrl?: string }[];
+  serviceAreas?: string[];
+  alternativesCount?: number;
 }
 
 export interface ComparisonFeatureRow {
   title: string;
+  score?: number;
   availability: Record<string, FeatureAvailability | undefined>;
 }
 

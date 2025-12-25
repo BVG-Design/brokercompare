@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Minus, X } from 'lucide-react';
+import { Check, Minus, Star, X } from 'lucide-react';
 import {
   ComparisonFeatureGroup,
   ComparisonProduct,
@@ -11,21 +11,45 @@ interface ComparisonMatrixProps {
   featureGroups: ComparisonFeatureGroup[];
 }
 
-const renderAvailability = (status: FeatureAvailability | undefined) => {
+const renderAvailability = (status: FeatureAvailability | undefined, score?: number) => {
   if (status === 'yes') {
-    return <Check size={18} className="mx-auto text-green-500" strokeWidth={2.5} />;
-  }
-
-  if (status === 'partial') {
     return (
-      <div className="inline-flex items-center gap-1 text-amber-500 text-xs font-medium">
-        <Minus size={14} strokeWidth={2.25} />
-        Partial
+      <div className="flex items-center justify-center gap-2">
+        <Check size={18} className="text-green-500" strokeWidth={2.5} />
+        {score !== undefined && (
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-700 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">
+            <Star size={12} className="text-orange-400 fill-orange-400" />
+            {score}/10
+          </span>
+        )}
       </div>
     );
   }
 
-  return <X size={18} className="mx-auto text-gray-300" />;
+  if (status === 'partial') {
+    return (
+      <div className="inline-flex items-center gap-2 text-amber-500 text-xs font-medium">
+        <Minus size={14} strokeWidth={2.25} />
+        Partial
+        {score !== undefined && (
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-700 bg-amber-50 border border-amber-100 px-2 py-0.5 rounded-full">
+            {score}/10
+          </span>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-center gap-2">
+      <X size={18} className="text-gray-300" />
+      {score !== undefined && (
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">
+          {score}/10
+        </span>
+      )}
+    </div>
+  );
 };
 
 const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGroups }) => {
@@ -62,7 +86,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGr
                     <td className="px-4 py-3 text-sm font-medium text-gray-700">{feature.title}</td>
                     {products.map((p) => (
                       <td key={p.slug} className="px-4 py-3 text-center">
-                        {renderAvailability(feature.availability[p.slug])}
+                        {renderAvailability(feature.availability[p.slug], feature.score)}
                       </td>
                     ))}
                   </tr>

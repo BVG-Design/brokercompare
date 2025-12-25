@@ -28,6 +28,13 @@ export const listingFeatureType = {
             validation: Rule => Rule.required()
         }),
         defineField({
+            name: 'score',
+            title: 'Score (out of 10)',
+            type: 'number',
+            description: 'Rate the quality/strength for this feature. 1 = poor, 10 = excellent.',
+            validation: Rule => Rule.min(1).max(10)
+        }),
+        defineField({
             name: 'limitationType',
             title: 'Limitation Type',
             type: 'string',

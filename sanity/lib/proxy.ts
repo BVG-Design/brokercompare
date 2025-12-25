@@ -48,6 +48,7 @@ export const DIRECTORY_LISTING_QUERY = groq`
     },
     "features": features[]{
       availability,
+      score,
       limitationType,
       notes,
       "details": feature->{
@@ -125,6 +126,7 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
     },
     "features": features[]{
       availability,
+      score,
       limitationType,
       notes,
       "feature": feature->{
@@ -178,6 +180,13 @@ export const COMPARISON_QUERY = groq`
     pricing,
     websiteURL,
     rating,
+    "worksWith": worksWith[]->{
+      title,
+      "slug": slug.current,
+      "logoUrl": logo.asset->url
+    },
+    "serviceAreas": serviceAreas[]->{ title, group },
+    "alternativesCount": count(similarTo),
     "badges": badges[]->{
       title,
       color,
@@ -185,6 +194,7 @@ export const COMPARISON_QUERY = groq`
     },
     "features": features[]{
       availability,
+      score,
       limitationType,
       notes,
       "feature": feature->{
@@ -290,6 +300,7 @@ export const DirectoryProxy = {
 
       groups[catName].features.push({
         title: f.feature?.title,
+        score: f.score,
         availability: f.availability,
         limitationType: f.limitationType,
         notes: f.notes

@@ -91,9 +91,13 @@ const buildFeatureGroups = (
         const row =
           existingGroup.features.get(feature.title) || {
             title: feature.title,
+            score: feature.score,
             availability: {}
           };
 
+        if (feature.score !== undefined) {
+          row.score = feature.score;
+        }
         row.availability[item.slug] = feature.availability as FeatureAvailability;
         existingGroup.features.set(feature.title, row);
       });
@@ -186,7 +190,11 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
       tagline: item.tagline,
       priceText: formatPricing(item.pricing),
       rating: ratingValue,
-      isCurrent: item.slug === slug
+      isCurrent: item.slug === slug,
+      websiteUrl: item.websiteURL,
+      worksWith: item.worksWith || [],
+      serviceAreas: (item.serviceAreas || []).map((sa: any) => sa?.title).filter(Boolean),
+      alternativesCount: item.alternativesCount
     };
   });
 

@@ -155,22 +155,25 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
                                     <h3 className="font-bold text-gray-900">Works/Integrates With</h3>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    {worksWith.map((tool, idx) => (
-                                        <Link
-                                            key={idx}
-                                            href={`/software/${getTargetSlug(tool.name, tool.websiteUrl)}`}
-                                            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-gray-700 hover:border-gray-300 cursor-pointer transition-colors"
-                                            title={tool.name}
-                                        >
-                                            <img
-                                                src={tool.logo || `https://www.google.com/s2/favicons?domain=${tool.websiteUrl || 'google.com'}&sz=32`}
-                                                alt={tool.name}
-                                                className="w-3.5 h-3.5 rounded-sm object-contain opacity-85"
-                                                loading="lazy"
-                                            />
-                                            {tool.name}
-                                        </Link>
-                                    ))}
+                                    {worksWith.map((tool, idx) => {
+                                        const targetSlug = tool.slug || getTargetSlug(tool.name, tool.websiteUrl);
+                                        return (
+                                            <Link
+                                                key={idx}
+                                                href={`/directory/${targetSlug}`}
+                                                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-gray-700 hover:border-gray-300 cursor-pointer transition-colors"
+                                                title={tool.name}
+                                            >
+                                                <img
+                                                    src={tool.logo || `https://www.google.com/s2/favicons?domain=${tool.websiteUrl || 'google.com'}&sz=32`}
+                                                    alt={tool.name}
+                                                    className="w-3.5 h-3.5 rounded-sm object-contain opacity-85"
+                                                    loading="lazy"
+                                                />
+                                                {tool.name}
+                                            </Link>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
