@@ -66,6 +66,23 @@ const mapToSoftwareListing = (listing: any): SoftwareListing => ({
   rating: {
     average: 0,
     count: 0
+  },
+  trustMetrics: {
+    responseTimeHours:
+      listing.trustMetrics?.responseTimeHours ??
+      listing.trust_metrics?.response_time_hours ??
+      listing.response_time_hours ??
+      listing.responseTimeHours,
+    verifiedRatio:
+      listing.trustMetrics?.verifiedRatio ??
+      listing.trust_metrics?.verified_ratio ??
+      listing.verified_ratio ??
+      listing.verifiedRatio,
+    reviewRecencyDays:
+      listing.trustMetrics?.reviewRecencyDays ??
+      listing.trust_metrics?.review_recency_days ??
+      listing.review_recency_days ??
+      listing.reviewRecencyDays
   }
 });
 
