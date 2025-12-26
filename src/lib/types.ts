@@ -9,10 +9,11 @@ export interface Review {
   helpfulCount?: number;
   notHelpfulCount?: number;
   verified?: boolean;
-  isVerified?: boolean;
-  verificationMethod?: string;
-  moderationStatus?: 'pending' | 'approved' | 'rejected';
-  status?: 'pending' | 'approved' | 'rejected';
+  rubric?: {
+    scores?: Partial<RubricScores>;
+    weightedScores?: Partial<RubricScores>;
+    overall?: number;
+  };
   pros?: string[];
   cons?: string[];
   useCase?: string;
@@ -20,6 +21,22 @@ export interface Review {
   brokerType?: 'Mortgage' | 'Asset Finance' | 'Commercial';
   timeUsed?: string; // e.g., "6 months", "2 years"
   recommendation?: boolean;
+}
+
+export type RubricCategoryKey = 'usability' | 'support' | 'value' | 'features';
+
+export interface RubricScores {
+  usability: number;
+  support: number;
+  value: number;
+  features: number;
+}
+
+export interface RubricWeights {
+  usability: number;
+  support: number;
+  value: number;
+  features: number;
 }
 
 export interface Service {
@@ -69,6 +86,12 @@ export interface Software {
   rating?: {
     average: number;
     reviewCount: number;
+    marketScore?: number;
+    rubric?: {
+      averages?: Partial<RubricScores>;
+      weightedScores?: Partial<RubricScores>;
+      weights?: Partial<RubricWeights>;
+    };
   };
   features: string[];
   // Enhanced software fields

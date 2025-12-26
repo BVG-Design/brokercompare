@@ -11,6 +11,7 @@ import { StarRating } from '@/components/shared/star-rating';
 import { useComparison } from '@/components/compare/ComparisonContext';
 import { ArrowRight, MapPin, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
 
 interface ServiceCardProps {
   service: Service;
@@ -21,6 +22,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
   const averageRating = service.reviews.length > 0
     ? service.reviews.reduce((acc, review) => acc + review.rating, 0) / service.reviews.length
     : 0;
+  const marketScore = computeMarketplaceScore({ averageRating });
 
   const inComparison = isInComparison(service.id);
 
@@ -79,7 +81,12 @@ export function ServiceCard({ service }: ServiceCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between items-center gap-3 p-4 pt-0">
-        <StarRating rating={averageRating} size={18} />
+        <div className="flex items-center gap-2">
+          <StarRating rating={averageRating} size={18} />
+          <span className="text-xs font-semibold text-muted-foreground">
+            {marketScore} Market Score
+          </span>
+        </div>
         <div className="flex flex-wrap gap-2 justify-end">
           {!inComparison && (
             <Button

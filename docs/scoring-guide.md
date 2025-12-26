@@ -1,32 +1,47 @@
-# Marketplace Scoring Guide
+# Marketplace Scoring Guide (G2-Style)
 
-Use this rubric to assign **marketplaceScore** (0–100) for service provider recommendations.
+## Overview
+BrokerCompare uses a G2-style rubric to translate review inputs into a normalized **Marketplace Score (0–100)**. This score balances overall sentiment with weighted sub-criteria so buyers can compare products consistently.
 
-## Scoring dimensions
+## Overall Rating
+- **Scale:** 1–5 stars
+- **Source:** Reviewers submit an overall rating in addition to sub-criteria.
+- **Usage:** Used as the fallback score when sub-criteria data is missing.
 
-Score each dimension from 0–25 and sum for the final marketplaceScore.
+## Rubric Sub-Criteria
+Each review can include category scores (1–5) for the following criteria:
 
-1. **Reputation & Trust (0–25)**
-   - 0–10: Limited or unclear reputation.
-   - 11–20: Solid reputation with some proof points.
-   - 21–25: Strong, well-established reputation and trust signals.
+| Category   | Description | Weight (Default) |
+|------------|-------------|------------------|
+| Usability  | Ease of use, onboarding clarity, and day-to-day workflows | 25% |
+| Support    | Responsiveness, quality of help, and documentation | 25% |
+| Value      | Price-to-benefit, ROI, and total cost of ownership | 25% |
+| Features   | Depth of functionality and coverage of broker needs | 25% |
 
-2. **Market Fit (0–25)**
-   - 0–10: Weak alignment with broker segment or niche.
-   - 11–20: Good alignment with the broker’s segment.
-   - 21–25: Excellent alignment, clear specialization for the broker’s needs.
+> Weights can be tuned per category or per listing, but must sum to 100%.
 
-3. **Value & Pricing Alignment (0–25)**
-   - 0–10: Pricing or value proposition likely mismatched to budget.
-   - 11–20: Reasonable alignment with expected value.
-   - 21–25: Strong value for budget with clear ROI potential.
+## Marketplace Score (0–100)
+1. **Collect rubric scores** (1–5) for Usability, Support, Value, and Features.
+2. **Apply weights** to compute a weighted average (still on a 1–5 scale).
+3. **Normalize** to a 0–100 score by multiplying the weighted average by 20.
 
-4. **Service Quality Signals (0–25)**
-   - 0–10: Minimal evidence of delivery quality.
-   - 11–20: Some indicators of quality or outcomes.
-   - 21–25: Clear evidence of high-quality delivery and outcomes.
+If no rubric scores are available, the overall star rating is used instead.
 
-## Output requirements
+### Example
+- Usability: 4.5
+- Support: 4.0
+- Value: 4.5
+- Features: 5.0
+- Weights: 25% each
 
-- Return an integer between 0 and 100.
-- If details are sparse, use conservative mid-range scoring and explain uncertainty in the rationale.
+Weighted average = 4.5
+Marketplace Score = 4.5 × 20 = **90**
+
+## Minimum Review Thresholds
+To publish a Marketplace Score, listings must meet these minimums:
+
+- **Minimum approved reviews:** 5
+- **Minimum recent reviews:** 2 in the last 12 months
+- **Category coverage:** At least 70% of approved reviews include rubric sub-criteria
+
+If thresholds are not met, the UI should display the star rating only and mark the Marketplace Score as “insufficient data.”
