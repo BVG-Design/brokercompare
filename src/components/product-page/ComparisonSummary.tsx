@@ -1,7 +1,12 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Check, Minus, Star, X } from 'lucide-react';
-import { ComparisonFeatureRow, ComparisonProduct, FeatureAvailability } from '@/types/comparison';
+import { ArrowRight, Check, Info, Minus, Star, X } from 'lucide-react';
+import {
+  ComparisonFeatureRow,
+  ComparisonProduct,
+  FeatureAvailability,
+  RubricCategoryScore
+} from '@/types/comparison';
 
 interface ComparisonSummaryProps {
   products: ComparisonProduct[];
@@ -20,6 +25,36 @@ const renderAvailability = (status: FeatureAvailability | undefined) => {
   }
 
   return <X size={18} className="mx-auto text-gray-300" />;
+};
+
+const renderRubricScore = (score: number | null | undefined) => {
+  if (typeof score === 'number') {
+    return (
+      <div className="flex items-center justify-center gap-1 text-sm font-bold text-gray-900">
+        <Star size={14} className="text-orange-500 fill-orange-500" />
+        {score.toFixed(1)}
+      </div>
+    );
+  }
+
+  return <span className="text-xs text-gray-400">Not scored</span>;
+};
+
+const collectRubricCategories = (products: ComparisonProduct[]): RubricCategoryScore[] => {
+  const categories = new Map<string, RubricCategoryScore>();
+
+  products.forEach((product) => {
+    product.rubricCategoryScores?.forEach((score) => {
+      const existing = categories.get(score.title);
+      if (!existing || (score.order ?? 999) < (existing.order ?? 999)) {
+        categories.set(score.title, score);
+      }
+    });
+  });
+
+  return Array.from(categories.values()).sort(
+    (a, b) => (a.order ?? 999) - (b.order ?? 999) || a.title.localeCompare(b.title)
+  );
 };
 
 const renderLogo = (product: ComparisonProduct) => {
@@ -49,6 +84,7 @@ const ComparisonSummary: React.FC<ComparisonSummaryProps> = ({
   if (!products.length) return null;
 
   const titleProduct = focusName || products.find((p) => p.isCurrent)?.name || products[0].name;
+  const rubricCategories = collectRubricCategories(products);
 
   return (
     <div className="max-w-6xl mx-auto px-4 mb-16">
@@ -104,6 +140,44 @@ const ComparisonSummary: React.FC<ComparisonSummaryProps> = ({
                   </td>
                 ))}
               </tr>
+              {rubricCategories.length > 0 && (
+                <>
+                  <tr className="bg-gray-50/50">
+                    <td className="p-4 text-sm font-medium text-gray-900">
+                      <div className="flex items-center gap-2">
+                        Rubric score
+                        <Link
+                          href="/docs/scoring-guide.md"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-gray-700"
+                        >
+                          <Info size={14} />
+                          How scoring works
+                        </Link>
+                      </div>
+                    </td>
+                    {products.map((p) => (
+                      <td key={p.slug} className="p-4 text-center">
+                        {renderRubricScore(p.overallRubricScore)}
+                      </td>
+                    ))}
+                  </tr>
+                  {rubricCategories.map((category) => (
+                    <tr key={category.title} className="hover:bg-gray-50/50 transition-colors">
+                      <td className="p-4 text-sm font-medium text-gray-600">{category.title}</td>
+                      {products.map((p) => {
+                        const score = p.rubricCategoryScores?.find(
+                          (entry) => entry.title === category.title
+                        );
+                        return (
+                          <td key={p.slug} className="p-4 text-center">
+                            {renderRubricScore(score?.score)}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </>
+              )}
               <tr className="bg-gray-50/50">
                 <td className="p-4 text-sm font-medium text-gray-900">Starting Price</td>
                 {products.map((p) => (
