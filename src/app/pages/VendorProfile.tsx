@@ -49,7 +49,9 @@ export default function VendorProfile() {
   const [reviewData, setReviewData] = useState({
     rating: 5,
     review_title: "",
-    review_content: ""
+    review_content: "",
+    isVerified: true,
+    moderationStatus: "pending"
   });
 
   useEffect(() => {
@@ -359,9 +361,14 @@ export default function VendorProfile() {
         vendor_name: vendor.company_name,
         reviewer_name: user.full_name || user.email,
         reviewer_email: user.email,
-        ...data,
-        verified: true,
-        verification_method: "BrokerTools login"
+        rating: data.rating,
+        review_title: data.review_title,
+        review_content: data.review_content,
+        status: data.moderationStatus,
+        moderation_status: data.moderationStatus,
+        verified: data.isVerified,
+        is_verified: data.isVerified,
+        verification_method: data.isVerified ? "BrokerTools login" : undefined
       });
 
       const allApprovedReviews = await base44.entities.Review.filter({ vendor_id: vendor.id, status: 'approved' });
@@ -379,7 +386,13 @@ export default function VendorProfile() {
     onSuccess: () => {
       toast.success("Review submitted! It will be visible after approval.");
       setShowReviewForm(false);
-      setReviewData({ rating: 5, review_title: "", review_content: "" });
+      setReviewData({
+        rating: 5,
+        review_title: "",
+        review_content: "",
+        isVerified: true,
+        moderationStatus: "pending"
+      });
       queryClient.invalidateQueries({ queryKey: ['reviews', vendorId] });
       queryClient.invalidateQueries({ queryKey: ['vendor', vendorId] });
     },
@@ -1548,6 +1561,20 @@ export default function VendorProfile() {
                                 required
                                 placeholder="Share your experience with this vendor..."
                               />
+                            </div>
+                            <div className="flex items-start gap-2 rounded-lg border border-gray-200 p-3">
+                              <Checkbox
+                                id="review_verification"
+                                checked={reviewData.isVerified}
+                                onCheckedChange={(checked) => setReviewData({
+                                  ...reviewData,
+                                  isVerified: checked === true
+                                })}
+                                className="mt-1 data-[state=checked]:bg-green-600 data-[state=checked]:border-green-600"
+                              />
+                              <label htmlFor="review_verification" className="text-sm text-gray-600">
+                                Verify this review with my BrokerCompare account. Verified reviews show a badge once approved.
+                              </label>
                             </div>
                             <Button
                               type="submit"
