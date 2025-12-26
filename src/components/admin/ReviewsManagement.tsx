@@ -43,12 +43,18 @@ export default function ReviewsManagement() {
   const handleStatusChange = async (reviewId, status) => {
     const { error } = await supabase
       .from('reviews')
-      .update({ status })
+      .update({ status, moderation_status: status })
       .eq('id', reviewId);
 
-    if (!error) {
-      setReviews(prev => prev.map(r => r.id === reviewId ? { ...r, status } : r));
+    if (error) {
+      const { error: fallbackError } = await supabase
+        .from('reviews')
+        .update({ status })
+        .eq('id', reviewId);
+      if (fallbackError) return;
     }
+
+    setReviews(prev => prev.map(r => r.id === reviewId ? { ...r, status, moderation_status: status } : r));
   };
   
   const handleDelete = async (reviewId) => {
@@ -75,6 +81,10 @@ export default function ReviewsManagement() {
           <div className="space-y-4 max-h-[600px] overflow-y-auto">
             {reviews.map((review) => (
               <div key={review.id} className="p-4 border rounded-lg">
+                {(() => {
+                  const moderationStatus = review.moderation_status ?? review.moderationStatus ?? review.status ?? 'pending';
+                  const isVerified = review.is_verified ?? review.isVerified ?? review.verified ?? false;
+                  return (
                 <div className="flex justify-between items-start mb-2">
                   <div>
                     <p className="font-semibold">{review.author} on {review.vendorName || review.vendor_id}</p>
@@ -84,21 +94,29 @@ export default function ReviewsManagement() {
                         : 'No date'}
                     </p>
                   </div>
-                  <Badge variant={review.status === 'approved' ? 'default' : 'outline'}
-                    className={review.status === 'approved' ? 'bg-green-100 text-green-800' : ''}
-                  >
-                    {review.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    {isVerified && (
+                      <Badge variant="outline" className="border-emerald-500 text-emerald-600 bg-emerald-50">
+                        Verified
+                      </Badge>
+                    )}
+                    <Badge
+                      variant={moderationStatus === 'approved' ? 'default' : 'outline'}
+                      className={moderationStatus === 'approved' ? 'bg-green-100 text-green-800' : ''}
+                    >
+                      {moderationStatus}
+                    </Badge>
+                  </div>
                 </div>
                 <StarRating rating={review.rating || 0} className="mb-2" />
                 <p className="text-sm text-muted-foreground mb-4">{review.comment || 'No comment provided.'}</p>
                 <div className="flex gap-2">
-                  {review.status !== 'approved' && (
+                  {moderationStatus !== 'approved' && (
                     <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700" onClick={() => handleStatusChange(review.id, 'approved')}>
                       <ThumbsUp className="mr-2 h-4 w-4" /> Approve
                     </Button>
                   )}
-                   {review.status !== 'rejected' && (
+                   {moderationStatus !== 'rejected' && (
                      <Button size="sm" variant="outline" className="text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-700" onClick={() => handleStatusChange(review.id, 'rejected')}>
                       <ThumbsDown className="mr-2 h-4 w-4" /> Reject
                     </Button>
@@ -107,6 +125,8 @@ export default function ReviewsManagement() {
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </Button>
                 </div>
+                  );
+                })()}
               </div>
             ))}
           </div>

@@ -48,6 +48,11 @@ export type ReviewRecord = {
   rating?: number | null;
   comment?: string | null;
   status?: string | null;
+  moderation_status?: string | null;
+  moderationStatus?: string | null;
+  is_verified?: boolean | null;
+  isVerified?: boolean | null;
+  verified?: boolean | null;
   created_at?: string | null;
 };
 
@@ -222,4 +227,3 @@ export async function getBrokerLeads(
   }
   return (data as LeadRecord[]) ?? [];
 }
-

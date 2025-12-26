@@ -9,6 +9,10 @@ export interface Review {
   helpfulCount?: number;
   notHelpfulCount?: number;
   verified?: boolean;
+  isVerified?: boolean;
+  verificationMethod?: string;
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected';
   pros?: string[];
   cons?: string[];
   useCase?: string;
