@@ -1,5 +1,5 @@
-// import { sanity } from '../../../lib/sanity';
-// import { SERVICES_QUERY } from '@/sanity/queries';
+import { sanity } from '../../../lib/sanity';
+import { SERVICES_QUERY } from '@/sanity/lib/queries';
 import ServicesContent from './services-content';
 
 export const revalidate = 60;

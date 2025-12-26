@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ExternalLink, FileText, Star, Brain } from 'lucide-react';
+import { ExternalLink, FileText, Star, Brain, ShieldCheck } from 'lucide-react';
 import { SoftwareListing } from './types';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +19,7 @@ interface InfoGridProps {
 }
 
 const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
-    const { editor, worksWith = [], rating, name, slug, serviceArea = [], brokerType = [] } = listing;
+    const { editor, worksWith = [], rating, name, slug, serviceArea = [], brokerType = [], trustMetrics } = listing;
     const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
     // Helper function to get tooltip description for service areas
@@ -64,6 +65,30 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
         }
         return slugify(toolName);
     };
+
+    const marketplaceScore = computeMarketplaceScore({
+        ratingAverage: rating?.average,
+        ratingCount: rating?.count,
+        trustMetrics
+    });
+
+    const responseTimeValue = trustMetrics?.responseTimeHours;
+    const responseTimeLabel =
+        responseTimeValue !== undefined && responseTimeValue !== null
+            ? `${responseTimeValue} hrs avg`
+            : 'Not available';
+
+    const verifiedRatioLabel =
+        trustMetrics?.verifiedRatio !== undefined && trustMetrics?.verifiedRatio !== null
+            ? `${Math.round(
+                (trustMetrics.verifiedRatio <= 1 ? trustMetrics.verifiedRatio * 100 : trustMetrics.verifiedRatio)
+            )}% verified`
+            : 'Not available';
+
+    const reviewRecencyLabel =
+        trustMetrics?.reviewRecencyDays !== undefined && trustMetrics?.reviewRecencyDays !== null
+            ? `${trustMetrics.reviewRecencyDays} days since last review`
+            : 'Not available';
 
     return (
         <>
@@ -148,6 +173,34 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
 
                     {/* Right Sidebar Column */}
                     <div className="space-y-8 flex flex-col h-full">
+                        {/* Trust Signals */}
+                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                            <div className="flex items-center gap-2 mb-4">
+                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                                <h3 className="font-bold text-gray-900">Trust Signals</h3>
+                            </div>
+                            <div className="space-y-3 text-sm text-gray-600">
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Marketplace score</span>
+                                    <span className="font-semibold text-gray-900">
+                                        {marketplaceScore !== null ? `${marketplaceScore.toFixed(0)}/100` : 'Not enough data'}
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Avg response time</span>
+                                    <span className="font-medium text-gray-800">{responseTimeLabel}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Verified review ratio</span>
+                                    <span className="font-medium text-gray-800">{verifiedRatioLabel}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <span className="text-gray-500">Review recency</span>
+                                    <span className="font-medium text-gray-800">{reviewRecencyLabel}</span>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Integrations / Works With */}
                         {worksWith.length > 0 && (
                             <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
@@ -155,22 +208,25 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
                                     <h3 className="font-bold text-gray-900">Works/Integrates With</h3>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    {worksWith.map((tool, idx) => (
-                                        <Link
-                                            key={idx}
-                                            href={`/software/${getTargetSlug(tool.name, tool.websiteUrl)}`}
-                                            className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-gray-700 hover:border-gray-300 cursor-pointer transition-colors"
-                                            title={tool.name}
-                                        >
-                                            <img
-                                                src={tool.logo || `https://www.google.com/s2/favicons?domain=${tool.websiteUrl || 'google.com'}&sz=32`}
-                                                alt={tool.name}
-                                                className="w-3.5 h-3.5 rounded-sm object-contain opacity-85"
-                                                loading="lazy"
-                                            />
-                                            {tool.name}
-                                        </Link>
-                                    ))}
+                                    {worksWith.map((tool, idx) => {
+                                        const targetSlug = tool.slug || getTargetSlug(tool.name, tool.websiteUrl);
+                                        return (
+                                            <Link
+                                                key={idx}
+                                                href={`/directory/${targetSlug}`}
+                                                className="flex items-center gap-1.5 text-xs font-medium px-2.5 py-1.5 bg-gray-50 border border-gray-200 rounded-md text-gray-700 hover:border-gray-300 cursor-pointer transition-colors"
+                                                title={tool.name}
+                                            >
+                                                <img
+                                                    src={tool.logo || `https://www.google.com/s2/favicons?domain=${tool.websiteUrl || 'google.com'}&sz=32`}
+                                                    alt={tool.name}
+                                                    className="w-3.5 h-3.5 rounded-sm object-contain opacity-85"
+                                                    loading="lazy"
+                                                />
+                                                {tool.name}
+                                            </Link>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

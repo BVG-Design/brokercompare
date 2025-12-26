@@ -60,7 +60,7 @@ export default async function RootLayout({
         navLinks = sanitized;
       }
     } catch (error) {
-      console.warn("Failed to load Sanity nav links, using fallback.", error);
+      console.error("Failed to load Sanity nav links. Ensure 'searchIntent' documents with 'showInNav' set to true exist in your Sanity dataset.", error);
     }
   }
 

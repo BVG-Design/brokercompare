@@ -103,7 +103,7 @@ export function BlogSearchForm({ initialValue = '', className }: BlogSearchFormP
             value={value}
             onChange={handleChange}
             placeholder="Search articles..."
-            className="pl-10 pr-4 h-10 text-base border-0 focus-visible:ring-0 shadow-none bg-transparent text-foreground placeholder:text-muted-foreground"
+            className="pl-10 pr-4 h-10 text-base border-0 focus-visible:ring-0 shadow-none bg-transparent text-gray-700 caret-blue-600 placeholder:text-muted-foreground"
           />
           {showIntentSuggestions && (isLoadingSuggestions || suggestions.length > 0) && (
             <div className="absolute left-0 right-0 top-full mt-2 rounded-md border border-border bg-white shadow-lg z-20 overflow-hidden">

@@ -1,143 +1,134 @@
 'use client';
 
-import React, { useState, useMemo, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
+import React, { useEffect, useMemo, useState, Suspense } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Sparkles } from 'lucide-react';
 import VendorCard from '@/components/vendors/VendorCard';
 import AIChatDialog from '@/components/vendors/AIChatDialog';
-import { fetchDirectoryListings, fetchCategories } from '@/services/sanity';
+import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
 
 function BrowseVendorsContent() {
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get('category') || 'all';
+  const router = useRouter();
+  const pathname = usePathname();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState(initialCategory);
-  const [brokerTypeFilter, setBrokerTypeFilter] = useState('all');
-  const [tierFilter, setTierFilter] = useState('all');
+  const initialCategoriesParam = searchParams.get('category') || searchParams.get('categories');
+  const initialCategory = initialCategoriesParam || 'all';
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
+  const [categoryFilter, setCategoryFilter] = useState<string>(initialCategory);
+  const [brokerTypeFilter, setBrokerTypeFilter] = useState(searchParams.get('brokerType') || 'all');
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'all');
   const [showAIChat, setShowAIChat] = useState(false);
   const [vendors, setVendors] = useState<any[]>([]);
+  const [resourcePosts, setResourcePosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dynamicCategories, setDynamicCategories] = useState<{ label: string; value: string }[]>([]);
 
-  // Fetch data from Sanity
-  React.useEffect(() => {
+  useEffect(() => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [fetchedListings, fetchedCategories] = await Promise.all([
-          fetchDirectoryListings({
-            search: searchTerm,
-            category: categoryFilter,
-            tier: tierFilter  // Note: brokerType filtering logic needs schema support
-          }),
-          fetchCategories()
-        ]);
+        let fetchedListings: any[] = [];
+        let fetchedCats: any[] = [];
 
-        // Map Sanity products to the vendor format expected by the UI if needed
-        // For now, assuming direct mapping or slight adjustment
-        const mappedVendors = fetchedListings.map(p => ({
-          id: p.id,
-          company_name: p.name,
-          description: p.description,
-          logo_url: p.logoUrl,
-          categories: p.categories,
-          listing_tier: p.listingTier,
-          slug: p.slug,
-          // Add other fields as needed
-        }));
+        if (typeFilter === 'resourceGuide') {
+          const [posts, cats] = await Promise.all([fetchResourcePosts(), fetchCategories()]);
+          fetchedListings = [];
+          setResourcePosts(posts);
+          fetchedCats = cats;
+        } else {
+          const [listings, cats] = await Promise.all([
+            fetchDirectoryListings({
+              search: searchTerm,
+              categories: categoryFilter,
+              brokerType: brokerTypeFilter,
+              type: typeFilter !== 'all' ? typeFilter : undefined
+            }),
+            fetchCategories()
+          ]);
+          fetchedListings = listings;
+          fetchedCats = cats;
+          setResourcePosts([]);
+        }
 
-        setVendors(mappedVendors);
-        // Note: We might want to use the fetched categories instead of static ones
-        // setDynamicCategories(fetchedCategories); 
+        setVendors(fetchedListings);
+        setDynamicCategories((fetchedCats || []).map((cat: any) => ({ label: cat.title, value: cat.value })));
       } catch (err) {
-        console.error("Failed to fetch vendors:", err);
+        console.error('Failed to fetch vendors:', err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    // Debounce search slightly or just call on effect change
     const timer = setTimeout(() => {
       loadData();
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchTerm, categoryFilter, tierFilter, brokerTypeFilter]);
+  }, [searchTerm, categoryFilter, typeFilter, brokerTypeFilter]);
 
-  const categories = [
-    { value: 'all', label: 'All Categories' },
-    // Top Priority
-    { value: 'ai_workflow_design', label: 'AI & Workflow Design' },
-    { value: 'mortgage_software', label: 'Mortgage Software' },
-    { value: 'asset_software', label: 'Asset Software' },
-    { value: 'commercial_software', label: 'Commercial Software' },
-    { value: 'crm_document_collection', label: 'CRM & Document Collection' },
-    // Alphabetical
-    { value: 'accounting_tax', label: 'Accounting & Tax' },
-    { value: 'admin_ops', label: 'Admin & Ops' },
-    { value: 'brand_media', label: 'Brand & Media' },
-    { value: 'broker_coaching', label: 'Broker Coaching' },
-    { value: 'client_experience_retention', label: 'Client Experience & Retention' },
-    { value: 'compliance_risk_legal', label: 'Compliance, Risk & Legal' },
-    { value: 'data_reporting', label: 'Data & Reporting' },
-    { value: 'finance_strategy_virtual_cfo', label: 'Finance Strategy & Virtual CFO' },
-    { value: 'it_support_cyber_security', label: 'IT Support & Cyber Security' },
-    { value: 'loan_processing_credit_support', label: 'Loan Processing & Credit Support' },
-    { value: 'marketing_automation', label: 'Marketing Automation' },
-    { value: 'mindset_performance', label: 'Mindset & Performance' },
-    { value: 'organic_social_traffic', label: 'Organic Social Traffic' },
-    { value: 'other', label: 'Other' },
-    { value: 'paid_advertising', label: 'Paid Advertising' },
-    { value: 'public_speaking_authority', label: 'Public Speaking & Authority' },
-    { value: 'recruitment_team_building', label: 'Recruitment & Team Building' },
-    { value: 'sales_training', label: 'Sales Training' },
-    { value: 'virtual_assistants_outsourcing', label: 'Virtual Assistants & Outsourcing' },
-  ];
+  // Keep URL in sync for shareable filters
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (searchTerm) params.set('q', searchTerm);
+    if (categoryFilter && categoryFilter !== 'all') params.set('category', categoryFilter);
+    if (brokerTypeFilter && brokerTypeFilter !== 'all') params.set('brokerType', brokerTypeFilter);
+    if (typeFilter && typeFilter !== 'all') params.set('type', typeFilter);
+
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`);
+  }, [searchTerm, categoryFilter, brokerTypeFilter, typeFilter, pathname, router]);
 
   const brokerTypes = [
-    { value: 'all', label: 'All Broker Types' },
-    { value: 'mortgage_broker', label: 'Mortgage Brokers' },
-    { value: 'asset_finance_broker', label: 'Asset Finance Brokers' },
-    { value: 'commercial_finance_broker', label: 'Commercial Finance Brokers' },
+    { value: 'Mortgage', label: 'Mortgage' },
+    { value: 'Asset Finance', label: 'Asset Finance' },
+    { value: 'Commercial', label: 'Commercial' }
   ];
 
   const filteredVendors = useMemo(() => {
-    return vendors.filter(vendor => {
-      const matchesSearch = vendor.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      const matchesCategory = categoryFilter === 'all' ||
-        vendor.categories?.includes(categoryFilter);
-
-      const matchesBrokerType = brokerTypeFilter === 'all' ||
-        vendor.broker_types?.includes(brokerTypeFilter) ||
-        vendor.broker_types?.includes('all_brokers');
-
-      const matchesTier = tierFilter === 'all' || vendor.listing_tier === tierFilter;
-
-      return matchesSearch && matchesCategory && matchesBrokerType && matchesTier;
+    return vendors.filter((vendor) => {
+      const matchesBrokerType = brokerTypeFilter === 'all' || vendor.brokerTypes?.includes(brokerTypeFilter);
+      return matchesBrokerType;
     });
-  }, [vendors, searchTerm, categoryFilter, brokerTypeFilter, tierFilter]);
+  }, [vendors, brokerTypeFilter]);
 
-  // Sort: featured first, then premium, then by view count
   const sortedVendors = useMemo(() => {
     return [...filteredVendors].sort((a, b) => {
-      const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
-      const aTier = tierWeight[a.listing_tier] || 0;
-      const bTier = tierWeight[b.listing_tier] || 0;
+      const badgeA = typeof a.badgePriority === 'number' ? a.badgePriority : 999;
+      const badgeB = typeof b.badgePriority === 'number' ? b.badgePriority : 999;
+      if (badgeA !== badgeB) return badgeA - badgeB;
 
+      const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
+      const aTier = tierWeight[a.listingTier || a.listing_tier] || 0;
+      const bTier = tierWeight[b.listingTier || b.listing_tier] || 0;
       if (aTier !== bTier) return bTier - aTier;
-      return (b.view_count || 0) - (a.view_count || 0);
+
+      return (a.name || a.company_name || '').localeCompare(b.name || b.company_name || '');
     });
   }, [filteredVendors]);
 
+  const clearAll = () => {
+    setSearchTerm('');
+    setCategoryFilter('all');
+    setBrokerTypeFilter('all');
+    setTypeFilter('all');
+  };
+
+  const resourceGuideCards = useMemo(() => {
+    return resourcePosts.map((post) => ({
+      ...post,
+      href: post.link || `/blog/${post.slug}`,
+      title: post.title || post.name
+    }));
+  }, [resourcePosts]);
+
   const handleSearch = () => {
-    // Search is handled by the searchTerm state
+    // search handled by debounced effect
   };
 
   return (
@@ -147,9 +138,7 @@ function BrowseVendorsContent() {
         <div className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground py-16">
           <div className="container mx-auto px-4 md:px-6">
             <div className="text-center mb-8">
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 font-headline">
-                Search the Directory
-              </h1>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 font-headline">Search the Directory</h1>
               <p className="text-xl text-primary-foreground/80">
                 Find the perfect solution for your brokerage - Software, Services & More
               </p>
@@ -189,7 +178,7 @@ function BrowseVendorsContent() {
                 >
                   <Sparkles className="w-5 h-5 mr-2" />
                   Or ask AI for personalized recommendations
-                  <span className="ml-2">→</span>
+                  <span className="ml-2">ƒ+'</span>
                 </Button>
               </div>
             </div>
@@ -209,12 +198,15 @@ function BrowseVendorsContent() {
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
                 <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map(cat => (
-                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {dynamicCategories.map((cat) => (
+                      <SelectItem key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -223,12 +215,15 @@ function BrowseVendorsContent() {
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Broker Type</label>
                 <Select value={brokerTypeFilter} onValueChange={setBrokerTypeFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="All Broker Types" />
                   </SelectTrigger>
                   <SelectContent>
-                    {brokerTypes.map(type => (
-                      <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                    <SelectItem value="all">All Broker Types</SelectItem>
+                    {brokerTypes.map((type) => (
+                      <SelectItem key={type.value} value={type.value}>
+                        {type.label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -236,32 +231,23 @@ function BrowseVendorsContent() {
 
               <div>
                 <label className="text-sm font-medium text-foreground mb-2 block">Listing Type</label>
-                <Select value={tierFilter} onValueChange={setTierFilter}>
-                  <SelectTrigger>
-                    <SelectValue />
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="All Listings" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Listings</SelectItem>
-                    <SelectItem value="featured">Featured Only</SelectItem>
-                    <SelectItem value="premium">Premium Only</SelectItem>
-                    <SelectItem value="free">Free Listings</SelectItem>
+                    <SelectItem value="software">Software</SelectItem>
+                    <SelectItem value="service">Services</SelectItem>
+                    <SelectItem value="resourceGuide">Resource Guides</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {(categoryFilter !== 'all' || brokerTypeFilter !== 'all' || tierFilter !== 'all') && (
+            {(categoryFilter !== 'all' || brokerTypeFilter !== 'all' || typeFilter !== 'all') && (
               <div className="mt-4 pt-4 border-t">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setCategoryFilter('all');
-                    setBrokerTypeFilter('all');
-                    setTierFilter('all');
-                  }}
-                  className="text-secondary hover:text-secondary/80"
-                >
+                <Button variant="ghost" size="sm" onClick={clearAll} className="text-secondary hover:text-secondary/80">
                   Clear all filters
                 </Button>
               </div>
@@ -271,19 +257,63 @@ function BrowseVendorsContent() {
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
-              <span className="font-semibold text-primary">{sortedVendors.length}</span> vendors found
+              <span className="font-semibold text-primary">
+                {typeFilter === 'resourceGuide' ? resourceGuideCards.length : sortedVendors.length}
+              </span>{' '}
+              items found
             </p>
           </div>
 
           {/* Vendors Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map(i => (
+              {[1, 2, 3, 4, 5, 6].map((i) => (
                 <div key={i} className="bg-card rounded-xl p-6 border animate-pulse">
                   <div className="w-16 h-16 bg-muted rounded-lg mb-4" />
                   <div className="h-6 bg-muted rounded mb-2" />
                   <div className="h-4 bg-muted rounded mb-4" />
                   <div className="h-20 bg-muted rounded" />
+                </div>
+              ))}
+            </div>
+          ) : typeFilter === 'resourceGuide' ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {resourceGuideCards.map((post: any) => (
+                <div key={post.id} className="group rounded-xl border bg-card p-6 shadow-sm hover:shadow-lg transition">
+                  <div className="flex items-start gap-4">
+                    {post.imageUrl || post.logoUrl ? (
+                      <img
+                        src={post.imageUrl || post.logoUrl}
+                        alt={post.title}
+                        className="h-16 w-16 rounded-lg object-cover border"
+                      />
+                    ) : (
+                      <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center text-lg font-semibold">
+                        {post.title?.[0] || 'R'}
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <Badge variant="secondary" className="mb-2">
+                        Resource Guide
+                      </Badge>
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                        {post.title}
+                      </h3>
+                      {post.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-3">{post.description}</p>}
+                    </div>
+                  </div>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {(post.categories || []).map((cat: string, idx: number) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {cat}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="mt-4">
+                    <Link href={post.href} className="text-primary font-semibold hover:underline">
+                      Read guide
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>
@@ -294,21 +324,13 @@ function BrowseVendorsContent() {
               </div>
               <h3 className="text-2xl font-bold text-foreground mb-2">No vendors found</h3>
               <p className="text-muted-foreground mb-6">Try adjusting your search or filters</p>
-              <Button
-                onClick={() => {
-                  setSearchTerm('');
-                  setCategoryFilter('all');
-                  setBrokerTypeFilter('all');
-                  setTierFilter('all');
-                }}
-                variant="outline"
-              >
+              <Button onClick={clearAll} variant="outline">
                 Clear all filters
               </Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedVendors.map(vendor => (
+              {sortedVendors.map((vendor) => (
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}
             </div>
@@ -324,19 +346,20 @@ function BrowseVendorsContent() {
 
 export default function BrowseVendorsPage() {
   return (
-    <Suspense fallback={
-      <>
-        <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="text-center">
-              <p className="text-muted-foreground">Loading...</p>
+    <Suspense
+      fallback={
+        <>
+          <main className="flex-1 bg-background">
+            <div className="container mx-auto px-4 md:px-6 py-12">
+              <div className="text-center">
+                <p className="text-muted-foreground">Loading...</p>
+              </div>
             </div>
-          </div>
-        </main>
-      </>
-    }>
+          </main>
+        </>
+      }
+    >
       <BrowseVendorsContent />
     </Suspense>
   );
 }
-

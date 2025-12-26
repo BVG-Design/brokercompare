@@ -38,22 +38,54 @@ export const productsAsSoftwareQuery = groq`
 }
 `;
 
-export const searchResultsQuery = groq`
-*[_type in ["blog", "product", "serviceProvider", "software"] && (
-  title match $term ||
-  name match $term ||
-  summary match $term ||
-  description match $term
+
+export const FEATURED_BLOGS_QUERY = groq`
+  *[_type == "blog"] | order(publishedAt desc)[0...3] {
+    _id,
+    title,
+    slug,
+    publishedAt,
+    summary,
+    "imageUrl": heroImage.asset->url,
+    "author": author->name,
+    "categories": categories[]->title
+  }
+`;
+
+export const UNIFIED_SEARCH_QUERY = groq`
+*[_type in $contentTypes && (
+  count($searchTerms[
+    ^.title match @ ||
+    ^.name match @ ||
+    ^.description match @ ||
+    ^.tagline match @ ||
+    ^.slug.current match @ ||
+    ^.category->title match @ ||
+    ^.categories[]->title match @
+  ]) > 0
 )]{
   _id,
   _type,
-  "title": coalesce(title, name),
-  "summary": coalesce(summary, description),
+  title,
+  name,
+  description,
   "slug": slug.current,
-  "imageUrl": coalesce(
-    heroImage.asset->url,
-    logo.asset->url,
-    images[0].asset->url
-  )
+  "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
+  "logoUrl": select(
+    defined(logo.asset->url) => logo.asset->url,
+    defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+    defined(images[0].asset->url) => images[0].asset->url
+  ),
+  "heroImageUrl": heroImage.asset->url
 }
+`;
+
+export const SEARCH_INTENT_NAV_QUERY = groq`
+  *[_type == "searchIntent" && showInNav == true]
+  | order(order asc) {
+    _id,
+    title,
+    "slug": slug.current,
+    order
+  }
 `;

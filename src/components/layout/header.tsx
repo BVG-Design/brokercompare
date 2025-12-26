@@ -1,5 +1,8 @@
 "use client";
 
+// NOT used - MainLayout.tsx is used instead
+// If you are editing this file and not seeing changes, edit MainLayout.tsx
+
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

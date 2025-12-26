@@ -58,7 +58,7 @@ export default function AIChatDialog({ open, onOpenChange }) {
       if (serviceRecs && serviceRecs.recommendations.length > 0) {
         assistantResponse += '**Recommended Services:**\n';
         serviceRecs.recommendations.forEach((rec) => {
-          assistantResponse += `- **${rec.providerName}** (${rec.serviceType}): ${rec.rationale}\n`;
+          assistantResponse += `- **${rec.providerName}** (${rec.serviceType}) — Suitability: ${rec.suitabilityScore}/100, Marketplace: ${rec.marketplaceScore}/100. ${rec.rationale}\n`;
         });
       }
 
@@ -103,16 +103,14 @@ export default function AIChatDialog({ open, onOpenChange }) {
           {messages.map((message, index) => (
             <div
               key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'
+                }`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                  message.role === 'user'
+                className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
                     ? 'bg-[#132847] text-white'
                     : 'bg-gray-100 text-gray-900'
-                }`}
+                  }`}
               >
                 <ReactMarkdown
                   className="text-sm prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"

@@ -16,10 +16,11 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { StarRating } from '@/components/shared/star-rating';
-import { ExternalLink, Award, Star, CheckCircle, Bookmark, ArrowLeftRight, Send, FileText, Video, Calendar, MessageSquare, ThumbsUp, Edit, ChevronRight, ChevronLeft, Download, Play, Save, X, Upload, Plus, MapPin } from 'lucide-react';
+import { ExternalLink, Award, Star, CheckCircle, Bookmark, ArrowLeftRight, Send, FileText, Video, Calendar, MessageSquare, ThumbsUp, Edit, ChevronRight, ChevronLeft, Download, Play, Save, X, Upload, Plus, MapPin, ShieldCheck } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import VendorCard from '@/components/vendors/VendorCard';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
 // TODO: Replace with Supabase queries when tables are ready
 // import { vendorQueries } from '@/lib/supabase';
 
@@ -159,8 +160,35 @@ function VendorProfileContent() {
   const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
+  const marketScore = computeMarketplaceScore({ averageRating });
 
   const approvedReviews = reviews.filter(r => r.status === 'approved');
+  const trustMetrics = vendor?.trust_metrics || vendor?.trustMetrics || {};
+  const marketplaceScore = computeMarketplaceScore({
+    ratingAverage: averageRating,
+    ratingCount: approvedReviews.length,
+    trustMetrics: {
+      responseTimeHours: trustMetrics.responseTimeHours ?? trustMetrics.response_time_hours,
+      verifiedRatio: trustMetrics.verifiedRatio ?? trustMetrics.verified_ratio,
+      reviewRecencyDays: trustMetrics.reviewRecencyDays ?? trustMetrics.review_recency_days
+    }
+  });
+
+  const responseTimeValue = trustMetrics?.responseTimeHours ?? trustMetrics?.response_time_hours;
+  const responseTimeLabel =
+    responseTimeValue !== undefined && responseTimeValue !== null
+      ? `${responseTimeValue} hrs avg`
+      : 'Not available';
+  const verifiedRatioRaw = trustMetrics?.verifiedRatio ?? trustMetrics?.verified_ratio;
+  const verifiedRatioLabel =
+    verifiedRatioRaw !== undefined && verifiedRatioRaw !== null
+      ? `${Math.round(verifiedRatioRaw <= 1 ? verifiedRatioRaw * 100 : verifiedRatioRaw)}% verified`
+      : 'Not available';
+  const reviewRecencyRaw = trustMetrics?.reviewRecencyDays ?? trustMetrics?.review_recency_days;
+  const reviewRecencyLabel =
+    reviewRecencyRaw !== undefined && reviewRecencyRaw !== null
+      ? `${reviewRecencyRaw} days since last review`
+      : 'Not available';
 
   return (
     <>
@@ -197,6 +225,9 @@ function VendorProfileContent() {
               <p className="text-xl text-muted-foreground mb-4">{vendor.tagline}</p>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                 <StarRating rating={averageRating} size={20} />
+                <span className="text-sm font-semibold text-muted-foreground">
+                  {marketScore} Market Score
+                </span>
                 <span className="text-sm">({approvedReviews.length} reviews)</span>
                 {vendor.website && (
                   <Link href={vendor.website} target="_blank" className="flex items-center gap-2 hover:text-secondary transition-colors">
@@ -328,6 +359,36 @@ function VendorProfileContent() {
                     <MessageSquare className="mr-2 h-4 w-4" />
                     Enquire Now
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* Trust Signals */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                    Trust Signals
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm text-muted-foreground">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>Marketplace score</span>
+                    <span className="font-semibold text-foreground">
+                      {marketplaceScore !== null ? `${marketplaceScore.toFixed(0)}/100` : 'Not enough data'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Avg response time</span>
+                    <span className="font-medium text-foreground">{responseTimeLabel}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Verified review ratio</span>
+                    <span className="font-medium text-foreground">{verifiedRatioLabel}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Review recency</span>
+                    <span className="font-medium text-foreground">{reviewRecencyLabel}</span>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -497,4 +558,3 @@ export default function VendorProfilePage() {
     </Suspense>
   );
 }
-

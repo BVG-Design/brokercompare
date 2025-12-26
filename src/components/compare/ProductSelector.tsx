@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { useComparison } from './ComparisonContext';
-import { software } from '@/lib/data';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';

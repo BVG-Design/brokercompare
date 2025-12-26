@@ -35,8 +35,8 @@ const Home: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // Implement search functionality as needed
-    console.log('Search query:', searchQuery);
+    if (!searchQuery.trim()) return;
+    router.push(`/search/${encodeURIComponent(searchQuery)}`);
   };
 
   useEffect(() => {
@@ -76,7 +76,7 @@ const Home: React.FC = () => {
               <input
                 type="text"
                 placeholder="Search for vendors, products, or services..."
-                className="w-full px-4 py-3 outline-none text-gray-700 placeholder-gray-400 bg-transparent"
+                className="w-full px-4 py-3 outline-none text-gray-700 caret-blue-600 placeholder-gray-400 bg-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

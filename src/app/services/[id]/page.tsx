@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { sanity } from '../../../../lib/sanity';
-import { SERVICE_BY_ID_QUERY, SERVICES_SLUGS_QUERY } from '@/sanity/queries';
+import { SERVICE_BY_ID_QUERY, SERVICES_SLUGS_QUERY } from '@/sanity/lib/queries';
 import type { Service } from '@/lib/types';
 
 import { Badge } from '@/components/ui/badge';

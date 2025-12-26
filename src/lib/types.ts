@@ -9,6 +9,11 @@ export interface Review {
   helpfulCount?: number;
   notHelpfulCount?: number;
   verified?: boolean;
+  rubric?: {
+    scores?: Partial<RubricScores>;
+    weightedScores?: Partial<RubricScores>;
+    overall?: number;
+  };
   pros?: string[];
   cons?: string[];
   useCase?: string;
@@ -16,6 +21,22 @@ export interface Review {
   brokerType?: 'Mortgage' | 'Asset Finance' | 'Commercial';
   timeUsed?: string; // e.g., "6 months", "2 years"
   recommendation?: boolean;
+}
+
+export type RubricCategoryKey = 'usability' | 'support' | 'value' | 'features';
+
+export interface RubricScores {
+  usability: number;
+  support: number;
+  value: number;
+  features: number;
+}
+
+export interface RubricWeights {
+  usability: number;
+  support: number;
+  value: number;
+  features: number;
 }
 
 export interface Service {
@@ -39,6 +60,13 @@ export interface Service {
   badges?: string[]; // e.g., ['Leader', 'High Performer']
   alternatives?: string[]; // related service IDs
   availability?: string; // e.g., "Australia-wide", "NSW, VIC"
+  trustMetrics?: TrustMetrics;
+}
+
+export interface TrustMetrics {
+  responseTimeHours?: number;
+  verifiedRatio?: number; // 0-1 or 0-100
+  reviewRecencyDays?: number;
 }
 
 export interface Software {
@@ -58,6 +86,12 @@ export interface Software {
   rating?: {
     average: number;
     reviewCount: number;
+    marketScore?: number;
+    rubric?: {
+      averages?: Partial<RubricScores>;
+      weightedScores?: Partial<RubricScores>;
+      weights?: Partial<RubricWeights>;
+    };
   };
   features: string[];
   // Enhanced software fields
@@ -80,4 +114,5 @@ export interface Software {
     complianceTools?: string[];
     commissionTracking?: boolean;
   };
+  trustMetrics?: TrustMetrics;
 }
