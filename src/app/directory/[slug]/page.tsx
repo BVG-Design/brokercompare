@@ -58,7 +58,7 @@ export default async function DirectoryProfilePage(props: PageProps) {
             <main className="flex-grow">
                 <MainCard listing={listing} />
                 <InfoGrid listing={listing} blogs={MOCK_BLOGS} />
-                <ReviewsSection />
+                <ReviewsSection listingName={listing.name} listingSlug={slug} />
                 <div className="max-w-6xl mx-auto px-4 space-y-12">
                     <StillNotSure />
                     <ComparisonSummary

@@ -22,6 +22,12 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
     const { editor, worksWith = [], rating, name, slug, serviceArea = [], brokerType = [], trustMetrics } = listing;
     const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
+    const triggerReviewModal = () => {
+        if (typeof window !== 'undefined') {
+            window.dispatchEvent(new Event('open-review-modal'));
+        }
+    };
+
     // Helper function to get tooltip description for service areas
     const getServiceAreaDescription = (area: string): string => {
         const descriptions: Record<string, string> = {
@@ -251,7 +257,10 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
                                 </div>
                             </div>
 
-                            <button className="w-full py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors mt-auto">
+                            <button
+                                onClick={triggerReviewModal}
+                                className="w-full py-2.5 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg border border-gray-200 transition-colors mt-auto"
+                            >
                                 Write a Review
                             </button>
                         </div>
