@@ -6,7 +6,8 @@ import {
   ComparisonFeatureRow,
   ComparisonProduct,
   FeatureAvailability,
-  ProviderCard
+  ProviderCard,
+  RubricCategoryScore
 } from '@/types/comparison';
 
 interface DirectoryPageData {
@@ -66,6 +67,23 @@ const mapToSoftwareListing = (listing: any): SoftwareListing => ({
   rating: {
     average: 0,
     count: 0
+  },
+  trustMetrics: {
+    responseTimeHours:
+      listing.trustMetrics?.responseTimeHours ??
+      listing.trust_metrics?.response_time_hours ??
+      listing.response_time_hours ??
+      listing.responseTimeHours,
+    verifiedRatio:
+      listing.trustMetrics?.verifiedRatio ??
+      listing.trust_metrics?.verified_ratio ??
+      listing.verified_ratio ??
+      listing.verifiedRatio,
+    reviewRecencyDays:
+      listing.trustMetrics?.reviewRecencyDays ??
+      listing.trust_metrics?.review_recency_days ??
+      listing.review_recency_days ??
+      listing.reviewRecencyDays
   }
 });
 
@@ -156,6 +174,51 @@ const mapProviderCard = (listing: any): ProviderCard => ({
   badges: listing.badges
 });
 
+const roundScore = (value: number): number => Math.round(value * 10) / 10;
+
+const buildRubricCategoryScores = (features: any[]): RubricCategoryScore[] => {
+  if (!Array.isArray(features)) return [];
+
+  const categoryMap = new Map<
+    string,
+    { title: string; order: number; total: number; count: number }
+  >();
+
+  features.forEach((feature: any) => {
+    const score = feature?.score;
+    if (typeof score !== 'number') return;
+
+    const categoryTitle = feature?.feature?.category?.title || 'Other';
+    const order = feature?.feature?.category?.order ?? 999;
+    const current = categoryMap.get(categoryTitle) || {
+      title: categoryTitle,
+      order,
+      total: 0,
+      count: 0
+    };
+
+    current.total += score;
+    current.count += 1;
+    current.order = Math.min(current.order, order ?? 999);
+
+    categoryMap.set(categoryTitle, current);
+  });
+
+  return Array.from(categoryMap.values())
+    .map((entry) => ({
+      title: entry.title,
+      order: entry.order,
+      score: roundScore(entry.total / entry.count)
+    }))
+    .sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+};
+
+const buildOverallRubricScore = (categoryScores: RubricCategoryScore[]): number | null => {
+  if (!categoryScores.length) return null;
+  const total = categoryScores.reduce((sum, category) => sum + category.score, 0);
+  return roundScore(total / categoryScores.length);
+};
+
 export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPageData | null> => {
   const listing = await fetchDirectoryListingBySlug(slug);
   if (!listing) return null;
@@ -182,6 +245,8 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
   const comparisonProducts: ComparisonProduct[] = comparisonData.map((item: any) => {
     const ratingValue =
       typeof item.rating === 'number' ? item.rating : item.rating?.average ?? null;
+    const rubricCategoryScores = buildRubricCategoryScores(item.features);
+    const overallRubricScore = buildOverallRubricScore(rubricCategoryScores);
 
     return {
       slug: item.slug,
@@ -194,7 +259,9 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
       websiteUrl: item.websiteURL,
       worksWith: item.worksWith || [],
       serviceAreas: (item.serviceAreas || []).map((sa: any) => sa?.title).filter(Boolean),
-      alternativesCount: item.alternativesCount
+      alternativesCount: item.alternativesCount,
+      overallRubricScore,
+      rubricCategoryScores
     };
   });
 
@@ -205,6 +272,8 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
       logoUrl: mappedListing.logoUrl,
       priceText: formatPricing(listing.pricing),
       rating: null,
+      overallRubricScore: null,
+      rubricCategoryScores: [],
       isCurrent: true
     });
   }

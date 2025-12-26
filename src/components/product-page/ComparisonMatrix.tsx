@@ -3,7 +3,8 @@ import { Check, Minus, Star, X } from 'lucide-react';
 import {
   ComparisonFeatureGroup,
   ComparisonProduct,
-  FeatureAvailability
+  FeatureAvailability,
+  RubricCategoryScore
 } from '@/types/comparison';
 
 interface ComparisonMatrixProps {
@@ -52,6 +53,15 @@ const renderAvailability = (status: FeatureAvailability | undefined, score?: num
   );
 };
 
+const getCategoryScore = (
+  scores: RubricCategoryScore[] | undefined,
+  categoryTitle: string
+): number | null => {
+  if (!scores?.length) return null;
+  const match = scores.find((score) => score.title === categoryTitle);
+  return match?.score ?? null;
+};
+
 const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGroups }) => {
   if (!featureGroups.length) {
     return (
@@ -81,6 +91,26 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGr
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
+                <tr className="bg-gray-50/70">
+                  <td className="px-4 py-3 text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                    Category score
+                  </td>
+                  {products.map((p) => {
+                    const score = getCategoryScore(p.rubricCategoryScores, group.title);
+                    return (
+                      <td key={p.slug} className="px-4 py-3 text-center">
+                        {score !== null ? (
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold text-gray-700 bg-white border border-gray-200 px-2 py-0.5 rounded-full">
+                            <Star size={12} className="text-orange-400 fill-orange-400" />
+                            {score.toFixed(1)}/10
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">Not scored</span>
+                        )}
+                      </td>
+                    );
+                  })}
+                </tr>
                 {group.features.map((feature) => (
                   <tr key={feature.title}>
                     <td className="px-4 py-3 text-sm font-medium text-gray-700">{feature.title}</td>

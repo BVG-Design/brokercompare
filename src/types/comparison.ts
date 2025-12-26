@@ -7,11 +7,19 @@ export interface ComparisonProduct {
   tagline?: string;
   priceText?: string;
   rating?: number | null;
+  overallRubricScore?: number | null;
+  rubricCategoryScores?: RubricCategoryScore[];
   isCurrent?: boolean;
   websiteUrl?: string;
   worksWith?: { title: string; slug?: string; logoUrl?: string }[];
   serviceAreas?: string[];
   alternativesCount?: number;
+}
+
+export interface RubricCategoryScore {
+  title: string;
+  score: number;
+  order?: number;
 }
 
 export interface ComparisonFeatureRow {

@@ -6,6 +6,10 @@ export function normalizeReview(review: Review): Review {
     helpfulCount: 0,
     notHelpfulCount: 0,
     verified: false,
+    isVerified: false,
+    moderationStatus: review.moderationStatus ?? review.status ?? 'approved',
+    status: review.status ?? review.moderationStatus ?? 'approved',
+    verificationMethod: review.verificationMethod,
     pros: [],
     cons: [],
     recommendation: undefined,
@@ -60,7 +64,6 @@ export function normalizeSoftwareList(list: Software[]): Software[] {
 export function normalizeServiceList(list: Service[]): Service[] {
   return list.map(normalizeService);
 }
-
 
 
 

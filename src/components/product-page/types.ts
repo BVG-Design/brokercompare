@@ -1,3 +1,5 @@
+import type { TrustMetrics } from '@/lib/types';
+
 export interface Interaction {
     name: string;
     websiteUrl?: string;
