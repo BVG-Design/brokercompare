@@ -1,3 +1,5 @@
+import type { TrustMetrics } from '@/lib/types';
+
 export interface Interaction {
     name: string;
     websiteUrl?: string;
@@ -37,5 +39,6 @@ export interface SoftwareListing {
     rating?: {
         average: number;
         count: number;
-    }
+    };
+    trustMetrics?: TrustMetrics;
 }

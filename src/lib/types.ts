@@ -9,6 +9,10 @@ export interface Review {
   helpfulCount?: number;
   notHelpfulCount?: number;
   verified?: boolean;
+  isVerified?: boolean;
+  verificationMethod?: string;
+  moderationStatus?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected';
   pros?: string[];
   cons?: string[];
   useCase?: string;
@@ -39,6 +43,13 @@ export interface Service {
   badges?: string[]; // e.g., ['Leader', 'High Performer']
   alternatives?: string[]; // related service IDs
   availability?: string; // e.g., "Australia-wide", "NSW, VIC"
+  trustMetrics?: TrustMetrics;
+}
+
+export interface TrustMetrics {
+  responseTimeHours?: number;
+  verifiedRatio?: number; // 0-1 or 0-100
+  reviewRecencyDays?: number;
 }
 
 export interface Software {
@@ -80,4 +91,5 @@ export interface Software {
     complianceTools?: string[];
     commissionTracking?: boolean;
   };
+  trustMetrics?: TrustMetrics;
 }

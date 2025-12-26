@@ -34,9 +34,18 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
     );
   }
 
+  const getApprovedReviews = (reviews: typeof items[0]['data']['reviews']) => {
+    if (!reviews || reviews.length === 0) return [];
+    return reviews.filter((review) => {
+      const status = review.moderationStatus ?? review.status ?? 'approved';
+      return status === 'approved';
+    });
+  };
+
   const getAverageRating = (reviews: typeof items[0]['data']['reviews']) => {
-    if (!reviews || reviews.length === 0) return 0;
-    return reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length;
+    const approvedReviews = getApprovedReviews(reviews);
+    if (approvedReviews.length === 0) return 0;
+    return approvedReviews.reduce((acc, review) => acc + review.rating, 0) / approvedReviews.length;
   };
 
   const comparisonRows = [
@@ -53,7 +62,7 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
       label: 'Rating',
       cells: items.map(item => ({
         rating: getAverageRating(item.data.reviews),
-        reviewCount: item.data.reviews?.length || 0,
+        reviewCount: getApprovedReviews(item.data.reviews).length,
       })),
     },
     {
@@ -202,7 +211,7 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
                     showText={false}
                   />
                   <span className="text-xs text-muted-foreground">
-                    ({item.data.reviews?.length || 0} reviews)
+                    ({getApprovedReviews(item.data.reviews).length} reviews)
                   </span>
                 </div>
                 {('website' in item.data && item.data.website) && (
