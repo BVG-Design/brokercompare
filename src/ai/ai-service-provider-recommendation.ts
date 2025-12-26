@@ -27,6 +27,7 @@ const RecommendationOutputSchema = z.object({
       providerName: z.string().describe('The name of the service provider.'),
       serviceType: z.string().describe('The type of service provided (marketing, virtual assistant, commercial finance).'),
       suitabilityScore: z.number().describe('A score indicating how well the provider matches the broker’s needs (0-100).'),
+      marketplaceScore: z.number().describe('A score reflecting marketplace fit and quality signals based on the scoring rubric (0-100).'),
       rationale: z.string().describe('Explanation of why the provider is a good match for the broker.'),
     })
   ).describe('A list of recommended service providers and their suitability scores.'),
@@ -43,7 +44,7 @@ const prompt = ai.definePrompt({
   output: { schema: RecommendationOutputSchema },
   prompt: `You are an AI assistant specializing in recommending service providers (marketing, virtual assistants, and commercial finance providers) to brokers in Australia.
 
-  Based on the following broker profile, provide a list of service provider recommendations, including a suitability score and a rationale for each recommendation.
+  Based on the following broker profile, provide a list of service provider recommendations, including a suitability score, a marketplace score, and a rationale for each recommendation.
 
   Broker Profile:
   Business Type: {{{businessType}}}
@@ -53,9 +54,11 @@ const prompt = ai.definePrompt({
   Needs: {{{needs}}}
   Budget: {{{budget}}}
 
-  Format your output as a JSON object with a \"recommendations\" array. Each object in the array should include the providerName, serviceType, suitabilityScore, and rationale.
+  Format your output as a JSON object with a \"recommendations\" array. Each object in the array should include the providerName, serviceType, suitabilityScore, marketplaceScore, and rationale.
 
-  Follow the RecommendationOutputSchema definition when generating the JSON. Ensure that suitabilityScore is a number between 0 and 100.
+  Follow the RecommendationOutputSchema definition when generating the JSON. Ensure that suitabilityScore and marketplaceScore are numbers between 0 and 100.
+
+  Use the scoring rubric defined in docs/scoring-guide.md when assigning marketplaceScore.
 
   Ensure the output can be parsed by JSON.parse().
   `,

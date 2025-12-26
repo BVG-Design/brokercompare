@@ -58,7 +58,7 @@ export default function AIChatDialog({ open, onOpenChange }) {
       if (serviceRecs && serviceRecs.recommendations.length > 0) {
         assistantResponse += '**Recommended Services:**\n';
         serviceRecs.recommendations.forEach((rec) => {
-          assistantResponse += `- **${rec.providerName}** (${rec.serviceType}): ${rec.rationale}\n`;
+          assistantResponse += `- **${rec.providerName}** (${rec.serviceType}) — Suitability: ${rec.suitabilityScore}/100, Marketplace: ${rec.marketplaceScore}/100. ${rec.rationale}\n`;
         });
       }
 
