@@ -1,6 +1,6 @@
 import { SoftwareListing } from '@/components/product-page/types';
 import { DirectoryProxy } from '@/sanity/lib/proxy';
-import { fetchDirectoryListingBySlug } from '@/services/sanity';
+import { fetchDirectoryListingBySlug, fetchDirectoryListings } from '@/services/sanity';
 import {
   ComparisonFeatureGroup,
   ComparisonFeatureRow,
@@ -17,6 +17,8 @@ interface DirectoryPageData {
   featureGroups: ComparisonFeatureGroup[];
   summaryFeatures: ComparisonFeatureRow[];
   providers: ProviderCard[];
+  allDirectoryProducts: ComparisonProduct[];
+  suggestedProducts: ComparisonProduct[];
 }
 
 const formatPricing = (pricing?: { type?: string; startingFrom?: number; notes?: string }): string => {
@@ -292,6 +294,18 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
   );
   const summaryFeatures = buildSummaryFeatures(featureGroups);
 
+  const allDirectoryRaw = await fetchDirectoryListings();
+  const allDirectoryProducts: ComparisonProduct[] = allDirectoryRaw.map((item: any) => ({
+    slug: item.slug,
+    name: item.name,
+    logoUrl: item.logoUrl,
+    priceText: item.pricingModel,
+    rating: item.rating,
+    isCurrent: item.slug === slug
+  }));
+
+  const suggestedProducts = comparisonProducts.slice(0, 6);
+
   const providers =
     listing.listingType === 'software'
       ? (listing.serviceProviders || []).map(mapProviderCard).slice(0, 4)
@@ -303,6 +317,8 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
     summaryProducts,
     featureGroups,
     summaryFeatures,
-    providers
+    providers,
+    allDirectoryProducts,
+    suggestedProducts
   };
 };

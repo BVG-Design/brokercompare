@@ -3,7 +3,6 @@ import { authorType } from './author'
 import { categoryType } from './category'
 import { productType } from './product'
 import { serviceAreaType } from './serviceArea'
-import { worksWithType } from './worksWith'
 import { searchIntentType } from './searchIntent'
 import { directoryListingType } from './directoryListing'
 import { featureType } from './feature'
@@ -18,7 +17,6 @@ export const schemaTypes = [
   categoryType,
   productType,
   serviceAreaType,
-  worksWithType,
   searchIntentType,
   directoryListingType,
   featureType,

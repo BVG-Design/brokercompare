@@ -57,14 +57,33 @@ export const fetchUnifiedSearchResults = async (
     contentTypes
   }, { useCdn: false });
 
-  const deduped = new Map<string, UnifiedSearchResult>();
+  // Deduplicate by slug (preferring directoryListing, then product/serviceProvider, then blog)
+  const slugFirst = new Map<string, UnifiedSearchResult>();
+  const typePriority = (t?: string) => {
+    if (t === 'directoryListing') return 1;
+    if (t === 'product' || t === 'serviceProvider') return 2;
+    if (t === 'blog') return 3;
+    return 99;
+  };
+
   results.forEach((item) => {
-    if (!deduped.has(item._id)) {
-      deduped.set(item._id, item);
+    const key = (item.slug || item._id || '').toLowerCase();
+    if (!key) return;
+    const existing = slugFirst.get(key);
+    if (!existing || typePriority(item._type) < typePriority(existing._type)) {
+      slugFirst.set(key, item);
     }
   });
 
-  return Array.from(deduped.values());
+  // fallback: if no slug, keep unique by _id
+  const byId = new Map<string, UnifiedSearchResult>();
+  results.forEach((item) => {
+    if (!item.slug) {
+      if (!byId.has(item._id)) byId.set(item._id, item);
+    }
+  });
+
+  return [...slugFirst.values(), ...byId.values()];
 };
 
 export const fetchDirectoryListings = async (filters: {
