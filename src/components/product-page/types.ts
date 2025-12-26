@@ -37,5 +37,25 @@ export interface SoftwareListing {
     rating?: {
         average: number;
         count: number;
+        marketScore?: number;
+        rubric?: {
+            averages?: Partial<RubricScores>;
+            weightedScores?: Partial<RubricScores>;
+            weights?: Partial<RubricWeights>;
+        };
     }
+}
+
+export interface RubricScores {
+    usability: number;
+    support: number;
+    value: number;
+    features: number;
+}
+
+export interface RubricWeights {
+    usability: number;
+    support: number;
+    value: number;
+    features: number;
 }

@@ -11,6 +11,7 @@ import { StarRating } from '@/components/shared/star-rating';
 import { useComparison } from '@/components/compare/ComparisonContext';
 import { ArrowRight, DollarSign, Plus } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
 
 interface SoftwareCardProps {
   software: Software;
@@ -31,6 +32,11 @@ export function SoftwareCard({ software }: SoftwareCardProps) {
     ? reviews.length
     : software.rating?.reviewCount ?? 0;
 
+  const marketScore = computeMarketplaceScore({
+    averageRating,
+    rubricScores: software.rating?.rubric?.averages,
+    rubricWeights: software.rating?.rubric?.weights,
+  });
 
 
   const inComparison = isInComparison(software.id);
@@ -90,7 +96,12 @@ export function SoftwareCard({ software }: SoftwareCardProps) {
         </p>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-between items-center gap-3 p-4 pt-0">
-        <StarRating rating={averageRating} size={18} />
+        <div className="flex items-center gap-2">
+          <StarRating rating={averageRating} size={18} />
+          <span className="text-xs font-semibold text-muted-foreground">
+            {marketScore} Market Score
+          </span>
+        </div>
         <div className="flex flex-wrap gap-2 justify-end">
           {!inComparison && (
             <Button

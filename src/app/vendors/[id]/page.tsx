@@ -20,6 +20,7 @@ import { ExternalLink, Award, Star, CheckCircle, Bookmark, ArrowLeftRight, Send,
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import VendorCard from '@/components/vendors/VendorCard';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
 // TODO: Replace with Supabase queries when tables are ready
 // import { vendorQueries } from '@/lib/supabase';
 
@@ -159,6 +160,7 @@ function VendorProfileContent() {
   const averageRating = reviews.length > 0
     ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
     : 0;
+  const marketScore = computeMarketplaceScore({ averageRating });
 
   const approvedReviews = reviews.filter(r => r.status === 'approved');
 
@@ -197,6 +199,9 @@ function VendorProfileContent() {
               <p className="text-xl text-muted-foreground mb-4">{vendor.tagline}</p>
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
                 <StarRating rating={averageRating} size={20} />
+                <span className="text-sm font-semibold text-muted-foreground">
+                  {marketScore} Market Score
+                </span>
                 <span className="text-sm">({approvedReviews.length} reviews)</span>
                 {vendor.website && (
                   <Link href={vendor.website} target="_blank" className="flex items-center gap-2 hover:text-secondary transition-colors">
@@ -497,4 +502,3 @@ export default function VendorProfilePage() {
     </Suspense>
   );
 }
-
