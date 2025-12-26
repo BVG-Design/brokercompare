@@ -162,19 +162,23 @@ const buildSummaryFeatures = (groups: ComparisonFeatureGroup[]): ComparisonFeatu
   return sorted.slice(0, 8).map(({ order, ...rest }) => rest);
 };
 
-const mapProviderCard = (listing: any): ProviderCard => ({
-  id: listing._id || listing.id,
-  name: listing.title || listing.name,
-  slug: listing.slug,
-  description: listing.description,
-  logoUrl: listing.logoUrl,
-  rating: listing.rating ?? listing.rating?.average ?? null,
-  reviewCount: listing.viewCount ?? listing.rating?.count ?? null,
-  tags: listing.brokerType?.length ? listing.brokerType : listing.categories,
-  location: listing.categories?.[0],
-  websiteUrl: listing.websiteUrl,
-  badges: listing.badges
-});
+const mapProviderCard = (listing: any): ProviderCard => {
+  const { average, count } = normalizeRating(listing.rating);
+
+  return {
+    id: listing._id || listing.id,
+    name: listing.title || listing.name,
+    slug: listing.slug,
+    description: listing.description,
+    logoUrl: listing.logoUrl,
+    rating: average,
+    reviewCount: listing.viewCount ?? count ?? null,
+    tags: listing.brokerType?.length ? listing.brokerType : listing.categories,
+    location: listing.categories?.[0],
+    websiteUrl: listing.websiteUrl,
+    badges: listing.badges
+  };
+};
 
 const roundScore = (value: number): number => Math.round(value * 10) / 10;
 
@@ -221,6 +225,30 @@ const buildOverallRubricScore = (categoryScores: RubricCategoryScore[]): number 
   return roundScore(total / categoryScores.length);
 };
 
+const normalizeRating = (rating: any): { average: number | null; count: number } => {
+  if (!rating) return { average: null, count: 0 };
+
+  // Sanity rating structure could be a number or an object with average/count.
+  const average =
+    typeof rating === 'number'
+      ? rating
+      : typeof rating?.average === 'number'
+        ? rating.average
+        : null;
+
+  const count =
+    typeof rating?.count === 'number'
+      ? rating.count
+      : typeof rating?.reviewCount === 'number'
+        ? rating.reviewCount
+        : 0;
+
+  return {
+    average: count > 0 ? average : null,
+    count
+  };
+};
+
 export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPageData | null> => {
   const listing = await fetchDirectoryListingBySlug(slug);
   if (!listing) return null;
@@ -245,8 +273,7 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
     : [];
 
   const comparisonProducts: ComparisonProduct[] = comparisonData.map((item: any) => {
-    const ratingValue =
-      typeof item.rating === 'number' ? item.rating : item.rating?.average ?? null;
+    const { average: ratingValue } = normalizeRating(item.rating);
     const rubricCategoryScores = buildRubricCategoryScores(item.features);
     const overallRubricScore = buildOverallRubricScore(rubricCategoryScores);
 
@@ -300,7 +327,7 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
     name: item.name,
     logoUrl: item.logoUrl,
     priceText: item.pricingModel,
-    rating: item.rating,
+    rating: normalizeRating(item.rating).average,
     isCurrent: item.slug === slug
   }));
 
