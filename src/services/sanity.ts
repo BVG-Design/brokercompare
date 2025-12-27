@@ -38,8 +38,11 @@ export interface UnifiedSearchResult {
   description?: string;
   slug?: string;
   category?: string;
+  categories?: string[];
   logoUrl?: string;
   heroImageUrl?: string;
+  listingType?: string;
+  resultType?: string;
 }
 
 export const fetchUnifiedSearchResults = async (
@@ -83,7 +86,26 @@ export const fetchUnifiedSearchResults = async (
     }
   });
 
-  return [...slugFirst.values(), ...byId.values()];
+  const deduped = [...slugFirst.values(), ...byId.values()];
+
+  return deduped.map((item) => {
+    let resultType = 'other';
+
+    if (item._type === 'blog') {
+      resultType = 'resourceGuide';
+    } else if (item._type === 'serviceProvider') {
+      resultType = 'service';
+    } else if (item._type === 'product') {
+      resultType = 'software';
+    } else if (item._type === 'directoryListing') {
+      resultType = item.listingType || 'software';
+    }
+
+    return {
+      ...item,
+      resultType
+    };
+  });
 };
 
 export const fetchDirectoryListings = async (filters: {
@@ -139,6 +161,23 @@ export const fetchDirectoryListings = async (filters: {
 export const fetchCategories = async (): Promise<{ title: string, value: string }[]> => {
   const query = `*[_type == "category"] { title, "value": slug.current } | order(title asc)`;
   return await client.fetch(query);
+};
+
+export type SearchIntentSummary = {
+  title: string;
+  slug: string;
+  categoryKey: string;
+};
+
+export const fetchSearchIntents = async (): Promise<SearchIntentSummary[]> => {
+  const query = `*[_type == "searchIntent" && isActive == true] {
+    title,
+    "slug": slug.current,
+    categoryKey
+  } | order(title asc)`;
+
+  const results = await client.fetch<SearchIntentSummary[]>(query);
+  return Array.isArray(results) ? results.filter((item) => item.title && item.slug && item.categoryKey) : [];
 };
 
 import { DirectoryProxy } from '@/sanity/lib/proxy';

@@ -71,12 +71,14 @@ export const UNIFIED_SEARCH_QUERY = groq`
   description,
   "slug": slug.current,
   "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
+  "categories": coalesce(categories[]->slug.current, [category->slug.current]),
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
     defined(images[0].asset->url) => images[0].asset->url
   ),
-  "heroImageUrl": heroImage.asset->url
+  "heroImageUrl": heroImage.asset->url,
+  listingType
 }
 `;
 
