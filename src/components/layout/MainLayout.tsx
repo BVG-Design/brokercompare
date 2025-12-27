@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
+import mixpanel from 'mixpanel-browser';
 
 type NavLink = {
     name: string;
@@ -18,6 +19,13 @@ type MainLayoutProps = {
 const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [feedbackOpen, setFeedbackOpen] = useState(false);
+
+    useEffect(() => {
+        mixpanel.init('16b895b70692275a77cc85aa3099d050', {
+            autocapture: true,
+            record_sessions_percent: 100,
+        });
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-brand-cream text-brand-blue font-sans">
