@@ -521,7 +521,13 @@ export default function BrokerDashboard() {
       </div>
     );
   }
-  
+
+  const greetName =
+    profile?.first_name ||
+    profileData.full_name.split(' ')[0] ||
+    (user?.full_name ? user.full_name.split(' ')[0] : '') ||
+    'there';
+
   const renderContent = () => {
     switch (activeSection) {
       case 'dashboard':
@@ -547,6 +553,33 @@ export default function BrokerDashboard() {
                       <p className="text-2xl font-bold text-[#132847]">{stat.value}</p>
                     </button>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="border border-gray-200 shadow-sm">
+              <CardContent className="p-6">
+                <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+                  <div className="flex-shrink-0 mb-4 md:mb-0">
+                    <img
+                      src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Side%20Profile.png"
+                      alt="Simba the support dog"
+                      className="w-28 h-28 rounded-xl object-contain border border-gray-200 bg-white"
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <p className="text-lg font-semibold text-[#132847]">
+                      Hi {greetName}, welcome to Broker Tools. <em>I am Simba your Support Dog.</em>
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      If you need help with anything our{' '}
+                      <Link href="/faq" className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
+                      <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
+                      can help you out. Otherwise, feel free to reach out to our human support team.
+                    </p>
+                    <Button className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]">
+                      Contact support
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>

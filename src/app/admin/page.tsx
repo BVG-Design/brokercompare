@@ -18,7 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AccessDeniedCard } from '@/components/shared/AccessDeniedCard';
 import {
@@ -29,6 +28,8 @@ import {
   FileText,
   BarChart3,
   BadgeDollarSign,
+  Settings,
+  Inbox,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { getAdminStats } from '@/lib/dashboard-data';
@@ -63,6 +64,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [userLoading, setUserLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
+  const [activeSection, setActiveSection] = useState('applications');
   const [firstName, setFirstName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [stats, setStats] = useState({
@@ -76,12 +78,114 @@ export default function AdminDashboard() {
     reviewsPending: 0,
   });
   const [loading, setLoading] = useState(true);
-  const noData = !loading && Object.values(stats).every((v) => v === 0);
+  const navItems = [
+    { id: 'applications', label: 'Applications', icon: Users },
+    { id: 'directory', label: 'Directory', icon: Briefcase },
+    { id: 'reviews', label: 'Reviews', icon: Star },
+    { id: 'leads', label: 'Leads', icon: Mail },
+    { id: 'inbox', label: 'Inbox', icon: Inbox },
+    { id: 'blog', label: 'Blog', icon: FileText },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'upgrades', label: 'Upgrades', icon: BadgeDollarSign },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     router.push('/login');
   };
+
+  const renderManagementSection = (
+    id: string,
+    label: string,
+    component: React.ReactNode,
+  ) => (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg text-[#132847]">{label}</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-4 space-y-4">
+        {id === 'directory' && (
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex-1">
+              <Input placeholder="Search vendors..." className="w-full" />
+            </div>
+            <div className="w-full md:w-56">
+              <Select defaultValue="all">
+                <SelectTrigger>
+                  <SelectValue placeholder="All status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All status</SelectItem>
+                  <SelectItem value="approved">Approved</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+        <div className="rounded-lg border bg-white p-4 space-y-3">
+          <p className="text-sm font-semibold text-[#132847]">Activities</p>
+          <div className="space-y-2">
+            {[
+              { title: 'Pending Applications', hint: `${stats.applicationsPending || '0'} awaiting review` },
+              { title: 'Check new leads', hint: `${stats.leadsNew || '0'} new leads to triage` },
+              { title: 'Assess Reviews', hint: `${stats.reviewsPending || '0'} awaiting moderation` },
+              { title: 'Read Feedback', hint: 'New feedback and support submissions' },
+              { title: 'Confirm feature requests', hint: 'Check new upgrade/feature submissions' },
+            ].map((activity) => (
+              <div
+                key={activity.title}
+                className="flex items-center justify-between rounded-md border border-gray-100 px-3 py-2 hover:bg-gray-50"
+              >
+                <div>
+                  <p className="text-sm font-medium text-[#132847]">{activity.title}</p>
+                  <p className="text-xs text-muted-foreground">{activity.hint}</p>
+                </div>
+                <span className="text-xs font-semibold text-primary">View</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        {id !== 'applications' && (
+          <div className="pt-2">{component}</div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderSettingsSection = () => (
+    <Card className="shadow-sm">
+      <CardHeader>
+        <CardTitle className="text-lg text-[#132847]">Settings & Access</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <p className="text-lg font-semibold text-primary">Dashboard access</p>
+          <p className="text-sm text-muted-foreground">
+            Jump to another dashboard without leaving settings.
+          </p>
+          <div className="flex flex-wrap gap-3 mt-3">
+            {[
+              { label: 'Broker Dashboard', href: '/dashboard/broker' },
+              { label: 'Vendor Dashboard', href: '/dashboard/vendor' },
+              { label: 'Admin Dashboard', href: '/admin' },
+            ].map((item) => (
+              <Button key={item.href} variant="outline" asChild>
+                <Link href={item.href}>{item.label}</Link>
+              </Button>
+            ))}
+          </div>
+        </div>
+        <div className="pt-4 border-t mt-4">
+          <Button variant="outline" onClick={handleSignOut}>
+            Sign Out
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 
   useEffect(() => {
     const gate = async () => {
@@ -96,11 +200,11 @@ export default function AdminDashboard() {
 
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
-        .select('user_type, user_access, admin_dashboard, first_name, full_name')
+        .select('user_type, user_access, admin_dashboard, first_name')
         .eq('id', user.id)
         .maybeSingle();
 
-      const profileFirst = profile?.first_name || profile?.full_name?.split(' ')?.[0] || user.user_metadata?.first_name || null;
+      const profileFirst = profile?.first_name || user.user_metadata?.first_name || null;
       setFirstName(profileFirst);
 
       const canAccess =
@@ -124,51 +228,6 @@ export default function AdminDashboard() {
     };
     loadStats();
   }, []);
-
-  const tabs = [
-    {
-      value: 'applications',
-      label: 'Applications',
-      icon: Users,
-      component: <ApplicationsManagement />,
-    },
-    {
-      value: 'directory',
-      label: 'Directory',
-      icon: Briefcase,
-      component: <DirectoryManagement />,
-    },
-    {
-      value: 'reviews',
-      label: 'Reviews',
-      icon: Star,
-      component: <ReviewsManagement />,
-    },
-    {
-      value: 'leads',
-      label: 'Leads',
-      icon: Mail,
-      component: <LeadsManagement />,
-    },
-    {
-      value: 'blog',
-      label: 'Blog',
-      icon: FileText,
-      component: <BlogManagement />,
-    },
-    {
-      value: 'analytics',
-      label: 'Analytics',
-      icon: BarChart3,
-      component: <AnalyticsManagement />,
-    },
-    {
-      value: 'upgrades',
-      label: 'Upgrades',
-      icon: BadgeDollarSign,
-      component: <UpgradeRequestsPlaceholder />,
-    },
-  ];
 
   return (
     <>
@@ -199,136 +258,137 @@ export default function AdminDashboard() {
           </div>
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                {
-                  title: 'Directory Listings',
-                  value: stats.vendorsTotal,
-                  subtitle: `${stats.vendorsApproved} approved`,
-                  icon: Briefcase,
-                },
-                {
-                  title: 'Applications',
-                  value: stats.applicationsTotal,
-                  subtitle: `${stats.applicationsPending} pending`,
-                  icon: FileText,
-                },
-                {
-                  title: 'Leads',
-                  value: stats.leadsTotal,
-                  subtitle: `${stats.leadsNew} new`,
-                  icon: Mail,
-                },
-                {
-                  title: 'Reviews',
-                  value: stats.reviewsTotal,
-                  subtitle: `${stats.reviewsPending} pending`,
-                  icon: Star,
-                },
-              ].map((card) => (
-                <Card key={card.title} className="shadow-sm border border-gray-200/80">
-                  <CardContent className="p-6 flex items-start gap-4">
-                    <div className="rounded-xl p-3 bg-gray-50 border border-gray-100">
-                      <card.icon className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-[#132847]">{card.title}</p>
-                      {loading ? (
-                        <Skeleton className="h-7 w-16 my-1" />
-                      ) : (
-                        <p className="text-3xl font-bold text-[#132847] leading-tight">{card.value}</p>
-                      )}
-                      <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+            <div className="grid lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-1">
+                <Card className="shadow-sm">
+                  <CardContent className="p-4 space-y-3">
+                    <p className="text-sm font-semibold text-[#132847]">Admin sections</p>
+                    <div className="space-y-2">
+                      {navItems.map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => setActiveSection(item.id)}
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                            activeSection === item.id
+                              ? 'bg-[#132847] text-white shadow-sm'
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          <item.icon className="w-4 h-4" />
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
-              ))}
-            </div>
+              </div>
 
-            {noData && (
-              <Card className="mb-8 border-dashed">
-                <CardContent className="p-6 space-y-2">
-                  <p className="text-lg font-semibold text-primary">No admin data yet</p>
-                  <p className="text-sm text-muted-foreground">
-                    Connect Supabase tables for vendors, applications, leads, and reviews to populate this dashboard.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-
-            <Card className="mb-8">
-              <CardContent className="p-6 space-y-3">
-                <p className="text-lg font-semibold text-primary">Dashboard access</p>
-                <p className="text-sm text-muted-foreground">Jump to another dashboard without leaving settings.</p>
-                <div className="flex flex-wrap gap-3">
+              <div className="lg:col-span-3 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
-                    { label: 'Broker Dashboard', href: '/dashboard/broker' },
-                    { label: 'Vendor Dashboard', href: '/dashboard/vendor' },
-                    { label: 'Admin Dashboard', href: '/admin' },
-                  ].map((item) => (
-                    <Button key={item.href} variant="outline" asChild>
-                      <Link href={item.href}>{item.label}</Link>
-                    </Button>
+                    {
+                      title: 'Directory Listings',
+                      value: stats.vendorsTotal,
+                      subtitle: `${stats.vendorsApproved} approved`,
+                      icon: Briefcase,
+                    },
+                    {
+                      title: 'Applications',
+                      value: stats.applicationsTotal,
+                      subtitle: `${stats.applicationsPending} pending`,
+                      icon: FileText,
+                    },
+                    {
+                      title: 'Leads',
+                      value: stats.leadsTotal,
+                      subtitle: `${stats.leadsNew} new`,
+                      icon: Mail,
+                    },
+                    {
+                      title: 'Reviews',
+                      value: stats.reviewsTotal,
+                      subtitle: `${stats.reviewsPending} pending`,
+                      icon: Star,
+                    },
+                  ].map((card) => (
+                    <Card key={card.title} className="shadow-sm border border-gray-200/80">
+                      <CardContent className="p-6 flex items-start gap-4">
+                        <div className="rounded-xl p-3 bg-gray-50 border border-gray-100">
+                          <card.icon className="w-6 h-6 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[#132847]">{card.title}</p>
+                          {loading ? (
+                            <Skeleton className="h-7 w-16 my-1" />
+                          ) : (
+                            <p className="text-3xl font-bold text-[#132847] leading-tight">{card.value}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">{card.subtitle}</p>
+                        </div>
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
-                <div className="pt-4 border-t mt-4">
-                  <Button variant="outline" onClick={handleSignOut}>
-                    Sign Out
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
 
-            <Tabs defaultValue="applications" className="w-full">
-              <TabsList className="grid w-full grid-cols-7 mb-6 bg-white shadow-sm rounded-lg p-1">
-                {tabs.map((tab) => (
-                  <TabsTrigger
-                    key={tab.value}
-                    value={tab.value}
-                    className="data-[state=active]:bg-primary data-[state=active]:text-white rounded-md"
-                  >
-                    <tab.icon className="w-4 h-4 mr-2" />
-                    {tab.label}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
-
-              {tabs.map((tab) => (
-                <TabsContent key={tab.value} value={tab.value}>
-                  <Card className="shadow-sm">
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-lg text-[#132847]">{tab.label}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="pt-4 space-y-4">
-                      {tab.value === 'directory' && (
-                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                          <div className="flex-1">
-                            <Input placeholder="Search vendors..." className="w-full" />
-                          </div>
-                          <div className="w-full md:w-56">
-                            <Select defaultValue="all">
-                              <SelectTrigger>
-                                <SelectValue placeholder="All status" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="all">All status</SelectItem>
-                                <SelectItem value="approved">Approved</SelectItem>
-                                <SelectItem value="pending">Pending</SelectItem>
-                                <SelectItem value="rejected">Rejected</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      )}
-                      <div className="rounded-lg border border-dashed text-sm text-muted-foreground p-6 bg-gray-50">
-                        {loading ? 'Loading...' : 'No data yet - connect Supabase to populate this section.'}
+                <Card className="border border-gray-200 shadow-sm">
+                  <CardContent className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+                      <div className="flex-shrink-0 mb-4 md:mb-0">
+                        <img
+                          src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Side%20Profile.png"
+                          alt="Simba the support dog"
+                          className="w-28 h-28 rounded-xl object-contain border border-gray-200 bg-white"
+                        />
                       </div>
-                      <div className="pt-2">{tab.component}</div>
-                    </CardContent>
-                  </Card>
-                </TabsContent>
-              ))}
-            </Tabs>
+                      <div className="flex-1 space-y-2">
+                        <p className="text-lg font-semibold text-[#132847]">
+                          Hi {firstName || 'there'}, welcome to Broker Tools. <em>I am Simba your Support Dog.</em>
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          If you need help with anything our{' '}
+                          <Link href="/faq" className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
+                          <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
+                          can help you out. Otherwise, feel free to reach out to our human support team.
+                        </p>
+                        <Button className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]">
+                          Contact support
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {activeSection === 'settings' &&
+                  renderSettingsSection()}
+                {activeSection !== 'settings' &&
+                  (activeSection === 'applications'
+                    ? renderManagementSection('applications', 'Applications', <ApplicationsManagement />)
+                    : activeSection === 'directory'
+                      ? renderManagementSection('directory', 'Directory', <DirectoryManagement />)
+                      : activeSection === 'reviews'
+                        ? renderManagementSection('reviews', 'Reviews', <ReviewsManagement />)
+                      : activeSection === 'leads'
+                        ? renderManagementSection('leads', 'Leads', <LeadsManagement />)
+                        : activeSection === 'inbox'
+                          ? renderManagementSection(
+                              'inbox',
+                              'Inbox',
+                              <div className="space-y-3">
+                                <p className="text-sm text-muted-foreground">
+                                  All new contact support, feedback, and submitted forms appear here.
+                                </p>
+                                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground bg-gray-50">
+                                  Connect Supabase sources to display incoming items.
+                                </div>
+                              </div>
+                            )
+                        : activeSection === 'blog'
+                          ? renderManagementSection('blog', 'Blog', <BlogManagement />)
+                          : activeSection === 'analytics'
+                            ? renderManagementSection('analytics', 'Analytics', <AnalyticsManagement />)
+                            : renderManagementSection('upgrades', 'Upgrades', <UpgradeRequestsPlaceholder />))}
+              </div>
+            </div>
           </div>
         </div>
       )}
