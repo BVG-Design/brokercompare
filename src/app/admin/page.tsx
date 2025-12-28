@@ -11,6 +11,7 @@ import AnalyticsManagement from '@/components/admin/AnalyticsManagement';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Select,
   SelectContent,
@@ -30,6 +31,7 @@ import {
   BadgeDollarSign,
   Settings,
   Inbox,
+  LayoutDashboard,
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import { getAdminStats } from '@/lib/dashboard-data';
@@ -64,7 +66,7 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [userLoading, setUserLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
-  const [activeSection, setActiveSection] = useState('applications');
+  const [activeSection, setActiveSection] = useState('dashboard');
   const [firstName, setFirstName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [stats, setStats] = useState({
@@ -79,6 +81,7 @@ export default function AdminDashboard() {
   });
   const [loading, setLoading] = useState(true);
   const navItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'applications', label: 'Applications', icon: Users },
     { id: 'directory', label: 'Directory', icon: Briefcase },
     { id: 'reviews', label: 'Reviews', icon: Star },
@@ -125,32 +128,81 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
-        <div className="rounded-lg border bg-white p-4 space-y-3">
-          <p className="text-sm font-semibold text-[#132847]">Activities</p>
-          <div className="space-y-2">
-            {[
-              { title: 'Pending Applications', hint: `${stats.applicationsPending || '0'} awaiting review` },
-              { title: 'Check new leads', hint: `${stats.leadsNew || '0'} new leads to triage` },
-              { title: 'Assess Reviews', hint: `${stats.reviewsPending || '0'} awaiting moderation` },
-              { title: 'Read Feedback', hint: 'New feedback and support submissions' },
-              { title: 'Confirm feature requests', hint: 'Check new upgrade/feature submissions' },
-            ].map((activity) => (
-              <div
-                key={activity.title}
-                className="flex items-center justify-between rounded-md border border-gray-100 px-3 py-2 hover:bg-gray-50"
-              >
-                <div>
-                  <p className="text-sm font-medium text-[#132847]">{activity.title}</p>
-                  <p className="text-xs text-muted-foreground">{activity.hint}</p>
-                </div>
-                <span className="text-xs font-semibold text-primary">View</span>
-              </div>
-            ))}
-          </div>
-        </div>
         {id !== 'applications' && (
           <div className="pt-2">{component}</div>
         )}
+      </CardContent>
+    </Card>
+  );
+
+  const renderActivitiesCard = () => (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg text-[#132847]">Activities</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-4 space-y-3">
+        <div className="space-y-2">
+          {[
+            { title: 'Pending Applications', hint: `${stats.applicationsPending || '0'} awaiting review` },
+            { title: 'Check new leads', hint: `${stats.leadsNew || '0'} new leads to triage` },
+            { title: 'Assess Reviews', hint: `${stats.reviewsPending || '0'} awaiting moderation` },
+            { title: 'Read Feedback', hint: 'New feedback and support submissions' },
+            { title: 'Review FAQs', hint: 'New FAQ submissions and updates' },
+          ].map((activity) => (
+            <div
+              key={activity.title}
+              className="flex items-center justify-between rounded-md border border-gray-100 px-3 py-2 hover:bg-gray-50"
+            >
+              <div>
+                <p className="text-sm font-medium text-[#132847]">{activity.title}</p>
+                <p className="text-xs text-muted-foreground">{activity.hint}</p>
+              </div>
+              <span className="text-xs font-semibold text-primary">View</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderEmptyListState = (label: string) => (
+    <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground bg-gray-50">
+      No {label} have been generated yet.
+    </div>
+  );
+
+  const renderInbox = () => (
+    <Card className="shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg text-[#132847]">Inbox</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-4">
+        <Tabs defaultValue="all">
+          <TabsList className="grid grid-cols-4 w-full">
+            <TabsTrigger value="all">All enquiries</TabsTrigger>
+            <TabsTrigger value="faqs">FAQs</TabsTrigger>
+            <TabsTrigger value="reviews">Reviews</TabsTrigger>
+            <TabsTrigger value="feedback">Feedback</TabsTrigger>
+          </TabsList>
+          <TabsContent value="all" className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground">
+              All new contact support, feedback, and submitted forms appear here.
+            </p>
+            {renderEmptyListState('enquiries')}
+          </TabsContent>
+          <TabsContent value="faqs" className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground">Incoming FAQ submissions and edits.</p>
+            {renderEmptyListState('FAQs')}
+          </TabsContent>
+          <TabsContent value="reviews" className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground">New reviews awaiting moderation.</p>
+            {renderEmptyListState('reviews')}
+          </TabsContent>
+          <TabsContent value="feedback" className="space-y-3 pt-4">
+            <p className="text-sm text-muted-foreground">Product and support feedback.</p>
+            {renderEmptyListState('feedback items')}
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );
@@ -361,32 +413,67 @@ export default function AdminDashboard() {
                 {activeSection === 'settings' &&
                   renderSettingsSection()}
                 {activeSection !== 'settings' &&
-                  (activeSection === 'applications'
-                    ? renderManagementSection('applications', 'Applications', <ApplicationsManagement />)
-                    : activeSection === 'directory'
-                      ? renderManagementSection('directory', 'Directory', <DirectoryManagement />)
-                      : activeSection === 'reviews'
-                        ? renderManagementSection('reviews', 'Reviews', <ReviewsManagement />)
-                      : activeSection === 'leads'
-                        ? renderManagementSection('leads', 'Leads', <LeadsManagement />)
-                        : activeSection === 'inbox'
+                  (activeSection === 'dashboard'
+                    ? renderActivitiesCard()
+                    : activeSection === 'applications'
+                      ? renderManagementSection(
+                        'applications',
+                        'Applications',
+                        <div className="space-y-3">
+                          <div className="rounded-lg border bg-white p-4">
+                            <p className="text-sm text-muted-foreground">
+                              Kanban or list view of applications will appear here.
+                            </p>
+                          </div>
+                          {renderEmptyListState('applications')}
+                        </div>
+                      )
+                      : activeSection === 'directory'
+                        ? renderManagementSection(
+                          'directory',
+                          'Directory',
+                          <div className="space-y-3">
+                            <div className="rounded-lg border bg-white p-4">
+                              <p className="text-sm text-muted-foreground">
+                                Kanban or list view of directory listings will appear here.
+                              </p>
+                            </div>
+                            {renderEmptyListState('directory listings')}
+                          </div>
+                        )
+                        : activeSection === 'reviews'
                           ? renderManagementSection(
-                              'inbox',
-                              'Inbox',
-                              <div className="space-y-3">
+                            'reviews',
+                            'Reviews',
+                            <div className="space-y-3">
+                              <div className="rounded-lg border bg-white p-4">
                                 <p className="text-sm text-muted-foreground">
-                                  All new contact support, feedback, and submitted forms appear here.
+                                  Kanban or list view of reviews will appear here.
                                 </p>
-                                <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground bg-gray-50">
-                                  Connect Supabase sources to display incoming items.
+                              </div>
+                              {renderEmptyListState('reviews')}
+                            </div>
+                          )
+                          : activeSection === 'leads'
+                            ? renderManagementSection(
+                              'leads',
+                              'Leads',
+                              <div className="space-y-3">
+                                <div className="rounded-lg border bg-white p-4">
+                                  <p className="text-sm text-muted-foreground">
+                                    Kanban or list view of leads will appear here.
+                                  </p>
                                 </div>
+                                {renderEmptyListState('leads')}
                               </div>
                             )
-                        : activeSection === 'blog'
-                          ? renderManagementSection('blog', 'Blog', <BlogManagement />)
-                          : activeSection === 'analytics'
-                            ? renderManagementSection('analytics', 'Analytics', <AnalyticsManagement />)
-                            : renderManagementSection('upgrades', 'Upgrades', <UpgradeRequestsPlaceholder />))}
+                            : activeSection === 'inbox'
+                              ? renderInbox()
+                              : activeSection === 'blog'
+                                ? renderManagementSection('blog', 'Blog', <BlogManagement />)
+                                : activeSection === 'analytics'
+                                  ? renderManagementSection('analytics', 'Analytics', <AnalyticsManagement />)
+                                  : renderManagementSection('upgrades', 'Upgrades', <UpgradeRequestsPlaceholder />))}
               </div>
             </div>
           </div>
@@ -395,7 +482,5 @@ export default function AdminDashboard() {
     </>
   );
 }
-
-
 
 

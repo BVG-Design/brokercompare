@@ -20,16 +20,19 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('id, full_name, user_type')
+    .select('id, full_name, user_type, default_dashboard, admin_dashboard, vendor_dashboard, broker_dashboard')
     .eq('id', session.user.id)
     .single();
 
-  if (profile?.user_type === 'vendor') {
-    redirect('/vendor-dashboard');
-  }
-
-  if (profile?.user_type === 'admin') {
+  // Redirect based on default_dashboard or user_type
+  if (profile?.default_dashboard === 'admin' || profile?.admin_dashboard || profile?.user_type === 'admin') {
     redirect('/admin');
+  }
+  if (profile?.default_dashboard === 'vendor' || profile?.vendor_dashboard || profile?.user_type === 'vendor') {
+    redirect('/dashboard/vendor');
+  }
+  if (profile?.default_dashboard === 'broker' || profile?.broker_dashboard || profile?.user_type === 'broker') {
+    redirect('/dashboard/broker');
   }
 
   return <div className="min-h-screen bg-gray-50">{children}</div>;
