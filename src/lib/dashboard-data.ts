@@ -6,14 +6,22 @@ export type UserProfile = {
   id: string;
   email: string | null;
   full_name?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
   user_type?: 'consumer' | 'vendor' | 'admin' | 'broker';
   vendor_id?: string | null;
   phone?: string | null;
   company?: string | null;
+  website?: string | null;
   broker_type?: string | null;
   notification_frequency?: string | null;
   display_name?: string | null;
   profile_image?: string | null;
+  admin_dashboard?: boolean | null;
+  broker_dashboard?: boolean | null;
+  vendor_dashboard?: boolean | null;
+  default_dashboard?: 'admin' | 'broker' | 'vendor' | null;
+  default_profile?: 'admin' | 'broker' | 'vendor' | null;
 };
 
 export type VendorRecord = {

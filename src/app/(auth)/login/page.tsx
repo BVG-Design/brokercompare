@@ -1,15 +1,59 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, Mail } from 'lucide-react';
 import { signInWithMagicLink } from '@/services/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const supabase = useMemo(() => createClient(), []);
+
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const nextPath = useMemo(() => {
+    const next = searchParams.get('next');
+    return next && next.startsWith('/') ? next : '/dashboard/broker';
+  }, [searchParams]);
+
+  useEffect(() => {
+    const queryError = searchParams.get('error');
+    if (queryError) {
+      setError(queryError);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkSession = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session && isMounted) {
+          router.replace(nextPath);
+        }
+      } catch (err) {
+        console.warn('Session check failed:', err);
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [nextPath, router, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +61,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error: authError } = await signInWithMagicLink(email);
+      const { error: authError } = await signInWithMagicLink(email, nextPath);
       if (authError) {
         // Handle specific error cases similar to original code if needed, 
         // but user's requested code simplifies it. 
@@ -30,6 +74,30 @@ export default function LoginPage() {
       setError('An unexpected error occurred.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code.trim()) {
+      setError('Please enter the code from your email.');
+      return;
+    }
+
+    setIsVerifying(true);
+    setError(null);
+
+    try {
+      const url = new URL('/auth/callback', window.location.origin);
+      url.searchParams.set('code', code.trim());
+      if (nextPath) {
+        url.searchParams.set('next', nextPath);
+      }
+      router.push(url.toString());
+    } catch (err) {
+      setError('Unable to verify the code. Please try again.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -111,6 +179,36 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
+
+            <form onSubmit={handleVerifyCode} className="space-y-3 max-w-xs mx-auto text-left">
+              <label className="block text-sm font-semibold text-brand-blue">
+                Or paste the 8-digit code from the email
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={8}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all placeholder-gray-400 text-gray-700 text-center tracking-[0.3em]"
+                placeholder="12345678"
+              />
+
+              <button
+                type="submit"
+                disabled={isVerifying || code.trim().length < 8}
+                className="w-full py-3 rounded-lg bg-brand-blue text-white font-bold hover:bg-blue-900 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {isVerifying && <Loader2 className="animate-spin" size={18} />}
+                Verify code
+              </button>
+            </form>
+
+            {error && (
+              <div className="mt-4 p-3 rounded bg-red-50 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
 
             <button
               onClick={() => setIsSent(false)}
