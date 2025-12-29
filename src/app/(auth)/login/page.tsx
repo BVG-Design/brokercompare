@@ -168,6 +168,10 @@ export default function LoginPage() {
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) {
+      setError('Please enter your email first, then paste the code.');
+      return;
+    }
     if (!code.trim()) {
       setError('Please enter the code from your email.');
       return;
@@ -177,12 +181,37 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const url = new URL('/auth/callback', window.location.origin);
-      url.searchParams.set('code', code.trim());
-      if (nextPath) {
-        url.searchParams.set('next', nextPath);
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: code.trim(),
+        type: 'email',
+      });
+
+      if (verifyError || !data.session) {
+        setError(verifyError?.message || 'Invalid or expired code. Please request a new one.');
+        return;
       }
-      router.push(url.toString());
+
+      // Session is set client-side; pick destination and continue
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      let destination = nextPath || '/dashboard/broker';
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select(
+            'default_dashboard, user_type, admin_dashboard, vendor_dashboard, broker_dashboard',
+          )
+          .eq('id', user.id)
+          .maybeSingle();
+        destination = nextPath || resolveDashboardPath(profile || undefined) || destination;
+      }
+
+      router.replace(destination);
+      router.refresh();
     } catch (err) {
       setError('Unable to verify the code. Please try again.');
     } finally {

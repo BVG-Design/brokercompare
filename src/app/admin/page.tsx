@@ -402,7 +402,10 @@ export default function AdminDashboard() {
                           <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                           can help you out. Otherwise, feel free to reach out to our human support team.
                         </p>
-                        <Button className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]">
+                        <Button
+                          className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]"
+                          onClick={() => router.push('/faq?ask=1')}
+                        >
                           Contact support
                         </Button>
                       </div>
@@ -482,5 +485,4 @@ export default function AdminDashboard() {
     </>
   );
 }
-
 

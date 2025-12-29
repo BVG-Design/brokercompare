@@ -256,6 +256,7 @@ export default function BrokerDashboard() {
   >([]);
   const [defaultDashboard, setDefaultDashboard] = useState<DashboardKey | null>(null);
   const [savingDefaultDashboard, setSavingDefaultDashboard] = useState(false);
+  const [welcomeAnswered, setWelcomeAnswered] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -322,6 +323,9 @@ export default function BrokerDashboard() {
         .eq('created_by', user.id)
         .maybeSingle();
 
+      if (welcomeAnswer) {
+        setWelcomeAnswered(true);
+      }
       if (welcomeAnswer?.answer) {
         setProfileData((prev) => ({ ...prev, what_brought_you_here: welcomeAnswer.answer as string }));
       }
@@ -393,6 +397,8 @@ export default function BrokerDashboard() {
         ],
         { onConflict: 'created_by' }
       );
+
+      setWelcomeAnswered(true);
 
       setUser((prevUser) => ({ ...prevUser, ...profileData }));
       toast({ title: 'Profile updated successfully!' });
@@ -576,7 +582,10 @@ export default function BrokerDashboard() {
                       <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                       can help you out. Otherwise, feel free to reach out to our human support team.
                     </p>
-                    <Button className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]">
+                    <Button
+                      className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]"
+                      onClick={() => router.push('/faq?ask=1')}
+                    >
                       Contact support
                     </Button>
                   </div>
@@ -691,6 +700,21 @@ export default function BrokerDashboard() {
                         className={fieldBoxClass}
                       />
                     </div>
+                    <div className="md:col-span-2">
+                      <Label>What Brought You Here?</Label>
+                      <Input
+                        value={profileData.what_brought_you_here}
+                        onChange={(e) =>
+                          setProfileData({ ...profileData, what_brought_you_here: e.target.value })
+                        }
+                        placeholder="Tell us what led you to BrokerTools"
+                        className={fieldBoxClass}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Update your answer anytime. The welcome prompt only appears on first login.
+                      </p>
+                    </div>
+                  </div>
                   <div>
                     <Label className="text-base">Broker Services</Label>
                     <p className="text-xs text-gray-500 mb-2">Select all that apply</p>
@@ -762,18 +786,28 @@ export default function BrokerDashboard() {
                     )}
 
                     <div className="mt-4">
-                      <Label>What Brought You Here?</Label>
-                      <Input
-                        value={profileData.what_brought_you_here}
-                        onChange={(e) =>
-                          setProfileData({ ...profileData, what_brought_you_here: e.target.value })
-                        }
-                        placeholder="Tell us what led you to BrokerTools"
-                        className={fieldBoxClass}
-                      />
+                      {!welcomeAnswered ? (
+                        <>
+                          <Label>What Brought You Here?</Label>
+                          <Input
+                            value={profileData.what_brought_you_here}
+                            onChange={(e) =>
+                              setProfileData({ ...profileData, what_brought_you_here: e.target.value })
+                            }
+                            placeholder="Tell us what led you to BrokerTools"
+                            className={fieldBoxClass}
+                          />
+                          <p className="text-xs text-gray-500 mt-1">
+                            Asked only on your first login. You can edit it later in Settings.
+                          </p>
+                        </>
+                      ) : (
+                        <div className={`p-3 rounded-lg border text-sm text-gray-600 ${fieldBoxClass}`}>
+                          Thanks for sharing what brought you here. You can update this answer anytime in Settings.
+                        </div>
+                      )}
                     </div>
                   </div>
-                </div>
                 </TabsContent>
 
                 <TabsContent value="biz-info" className="space-y-6">

@@ -89,6 +89,13 @@ function VendorDashboardContent() {
   const [defaultDashboard, setDefaultDashboard] = useState<DashboardKey | null>(null);
   const [savingDefaultDashboard, setSavingDefaultDashboard] = useState(false);
 
+  const firstNameDisplay =
+    profile?.first_name ||
+    profile?.full_name?.split(' ')?.[0] ||
+    (user?.full_name ? user.full_name.split(' ')[0] : null) ||
+    user?.user_metadata?.first_name ||
+    null;
+
   // Auth + profile + vendor bootstrap
   useEffect(() => {
     const init = async () => {
@@ -303,12 +310,6 @@ function VendorDashboardContent() {
   const avgRating = approvedReviews.length > 0
     ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / approvedReviews.length
     : 0;
-  const firstNameDisplay =
-    profile?.first_name ||
-    profile?.full_name?.split(' ')?.[0] ||
-    (user?.full_name ? user.full_name.split(' ')[0] : null) ||
-    user?.user_metadata?.first_name ||
-    null;
 
   const renderAccessCard = (headline: string) => (
     <Card>
@@ -498,7 +499,10 @@ function VendorDashboardContent() {
                                 <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                                 can help you out. Otherwise, feel free to reach out to our human support team.
                               </p>
-                              <Button className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]">
+                              <Button
+                                className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]"
+                                onClick={() => router.push('/faq?ask=1')}
+                              >
                                 Contact support
                               </Button>
                             </div>

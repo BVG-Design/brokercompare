@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
+import Link from 'next/link';
 
 type SlideProps = {
     id: string;
@@ -96,10 +97,10 @@ export default function WhyBrokerToolsPage() {
                             <div className="space-y-3 text-xl leading-relaxed">
                                 <h3 className="text-2xl font-bold text-brand-orange">The Methodologies We Operate Under</h3>
                                 <p className="font-italic text-brand-cream">
-                                    While the job of a being Broker is the same for everyone - the operating systems and processes change based on size, business goals and interest in technology. So how do you decide what tools to run and optimise your workflow?
-                                </p>
+                                How do you decide what tools to run and optimise your business? <br /><br /> The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology. 
+                                </p><br />
                                 <p className="text-brand-cream/90">
-                                    At Broker Tools, we use five lenses, inspired by the design and product world, adapted for the mortage, asset and commercial finance industries. <br/><br />These lenses keep every recommendation grounded in outcomes, time capacity and risk.
+                                    At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries. <br/><br />These lenses keep every recommendation grounded in outcomes, time capacity and risk.
                                 </p>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3">
@@ -117,7 +118,7 @@ export default function WhyBrokerToolsPage() {
                     </div>
                 </Slide>
 
-                <Slide id="why-us" number="01" title="Why Us - Broker Tools" tone="muted">
+                <Slide id="why-us" number="01" title="Why Broker Tools" tone="muted">
                     <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr]">
                         <div className="space-y-4">
                             <p className="font-semibold text-brand-blue">We love systems and processes that optimise the way you work.</p>
@@ -327,25 +328,34 @@ export default function WhyBrokerToolsPage() {
                                     </li>
                                 ))}
                             </ul>
-                            <p className="text-brand-green">
+                        </div>
+                        <div className="flex flex-col justify-between gap-4 rounded-2xl border border-brand-blue/15 bg-brand-cream p-5 shadow-inner shadow-black/5">
+                            <div className="rounded-xl border border-brand-green/40 bg-brand-green/20 px-4 py-3 text-sm font-semibold text-brand-blue shadow">
+                                Our approach: aligned incentives, transparent criteria, and decisions grounded in the broker's reality.
+                            </div>
+                            <p className="font-bold text-brand-orange">
                                 The result: systems that make brokers more profitable, clients more confident, and teams more energised.
                             </p>
                         </div>
-                        <div className="flex flex-col justify-between gap-4 rounded-2xl border border-brand-blue/15 bg-brand-cream p-5 shadow-inner shadow-black/5">
-                            <div className="rounded-xl border border-brand-orange/40 bg-brand-orange/20 px-4 py-3 text-sm font-semibold text-brand-blue shadow">
-                                Our approach: aligned incentives, transparent criteria, and decisions grounded in the broker's reality.
-                            </div>
-                            <p className="text-sm text-brand-blue/80">
-                                Ready to run the five lenses on your current stack?{' '}
-                                <a
-                                    href="/workflow-optimisation"
-                                    className="font-semibold text-brand-orange-300 underline decoration-2 underline-offset-4 hover:text-brand-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-orange-300"
-                                >
-                                    Book a workflow review
-                                </a>{' '}
-                                - we will map the jobs, set the MoSCoW, and design a safe experiment that proves ROI.
+                    </div>
+                </Slide>
+
+                <Slide id="workflow-review" title="Ready to update your work process?" tone="muted">
+                    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                        <div className="space-y-4 max-w-3xl">
+                            <p className="text-lg font-semibold text-brand-blue">
+                                Book a Workflow Review
+                            </p>
+                            <p className="text-brand-blue/80">
+                                Let's map the jobs to be done, set the MoSCoW, and design systems that proves ROI.
                             </p>
                         </div>
+                        <Link
+                            href="/workflow-optimisation"
+                            className="inline-flex items-center justify-center rounded-xl bg-brand-blue px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand-blue/40 transition hover:opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue"
+                        >
+                            Book a Workflow Review
+                        </Link>
                     </div>
                 </Slide>
             </div>

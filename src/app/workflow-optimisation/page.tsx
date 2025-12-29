@@ -31,21 +31,11 @@ export default function WorkflowOptimisationPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-brand-blue text-white font-body selection:bg-brand-orange selection:text-white">
-
             {/* Hero Section */}
             <section className="relative pt-20 pb-32 px-4 overflow-hidden">
-                {/* Background Glows */}
-                <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-brand-blue/20 rounded-full blur-[120px] pointer-events-none"></div>
-                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-brand-green/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-                <div className="container mx-auto max-w-5xl text-center relative z-10">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-blue/30 border border-brand-blue/30 text-brand-orange text-xs font-bold tracking-wider mb-6 uppercase">
-                        <span className="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></span>
-                        Workflow Optimisation
-                    </div>
-
+                <div className="container mx-auto max-w-5xl text-center">
                     <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight tracking-tight">
-                        Workflow Automations for <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-green">Sustainable Growth</span>
+                        Workflow Automations <br /><span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-green to-brand-green">for Brokers</span>
                     </h1>
 
                     <p className="text-xl text-gray-400 mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -477,7 +467,7 @@ export default function WorkflowOptimisationPage() {
                             },
                             {
                                 q: "Do I need to switch my current CRM?",
-                                a: "No. We assess your current stack first. Often, the issue isn't the tool but how it's set up. If a switch is needed for your growth goals, we'll explain why and how."
+                                a: "No. We assess your current tech stack first. Often the issue isn't the tool but how it's set up. If a switch is needed for your growth goals, we'll explain why and how."
                             },
                             {
                                 q: "Is the session really free?",
@@ -485,7 +475,7 @@ export default function WorkflowOptimisationPage() {
                             },
                             {
                                 q: "How long does a typical implementation take?",
-                                a: "It depends on the complexity of your workflow. Simple optimizations can be done in days, while full CRM migrations and custom automation builds might take 4-8 weeks."
+                                a: "It depends on the complexity of your workflow. Simple optimizations can be done in days, while full CRM migrations and custom automation builds might take 8-12 weeks."
                             },
                             {
                                 q: "Do you work with aggregators?",
@@ -502,9 +492,9 @@ export default function WorkflowOptimisationPage() {
                                 a: (
                                     <>
                                         This really comes down to what does your business need. <br /><br />
-                                        We are not coaches, if you need someone to keep you and your team accountable for your growth goals, view our Broker Coaches/Mentors.
+                                        We are not coaches, if you need someone to keep you and your team accountable for your growth goals, view our <Link href="/search/coach" className="underline text-brand-blue hover:text-brand-orange">Broker Coaches/Mentors</Link>.
                                         <br /><br />
-                                        Think of us like a short-term fractional Operations Manager, we help systemise and scale the way you work. Allowing you the chance to breathe and set your own growth trajectory. We design CRMs, Client Onboarding and Workflow Automations. Anything outside of that, we partner with your support team or one of our service provider partners.
+                                        Think of us like as short-term Project Managers, we help systemise and scale the way you work. Allowing you the chance to breathe and set your own growth trajectory. We design CRMs, Client Onboarding and Workflow Automations. Anything outside of that, we partner with your support team or one of our service provider partners.
                                     </>
                                 )
                             }

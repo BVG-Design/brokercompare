@@ -1,11 +1,19 @@
 'use client';
 
 import React, { useState, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -44,11 +52,13 @@ function FAQContent() {
   const [askDialogOpen, setAskDialogOpen] = useState(false);
   const [askQuestion, setAskQuestion] = useState('');
   const [askContext, setAskContext] = useState('');
-  const [postAs, setPostAs] = useState<'named' | 'anonymous'>('named');
+  const [questionCategory, setQuestionCategory] = useState<string>('general');
+  const [postAs, setPostAs] = useState<'public' | 'private'>('public');
   const [showThankYou, setShowThankYou] = useState(false);
   const [isSubmittingQuestion, setIsSubmittingQuestion] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
   // Sample FAQs - sorted by category (10 questions total)
@@ -165,6 +175,14 @@ function FAQContent() {
     setFaqs(sampleFaqs);
   }, []);
 
+  React.useEffect(() => {
+    if (searchParams?.get('ask') === '1') {
+      const defaultCategory = selectedCategory === 'all' ? 'general' : selectedCategory;
+      setQuestionCategory(defaultCategory);
+      setAskDialogOpen(true);
+    }
+  }, [searchParams, selectedCategory]);
+
   const handleToggleFaq = (faqId: string) => {
     setExpandedFaqId(expandedFaqId === faqId ? null : faqId);
   };
@@ -220,6 +238,8 @@ function FAQContent() {
       setShowThankYou(false);
       return;
     }
+    const defaultCategory = selectedCategory === 'all' ? 'general' : selectedCategory;
+    setQuestionCategory(defaultCategory);
     setAskDialogOpen(true);
     setShowThankYou(false);
   };
@@ -241,7 +261,7 @@ function FAQContent() {
       setShowThankYou(true);
       setAskQuestion('');
       setAskContext('');
-      setPostAs('named');
+      setPostAs('public');
     } catch (error) {
       toast({
         title: 'Something went wrong',
@@ -311,8 +331,8 @@ function FAQContent() {
       <div className="container mx-auto px-4 md:px-6 py-12">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Sidebar - Categories */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-6">
+          <div className="lg:col-span-1 space-y-6 sticky top-6">
+            <Card>
               <CardHeader>
                 <CardTitle className="text-primary text-lg">Categories</CardTitle>
               </CardHeader>
@@ -336,7 +356,7 @@ function FAQContent() {
             </Card>
 
             {/* AI Assistant Card */}
-            <Card className="mt-6 border-accent bg-gradient-to-br from-accent/5 to-background">
+            <Card className="border-accent bg-gradient-to-br from-accent/5 to-background">
               <CardHeader>
                 <CardTitle className="text-primary text-lg flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-accent" />
@@ -502,14 +522,19 @@ function FAQContent() {
 
       {/* Ask a Question Modal */}
       <Dialog open={askDialogOpen} onOpenChange={setAskDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg bg-white border-4 border-brand-blue shadow-xl text-gray-800">
           {!showThankYou ? (
             <>
               <DialogHeader>
-                <DialogTitle>Ask a question</DialogTitle>
-                <DialogDescription>
-                  What are you trying to figure out?
-                </DialogDescription>
+                <div className="flex items-center gap-3">
+                  <img
+                    src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
+                    alt="Simba profile"
+                    className="w-14 h-14 rounded-full object-cover border-2 border-dark-gray-10"
+                  />
+                  <DialogTitle>Ask a question</DialogTitle>
+                  <DialogDescription className="text-gray-800">Hi, Simba here, let me know how I or the humans can help...</DialogDescription>
+                </div>
               </DialogHeader>
               {!isLoggedIn ? (
                 <div className="space-y-4">
@@ -539,39 +564,60 @@ function FAQContent() {
                       onChange={(e) => setAskQuestion(e.target.value)}
                       placeholder="What are you trying to figure out?"
                       rows={3}
+                      className="border-gray-600 bg-white text-gray-800 placeholder:text-gray-600"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="ask-about" className="text-sm font-medium">
+                      This is about
+                    </Label>
+                    <Select
+                      value={questionCategory}
+                      onValueChange={setQuestionCategory}
+                    >
+                      <SelectTrigger id="ask-about" className="border-gray-600 text-gray-800">
+                        <SelectValue placeholder="Choose a category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories
+                          .filter((cat) => cat.value !== 'all')
+                          .map((cat) => (
+                            <SelectItem key={cat.value} value={cat.value}>
+                              {cat.label}
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="ask-context" className="text-sm font-medium">
                       Add context (optional)
                     </Label>
-                    <p className="text-xs text-muted-foreground mb-2">
-                      Any background that might help others give a better answer.
-                    </p>
                     <Textarea
                       id="ask-context"
                       value={askContext}
                       onChange={(e) => setAskContext(e.target.value)}
-                      placeholder="Add any additional context here..."
+                      placeholder="Add any details that might help provide a better answer"
                       rows={4}
+                      className="border-gray-600 bg-white text-gray-800 placeholder:text-gray-600"
                     />
                   </div>
                   <div className="space-y-3">
                     <Label className="text-sm font-medium">Post as</Label>
                     <RadioGroup
                       value={postAs}
-                      onValueChange={(val) => setPostAs(val as 'named' | 'anonymous')}
+                      onValueChange={(val) => setPostAs(val as 'public' | 'private')}
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="named" id="post-named" />
-                        <Label htmlFor="post-named" className="font-normal cursor-pointer">
-                          {firstName || 'Your account name'}
+                        <RadioGroupItem value="public" id="post-public" />
+                        <Label htmlFor="post-public" className="font-normal cursor-pointer">
+                          Publically, as {firstName || 'your account name'}
                         </Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="anonymous" id="post-anon" />
-                        <Label htmlFor="post-anon" className="font-normal cursor-pointer">
-                          Post anonymously
+                        <RadioGroupItem value="private" id="post-private" />
+                        <Label htmlFor="post-private" className="font-normal cursor-pointer">
+                          Privately, support team question.
                         </Label>
                       </div>
                     </RadioGroup>

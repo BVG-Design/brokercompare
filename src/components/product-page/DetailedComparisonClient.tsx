@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import React, { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,20 +10,22 @@ import {
   ChevronDown,
   ExternalLink,
   Filter,
+  Loader2,
   RefreshCcw,
   Search,
   Star,
   X
-} from 'lucide-react';
-import { ComparisonFeatureGroup, ComparisonProduct } from '@/types/comparison';
-import ComparisonMatrix from './ComparisonMatrix';
-import StillNotSure from './StillNotSure';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+} from "lucide-react";
+import { ComparisonFeatureGroup, ComparisonProduct } from "@/types/comparison";
+import ComparisonMatrix from "./ComparisonMatrix";
+import StillNotSure from "./StillNotSure";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/hooks/use-auth";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface DetailedComparisonClientProps {
   listingSlug: string;
@@ -52,10 +55,11 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
   listingSlug,
   products
 }) => {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [question, setQuestion] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [postAs, setPostAs] = useState<"public" | "private">("public");
 
   const options = useMemo(() => {
     const productOptions = products.map((product) => ({
@@ -88,29 +92,32 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      setName('');
-      setEmail('');
       setQuestion('');
       setSubmitted(false);
       setSelectedOption(options[0]?.value || '');
+      setPostAs("public");
     }
   }, [open, options]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!question.trim()) return;
+    if (!user || !question.trim()) return;
     setSubmitted(true);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        {submitted ? (
+      <DialogContent className="sm:max-w-lg bg-white border-4 border-brand-blue shadow-xl text-gray-800">
+        {authLoading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="h-6 w-6 animate-spin text-brand-blue" />
+          </div>
+        ) : submitted ? (
           <>
             <DialogHeader>
-              <DialogTitle>Thanks for your question!</DialogTitle>
+              <DialogTitle className="text-center">Thanks for your question!</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-700 text-center">
               We'll route this to the right team based on the topic you picked.
             </p>
             <div className="pt-4">
@@ -119,19 +126,56 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
               </Button>
             </div>
           </>
+        ) : !user ? (
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
+                  alt="Simba profile"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
+                />
+                <div className="space-y-1">
+                  <DialogTitle>Ask a question</DialogTitle>
+                  <DialogDescription className="text-gray-800">
+                    Hi, Simba here, let me know how I or the humans can help...
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              You need to be logged in to ask a question. Please sign in to continue.
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button variant="outline" onClick={() => router.push('/login')}>
+                Go to login
+              </Button>
+            </div>
+          </>
         ) : (
           <>
             <DialogHeader>
-              <DialogTitle>Ask a question</DialogTitle>
-              <p className="text-sm text-gray-500">
-                Tell us if this is about a specific tool or the whole category so we can route it correctly.
-              </p>
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
+                  alt="Simba profile"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
+                />
+                <div className="space-y-1">
+                  <DialogTitle>Ask a question</DialogTitle>
+                  <DialogDescription className="text-gray-800">
+                    Hi, Simba here, let me know how I or the humans can help...
+                  </DialogDescription>
+                </div>
+              </div>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-2">
               <div className="space-y-2">
-                <Label htmlFor="question-about">This is about</Label>
+                <Label htmlFor="question-about" className="text-sm font-medium">
+                  This is about
+                </Label>
                 <Select value={selectedOption} onValueChange={setSelectedOption}>
-                  <SelectTrigger id="question-about">
+                  <SelectTrigger id="question-about" className="border-gray-600 text-gray-800">
                     <SelectValue placeholder="Choose a topic" />
                   </SelectTrigger>
                   <SelectContent>
@@ -151,28 +195,6 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
                 </Select>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="question-name">Your name</Label>
-                  <Input
-                    id="question-name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Optional"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="question-email">Email</Label>
-                  <Input
-                    id="question-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="We'll reply here"
-                  />
-                </div>
-              </div>
-
               <div className="space-y-2">
                 <Label htmlFor="question-body">Your question</Label>
                 <Textarea
@@ -181,12 +203,31 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="Share as much detail as you can..."
                   rows={4}
+                  className="border-gray-600 text-gray-800 placeholder:text-gray-600 bg-white"
                 />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Post as</Label>
+                <RadioGroup value={postAs} onValueChange={(val) => setPostAs(val as "public" | "private")}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="public" id="post-public" />
+                    <Label htmlFor="post-public" className="font-normal cursor-pointer">
+                      Publically, as {user?.user_metadata?.first_name || "your account name"}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="private" id="post-private" />
+                    <Label htmlFor="post-private" className="font-normal cursor-pointer">
+                      Privately, support team question.
+                    </Label>
+                  </div>
+                </RadioGroup>
               </div>
 
               <Button
                 type="submit"
-                className="w-full bg-[#F45E24] hover:bg-[#e45621] text-white font-semibold"
+                className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-semibold"
                 disabled={!question.trim()}
               >
                 Send question

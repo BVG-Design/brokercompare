@@ -90,7 +90,7 @@ export default function FAQCenter() {
         : "No directly matching FAQs found in the knowledge base.";
 
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are a helpful customer support assistant for BrokerTools, a directory platform that connects brokers with software vendors and service providers.
+        prompt: `You are a helpful customer support assistant for BrokerTools, a directory platform that connects brokers with software, products and service providers.
 
 ${faqContext}
 
@@ -113,7 +113,7 @@ Please provide a helpful, accurate answer based on the FAQ context above. If the
     { value: "all", label: "All Categories", icon: HelpCircle },
     { value: "general", label: "General", icon: HelpCircle },
     { value: "brokers", label: "For Brokers", icon: HelpCircle },
-    { value: "vendors", label: "For Vendors", icon: HelpCircle },
+    { value: "services", label: "For Products/Services", icon: HelpCircle },
     { value: "directory", label: "Directory", icon: HelpCircle },
     { value: "pricing", label: "Pricing", icon: HelpCircle },
     { value: "technical", label: "Technical", icon: HelpCircle },
