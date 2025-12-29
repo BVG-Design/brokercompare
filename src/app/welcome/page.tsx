@@ -5,8 +5,8 @@ import { useRouter } from 'next/navigation';
 import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/use-auth';
 
 export default function WelcomePage() {
@@ -15,8 +15,8 @@ export default function WelcomePage() {
     const supabase = createClientComponentClient();
 
     const [firstName, setFirstName] = useState<string>('');
-    const [selectedOption, setSelectedOption] = useState<string>('');
-    const [otherText, setOtherText] = useState<string>('');
+    const [lastName, setLastName] = useState<string>('');
+    const [comment, setComment] = useState<string>('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -27,14 +27,19 @@ export default function WelcomePage() {
             try {
                 const { data, error } = await supabase
                     .from('user_profiles')
-                    .select('first_name')
-                    .eq('id', user.id)
-                    .single();
+                .select('first_name, last_name')
+                .eq('id', user.id)
+                .single();
 
                 if (data?.first_name) {
                     setFirstName(data.first_name);
                 } else {
                     setFirstName('');
+                }
+                if (data?.last_name) {
+                    setLastName(data.last_name);
+                } else {
+                    setLastName('');
                 }
             } catch (err) {
                 console.error('Error fetching profile:', err);
@@ -48,32 +53,63 @@ export default function WelcomePage() {
         e.preventDefault();
         if (!user) return;
 
+        if (!comment.trim()) {
+            setError('Please tell us what brought you here.');
+            return;
+        }
+
         setSubmitting(true);
         setError(null);
 
-        const voteData = {
-            created_by: user.id,
-            vote_dashboard: selectedOption === 'A',
-            vote_community: selectedOption === 'B',
-            vote_something: selectedOption === 'C',
-            something_else: selectedOption === 'C' ? otherText : null,
-        };
-
         try {
-            // Using upsert to ensure one vote per person (created_by is unique)
-            const { error: voteError } = await supabase
-                .from('vote')
-                .upsert(voteData, { onConflict: 'created_by' });
+            const answer = comment.trim();
+            const { data: profile, error: profileError } = await supabase
+                .from('user_profiles')
+                .select('id')
+                .eq('id', user.id)
+                .single();
 
-            if (voteError) throw voteError;
+            if (profileError) throw profileError;
 
-            // Also mark onboarding as completed in user_profiles if needed, 
-            // but user only asked to send data to vote table. 
-            // I'll keep the redirect to thank you.
+            const entry = {
+                answer,
+                first_name: firstName || null,
+                last_name: lastName || null,
+                email: user.email,
+                created_at: new Date().toISOString(),
+                created_by: user.id,
+            };
 
-            router.push('/welcome/thank-you');
+            const { data: existing } = await supabase
+                .from('what_brought_you_here')
+                .select('id')
+                .eq('created_by', user.id)
+                .maybeSingle();
+
+            let mutationError = null;
+            if (existing?.id) {
+                const { error } = await supabase
+                    .from('what_brought_you_here')
+                    .update(entry)
+                    .eq('id', existing.id);
+                mutationError = error;
+            } else {
+                const { error } = await supabase
+                    .from('what_brought_you_here')
+                    .insert(entry);
+                mutationError = error;
+            }
+
+            if (mutationError) throw mutationError;
+
+            await supabase
+                .from('user_profiles')
+                .update({ onboarding_completed: true })
+                .eq('id', user.id);
+
+            router.push('/dashboard/broker');
         } catch (err: any) {
-            console.error('Error submitting vote:', err);
+            console.error('Error submitting response:', err);
             setError('Something went wrong. Please try again.');
         } finally {
             setSubmitting(false);
@@ -122,64 +158,14 @@ export default function WelcomePage() {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-4">
-                            <p className="font-semibold text-gray-900">Click to choose:</p>
-
-                            <div
-                                className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedOption === 'A' ? 'border-brand-blue bg-blue-50 ring-1 ring-brand-blue' : 'border-gray-200 hover:border-gray-300'}`}
-                                onClick={() => setSelectedOption('A')}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedOption === 'A' ? 'border-brand-blue' : 'border-gray-300'}`}>
-                                        {selectedOption === 'A' && <div className="w-3 h-3 rounded-full bg-brand-blue" />}
-                                    </div>
-                                    <div>
-                                        <span className="font-bold text-gray-900">A) Dashboard</span>
-                                        <p className="text-sm text-gray-600">For you to see your saved searches or comparison</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedOption === 'B' ? 'border-brand-blue bg-blue-50 ring-1 ring-brand-blue' : 'border-gray-200 hover:border-gray-300'}`}
-                                onClick={() => setSelectedOption('B')}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedOption === 'B' ? 'border-brand-blue' : 'border-gray-300'}`}>
-                                        {selectedOption === 'B' && <div className="w-3 h-3 rounded-full bg-brand-blue" />}
-                                    </div>
-                                    <div>
-                                        <span className="font-bold text-gray-900">B) Community Centre</span>
-                                        <p className="text-sm text-gray-600">For you to chat and learn from other brokers and software providers</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div
-                                className={`p-4 border rounded-lg cursor-pointer transition-all ${selectedOption === 'C' ? 'border-brand-blue bg-blue-50 ring-1 ring-brand-blue' : 'border-gray-200 hover:border-gray-300'}`}
-                                onClick={() => setSelectedOption('C')}
-                            >
-                                <div className="flex items-center gap-3">
-                                    <div className={`w-5 h-5 rounded-full border flex items-center justify-center ${selectedOption === 'C' ? 'border-brand-blue' : 'border-gray-300'}`}>
-                                        {selectedOption === 'C' && <div className="w-3 h-3 rounded-full bg-brand-blue" />}
-                                    </div>
-                                    <div>
-                                        <span className="font-bold text-gray-900">C) Something else</span>
-                                        <p className="text-sm text-gray-600">Tell us what</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {selectedOption === 'C' && (
-                                <div className="animate-in fade-in slide-in-from-top-2">
-                                    <Input
-                                        placeholder="Tell us what you'd like us to build..."
-                                        value={otherText}
-                                        onChange={(e) => setOtherText(e.target.value)}
-                                        required
-                                        className="mt-2"
-                                    />
-                                </div>
-                            )}
+                            <p className="font-semibold text-gray-900">What brought you here?</p>
+                            <Textarea
+                                placeholder="Tell us what you'd like us to build or explore..."
+                                value={comment}
+                                onChange={(e) => setComment(e.target.value)}
+                                rows={5}
+                                required
+                            />
                         </div>
 
                         {error && <p className="text-red-600 text-sm text-center">{error}</p>}
@@ -187,9 +173,9 @@ export default function WelcomePage() {
                         <Button
                             type="submit"
                             className="w-full bg-brand-orange hover:bg-orange-600 text-white font-bold py-6 text-lg"
-                            disabled={submitting || !selectedOption}
+                            disabled={submitting}
                         >
-                            {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Submit Vote'}
+                            {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Submit'}
                         </Button>
                     </form>
                 </CardContent>

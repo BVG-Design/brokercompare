@@ -1,559 +1,541 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useParams, useRouter } from 'next/navigation';
-import Link from 'next/link';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { notFound } from 'next/navigation';
-
-import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { StarRating } from '@/components/shared/star-rating';
-import { ExternalLink, Award, Star, CheckCircle, Bookmark, ArrowLeftRight, Send, FileText, Video, Calendar, MessageSquare, ThumbsUp, Edit, ChevronRight, ChevronLeft, Download, Play, Save, X, Upload, Plus, MapPin, ShieldCheck } from 'lucide-react';
+import { computeMarketplaceScore } from '@/lib/marketplace-score';
+import { createClient } from '@/lib/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import VendorCard from '@/components/vendors/VendorCard';
-import { computeMarketplaceScore } from '@/lib/marketplace-score';
-// TODO: Replace with Supabase queries when tables are ready
-// import { vendorQueries } from '@/lib/supabase';
+import { ExternalLink, Loader2, Mail, Star, TrendingUp } from 'lucide-react';
+
+type Vendor = {
+  id: string;
+  company_name?: string | null;
+  tagline?: string | null;
+  description?: string | null;
+  logo_url?: string | null;
+  website?: string | null;
+  categories?: string[] | null;
+  listing_tier?: string | null;
+  view_count?: number | null;
+};
+
+type Review = {
+  id: string;
+  vendor_id?: string | null;
+  author?: string | null;
+  rating?: number | null;
+  comment?: string | null;
+  status?: string | null;
+  moderation_status?: string | null;
+  moderationStatus?: string | null;
+  created_at?: string | null;
+};
+
+const supabase = createClient();
 
 function VendorProfileContent() {
-  const params = useParams();
-  const router = useRouter();
-  const vendorId = params.id as string;
+  const params = useParams<{ id: string }>();
+  const vendorId = params?.id;
 
-  const [user, setUser] = useState<any>(null);
-  const [vendor, setVendor] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [showLeadForm, setShowLeadForm] = useState(false);
-  const [showReviewForm, setShowReviewForm] = useState(false);
-  const [isShortlisted, setIsShortlisted] = useState(false);
-  const [reviews, setReviews] = useState<any[]>([]);
-  const [similarVendors, setSimilarVendors] = useState<any[]>([]);
-  const [worksWellWithVendors, setWorksWellWithVendors] = useState<any[]>([]);
-  const [alternativeVendors, setAlternativeVendors] = useState<any[]>([]);
+  const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [similarVendors, setSimilarVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [leadSubmitting, setLeadSubmitting] = useState(false);
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
 
   const [leadData, setLeadData] = useState({
     broker_name: '',
     broker_email: '',
     broker_phone: '',
-    broker_type: 'mortgage_broker',
-    company_name: '',
-    team_size: '',
-    aggregator: '',
-    enquiry_about: '',
-    message: ''
+    message: '',
   });
 
   const [reviewData, setReviewData] = useState({
     rating: 5,
-    review_title: '',
-    review_content: ''
+    author: '',
+    comment: '',
   });
 
-  // TODO: Replace with Supabase auth when ready
-  useEffect(() => {
-    // Placeholder: Check authentication
-    // const checkAuth = async () => {
-    //   const { data: { user } } = await supabase.auth.getUser();
-    //   setUser(user);
-    // };
-    // checkAuth();
-  }, []);
+  const approvedReviews = useMemo(() => {
+    return reviews.filter((review) => {
+      const status =
+        (review.status || review.moderation_status || review.moderationStatus || '').toLowerCase();
+      return !status || status === 'approved' || status === 'published';
+    });
+  }, [reviews]);
 
-  // TODO: Replace with Supabase query when tables are ready
+  const averageRating = useMemo(() => {
+    if (!approvedReviews.length) return 0;
+    const total = approvedReviews.reduce((sum, review) => sum + (review.rating || 0), 0);
+    return Number((total / approvedReviews.length).toFixed(1));
+  }, [approvedReviews]);
+
+  const marketplaceScore = computeMarketplaceScore({ averageRating });
+
   useEffect(() => {
     if (!vendorId) return;
 
-    const fetchVendor = async () => {
-      setIsLoading(true);
-      try {
-        // Placeholder: This will be replaced with actual Supabase query
-        // const data = await vendorQueries.getById(vendorId);
-        // if (!data) {
-        //   notFound();
-        // }
-        // setVendor(data);
+    const fetchData = async () => {
+      setLoading(true);
 
-        // For now, show not found
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error fetching vendor:', error);
-        setIsLoading(false);
+      const { data: vendorRow, error: vendorError } = await supabase
+        .from('vendors')
+        .select('*')
+        .eq('id', vendorId)
+        .maybeSingle();
+
+      if (vendorError) {
+        console.warn('Error fetching vendor', vendorError);
+        setLoading(false);
+        return;
       }
+
+      if (!vendorRow) {
+        setLoading(false);
+        return;
+      }
+
+      setVendor(vendorRow as Vendor);
+
+      const { data: reviewRows, error: reviewError } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('vendor_id', vendorId)
+        .order('created_at', { ascending: false });
+
+      if (reviewError) {
+        console.warn('Error fetching reviews', reviewError);
+      }
+
+      setReviews((reviewRows as Review[]) || []);
+
+      if (vendorRow.categories && vendorRow.categories.length) {
+        const firstCategory = vendorRow.categories[0];
+        const { data: similarRows, error: similarError } = await supabase
+          .from('vendors')
+          .select('id, company_name, tagline, categories, logo_url, listing_tier, website, view_count')
+          .contains('categories', [firstCategory])
+          .neq('id', vendorId)
+          .limit(6);
+
+        if (similarError) {
+          console.warn('Error fetching similar vendors', similarError);
+        } else {
+          setSimilarVendors((similarRows as Vendor[]) || []);
+        }
+      }
+
+      setLoading(false);
     };
 
-    fetchVendor();
+    fetchData();
   }, [vendorId]);
 
-  // TODO: Fetch reviews, similar vendors, etc. when Supabase is ready
-  useEffect(() => {
-    if (!vendor) return;
-
-    // Fetch reviews
-    // Fetch similar vendors
-    // Fetch works well with vendors
-    // Fetch alternative vendors
-  }, [vendor]);
-
   const handleSubmitLead = async () => {
-    // TODO: Implement Supabase mutation
+    if (!vendor) return;
+    setLeadSubmitting(true);
+
+    const payload = {
+      ...leadData,
+      vendor_id: vendor.id,
+      status: 'new',
+    };
+
+    const { error } = await supabase.from('leads').insert(payload);
+
+    setLeadSubmitting(false);
+
+    if (error) {
+      toast({
+        title: 'Could not submit lead',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({
       title: 'Lead submitted',
-      description: 'Your inquiry has been sent to the vendor.',
+      description: 'We sent your inquiry to the vendor.',
     });
-    setShowLeadForm(false);
+    setLeadOpen(false);
     setLeadData({
       broker_name: '',
       broker_email: '',
       broker_phone: '',
-      broker_type: 'mortgage_broker',
-      company_name: '',
-      team_size: '',
-      aggregator: '',
-      enquiry_about: '',
-      message: ''
+      message: '',
     });
   };
 
   const handleSubmitReview = async () => {
-    // TODO: Implement Supabase mutation
+    if (!vendor) return;
+    setReviewSubmitting(true);
+
+    const payload = {
+      vendor_id: vendor.id,
+      rating: reviewData.rating,
+      comment: reviewData.comment,
+      author: reviewData.author || null,
+      status: 'pending',
+    };
+
+    const { error } = await supabase.from('reviews').insert(payload);
+
+    setReviewSubmitting(false);
+
+    if (error) {
+      toast({
+        title: 'Could not submit review',
+        description: error.message,
+        variant: 'destructive',
+      });
+      return;
+    }
+
     toast({
       title: 'Review submitted',
-      description: 'Your review has been submitted and is pending approval.',
+      description: 'Thanks for your feedback. We will publish it after moderation.',
     });
-    setShowReviewForm(false);
+
+    setReviewOpen(false);
     setReviewData({
       rating: 5,
-      review_title: '',
-      review_content: ''
+      author: '',
+      comment: '',
     });
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
-      <>
-
-        <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
-            </div>
-          </div>
-        </main>
-
-      </>
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-4 md:px-6 py-16 flex justify-center">
+          <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        </div>
+      </main>
     );
   }
 
   if (!vendor) {
-    notFound();
+    return (
+      <main className="flex-1 bg-background">
+        <div className="container mx-auto px-4 md:px-6 py-16">
+          <Card className="max-w-xl mx-auto">
+            <CardHeader>
+              <CardTitle>Vendor not found</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">
+                We could not find that vendor profile. Try browsing the directory to discover verified vendors.
+              </p>
+              <Button asChild>
+                <Link href="/directory">Back to directory</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
   }
 
-  const averageRating = reviews.length > 0
-    ? reviews.reduce((acc, review) => acc + review.rating, 0) / reviews.length
-    : 0;
-  const marketScore = computeMarketplaceScore({ averageRating });
-
-  const approvedReviews = reviews.filter(r => r.status === 'approved');
-  const trustMetrics = vendor?.trust_metrics || vendor?.trustMetrics || {};
-  const marketplaceScore = computeMarketplaceScore({
-    ratingAverage: averageRating,
-    ratingCount: approvedReviews.length,
-    trustMetrics: {
-      responseTimeHours: trustMetrics.responseTimeHours ?? trustMetrics.response_time_hours,
-      verifiedRatio: trustMetrics.verifiedRatio ?? trustMetrics.verified_ratio,
-      reviewRecencyDays: trustMetrics.reviewRecencyDays ?? trustMetrics.review_recency_days
-    }
-  });
-
-  const responseTimeValue = trustMetrics?.responseTimeHours ?? trustMetrics?.response_time_hours;
-  const responseTimeLabel =
-    responseTimeValue !== undefined && responseTimeValue !== null
-      ? `${responseTimeValue} hrs avg`
-      : 'Not available';
-  const verifiedRatioRaw = trustMetrics?.verifiedRatio ?? trustMetrics?.verified_ratio;
-  const verifiedRatioLabel =
-    verifiedRatioRaw !== undefined && verifiedRatioRaw !== null
-      ? `${Math.round(verifiedRatioRaw <= 1 ? verifiedRatioRaw * 100 : verifiedRatioRaw)}% verified`
-      : 'Not available';
-  const reviewRecencyRaw = trustMetrics?.reviewRecencyDays ?? trustMetrics?.review_recency_days;
-  const reviewRecencyLabel =
-    reviewRecencyRaw !== undefined && reviewRecencyRaw !== null
-      ? `${reviewRecencyRaw} days since last review`
-      : 'Not available';
-
   return (
-    <>
-
-      <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 md:px-6 py-12">
-          {/* Header Section */}
-          <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
-            <div className="relative">
-              <Image
-                src={vendor.logo_url || '/placeholder-logo.png'}
-                alt={`${vendor.company_name} logo`}
-                width={128}
-                height={128}
-                className="rounded-xl border bg-card shadow-md"
-                data-ai-hint="company logo"
-              />
-              {vendor.listing_tier === 'featured' && (
-                <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-secondary to-accent">
-                  <Award className="w-3 h-3 mr-1" />
-                  Featured
-                </Badge>
-              )}
-            </div>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                {vendor.categories?.map((cat: string) => (
-                  <Badge key={cat} variant="secondary">{cat.replace(/_/g, ' ')}</Badge>
-                ))}
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary mb-2">
-                {vendor.company_name}
-              </h1>
-              <p className="text-xl text-muted-foreground mb-4">{vendor.tagline}</p>
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-muted-foreground">
-                <StarRating rating={averageRating} size={20} />
-                <span className="text-sm font-semibold text-muted-foreground">
-                  {marketScore} Market Score
-                </span>
-                <span className="text-sm">({approvedReviews.length} reviews)</span>
-                {vendor.website && (
-                  <Link href={vendor.website} target="_blank" className="flex items-center gap-2 hover:text-secondary transition-colors">
-                    <ExternalLink className="h-5 w-5" />
-                    <span>Visit Website</span>
-                  </Link>
+    <main className="flex-1 bg-background">
+      <div className="container mx-auto px-4 md:px-6 py-12 space-y-10">
+        <Card className="shadow-md">
+          <CardContent className="p-6 md:p-8 space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center gap-6">
+              <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-xl bg-gray-50 border border-dashed flex items-center justify-center overflow-hidden">
+                {vendor.logo_url ? (
+                  <Image
+                    src={vendor.logo_url}
+                    alt={vendor.company_name || 'Vendor logo'}
+                    fill
+                    className="object-contain p-2"
+                  />
+                ) : (
+                  <span className="text-3xl font-semibold text-primary">
+                    {vendor.company_name?.[0] || 'V'}
+                  </span>
                 )}
               </div>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setShowLeadForm(true)}
-                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-              >
-                <MessageSquare className="mr-2 h-4 w-4" />
-                Contact Vendor
-              </Button>
-              <Button variant="outline">
-                <Bookmark className="mr-2 h-4 w-4" />
-                Save
-              </Button>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* Description */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>About {vendor.company_name}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-base leading-relaxed">{vendor.description}</p>
-                </CardContent>
-              </Card>
-
-              {/* Features */}
-              {vendor.features && vendor.features.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Key Features</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {vendor.features.map((feature: string) => (
-                        <li key={feature} className="flex items-start gap-3">
-                          <CheckCircle className="h-6 w-6 text-accent flex-shrink-0 mt-1" />
-                          <span>{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Integrations */}
-              {vendor.integrations && vendor.integrations.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Integrations</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {vendor.integrations.map((integration: string) => (
-                        <Badge key={integration} variant="outline">{integration}</Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Reviews */}
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>User Reviews</CardTitle>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setShowReviewForm(true)}
-                    >
-                      <Star className="mr-2 h-4 w-4" />
-                      Write a Review
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {approvedReviews.length === 0 ? (
-                    <p className="text-muted-foreground text-center py-8">No reviews yet. Be the first to review!</p>
-                  ) : (
-                    approvedReviews.map((review) => (
-                      <div key={review.id} className="border-b pb-6 last:border-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <p className="font-semibold">{review.reviewer_name || 'Anonymous'}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {review.created_date ? format(new Date(review.created_date), 'MMMM d, yyyy') : ''}
-                            </p>
-                          </div>
-                          <StarRating rating={review.rating} size={16} showText={false} />
-                        </div>
-                        {review.review_title && (
-                          <h4 className="font-semibold mb-2">{review.review_title}</h4>
-                        )}
-                        <p className="text-sm text-muted-foreground">{review.review_content}</p>
-                      </div>
-                    ))
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Contact Card */}
-              <Card className="bg-primary/5 border-primary/20">
-                <CardHeader>
-                  <CardTitle className="text-center font-headline">Contact Vendor</CardTitle>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Interested in their services? Get in touch directly.
-                  </p>
-                  <Button
-                    className="w-full bg-secondary hover:bg-secondary/90 text-secondary-foreground"
-                    onClick={() => setShowLeadForm(true)}
-                  >
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Enquire Now
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Trust Signals */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-emerald-500" />
-                    Trust Signals
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm text-muted-foreground">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Marketplace score</span>
-                    <span className="font-semibold text-foreground">
-                      {marketplaceScore !== null ? `${marketplaceScore.toFixed(0)}/100` : 'Not enough data'}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Avg response time</span>
-                    <span className="font-medium text-foreground">{responseTimeLabel}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Verified review ratio</span>
-                    <span className="font-medium text-foreground">{verifiedRatioLabel}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span>Review recency</span>
-                    <span className="font-medium text-foreground">{reviewRecencyLabel}</span>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Similar Vendors */}
-              {similarVendors.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Similar Vendors</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {similarVendors.map((v) => (
-                      <VendorCard key={v.id} vendor={v} />
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Lead Form Dialog */}
-        <Dialog open={showLeadForm} onOpenChange={setShowLeadForm}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Contact {vendor.company_name}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="broker_name">Your Name</Label>
-                  <Input
-                    id="broker_name"
-                    value={leadData.broker_name}
-                    onChange={(e) => setLeadData({ ...leadData, broker_name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="broker_email">Email</Label>
-                  <Input
-                    id="broker_email"
-                    type="email"
-                    value={leadData.broker_email}
-                    onChange={(e) => setLeadData({ ...leadData, broker_email: e.target.value })}
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="broker_phone">Phone</Label>
-                <Input
-                  id="broker_phone"
-                  value={leadData.broker_phone}
-                  onChange={(e) => setLeadData({ ...leadData, broker_phone: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="broker_type">Broker Type</Label>
-                <Select
-                  value={leadData.broker_type}
-                  onValueChange={(value) => setLeadData({ ...leadData, broker_type: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="mortgage_broker">Mortgage Broker</SelectItem>
-                    <SelectItem value="asset_finance_broker">Asset Finance Broker</SelectItem>
-                    <SelectItem value="commercial_finance_broker">Commercial Finance Broker</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="message">Message</Label>
-                <Textarea
-                  id="message"
-                  value={leadData.message}
-                  onChange={(e) => setLeadData({ ...leadData, message: e.target.value })}
-                  rows={5}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleSubmitLead} className="flex-1">
-                  <Send className="mr-2 h-4 w-4" />
-                  Send Inquiry
-                </Button>
-                <Button variant="outline" onClick={() => setShowLeadForm(false)}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Review Form Dialog */}
-        <Dialog open={showReviewForm} onOpenChange={setShowReviewForm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Write a Review</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <Label>Rating</Label>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((rating) => (
-                    <button
-                      key={rating}
-                      onClick={() => setReviewData({ ...reviewData, rating })}
-                      className={`p-2 rounded ${reviewData.rating >= rating
-                          ? 'text-yellow-400'
-                          : 'text-gray-300'
-                        }`}
-                    >
-                      <Star className="w-6 h-6 fill-current" />
-                    </button>
+              <div className="flex-1 space-y-2">
+                <h1 className="text-3xl font-bold text-primary">{vendor.company_name}</h1>
+                {vendor.tagline && <p className="text-lg text-muted-foreground">{vendor.tagline}</p>}
+                <div className="flex flex-wrap gap-2">
+                  {(vendor.categories || []).map((category) => (
+                    <Badge key={category} variant="secondary" className="bg-gray-100 text-gray-700">
+                      {category}
+                    </Badge>
                   ))}
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="review_title">Review Title</Label>
-                <Input
-                  id="review_title"
-                  value={reviewData.review_title}
-                  onChange={(e) => setReviewData({ ...reviewData, review_title: e.target.value })}
-                />
-              </div>
-              <div>
-                <Label htmlFor="review_content">Your Review</Label>
-                <Textarea
-                  id="review_content"
-                  value={reviewData.review_content}
-                  onChange={(e) => setReviewData({ ...reviewData, review_content: e.target.value })}
-                  rows={5}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button onClick={handleSubmitReview} className="flex-1">
-                  Submit Review
-                </Button>
-                <Button variant="outline" onClick={() => setShowReviewForm(false)}>
-                  Cancel
-                </Button>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Dialog open={leadOpen} onOpenChange={setLeadOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Mail className="w-4 h-4 mr-2" />
+                        Contact vendor
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Contact {vendor.company_name}</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3">
+                        <Input
+                          placeholder="Your name"
+                          value={leadData.broker_name}
+                          onChange={(e) => setLeadData({ ...leadData, broker_name: e.target.value })}
+                        />
+                        <Input
+                          type="email"
+                          placeholder="Work email"
+                          value={leadData.broker_email}
+                          onChange={(e) => setLeadData({ ...leadData, broker_email: e.target.value })}
+                        />
+                        <Input
+                          placeholder="Phone (optional)"
+                          value={leadData.broker_phone}
+                          onChange={(e) => setLeadData({ ...leadData, broker_phone: e.target.value })}
+                        />
+                        <Textarea
+                          rows={4}
+                          placeholder="What do you want to achieve?"
+                          value={leadData.message}
+                          onChange={(e) => setLeadData({ ...leadData, message: e.target.value })}
+                        />
+                        <Button onClick={handleSubmitLead} disabled={leadSubmitting}>
+                          {leadSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Send inquiry
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  <Dialog open={reviewOpen} onOpenChange={setReviewOpen}>
+                    <DialogTrigger asChild>
+                      <Button variant="outline">
+                        <Star className="w-4 h-4 mr-2 text-amber-500" />
+                        Write a review
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>Share your experience</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-3">
+                        <Input
+                          placeholder="Your name (optional)"
+                          value={reviewData.author}
+                          onChange={(e) => setReviewData({ ...reviewData, author: e.target.value })}
+                        />
+                        <label className="text-sm font-medium text-gray-700">Rating</label>
+                        <div className="flex items-center gap-3">
+                          <StarRating rating={reviewData.rating} />
+                          <Input
+                            type="number"
+                            min={1}
+                            max={5}
+                            value={reviewData.rating}
+                            onChange={(e) =>
+                              setReviewData({
+                                ...reviewData,
+                                rating: Math.min(5, Math.max(1, Number(e.target.value))),
+                              })
+                            }
+                            className="w-20"
+                          />
+                        </div>
+                        <Textarea
+                          rows={5}
+                          placeholder="What worked well? What could be better?"
+                          value={reviewData.comment}
+                          onChange={(e) => setReviewData({ ...reviewData, comment: e.target.value })}
+                        />
+                        <Button onClick={handleSubmitReview} disabled={reviewSubmitting}>
+                          {reviewSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                          Submit review
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+
+                  {vendor.website && (
+                    <Button asChild variant="ghost">
+                      <a href={vendor.website} target="_blank" rel="noreferrer">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Visit website
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
-          </DialogContent>
-        </Dialog>
-      </main>
 
-    </>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Marketplace score</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <TrendingUp className="w-5 h-5 text-primary" />
+                    <p className="text-2xl font-bold text-primary">{marketplaceScore}/100</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Average rating</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <Star className="w-5 h-5 text-amber-500 fill-amber-400" />
+                    <p className="text-2xl font-bold">{averageRating || '—'}</p>
+                    <span className="text-sm text-muted-foreground">({approvedReviews.length} reviews)</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Listing tier</p>
+                  <p className="text-2xl font-bold capitalize">{vendor.listing_tier || 'Standard'}</p>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardContent className="p-4">
+                  <p className="text-sm text-muted-foreground">Profile views</p>
+                  <p className="text-2xl font-bold">{vendor.view_count ?? '—'}</p>
+                </CardContent>
+              </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-700 leading-relaxed">
+                {vendor.description || 'This vendor has not added a description yet.'}
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Need help deciding?</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Share your goals and we will introduce you to this vendor with the right context.
+              </p>
+              <Button onClick={() => setLeadOpen(true)} className="w-full">
+                <Mail className="w-4 h-4 mr-2" />
+                Start a conversation
+              </Button>
+              <Button variant="outline" asChild className="w-full">
+                <Link href="/compare">Compare vendors</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Reviews</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {approvedReviews.length === 0 && (
+              <p className="text-sm text-muted-foreground">No reviews yet. Be the first to share feedback.</p>
+            )}
+
+            {approvedReviews.map((review) => (
+              <div key={review.id} className="border rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                      {review.author || 'Verified broker'}
+                    </div>
+                    {review.created_at && (
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(review.created_at), 'PPP')}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 text-amber-500">
+                    <Star className="w-4 h-4 fill-amber-400" />
+                    <span className="text-sm font-semibold">{review.rating?.toFixed(1) || '—'}</span>
+                  </div>
+                </div>
+                {review.comment && <p className="text-sm text-gray-700">{review.comment}</p>}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+
+        {similarVendors.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Similar vendors</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {similarVendors.map((similar) => (
+                <div key={similar.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition">
+                  <div className="flex items-start gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-primary font-semibold">
+                      {similar.company_name?.[0] || 'V'}
+                    </div>
+                    <div>
+                      <p className="font-semibold text-primary">{similar.company_name}</p>
+                      {similar.tagline && <p className="text-sm text-muted-foreground line-clamp-2">{similar.tagline}</p>}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {(similar.categories || []).slice(0, 3).map((category) => (
+                      <Badge key={`${similar.id}-${category}`} variant="secondary" className="bg-gray-100 text-gray-700">
+                        {category}
+                      </Badge>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-xs text-muted-foreground capitalize">
+                      {similar.listing_tier || 'standard'}
+                    </span>
+                    <Link href={`/vendors/${similar.id}`} className="text-sm font-medium text-primary hover:underline">
+                      View profile
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </main>
   );
 }
 
 export default function VendorProfilePage() {
   return (
-    <Suspense fallback={
-      <>
-
+    <Suspense
+      fallback={
         <main className="flex-1 bg-background">
-          <div className="container mx-auto px-4 md:px-6 py-12">
-            <div className="text-center">
-              <p className="text-muted-foreground">Loading...</p>
-            </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 flex justify-center">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
           </div>
         </main>
-
-      </>
-    }>
+      }
+    >
       <VendorProfileContent />
     </Suspense>
   );

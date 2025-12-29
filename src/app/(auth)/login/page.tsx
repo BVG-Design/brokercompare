@@ -1,15 +1,148 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader2, Mail } from 'lucide-react';
 import { signInWithMagicLink } from '@/services/supabase';
+import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const supabase = useMemo(() => createClient(), []);
+
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [code, setCode] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const nextPath = useMemo(() => {
+    const next = searchParams.get('next');
+    return next && next.startsWith('/') ? next : null;
+  }, [searchParams]);
+
+  const resolveDashboardPath = (profile?: {
+    default_dashboard?: 'admin' | 'broker' | 'vendor' | null;
+    user_type?: string | null;
+    admin_dashboard?: boolean | null;
+    vendor_dashboard?: boolean | null;
+    broker_dashboard?: boolean | null;
+  }) => {
+    // #region agent log
+    const logData = {profile,default_dashboard:profile?.default_dashboard,user_type:profile?.user_type,admin_dashboard:profile?.admin_dashboard,vendor_dashboard:profile?.vendor_dashboard,broker_dashboard:profile?.broker_dashboard};
+    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'resolveDashboardPath entry',data:logData,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C'})}).catch(()=>{});
+    // #endregion
+    
+    if (profile?.default_dashboard === 'admin') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning admin path',data:{reason:'default_dashboard===admin'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/admin';
+    }
+    if (profile?.default_dashboard === 'vendor') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning vendor path',data:{reason:'default_dashboard===vendor'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/dashboard/vendor';
+    }
+    if (profile?.default_dashboard === 'broker') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning broker path',data:{reason:'default_dashboard===broker'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/dashboard/broker';
+    }
+    if (profile?.admin_dashboard || profile?.user_type === 'admin') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning admin path (fallback)',data:{reason:'admin_dashboard||user_type===admin'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/admin';
+    }
+    if (profile?.vendor_dashboard || profile?.user_type === 'vendor') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning vendor path (fallback)',data:{reason:'vendor_dashboard||user_type===vendor'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/dashboard/vendor';
+    }
+    if (profile?.broker_dashboard || profile?.user_type === 'broker') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning broker path (fallback)',data:{reason:'broker_dashboard||user_type===broker'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      return '/dashboard/broker';
+    }
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning default broker path',data:{reason:'no dashboard configured'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+    // Default to broker dashboard if no specific dashboard is configured
+    return '/dashboard/broker';
+  };
+
+  useEffect(() => {
+    const queryError = searchParams.get('error');
+    if (queryError) {
+      setError(queryError);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkSession = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+
+        if (session && isMounted) {
+          // Try with default_dashboard first, fallback if column doesn't exist
+          let profile: any = null;
+          let profileError: any = null;
+          
+          const { data: profileWithDefault, error: errorWithDefault } = await supabase
+            .from('user_profiles')
+            .select('default_dashboard, user_type, admin_dashboard, vendor_dashboard, broker_dashboard')
+            .eq('id', session.user.id)
+            .maybeSingle();
+          
+          if (errorWithDefault?.message?.includes('default_dashboard does not exist')) {
+            // Column doesn't exist, query without it
+            const { data: profileWithoutDefault, error: errorWithoutDefault } = await supabase
+              .from('user_profiles')
+              .select('user_type, admin_dashboard, vendor_dashboard, broker_dashboard')
+              .eq('id', session.user.id)
+              .maybeSingle();
+            profile = profileWithoutDefault;
+            profileError = errorWithoutDefault;
+          } else {
+            profile = profileWithDefault;
+            profileError = errorWithDefault;
+          }
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:checkSession',message:'Login page profile query result',data:{hasProfile:!!profile,profileError:profileError?.message,profileData:profile,userId:session.user.id,hasDefaultDashboard:!!profile?.default_dashboard},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+          
+          const destination = nextPath || resolveDashboardPath(profile || undefined);
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:checkSession',message:'Login page redirect destination',data:{destination,nextPath,resolvedPath:resolveDashboardPath(profile || undefined)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,C,E'})}).catch(()=>{});
+          // #endregion
+          
+          router.replace(destination);
+        }
+      } catch (err) {
+        console.warn('Session check failed:', err);
+      }
+    };
+
+    checkSession();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [nextPath, router, supabase]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,7 +150,7 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      const { error: authError } = await signInWithMagicLink(email);
+      const { error: authError } = await signInWithMagicLink(email, nextPath || undefined);
       if (authError) {
         // Handle specific error cases similar to original code if needed, 
         // but user's requested code simplifies it. 
@@ -30,6 +163,59 @@ export default function LoginPage() {
       setError('An unexpected error occurred.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setError('Please enter your email first, then paste the code.');
+      return;
+    }
+    if (!code.trim()) {
+      setError('Please enter the code from your email.');
+      return;
+    }
+
+    setIsVerifying(true);
+    setError(null);
+
+    try {
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        email: email.trim(),
+        token: code.trim(),
+        type: 'email',
+      });
+
+      if (verifyError || !data.session) {
+        setError(verifyError?.message || 'Invalid or expired code. Please request a new one.');
+        return;
+      }
+
+      // Session is set client-side; pick destination and continue
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      let destination = nextPath || '/dashboard/broker';
+
+      if (user) {
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select(
+            'default_dashboard, user_type, admin_dashboard, vendor_dashboard, broker_dashboard',
+          )
+          .eq('id', user.id)
+          .maybeSingle();
+        destination = nextPath || resolveDashboardPath(profile || undefined) || destination;
+      }
+
+      router.replace(destination);
+      router.refresh();
+    } catch (err) {
+      setError('Unable to verify the code. Please try again.');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -111,6 +297,36 @@ export default function LoginPage() {
                 ))}
               </div>
             </div>
+
+            <form onSubmit={handleVerifyCode} className="space-y-3 max-w-xs mx-auto text-left">
+              <label className="block text-sm font-semibold text-brand-blue">
+                Or paste the 8-digit code from the email
+              </label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={8}
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-brand-orange focus:border-transparent outline-none transition-all placeholder-gray-400 text-gray-700 text-center tracking-[0.3em]"
+                placeholder="12345678"
+              />
+
+              <button
+                type="submit"
+                disabled={isVerifying || code.trim().length < 8}
+                className="w-full py-3 rounded-lg bg-brand-blue text-white font-bold hover:bg-blue-900 transition-colors disabled:opacity-70 flex items-center justify-center gap-2"
+              >
+                {isVerifying && <Loader2 className="animate-spin" size={18} />}
+                Verify code
+              </button>
+            </form>
+
+            {error && (
+              <div className="mt-4 p-3 rounded bg-red-50 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
 
             <button
               onClick={() => setIsSent(false)}

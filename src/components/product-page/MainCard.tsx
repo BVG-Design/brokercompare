@@ -240,6 +240,14 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                             )}
                         </div>
 
+                        <button
+                            type="button"
+                            className="w-full mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+                        >
+                            Shortlist
+                            <Plus size={14} />
+                        </button>
+
                         {serviceArea.length > 0 && (
                             <div className="mb-6">
                                 <h4 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">Service Areas</h4>

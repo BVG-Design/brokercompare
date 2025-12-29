@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,8 +13,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, Building2, Sparkles, X, Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
+type ApplyOption = {
+  label: string;
+  value: string;
+};
+
 type FormState = {
   business_type: string;
+  business_type_other: string;
   company_name: string;
   contact_name: string;
   email: string;
@@ -28,8 +34,10 @@ type FormState = {
   commercial_finance_other: string;
   broker_types: string[];
   broker_type_other: string;
-  product_service_features: string;
-  integrations: string;
+  features: string[];
+  feature_other: string;
+  integrations: string[];
+  integration_other: string;
   pricing_structure: string;
   pricing_details: string;
   special_offer: string;
@@ -88,8 +96,13 @@ const REFERRAL_SOURCES = [
   { value: 'friend_referral', label: 'Friend/Referral' },
 ] as const;
 
+const MAX_FEATURE_SELECTIONS = 9;
+const MAX_INTEGRATION_SELECTIONS = 9;
+const OTHER_OPTION: ApplyOption = { value: 'other', label: 'Other' };
+
 const initialForm: FormState = {
   business_type: '',
+  business_type_other: '',
   company_name: '',
   contact_name: '',
   email: '',
@@ -103,8 +116,10 @@ const initialForm: FormState = {
   commercial_finance_other: '',
   broker_types: [],
   broker_type_other: '',
-  product_service_features: '',
-  integrations: '',
+  features: [],
+  feature_other: '',
+  integrations: [],
+  integration_other: '',
   pricing_structure: '',
   pricing_details: '',
   special_offer: '',
@@ -119,12 +134,92 @@ export default function ApplyVendor() {
   const [formData, setFormData] = useState<FormState>(initialForm);
   const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [featureOptions, setFeatureOptions] = useState<ApplyOption[]>([]);
+  const [integrationOptions, setIntegrationOptions] = useState<ApplyOption[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+
+  useEffect(() => {
+    const loadOptions = async () => {
+      setLoadingOptions(true);
+      try {
+        const response = await fetch('/api/apply/options');
+        if (!response.ok) {
+          throw new Error('Failed to load apply options');
+        }
+
+        const data = await response.json();
+        setFeatureOptions(Array.isArray(data.features) ? data.features : []);
+        setIntegrationOptions(Array.isArray(data.directoryListings) ? data.directoryListings : []);
+      } catch (error) {
+        console.error('Error loading apply options', error);
+        toast({
+          title: 'Unable to load suggestions',
+          description: 'Please refresh to retry loading features and integrations.',
+          variant: 'destructive',
+        });
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+
+    loadOptions();
+  }, [toast]);
 
   const toggleValue = (field: keyof Pick<FormState, 'categories' | 'commercial_finance_subcategories' | 'broker_types'>, value: string) => {
     setFormData(prev => {
       const current = prev[field];
       const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
       return { ...prev, [field]: next };
+    });
+  };
+
+  const setSlotSelection = (
+    field: keyof Pick<FormState, 'features' | 'integrations'>,
+    index: number,
+    value: string
+  ) => {
+    setFormData(prev => {
+      if (value === 'none') {
+        const trimmed = [...prev[field]];
+        while (trimmed.length < index + 1) {
+          trimmed.push('');
+        }
+        trimmed[index] = '';
+        const cleaned = trimmed.filter(Boolean);
+        const clearOther =
+          field === 'features' && !cleaned.includes('other')
+            ? { feature_other: '' }
+            : field === 'integrations' && !cleaned.includes('other')
+              ? { integration_other: '' }
+              : {};
+        return {
+          ...prev,
+          [field]: cleaned,
+          ...clearOther,
+        };
+      }
+
+      const next = [...prev[field]];
+      while (next.length < index + 1) {
+        next.push('');
+      }
+      next[index] = value;
+
+      const cleaned = next.filter(Boolean);
+      const unique = cleaned.filter((v, i) => cleaned.indexOf(v) === i);
+
+      const clearOther =
+        field === 'features' && !unique.includes('other')
+          ? { feature_other: '' }
+          : field === 'integrations' && !unique.includes('other')
+            ? { integration_other: '' }
+            : {};
+
+      return {
+        ...prev,
+        [field]: unique.slice(0, 9),
+        ...clearOther,
+      };
     });
   };
 
@@ -146,12 +241,24 @@ export default function ApplyVendor() {
       toast({ title: 'Error', description: 'Please select business type', variant: 'destructive' });
       return;
     }
+    if (formData.business_type === 'other' && !formData.business_type_other.trim()) {
+      toast({ title: 'Error', description: 'Please specify your business type', variant: 'destructive' });
+      return;
+    }
     if (formData.categories.length === 0) {
       toast({ title: 'Error', description: 'Please select at least one category', variant: 'destructive' });
       return;
     }
     if (formData.broker_types.length === 0) {
       toast({ title: 'Error', description: 'Please select at least one broker type', variant: 'destructive' });
+      return;
+    }
+    if (formData.features.includes('other') && !formData.feature_other.trim()) {
+      toast({ title: 'Error', description: 'Please specify your other features', variant: 'destructive' });
+      return;
+    }
+    if (formData.integrations.includes('other') && !formData.integration_other.trim()) {
+      toast({ title: 'Error', description: 'Please specify your other integrations', variant: 'destructive' });
       return;
     }
 
@@ -167,6 +274,12 @@ export default function ApplyVendor() {
   const showBrokerTypeOther = formData.broker_types.includes('other');
   const showCommercialFinanceOther = formData.commercial_finance_subcategories.includes('other');
   const showReferralName = formData.referral_source === 'friend_referral';
+  const showFeatureOther = formData.features.includes('other');
+  const showIntegrationOther = formData.integrations.includes('other');
+  const featureOptionList = [...featureOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
+  const integrationOptionList = [...integrationOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
+  const featureSlots = Array.from({ length: MAX_FEATURE_SELECTIONS }, (_v, idx) => formData.features[idx] || '');
+  const integrationSlots = Array.from({ length: MAX_INTEGRATION_SELECTIONS }, (_v, idx) => formData.integrations[idx] || '');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
@@ -212,8 +325,17 @@ export default function ApplyVendor() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-[#132847]">Business Type *</h3>
-                <RadioGroup value={formData.business_type} onValueChange={value => setFormData({ ...formData, business_type: value })}>
-                  {['software', 'service', 'both'].map(value => (
+                <RadioGroup
+                  value={formData.business_type}
+                  onValueChange={value =>
+                    setFormData(prev => ({
+                      ...prev,
+                      business_type: value,
+                      business_type_other: value === 'other' ? prev.business_type_other : '',
+                    }))
+                  }
+                >
+                  {['software', 'service', 'both', 'other'].map(value => (
                     <div className="flex items-center space-x-2" key={value}>
                       <RadioGroupItem value={value} id={value} />
                       <Label htmlFor={value} className="cursor-pointer capitalize">
@@ -222,6 +344,17 @@ export default function ApplyVendor() {
                     </div>
                   ))}
                 </RadioGroup>
+                {formData.business_type === 'other' && (
+                  <div>
+                    <Label htmlFor="business_type_other">Please specify your business type</Label>
+                    <Input
+                      id="business_type_other"
+                      value={formData.business_type_other}
+                      onChange={e => setFormData(prev => ({ ...prev, business_type_other: e.target.value }))}
+                      placeholder="Describe your business type"
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -407,26 +540,93 @@ export default function ApplyVendor() {
                 )}
               </div>
 
-              <div>
-                <Label htmlFor="product_service_features">Product/Service Features</Label>
-                <Textarea
-                  id="product_service_features"
-                  value={formData.product_service_features}
-                  onChange={e => setFormData({ ...formData, product_service_features: e.target.value })}
-                  rows={4}
-                  placeholder="List the key features of your product or service..."
-                />
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-base">
+                    Features <span className="text-sm font-normal text-gray-500">(Up to {MAX_FEATURE_SELECTIONS})</span>
+                  </Label>
+                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading feature suggestions...</p>}
+                  <div className="grid md:grid-cols-3 gap-3 mt-3">
+                    {featureSlots.map((value, idx) => (
+                      <div key={`feature_slot_${idx}`}>
+                        <Label className="text-xs text-gray-500">Feature {idx + 1}</Label>
+                        <Select
+                          value={value || undefined}
+                          onValueChange={val => setSlotSelection('features', idx, val)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select feature" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {featureOptionList.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {showFeatureOther && (
+                  <div>
+                    <Label htmlFor="feature_other">Please specify other features</Label>
+                    <Input
+                      id="feature_other"
+                      value={formData.feature_other}
+                      onChange={e => setFormData(prev => ({ ...prev, feature_other: e.target.value }))}
+                      placeholder="Enter other features (comma separated if needed)"
+                    />
+                  </div>
+                )}
               </div>
 
-              <div>
-                <Label htmlFor="integrations">Do you integrate or work with other software?</Label>
-                <Textarea
-                  id="integrations"
-                  value={formData.integrations}
-                  onChange={e => setFormData({ ...formData, integrations: e.target.value })}
-                  rows={3}
-                  placeholder="List any software or services you integrate with..."
-                />
+              <div className="space-y-3">
+                <div>
+                  <Label className="text-base">
+                    Do you integrate with or work with other software?
+                    <span className="text-sm font-normal text-gray-500"> (Up to {MAX_INTEGRATION_SELECTIONS})</span>
+                  </Label>
+                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading integration suggestions...</p>}
+                  <div className="grid md:grid-cols-3 gap-3 mt-3">
+                    {integrationSlots.map((value, idx) => (
+                      <div key={`integration_slot_${idx}`}>
+                        <Label className="text-xs text-gray-500">Integration {idx + 1}</Label>
+                        <Select
+                          value={value || undefined}
+                          onValueChange={val => setSlotSelection('integrations', idx, val)}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select software" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {integrationOptionList.map(option => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {showIntegrationOther && (
+                  <div>
+                    <Label htmlFor="integration_other">Please specify other software</Label>
+                    <Input
+                      id="integration_other"
+                      value={formData.integration_other}
+                      onChange={e => setFormData(prev => ({ ...prev, integration_other: e.target.value }))}
+                      placeholder="List any other software or services..."
+                    />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
@@ -472,13 +672,13 @@ export default function ApplyVendor() {
               </div>
 
               <div>
-                <Label htmlFor="why_join">Why do you want to join our directory? *</Label>
+                <Label htmlFor="why_join">Any other questions or notes? *</Label>
                 <Textarea
                   id="why_join"
                   value={formData.why_join}
                   onChange={e => setFormData({ ...formData, why_join: e.target.value })}
                   rows={4}
-                  placeholder="Tell us why you'd like to be featured in our directory..."
+                  placeholder="Share anything else we should know about your application..."
                   required
                 />
               </div>

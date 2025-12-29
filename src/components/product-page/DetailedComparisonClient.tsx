@@ -1,7 +1,8 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import Link from 'next/link';
+import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -9,25 +10,235 @@ import {
   ChevronDown,
   ExternalLink,
   Filter,
+  Loader2,
   RefreshCcw,
   Search,
   Star,
   X
-} from 'lucide-react';
-import { ComparisonFeatureGroup, ComparisonProduct } from '@/types/comparison';
-import ComparisonMatrix from './ComparisonMatrix';
-import StillNotSure from './StillNotSure';
-import { Button } from '@/components/ui/button';
+} from "lucide-react";
+import { ComparisonFeatureGroup, ComparisonProduct } from "@/types/comparison";
+import ComparisonMatrix from "./ComparisonMatrix";
+import StillNotSure from "./StillNotSure";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useAuth } from "@/hooks/use-auth";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface DetailedComparisonClientProps {
   listingSlug: string;
   listingName: string;
+  listingCategory?: string | null;
   listingWebsite?: string | null;
   allProducts: ComparisonProduct[];
   suggestedProducts: ComparisonProduct[];
   featureGroups: ComparisonFeatureGroup[];
   initialSelection: string[];
 }
+
+interface AskQuestionModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  listingName: string;
+  listingCategory?: string | null;
+  listingSlug: string;
+  products: ComparisonProduct[];
+}
+
+const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
+  open,
+  onOpenChange,
+  listingName,
+  listingCategory,
+  listingSlug,
+  products
+}) => {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const [question, setQuestion] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+  const [postAs, setPostAs] = useState<"public" | "private">("public");
+
+  const options = useMemo(() => {
+    const productOptions = products.map((product) => ({
+      value: `product:${product.slug}`,
+      label: product.name,
+      hint: 'Question about this specific software/service'
+    }));
+
+    const categoryLabel = (() => {
+      if (listingCategory) return listingCategory;
+      const words = listingSlug.split('-').filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1));
+      return words.length ? words.join(' ') : listingName;
+    })();
+
+    const categoryOption = {
+      value: `category:${listingSlug}`,
+      label: categoryLabel,
+      hint: 'General question about this category'
+    };
+
+    const seen = new Set<string>();
+    return [categoryOption, ...productOptions].filter((opt) => {
+      if (seen.has(opt.value)) return false;
+      seen.add(opt.value);
+      return true;
+    });
+  }, [listingName, listingSlug, products]);
+
+  const [selectedOption, setSelectedOption] = useState<string>(options[0]?.value || '');
+
+  useEffect(() => {
+    if (open) {
+      setQuestion('');
+      setSubmitted(false);
+      setSelectedOption(options[0]?.value || '');
+      setPostAs("public");
+    }
+  }, [open, options]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !question.trim()) return;
+    setSubmitted(true);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-lg bg-white border-4 border-brand-blue shadow-xl text-gray-800">
+        {authLoading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="h-6 w-6 animate-spin text-brand-blue" />
+          </div>
+        ) : submitted ? (
+          <>
+            <DialogHeader>
+              <DialogTitle className="text-center">Thanks for your question!</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-gray-700 text-center">
+              We'll route this to the right team based on the topic you picked.
+            </p>
+            <div className="pt-4">
+              <Button className="w-full" onClick={() => onOpenChange(false)}>
+                Close
+              </Button>
+            </div>
+          </>
+        ) : !user ? (
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
+                  alt="Simba profile"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
+                />
+                <div className="space-y-1">
+                  <DialogTitle>Ask a question</DialogTitle>
+                  <DialogDescription className="text-gray-800">
+                    Hi, Simba here, let me know how I or the humans can help...
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
+              You need to be logged in to ask a question. Please sign in to continue.
+            </div>
+            <div className="flex justify-end pt-4">
+              <Button variant="outline" onClick={() => router.push('/login')}>
+                Go to login
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
+                  alt="Simba profile"
+                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
+                />
+                <div className="space-y-1">
+                  <DialogTitle>Ask a question</DialogTitle>
+                  <DialogDescription className="text-gray-800">
+                    Hi, Simba here, let me know how I or the humans can help...
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+              <div className="space-y-2">
+                <Label htmlFor="question-about" className="text-sm font-medium">
+                  This is about
+                </Label>
+                <Select value={selectedOption} onValueChange={setSelectedOption}>
+                  <SelectTrigger id="question-about" className="border-gray-600 text-gray-800">
+                    <SelectValue placeholder="Choose a topic" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {options.map((opt) => (
+                      <SelectItem
+                        key={opt.value}
+                        value={opt.value}
+                        className="py-2 data-[highlighted]:bg-gray-100 hover:bg-gray-100"
+                      >
+                        <div className="flex flex-col">
+                          <span className="font-medium text-gray-900">{opt.label}</span>
+                          <span className="text-[11px] text-gray-500">{opt.hint}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="question-body">Your question</Label>
+                <Textarea
+                  id="question-body"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="Share as much detail as you can..."
+                  rows={4}
+                  className="border-gray-600 text-gray-800 placeholder:text-gray-600 bg-white"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Post as</Label>
+                <RadioGroup value={postAs} onValueChange={(val) => setPostAs(val as "public" | "private")}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="public" id="post-public" />
+                    <Label htmlFor="post-public" className="font-normal cursor-pointer">
+                      Publically, as {user?.user_metadata?.first_name || "your account name"}
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="private" id="post-private" />
+                    <Label htmlFor="post-private" className="font-normal cursor-pointer">
+                      Privately, support team question.
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-semibold"
+                disabled={!question.trim()}
+              >
+                Send question
+              </Button>
+            </form>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 interface SelectionModalProps {
   isOpen: boolean;
@@ -50,9 +261,24 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
 
   if (!isOpen) return null;
 
-  const filtered = options.filter((p) =>
+  const dedupeBySlug = (items: ComparisonProduct[]) => {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      if (seen.has(item.slug)) return false;
+      seen.add(item.slug);
+      return true;
+    });
+  };
+
+  const uniqueOptions = dedupeBySlug(options);
+  const uniqueSuggested = dedupeBySlug(suggested);
+  const filtered = uniqueOptions.filter((p) =>
     p.name.toLowerCase().includes(query.toLowerCase())
   );
+  const suggestedSlugs = new Set(uniqueSuggested.map((product) => product.slug));
+  const filteredAllListings = query
+    ? filtered
+    : filtered.filter((product) => !suggestedSlugs.has(product.slug));
   const suggestionResults = query ? filtered.slice(0, 5) : [];
 
   const renderCard = (product: ComparisonProduct) => (
@@ -154,13 +380,13 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
           {!query && suggested.length > 0 && (
             <>
               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Suggested (Similar To)</h4>
-              {suggested.map(renderCard)}
+              {uniqueSuggested.map(renderCard)}
               <div className="border-t border-dashed border-gray-200 my-2"></div>
               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">All Listings</h4>
             </>
           )}
-          {filtered.map(renderCard)}
-          {filtered.length === 0 && (
+             {filteredAllListings.map(renderCard)}
+             {filteredAllListings.length === 0 && (
             <div className="text-sm text-gray-500 text-center py-6">No matches found.</div>
           )}
         </div>
@@ -172,6 +398,7 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
 const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   listingSlug,
   listingName,
+  listingCategory,
   listingWebsite,
   allProducts,
   suggestedProducts,
@@ -179,12 +406,13 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   initialSelection
 }) => {
   const initial = initialSelection.length
-    ? initialSelection
+    ? Array.from(new Set(initialSelection)).slice(0, 3)
     : allProducts.slice(0, 3).map((p) => p.slug);
 
   const [selectedSlugs, setSelectedSlugs] = useState<string[]>(initial);
   const [modalOpen, setModalOpen] = useState(false);
   const [activeSlot, setActiveSlot] = useState<number | null>(null);
+  const [questionModalOpen, setQuestionModalOpen] = useState(false);
 
   const selectedProducts = useMemo(
     () =>
@@ -550,6 +778,7 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
           <Button
             variant="outline"
             className="border-gray-400 text-gray-800 bg-transparent hover:bg-gray-50"
+            onClick={() => setQuestionModalOpen(true)}
           >
             Ask a Question
           </Button>
@@ -570,6 +799,14 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
         suggested={suggestedProducts}
         onSelect={handleSelect}
         selectedSlugs={selectedSlugs}
+      />
+      <AskQuestionModal
+        open={questionModalOpen}
+        onOpenChange={setQuestionModalOpen}
+        listingName={listingName}
+        listingCategory={listingCategory}
+        listingSlug={listingSlug}
+        products={selectedProducts}
       />
     </>
   );

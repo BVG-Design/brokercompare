@@ -17,11 +17,18 @@ export const checkUserExists = async (email: string): Promise<boolean> => {
     return !error;
 };
 
-export const signInWithMagicLink = async (email: string) => {
+export const signInWithMagicLink = async (email: string, nextPath?: string) => {
+    const isSafePath = nextPath && nextPath.startsWith('/') ? nextPath : null;
+    const callbackUrl = new URL(`${window.location.origin}/auth/callback`);
+
+    if (isSafePath) {
+        callbackUrl.searchParams.set('next', isSafePath);
+    }
+
     const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            emailRedirectTo: callbackUrl.toString(),
             shouldCreateUser: false,
         },
     });

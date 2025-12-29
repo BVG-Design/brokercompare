@@ -99,7 +99,7 @@ export default async function SoftwarePage(props: PageProps) {
         <main className="flex-grow">
           <MainCard listing={listing} />
           <InfoGrid listing={listing} blogs={MOCK_BLOGS} />
-          <ReviewsSection />
+          <ReviewsSection listingName={listing.name} listingSlug={listing.slug} />
           <div className="max-w-6xl mx-auto px-4">
             <StillNotSure />
           </div>

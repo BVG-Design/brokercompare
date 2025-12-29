@@ -7,6 +7,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -185,9 +186,21 @@ export function FeedbackDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] bg-white text-gray-800">
         <DialogHeader>
-          <DialogTitle>Share your feedback</DialogTitle>
+          <div className="flex items-center gap-3">
+            <img
+              src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Digging%20Profile.png"
+              alt="Simba profile Tail"
+              className="w-20 h-20 rounded-xl object-contain border-2 border-white bg-white p-1"
+            />
+            <div className="space-y-1">
+              <DialogTitle className="text-brand-blue-800">Share your feedback</DialogTitle>
+              <DialogDescription className="text-gray-800">
+                Hi, Simba here, let me and the humans know how we can improve, please share your feedback.
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 py-4">
@@ -211,7 +224,7 @@ export function FeedbackDialog({
                 value={feedback}
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Tell us what needs to be updated or corrected..."
-                className="min-h-[120px]"
+                className="min-h-[120px] border-gray-600 text-gray-800 placeholder:text-gray-600 bg-white"
                 required
               />
             </div>
@@ -234,6 +247,7 @@ export function FeedbackDialog({
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       placeholder="First name"
+                      className="border-gray-600 text-gray-800 placeholder:text-gray-600"
                       required
                     />
                   </div>
@@ -247,6 +261,7 @@ export function FeedbackDialog({
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Last name"
+                      className="border-gray-600 text-gray-800 placeholder:text-gray-600"
                     />
                   </div>
                 </div>
@@ -260,6 +275,7 @@ export function FeedbackDialog({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Enter your email"
+                    className="border-gray-600 text-gray-800 placeholder:text-gray-600"
                     required
                   />
                 </div>

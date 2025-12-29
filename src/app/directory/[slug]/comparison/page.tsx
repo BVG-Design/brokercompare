@@ -28,6 +28,7 @@ export default async function DirectoryComparisonPage(props: PageProps) {
         <DetailedComparisonClient
           listingSlug={slug}
           listingName={listing.name}
+          listingCategory={listing.category}
           listingWebsite={listing.websiteUrl}
           allProducts={[...comparisonProducts, ...allDirectoryProducts]}
           suggestedProducts={suggestedProducts}

@@ -85,46 +85,48 @@ export default function ReviewsManagement() {
                   const moderationStatus = review.moderation_status ?? review.moderationStatus ?? review.status ?? 'pending';
                   const isVerified = review.is_verified ?? review.isVerified ?? review.verified ?? false;
                   return (
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="font-semibold">{review.author} on {review.vendorName || review.vendor_id}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {review.created_at
-                        ? new Date(review.created_at).toLocaleDateString()
-                        : 'No date'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {isVerified && (
-                      <Badge variant="outline" className="border-emerald-500 text-emerald-600 bg-emerald-50">
-                        Verified
-                      </Badge>
-                    )}
-                    <Badge
-                      variant={moderationStatus === 'approved' ? 'default' : 'outline'}
-                      className={moderationStatus === 'approved' ? 'bg-green-100 text-green-800' : ''}
-                    >
-                      {moderationStatus}
-                    </Badge>
-                  </div>
-                </div>
-                <StarRating rating={review.rating || 0} className="mb-2" />
-                <p className="text-sm text-muted-foreground mb-4">{review.comment || 'No comment provided.'}</p>
-                <div className="flex gap-2">
-                  {moderationStatus !== 'approved' && (
-                    <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700" onClick={() => handleStatusChange(review.id, 'approved')}>
-                      <ThumbsUp className="mr-2 h-4 w-4" /> Approve
-                    </Button>
-                  )}
-                   {moderationStatus !== 'rejected' && (
-                     <Button size="sm" variant="outline" className="text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-700" onClick={() => handleStatusChange(review.id, 'rejected')}>
-                      <ThumbsDown className="mr-2 h-4 w-4" /> Reject
-                    </Button>
-                  )}
-                  <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => handleDelete(review.id)}>
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                  </Button>
-                </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <p className="font-semibold">{review.author} on {review.vendorName || review.vendor_id}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {review.created_at
+                              ? new Date(review.created_at).toLocaleDateString()
+                              : 'No date'}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {isVerified && (
+                            <Badge variant="outline" className="border-emerald-500 text-emerald-600 bg-emerald-50">
+                              Verified
+                            </Badge>
+                          )}
+                          <Badge
+                            variant={moderationStatus === 'approved' ? 'default' : 'outline'}
+                            className={moderationStatus === 'approved' ? 'bg-green-100 text-green-800' : ''}
+                          >
+                            {moderationStatus}
+                          </Badge>
+                        </div>
+                      </div>
+                      <StarRating rating={review.rating || 0} className="mb-1" />
+                      <p className="text-sm text-muted-foreground">{review.comment || 'No comment provided.'}</p>
+                      <div className="flex gap-2">
+                        {moderationStatus !== 'approved' && (
+                          <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50 hover:text-green-700" onClick={() => handleStatusChange(review.id, 'approved')}>
+                            <ThumbsUp className="mr-2 h-4 w-4" /> Approve
+                          </Button>
+                        )}
+                        {moderationStatus !== 'rejected' && (
+                          <Button size="sm" variant="outline" className="text-orange-600 border-orange-600 hover:bg-orange-50 hover:text-orange-700" onClick={() => handleStatusChange(review.id, 'rejected')}>
+                            <ThumbsDown className="mr-2 h-4 w-4" /> Reject
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" className="text-red-600 border-red-600 hover:bg-red-50 hover:text-red-700" onClick={() => handleDelete(review.id)}>
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </Button>
+                      </div>
+                    </div>
                   );
                 })()}
               </div>
