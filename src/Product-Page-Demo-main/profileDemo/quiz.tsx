@@ -285,10 +285,52 @@ const Quiz: React.FC<QuizProps> = ({ onBack, isLoggedIn }) => {
               className="w-full p-3 bg-white border-2 border-gray-100 rounded-xl outline-none focus:border-purple-600 appearance-none font-semibold text-gray-700 text-sm"
             >
               <option value="">Select an aggregator...</option>
-              <option value="LMG">LMG</option>
-              <option value="Connective">Connective</option>
-              <option value="Finsure">Finsure</option>
-              <option value="nMB">nMB</option>
+              {[
+                { value: 'amag', label: 'AMAG' },
+                { value: 'astute', label: 'Astute' },
+                { value: 'aussie_home_loans', label: 'Aussie Home Loans' },
+                { value: 'afg', label: 'Australian Finance Group (AFG)' },
+                { value: 'balmain_nb', label: 'Balmain NB Commercial Mortgages' },
+                { value: 'bernie_lewis', label: 'Bernie Lewis Home Loans' },
+                { value: 'buyers_choice', label: 'Buyers Choice' },
+                { value: 'centrepoint_alliance', label: 'Centrepoint Alliance Lending' },
+                { value: 'choice', label: 'Choice Aggregation' },
+                { value: 'cog', label: 'COG Aggregation' },
+                { value: 'compass', label: 'Compass Aggregation' },
+                { value: 'connective', label: 'Connective' },
+                { value: 'echoice', label: 'eChoice Home Loans' },
+                { value: 'fast', label: 'Finance and Systems Technology (FAST)' },
+                { value: 'finance_king', label: 'Finance King' },
+                { value: 'finconnect', label: 'Finconnect' },
+                { value: 'finsure', label: 'Finsure' },
+                { value: 'lendi', label: 'Lendi Group' },
+                { value: 'liberty_network', label: 'Liberty Network Services' },
+                { value: 'lj_hooker', label: 'LJ Hooker Home Loans' },
+                { value: 'loankit', label: 'Loankit' },
+                { value: 'lmg', label: 'Loan Market Group (LMG)' },
+                { value: 'moneyquest', label: 'MoneyQuest' },
+                { value: 'mortgage_choice', label: 'Mortgage Choice' },
+                { value: 'mortgage_house', label: 'Mortgage House' },
+                { value: 'mortgage_loans_australia', label: 'Mortgage Loans Australia' },
+                { value: 'my_local_broker', label: 'My Local Broker' },
+                { value: 'nmb', label: 'National Mortgage Brokers (nMB)' },
+                { value: 'newco', label: 'NewCo Financial Services' },
+                { value: 'our_broker', label: 'Our Broker' },
+                { value: 'outsource', label: 'Outsource Financial' },
+                { value: 'plan', label: 'PLAN Australia' },
+                { value: 'purple_circle', label: 'Purple Circle Financial Services' },
+                { value: 'smartline', label: 'Smartline' },
+                { value: 'sfg', label: 'Specialist Finance Group (SFG)' },
+                { value: 'sure_harvest', label: 'Sure Harvest Pty' },
+                { value: 'swoop', label: 'Swoop' },
+                { value: 'viking', label: 'Viking' },
+                { value: 'vow', label: 'VOW Financial' },
+                { value: 'other', label: 'Other' },
+              ].map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
               <ChevronRight size={20} className="rotate-90 text-gray-400" />

@@ -331,10 +331,52 @@ function QuizBody({ onClose }: { onClose: () => void }) {
               className="w-full p-3 bg-white border-2 border-gray-100 rounded-lg outline-none focus:border-brand-blue appearance-none font-semibold text-gray-700 text-sm"
             >
               <option value="">Select an aggregator...</option>
-              <option value="LMG">LMG</option>
-              <option value="Connective">Connective</option>
-              <option value="Finsure">Finsure</option>
-              <option value="nMB">nMB</option>
+              {[
+                { value: 'amag', label: 'AMAG' },
+                { value: 'astute', label: 'Astute' },
+                { value: 'aussie_home_loans', label: 'Aussie Home Loans' },
+                { value: 'afg', label: 'Australian Finance Group (AFG)' },
+                { value: 'balmain_nb', label: 'Balmain NB Commercial Mortgages' },
+                { value: 'bernie_lewis', label: 'Bernie Lewis Home Loans' },
+                { value: 'buyers_choice', label: 'Buyers Choice' },
+                { value: 'centrepoint_alliance', label: 'Centrepoint Alliance Lending' },
+                { value: 'choice', label: 'Choice Aggregation' },
+                { value: 'cog', label: 'COG Aggregation' },
+                { value: 'compass', label: 'Compass Aggregation' },
+                { value: 'connective', label: 'Connective' },
+                { value: 'echoice', label: 'eChoice Home Loans' },
+                { value: 'fast', label: 'Finance and Systems Technology (FAST)' },
+                { value: 'finance_king', label: 'Finance King' },
+                { value: 'finconnect', label: 'Finconnect' },
+                { value: 'finsure', label: 'Finsure' },
+                { value: 'lendi', label: 'Lendi Group' },
+                { value: 'liberty_network', label: 'Liberty Network Services' },
+                { value: 'lj_hooker', label: 'LJ Hooker Home Loans' },
+                { value: 'loankit', label: 'Loankit' },
+                { value: 'lmg', label: 'Loan Market Group (LMG)' },
+                { value: 'moneyquest', label: 'MoneyQuest' },
+                { value: 'mortgage_choice', label: 'Mortgage Choice' },
+                { value: 'mortgage_house', label: 'Mortgage House' },
+                { value: 'mortgage_loans_australia', label: 'Mortgage Loans Australia' },
+                { value: 'my_local_broker', label: 'My Local Broker' },
+                { value: 'nmb', label: 'National Mortgage Brokers (nMB)' },
+                { value: 'newco', label: 'NewCo Financial Services' },
+                { value: 'our_broker', label: 'Our Broker' },
+                { value: 'outsource', label: 'Outsource Financial' },
+                { value: 'plan', label: 'PLAN Australia' },
+                { value: 'purple_circle', label: 'Purple Circle Financial Services' },
+                { value: 'smartline', label: 'Smartline' },
+                { value: 'sfg', label: 'Specialist Finance Group (SFG)' },
+                { value: 'sure_harvest', label: 'Sure Harvest Pty' },
+                { value: 'swoop', label: 'Swoop' },
+                { value: 'viking', label: 'Viking' },
+                { value: 'vow', label: 'VOW Financial' },
+                { value: 'other', label: 'Other' },
+              ].map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
             </select>
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
               <ChevronRight size={20} className="rotate-90 text-gray-400" />
@@ -419,10 +461,10 @@ function QuizBody({ onClose }: { onClose: () => void }) {
         };
 
       return (
-        <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
+        <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">Do you need this {serviceLabel} to be:</h2>
-            <div className="grid grid-cols-1 gap-3 mt-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Do you need this {serviceLabel} to be:</h2>
+            <div className="grid grid-cols-1 gap-3 mt-2">
               {[
                 { id: 'local', label: 'Local - In Person Meetings' },
                 { id: 'offshore', label: 'Offshore - Virtual Meetings' },
@@ -439,7 +481,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
                       },
                     })
                   }
-                  className={`p-4 rounded-xl border-2 transition-all text-left font-semibold ${
+                  className={`p-3 rounded-lg border-2 transition-all text-left font-semibold text-sm ${
                     currentDetails.preference === opt.id
                       ? 'border-brand-blue bg-brand-blue/5 text-brand-blue'
                       : 'border-gray-100 bg-white text-gray-600 hover:border-brand-blue/30'
@@ -460,7 +502,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
               <input
                 type="text"
                 placeholder="e.g. Sydney, NSW"
-                className="w-full p-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none"
+                className="w-full p-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none text-sm"
                 value={currentDetails.location}
                 onChange={(e) =>
                   setAnswers({
@@ -479,7 +521,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
             <div className="animate-in slide-in-from-top-2">
               <label className="block text-sm font-bold text-gray-700 mb-2">Location Preference</label>
               <select
-                className="w-full p-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none"
+                className="w-full p-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none text-sm"
                 value={currentDetails.offshoreLoc}
                 onChange={(e) =>
                   setAnswers({
@@ -500,15 +542,15 @@ function QuizBody({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          <div className="pt-6 border-t border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Do you have a budget for this service?</h3>
+          <div className="pt-4 border-t border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 mb-3">Do you have a budget for this service?</h3>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</div>
                 <input
                   type="number"
                   placeholder="Amount"
-                  className="w-full pl-10 pr-4 py-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none text-sm"
                   value={currentDetails.budgetAmount}
                   onChange={(e) =>
                     setAnswers({
@@ -522,7 +564,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
                 />
               </div>
               <select
-                className="w-36 p-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none font-bold"
+                className="w-32 p-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none font-bold text-sm"
                 value={currentDetails.budgetPeriod}
                 onChange={(e) =>
                   setAnswers({
@@ -554,10 +596,10 @@ function QuizBody({ onClose }: { onClose: () => void }) {
         answers.toolDetails[toolId] || { usedBefore: '', experience: '', budgetAmount: '', budgetPeriod: 'monthly' };
 
       return (
-        <div className="space-y-8 animate-in slide-in-from-right-4 duration-300">
+        <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Have you used {toolLabel} before?</h2>
-            <div className="flex gap-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-3">Have you used {toolLabel} before?</h2>
+            <div className="flex gap-3">
               {['Yes', 'No'].map((opt) => (
                 <button
                   key={opt}
@@ -570,7 +612,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
                       },
                     })
                   }
-                  className={`flex-1 p-4 rounded-xl border-2 transition-all font-bold ${
+                  className={`flex-1 p-3 rounded-lg border-2 transition-all font-bold text-sm ${
                     currentDetails.usedBefore === opt
                       ? 'border-brand-blue bg-brand-blue/5 text-brand-blue shadow-sm'
                       : 'border-gray-100 bg-white text-gray-600 hover:border-brand-blue/30'
@@ -587,7 +629,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
               <label className="block text-sm font-bold text-gray-700 mb-2">Which ones and what was your experience?</label>
               <textarea
                 rows={4}
-                className="w-full p-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none resize-none"
+                className="w-full p-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none resize-none text-sm"
                 placeholder="Share your experience..."
                 value={currentDetails.experience}
                 onChange={(e) =>
@@ -603,15 +645,15 @@ function QuizBody({ onClose }: { onClose: () => void }) {
             </div>
           )}
 
-          <div className="pt-6 border-t border-gray-100">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Do you have a budget for this product?</h3>
+          <div className="pt-4 border-t border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 mb-3">Do you have a budget for this product?</h3>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</div>
                 <input
                   type="number"
                   placeholder="Amount"
-                  className="w-full pl-10 pr-4 py-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none"
+                  className="w-full pl-10 pr-4 py-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none text-sm"
                   value={currentDetails.budgetAmount}
                   onChange={(e) =>
                     setAnswers({
@@ -625,7 +667,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
                 />
               </div>
               <select
-                className="w-36 p-4 bg-white border-2 border-gray-100 rounded-xl focus:border-brand-blue outline-none font-bold"
+                className="w-32 p-3 bg-white border-2 border-gray-100 rounded-lg focus:border-brand-blue outline-none font-bold text-sm"
                 value={currentDetails.budgetPeriod}
                 onChange={(e) =>
                   setAnswers({
@@ -758,12 +800,14 @@ function QuizBody({ onClose }: { onClose: () => void }) {
   if (isFinished) {
     return (
       <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-3xl p-10 shadow-2xl shadow-brand-blue/10 text-center animate-in zoom-in-95 duration-500">
-          <div className="w-20 h-20 bg-brand-green/10 text-brand-green rounded-full flex items-center justify-center mx-auto mb-8">
-            <Check size={40} strokeWidth={3} />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">You're All Set!</h2>
-          <p className="text-gray-600 leading-relaxed mb-8">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl shadow-brand-blue/10 text-center animate-in zoom-in-95 duration-500">
+          <img
+            src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Digging%20Profile.png"
+            alt="Simba Digging profile"
+            className="w-20 h-20 rounded-full object-contain mx-auto mb-6 border-2 border-brand-green/30 shadow bg-white"
+          />
+          <h2 className="text-2xl font-bold text-gray-900 mb-3">You're All Set!</h2>
+          <p className="text-gray-600 leading-relaxed mb-6 text-sm">
             We are digging for the right products and services for you. In a short moment an email will be sent confirming your enquiry and some suggested providers for you.
           </p>
           <button
@@ -771,7 +815,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
               onClose();
               router.push('/');
             }}
-            className="w-full py-4 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2"
+            className="w-full py-3 bg-brand-blue hover:bg-brand-blue/90 text-white rounded-xl font-bold transition-all shadow-md flex items-center justify-center gap-2 text-sm"
           >
             Return Home <ExternalLink size={18} />
           </button>
@@ -781,22 +825,22 @@ function QuizBody({ onClose }: { onClose: () => void }) {
   }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center py-12 px-4 relative">
+    <div className="min-h-screen bg-[#f8fafc] flex flex-col items-center py-8 px-3 relative">
       {isWhyModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-brand-green/10">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-brand-green text-white rounded-lg">
-                  <Info size={20} />
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-brand-green/10">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-brand-green text-white rounded-md">
+                  <Info size={18} />
                 </div>
-                <h3 className="text-lg font-bold text-brand-green">Why We Ask This Question</h3>
+                <h3 className="text-base font-bold text-brand-green">Why We Ask This Question</h3>
               </div>
               <button onClick={() => setIsWhyModalOpen(false)} className="text-brand-green/70 hover:text-brand-green transition-colors">
-                <X size={24} />
+                <X size={20} />
               </button>
             </div>
-            <div className="p-8 space-y-4">
+            <div className="p-5 space-y-3">
               <p className="text-sm text-gray-600 leading-relaxed">
                 We use your responses to match you with relevant tools or service providers on Broker Tools, based on your current circumstances.
               </p>
@@ -812,7 +856,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
               </p>
               <button
                 onClick={() => setIsWhyModalOpen(false)}
-                className="w-full mt-4 py-3 bg-brand-blue text-white rounded-xl font-bold hover:bg-brand-blue/90 transition-colors"
+                className="w-full mt-2 py-2.5 bg-brand-blue text-white rounded-lg font-bold hover:bg-brand-blue/90 transition-colors text-sm"
               >
                 Got it, thanks!
               </button>
@@ -821,8 +865,8 @@ function QuizBody({ onClose }: { onClose: () => void }) {
         </div>
       )}
 
-      <div className="max-w-2xl w-full">
-        <div className="mb-10">
+      <div className="max-w-xl w-full">
+        <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
             <button
               onClick={onClose}

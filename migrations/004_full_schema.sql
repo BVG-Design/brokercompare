@@ -1,6 +1,182 @@
 -- Full schema bootstrap for Broker Tools directory + dashboards
 -- Assumes Supabase defaults (auth.users exists, pgcrypto/gen_random_uuid available).
 
+-- Quiz lookups for referential integrity
+create table if not exists public.quiz_types (
+  id uuid primary key default gen_random_uuid(),
+  key text not null unique,
+  label text not null,
+  category text not null check (category in ('tool','service','hybrid','other')),
+  description text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_types_set_updated_at
+  before update on public.quiz_types
+  for each row execute procedure public.set_updated_at();
+
+create table if not exists public.quiz_brokerage_sizes (
+  key text primary key,
+  label text not null,
+  position int,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_brokerage_sizes_set_updated_at
+  before update on public.quiz_brokerage_sizes
+  for each row execute procedure public.set_updated_at();
+
+create table if not exists public.quiz_business_stages (
+  key text primary key,
+  label text not null,
+  position int,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_business_stages_set_updated_at
+  before update on public.quiz_business_stages
+  for each row execute procedure public.set_updated_at();
+
+create table if not exists public.quiz_revenues (
+  key text primary key,
+  label text not null,
+  position int,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_revenues_set_updated_at
+  before update on public.quiz_revenues
+  for each row execute procedure public.set_updated_at();
+
+create table if not exists public.quiz_aggregators (
+  key text primary key,
+  label text not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_aggregators_set_updated_at
+  before update on public.quiz_aggregators
+  for each row execute procedure public.set_updated_at();
+
+-- Quiz waitlist submissions and selections
+create table if not exists public.quiz_waitlist_submissions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references auth.users on delete set null,
+
+  automation_choice text check (automation_choice in ('tool','service','both')),
+  other_type text,
+  brokerage_size text references public.quiz_brokerage_sizes(key),
+  aggregator text references public.quiz_aggregators(key),
+  business_stage text references public.quiz_business_stages(key),
+  revenue text references public.quiz_revenues(key),
+
+  service_details jsonb not null default '{}'::jsonb,
+  tool_details jsonb not null default '{}'::jsonb,
+
+  contact_first_name text not null,
+  contact_last_name text not null,
+  contact_email text not null,
+  contact_phone text,
+  contact_website text,
+  contact_location text,
+  contact_notes text,
+
+  source text default 'quiz-waitlist-modal',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger quiz_waitlist_submissions_set_updated_at
+  before update on public.quiz_waitlist_submissions
+  for each row execute procedure public.set_updated_at();
+
+create table if not exists public.quiz_submission_types (
+  submission_id uuid references public.quiz_waitlist_submissions(id) on delete cascade,
+  type_id uuid references public.quiz_types(id) on delete cascade,
+  primary key (submission_id, type_id)
+);
+
+create index if not exists quiz_waitlist_submissions_user_id_idx on public.quiz_waitlist_submissions (user_id);
+create index if not exists quiz_waitlist_submissions_email_idx on public.quiz_waitlist_submissions (lower(contact_email));
+
+-- Seed lookup values (idempotent)
+insert into public.quiz_types (key, label, category)
+values
+  ('crm','CRM (Lead Management & Enquiry Tracker)','tool'),
+  ('factfind','Fact Find & Document Collection Software','tool'),
+  ('automation','AI & Workflow Automations','hybrid'),
+  ('va','Virtual Assistant & Credit Analyst','service'),
+  ('marketing','Marketing & Social Media Services','service'),
+  ('it','IT & Cybersecurity Support','service'),
+  ('bookkeeping','Bookkeeping & Accounting','service'),
+  ('coach','Mindset Coach & Business Strategist','service'),
+  ('other','Something Else','other')
+on conflict (key) do nothing;
+
+insert into public.quiz_brokerage_sizes (key, label, position) values
+  ('independent','Independent (1-2 people)',1),
+  ('small','Small Team (3 - 6 people)',2),
+  ('mid','Mid Size (7 - 10 people)',3),
+  ('large','Large (10 + people)',4)
+on conflict (key) do nothing;
+
+insert into public.quiz_business_stages (key, label, position) values
+  ('early','Early Stage (have kicked-off but no consistent income)',1),
+  ('started','Hit the Ground Running (just started and doing ok)',2),
+  ('growth','Growth (operating for 1 - 3 years)',3),
+  ('scaling','Scaling (operating for 3+ years)',4)
+on conflict (key) do nothing;
+
+insert into public.quiz_revenues (key, label, position) values
+  ('under_15k','Under $15k / month',1),
+  ('15k_30k','$15k - $30k / month',2),
+  ('30k_60k','$30k - $60k / month',3),
+  ('60k_100k','$60k - $100k / month',4),
+  ('100k_plus','$100k+ / month',5)
+on conflict (key) do nothing;
+
+insert into public.quiz_aggregators (key, label) values
+  ('amag','AMAG'),
+  ('astute','Astute'),
+  ('aussie_home_loans','Aussie Home Loans'),
+  ('afg','Australian Finance Group (AFG)'),
+  ('balmain_nb','Balmain NB Commercial Mortgages'),
+  ('bernie_lewis','Bernie Lewis Home Loans'),
+  ('buyers_choice','Buyers Choice'),
+  ('centrepoint_alliance','Centrepoint Alliance Lending'),
+  ('choice','Choice Aggregation'),
+  ('cog','COG Aggregation'),
+  ('compass','Compass Aggregation'),
+  ('connective','Connective'),
+  ('echoice','eChoice Home Loans'),
+  ('fast','Finance and Systems Technology (FAST)'),
+  ('finance_king','Finance King'),
+  ('finconnect','Finconnect'),
+  ('finsure','Finsure'),
+  ('lendi','Lendi Group'),
+  ('liberty_network','Liberty Network Services'),
+  ('lj_hooker','LJ Hooker Home Loans'),
+  ('loankit','Loankit'),
+  ('lmg','Loan Market Group (LMG)'),
+  ('moneyquest','MoneyQuest'),
+  ('mortgage_choice','Mortgage Choice'),
+  ('mortgage_house','Mortgage House'),
+  ('mortgage_loans_australia','Mortgage Loans Australia'),
+  ('my_local_broker','My Local Broker'),
+  ('nmb','National Mortgage Brokers (nMB)'),
+  ('newco','NewCo Financial Services'),
+  ('our_broker','Our Broker'),
+  ('outsource','Outsource Financial'),
+  ('plan','PLAN Australia'),
+  ('purple_circle','Purple Circle Financial Services'),
+  ('smartline','Smartline'),
+  ('sfg','Specialist Finance Group (SFG)'),
+  ('sure_harvest','Sure Harvest Pty'),
+  ('swoop','Swoop'),
+  ('viking','Viking'),
+  ('vow','VOW Financial'),
+  ('other','Other')
+on conflict (key) do nothing;
+
 -- Helpers
 create or replace function public.set_updated_at()
 returns trigger as $$
