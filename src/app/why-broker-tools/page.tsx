@@ -95,12 +95,13 @@ export default function WhyBrokerToolsPage() {
                         </div>
                         <div className="flex flex-col justify-between gap-6 rounded-2xl bg-brand-blue p-6 shadow-inner shadow-black/20 ring-1 ring-brand-blue/30">
                             <div className="space-y-3 text-xl leading-relaxed">
-                                <h3 className="text-2xl font-bold text-brand-orange">The Methodologies We Operate Under</h3>
-                                <p className="font-italic text-brand-cream">
-                                How do you decide what tools to use, run and optimise your business? <br /><br /> The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology. 
+                                <h3 className="text-2xl font-bold text-brand-white">How do you decide what tools, software or services to use in your Broker business?</h3>
+                                <br /><p className="font-italic text-brand-cream">
+                                    The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology.
                                 </p><br />
                                 <p className="text-brand-cream/90">
-                                    At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries. <br/><br />These lenses keep every recommendation grounded in outcomes, time capacity and risk.
+                                    At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries. <br /><br /><p>
+                                        These form the Methodologies we use to recommendation products, services and software. </p>
                                 </p>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3">
@@ -123,10 +124,10 @@ export default function WhyBrokerToolsPage() {
                         <div className="space-y-4">
                             <p className="font-semibold text-brand-blue">We love systems and processes that optimise the way you work.</p>
                             <p>
-                                There is a little buzz we get from leveraging your current systems and processes with AI and Workflow Automations. This allows us to remove any headaches, bottlenecks, or clunky Broker processes - by streamlining your CRM Design. <br/> <br/>We achieve this through taking a practical approach to researching, planning and recommending products and service that work well for you.
+                                There is a little buzz we get from leveraging your current systems and processes with AI and Workflow Automations. This allows us to remove any headaches, bottlenecks, or clunky Broker processes - by streamlining your CRM Design. <br /> <br />We achieve this through taking a practical approach to researching, planning and recommending products and service that work well for you.
                             </p>
                             <p className="font-semibold text-brand-orange">
-                                Do we use AI to recommend the workflow or services? No. 
+                                Do we use AI to recommend the workflow or services? No.
                             </p>
                             <p className="font-italic text-brand-blue"> Not because we don't want to but in our test so far, it hasn't been reliable in giving the "right" recommendation. See our test here: Why AI can't recommend your broker tool stack - yet!</p>
                         </div>
@@ -180,7 +181,7 @@ export default function WhyBrokerToolsPage() {
                             <p className="font-bold text-brand-white">The TOP 3 JOBS to be done are:</p>
                             <p>
                                 1. Lead Nurturing <br />
-                                2. Data Capturing <br /> 
+                                2. Data Capturing <br />
                                 3. Credit Assessment and Submission <br /> <br /> Followed by settlement confirmation, finalisation and ongoing maintence. How do you achieve this?
                             </p>
                             <div className="grid gap-3 sm:grid-cols-2">
@@ -295,7 +296,7 @@ export default function WhyBrokerToolsPage() {
                                 </div>
                             </div>
                             <div className="rounded-xl border border-brand-orange/80 bg-brand-orange/80 px-4 py-3 text-sm font-semibold text-brand-blue shadow">
-                                Confirm a rollout plan, select a systems advocate and build an operations knowledge base. 
+                                Confirm a rollout plan, select a systems advocate and build an operations knowledge base.
                             </div>
                         </div>
                         <div className="h-full min-h-[360px] rounded-2xl border border-brand-blue/15 bg-brand-cream p-5 shadow-inner shadow-black/5">
