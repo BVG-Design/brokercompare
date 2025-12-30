@@ -20,14 +20,24 @@ export default async function DashboardPage() {
     .eq('id', session.user.id)
     .single();
 
-  // Redirect based on default_dashboard or user_type
-  if (profile?.default_dashboard === 'admin' || profile?.admin_dashboard || profile?.user_type === 'admin') {
+  // Honor explicit default_dashboard first, then fall back to allowed dashboards
+  if (profile?.default_dashboard === 'admin') {
     redirect('/admin');
   }
-  if (profile?.default_dashboard === 'vendor' || profile?.vendor_dashboard || profile?.user_type === 'vendor') {
+  if (profile?.default_dashboard === 'vendor') {
     redirect('/dashboard/vendor');
   }
-  if (profile?.default_dashboard === 'broker' || profile?.broker_dashboard || profile?.user_type === 'broker') {
+  if (profile?.default_dashboard === 'broker') {
+    redirect('/dashboard/broker');
+  }
+
+  if (profile?.admin_dashboard || profile?.user_type === 'admin') {
+    redirect('/admin');
+  }
+  if (profile?.vendor_dashboard || profile?.user_type === 'vendor') {
+    redirect('/dashboard/vendor');
+  }
+  if (profile?.broker_dashboard || profile?.user_type === 'broker') {
     redirect('/dashboard/broker');
   }
 

@@ -513,6 +513,27 @@ export default function WorkflowOptimisationPage() {
                 </div>
             </section>
 
+            {/* Disclaimer */}
+            <section className="py-8 bg-cream px-4 border-t border-brand-blue/10">
+                <div className="container mx-auto max-w-4xl">
+                    <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 space-y-4">
+                        <h2 className="text-m font-bold text-brand-blue">Disclaimer</h2>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            Broker Tools' Workflow Optimisation Program is designed to support brokers in reviewing their workflows, systems, and operational options. As part of the program, we may present a range of tools, services, or approaches and, where appropriate, share our perspective on how different options may fit common broker workflows.
+                        </p>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            These insights are provided for decision support and educational purposes only. While we aim to offer thoughtful, experience-informed guidance, final decisions remain entirely yours. Broker Tools does not make decisions on your behalf, mandate specific tools, or assume responsibility for implementation choices.
+                        </p>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            Broker Tools does not provide financial, legal, tax, or compliance advice, and does not control or oversee any third-party providers. Outcomes will vary based on individual circumstances, business practices, and execution.
+                        </p>
+                        <p className="text-sm text-gray-700 leading-relaxed">
+                            You are encouraged to apply your own professional judgement and conduct appropriate due diligence before adopting or changing any systems or processes.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
         </div>
     );
 }

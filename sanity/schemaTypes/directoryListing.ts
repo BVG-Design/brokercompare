@@ -20,6 +20,13 @@ export const directoryListingType = defineType({
     }),
 
     defineField({
+      name: 'supabaseId',
+      title: 'Supabase ID',
+      type: 'string',
+      description: 'Link back to the Supabase vendors table (sanity_id).'
+    }),
+
+    defineField({
       name: 'listingType',
       title: 'Listing Type',
       type: 'string',

@@ -30,7 +30,19 @@ import {
   MessageSquare,
   CheckCircle,
   X,
-  AlertCircle
+  AlertCircle,
+  Plus
+} from 'lucide-react';
+import {
+  Puzzle,
+  Video,
+  FileText,
+  Link as LinkIcon,
+  Users,
+  DollarSign,
+  Check,
+  Phone,
+  User as UserIcon
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { supabase } from '@/lib/supabase/client';
@@ -71,14 +83,39 @@ const dashboardOptions = [
 type DashboardKey = (typeof dashboardOptions)[number]['id'];
 
 const fieldBoxClass = 'bg-white border border-gray-700';
+
+type VendorMaterial = { title: string; type: 'video' | 'pdf' | 'link'; link: string };
+type VendorForm = VendorRecord & {
+  pricing?: string | null;
+  phone?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  features?: string[];
+  integrations?: string[];
+  teamSize?: string[];
+  revenue?: string[];
+  budgetAmount?: string;
+  budgetPeriod?: 'monthly' | 'yearly' | 'project';
+  lookingTo?: string[];
+  lookingToOther?: string;
+  notFitFor?: string;
+  materials?: VendorMaterial[];
+  newFeature?: string;
+  newIntegration?: string;
+  newMaterial?: VendorMaterial;
+  isTrainingPublic?: boolean;
+};
 function VendorDashboardContent() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [uploading, setUploading] = useState(false);
-  const [editedVendor, setEditedVendor] = useState<VendorRecord | null>(null);
-  const [vendor, setVendor] = useState<VendorRecord | null>(null);
+  const [editedVendor, setEditedVendor] = useState<VendorForm | null>(null);
+  const [vendor, setVendor] = useState<VendorForm | null>(null);
+  const [vendorProfiles, setVendorProfiles] = useState<VendorForm[]>([]);
+  const [activeVendorId, setActiveVendorId] = useState<string | null>(null);
   const [vendorLoading, setVendorLoading] = useState(true);
   const [leads, setLeads] = useState<LeadRecord[]>([]);
   const [reviews, setReviews] = useState<ReviewRecord[]>([]);
@@ -124,15 +161,34 @@ function VendorDashboardContent() {
         ? await getVendorForUser(supabase, profile)
         : null;
 
-      setVendor(vendorRecord);
-      setEditedVendor(
-        vendorRecord
-          ? {
-              ...vendorRecord,
-              categories: vendorRecord.categories || [],
-            }
-          : null
-      );
+      const withDefaults: VendorForm | null = vendorRecord
+        ? {
+            ...vendorRecord,
+            categories: vendorRecord.categories || [],
+            features: vendorRecord.features || [],
+            integrations: vendorRecord.integrations || [],
+            teamSize: vendorRecord.teamSize || [],
+            revenue: vendorRecord.revenue || [],
+            budgetAmount: vendorRecord.budgetAmount || '500',
+            budgetPeriod: (vendorRecord.budgetPeriod as VendorForm['budgetPeriod']) || 'monthly',
+            lookingTo: vendorRecord.lookingTo || [],
+            lookingToOther: vendorRecord.lookingToOther || '',
+            notFitFor: vendorRecord.notFitFor || '',
+            materials:
+              vendorRecord.materials ||
+              [
+                { title: 'Dashboard Tutorial', type: 'video', link: 'https://youtube.com/...' },
+                { title: 'Feature Guide', type: 'pdf', link: 'https://clickup.com/guide.pdf' },
+              ],
+            newFeature: '',
+            newIntegration: '',
+            newMaterial: { title: '', type: 'video', link: '' },
+            isTrainingPublic: true,
+          }
+        : null;
+
+      setVendor(withDefaults);
+      setEditedVendor(withDefaults);
 
       if (vendorRecord?.id) {
         const [leadRows, reviewRows] = await Promise.all([
@@ -167,6 +223,44 @@ function VendorDashboardContent() {
     }
   }, [profile]);
 
+  useEffect(() => {
+    if (vendor) {
+      setVendorProfiles((prev) => (prev.length > 0 ? prev : [vendor]));
+      setActiveVendorId((prev) => prev || vendor.id);
+    }
+  }, [vendor]);
+
+  useEffect(() => {
+    const activeProfile =
+      vendorProfiles.find((p) => p.id === activeVendorId) || vendorProfiles[0];
+    if (activeProfile) {
+      setEditedVendor({
+        ...activeProfile,
+        categories: activeProfile.categories || [],
+        features: activeProfile.features || [],
+        integrations: activeProfile.integrations || [],
+        teamSize: activeProfile.teamSize || [],
+        revenue: activeProfile.revenue || [],
+        budgetAmount: activeProfile.budgetAmount || '500',
+        budgetPeriod: activeProfile.budgetPeriod || 'monthly',
+        lookingTo: activeProfile.lookingTo || [],
+        lookingToOther: activeProfile.lookingToOther || '',
+        notFitFor: activeProfile.notFitFor || '',
+        materials:
+          activeProfile.materials && activeProfile.materials.length > 0
+            ? activeProfile.materials
+            : [
+                { title: 'Dashboard Tutorial', type: 'video', link: 'https://youtube.com/...' },
+                { title: 'Feature Guide', type: 'pdf', link: 'https://clickup.com/guide.pdf' },
+              ],
+        newFeature: '',
+        newIntegration: '',
+        newMaterial: { title: '', type: 'video', link: '' },
+        isTrainingPublic: activeProfile.isTrainingPublic ?? true,
+      });
+    }
+  }, [activeVendorId, vendorProfiles]);
+
   const categories = [
     { value: 'mortgage_software', label: 'Mortgage Software' },
     { value: 'asset_finance_tools', label: 'Asset Finance Tools' },
@@ -183,17 +277,14 @@ function VendorDashboardContent() {
     { value: 'other', label: 'Other' }
   ];
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'leads', label: 'Leads & Inquiries', icon: Inbox, badge: leads.filter(l => l.status === 'new').length },
-    { id: 'edit-profile', label: 'Edit Profile', icon: Edit },
-    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
-    { id: 'upgrade', label: 'Upgrade Plan', icon: Crown },
-    { id: 'settings', label: 'Settings', icon: Settings },
-  ];
-
   const handleSaveProfile = () => {
     if (!editedVendor) return;
+    setVendorProfiles((prev) =>
+      prev.map((p) => (p.id === editedVendor.id ? { ...p, ...editedVendor } : p))
+    );
+    if (vendor && vendor.id === editedVendor.id) {
+      setVendor({ ...vendor, ...editedVendor });
+    }
     // TODO: Implement Supabase mutation
     toast({
       title: 'Profile updated',
@@ -220,6 +311,48 @@ function VendorDashboardContent() {
       });
     }
     setUploading(false);
+  };
+
+  const handleAddProfile = () => {
+    const newProfile: VendorForm = {
+      id: `draft-${Date.now()}`,
+      company_name: `Profile ${vendorProfiles.length + 1}`,
+      listing_tier: 'draft',
+      status: 'draft',
+      categories: [],
+      logo_url: '',
+      website: '',
+      description: '',
+      tagline: '',
+      view_count: 0,
+      pricing: '',
+      phone: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      features: [],
+      integrations: [],
+      teamSize: [],
+      revenue: [],
+      budgetAmount: '',
+      budgetPeriod: 'monthly',
+      lookingTo: [],
+      lookingToOther: '',
+      notFitFor: '',
+      materials: [],
+      newFeature: '',
+      newIntegration: '',
+      newMaterial: { title: '', type: 'video', link: '' },
+      isTrainingPublic: true,
+    };
+
+    setVendorProfiles((prev) => [...prev, newProfile]);
+    setActiveVendorId(newProfile.id);
+    setEditedVendor({ ...newProfile, categories: [] });
+    toast({
+      title: 'New vendor profile started',
+      description: 'Fill in the details and submit for approval once ready.',
+    });
   };
 
   const goToDashboard = (path: string) => {
@@ -284,14 +417,19 @@ function VendorDashboardContent() {
     );
   }
 
-  const vendorDisplay = vendor || {
+  const activeVendor =
+    vendorProfiles.find((p) => p.id === activeVendorId) ||
+    vendorProfiles[0] ||
+    vendor;
+
+  const vendorDisplay = activeVendor || {
     company_name: profile?.company || 'Your business',
     listing_tier: 'unlisted',
     status: 'draft',
     logo_url: '',
   };
-  const isPending = vendor?.status === 'pending';
-  const applicationNotice = !vendor
+  const isPending = vendorDisplay?.status === 'pending';
+  const applicationNotice = !activeVendor
     ? {
         title: 'Complete your vendor application',
         body: 'We could not find a vendor profile for this account. Start your application to unlock the vendor dashboard.',
@@ -305,11 +443,35 @@ function VendorDashboardContent() {
         }
       : null;
 
-  const newLeadsCount = vendor ? leads.filter(l => l.status === 'new').length : 0;
-  const approvedReviews = vendor ? reviews.filter(r => r.status === 'approved') : [];
+  const hasPrimaryVendor = Boolean(vendor);
+  const newLeadsCount = activeVendor && hasPrimaryVendor && activeVendor.id === vendor?.id
+    ? leads.filter(l => l.status === 'new').length
+    : 0;
+  const approvedReviews = activeVendor && hasPrimaryVendor && activeVendor.id === vendor?.id
+    ? reviews.filter(r => r.status === 'approved')
+    : [];
+  const visibleLeads = activeVendor && hasPrimaryVendor && activeVendor.id === vendor?.id ? leads : [];
+  const visibleReviews = activeVendor && hasPrimaryVendor && activeVendor.id === vendor?.id ? reviews : [];
   const avgRating = approvedReviews.length > 0
     ? approvedReviews.reduce((sum, r) => sum + r.rating, 0) / approvedReviews.length
     : 0;
+  const pmfSnapshot = {
+    team: activeVendor?.categories && activeVendor.categories.length > 0
+      ? activeVendor.categories.slice(0, 3).map((cat) => cat.replace(/_/g, ' '))
+      : ['Small (3-6)', 'Med (7-10)'],
+    revenue: ['$30k - $60k / mo'],
+    goals: ['Reduce admin', 'Better reporting'],
+    budget: vendorDisplay.listing_tier === 'featured' ? '$750 / monthly' : '$500 / monthly',
+  };
+
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'leads', label: 'Leads & Inquiries', icon: Inbox, badge: newLeadsCount },
+    { id: 'edit-profile', label: 'Edit Profile', icon: Edit },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'upgrade', label: 'Upgrade Plan', icon: Crown },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
 
   const renderAccessCard = (headline: string) => (
     <Card>
@@ -321,15 +483,15 @@ function VendorDashboardContent() {
       </CardHeader>
       <CardContent className="space-y-2 text-sm text-muted-foreground">
         <p>
-          {!vendor
+          {!activeVendor
             ? 'Complete your vendor application to access this area.'
             : 'Your application is pending approval. Access will unlock once approved.'}
         </p>
         <div className="flex gap-2 flex-wrap">
           <Button asChild className="bg-[#132847] hover:bg-[#1a3a5f]">
-            <Link href={vendor ? '/' : '/apply'}>{vendor ? 'Return home' : 'Start application'}</Link>
+            <Link href={activeVendor ? '/' : '/apply'}>{activeVendor ? 'Return home' : 'Start application'}</Link>
           </Button>
-          {!vendor && (
+          {!activeVendor && (
             <Button variant="outline" asChild>
               <Link href="/contact">Get support</Link>
             </Button>
@@ -342,11 +504,11 @@ function VendorDashboardContent() {
   return (
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-12">
-          {applicationNotice && (
-            <Card className="mb-6 border-amber-200 bg-amber-50">
-              <CardContent className="pt-4 pb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                  <p className="font-semibold text-[#132847]">{applicationNotice.title}</p>
+        {applicationNotice && (
+          <Card className="mb-6 border-amber-200 bg-amber-50">
+            <CardContent className="pt-4 pb-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div>
+                <p className="font-semibold text-[#132847]">{applicationNotice.title}</p>
                   <p className="text-sm text-gray-700 mt-1">{applicationNotice.body}</p>
                 </div>
                 {applicationNotice.cta && (
@@ -357,6 +519,51 @@ function VendorDashboardContent() {
               </CardContent>
             </Card>
           )}
+          <Card className="mb-8 border-gray-200">
+            <CardContent className="pt-5 pb-6 space-y-4">
+              <div className="flex items-center justify-between gap-3 flex-wrap">
+                <div className="flex items-center gap-2">
+                  <LayoutDashboard className="text-primary w-5 h-5" />
+                  <div>
+                    <p className="text-sm font-semibold text-[#132847]">Vendor profiles</p>
+                    <p className="text-xs text-gray-600">Switch between profiles or start a new one.</p>
+                  </div>
+                </div>
+                <Button variant="outline" className="border-dashed" onClick={handleAddProfile}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add profile
+                </Button>
+              </div>
+              <div className="flex gap-3 flex-wrap">
+                {vendorProfiles.length === 0 && (
+                  <span className="text-sm text-gray-500">No profiles yet. Create one to get started.</span>
+                )}
+                {vendorProfiles.map((profileCard) => (
+                  <button
+                    key={profileCard.id}
+                    onClick={() => setActiveVendorId(profileCard.id)}
+                    className={`px-4 py-3 rounded-xl border transition-all text-left ${
+                      activeVendorId === profileCard.id
+                        ? 'bg-[#132847] text-white border-[#132847] shadow-lg shadow-gray-200'
+                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">
+                        {profileCard.company_name || 'Untitled profile'}
+                      </span>
+                      <Badge variant={profileCard.status === 'approved' ? 'default' : 'secondary'}>
+                        {profileCard.status || 'draft'}
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-gray-500 mt-1">
+                      {profileCard.listing_tier || 'unlisted'} tier | {profileCard.view_count || 0} views
+                    </p>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Sidebar */}
             <div className="lg:col-span-1">
@@ -418,7 +625,7 @@ function VendorDashboardContent() {
                     </p>
                   </div>
 
-                  {!vendor ? (
+                  {!activeVendor ? (
                     <Card>
                       <CardContent className="pt-6 space-y-3">
                         <p className="font-semibold text-primary">Vendor profile missing</p>
@@ -458,7 +665,7 @@ function VendorDashboardContent() {
                             <CardTitle className="text-sm font-medium text-muted-foreground">Total Views</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-3xl font-bold text-primary">{vendor.view_count || 0}</div>
+                            <div className="text-3xl font-bold text-primary">{vendorDisplay.view_count || 0}</div>
                           </CardContent>
                         </Card>
                         <Card>
@@ -466,7 +673,7 @@ function VendorDashboardContent() {
                             <CardTitle className="text-sm font-medium text-muted-foreground">Leads</CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <div className="text-3xl font-bold text-primary">{leads.length}</div>
+                            <div className="text-3xl font-bold text-primary">{visibleLeads.length}</div>
                           </CardContent>
                         </Card>
                         <Card>
@@ -474,7 +681,7 @@ function VendorDashboardContent() {
                             <CardTitle className="text-sm font-medium text-muted-foreground">Reviews</CardTitle>
                           </CardHeader>
                       <CardContent>
-                        <div className="text-3xl font-bold text-primary">{reviews.length}</div>
+                        <div className="text-3xl font-bold text-primary">{visibleReviews.length}</div>
                       </CardContent>
                     </Card>
                   </div>
@@ -510,6 +717,52 @@ function VendorDashboardContent() {
                         </CardContent>
                       </Card>
 
+                      <Card className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div className="px-8 py-5 border-b border-gray-50 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Target size={20} className="text-blue-600" />
+                            <h2 className="font-bold text-gray-900">Product Market Fit</h2>
+                          </div>
+                          <button onClick={() => setActiveSection('edit-profile')} className="text-blue-600 text-xs font-bold hover:underline">
+                            Manage PMF
+                          </button>
+                        </div>
+                        <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Ideal Team Size</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {pmfSnapshot.team.map((s) => (
+                                  <span key={s} className="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div>
+                              <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Target Customer Revenue</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {pmfSnapshot.revenue.map((s) => (
+                                  <span key={s} className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="space-y-4">
+                            <div>
+                              <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Key Customer Goals</h4>
+                              <div className="flex flex-wrap gap-2">
+                                {pmfSnapshot.goals.map((s) => (
+                                  <span key={s} className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold rounded">{s}</span>
+                                ))}
+                              </div>
+                            </div>
+                            <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                              <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Target Budget</h4>
+                              <p className="text-sm font-bold text-gray-900">{pmfSnapshot.budget}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+
                       <Card>
                         <CardHeader>
                           <div className="flex items-center justify-between">
@@ -523,7 +776,7 @@ function VendorDashboardContent() {
                           </div>
                         </CardHeader>
                         <CardContent>
-                          {leads.length === 0 ? (
+                          {visibleLeads.length === 0 ? (
                             <div className="text-center py-8">
                               <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                               <p className="text-gray-600">No leads yet</p>
@@ -531,7 +784,7 @@ function VendorDashboardContent() {
                             </div>
                           ) : (
                             <div className="space-y-3">
-                              {leads.slice(0, 5).map(lead => (
+                              {visibleLeads.slice(0, 5).map(lead => (
                                 <div key={lead.id} className="flex items-start justify-between p-3 border rounded-lg hover:bg-gray-50">
                                   <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
@@ -543,18 +796,20 @@ function VendorDashboardContent() {
                                     <p className="text-sm text-gray-600">{lead.broker_email}</p>
                                     <p className="text-sm text-gray-500 line-clamp-1 mt-1">{lead.message}</p>
                                     <p className="text-xs text-gray-400 mt-1">
-                                      {new Date(lead.created_date).toLocaleDateString()}
+                                      {lead.created_at || (lead as any).created_date
+                                        ? new Date((lead.created_at || (lead as any).created_date) as string).toLocaleDateString()
+                                        : 'Pending'}
                                     </p>
                                   </div>
                                 </div>
                               ))}
-                              {leads.length > 5 && (
+                              {visibleLeads.length > 5 && (
                                 <Button
                                   variant="outline"
                                   className="w-full"
                                   onClick={() => setActiveSection('leads')}
                                 >
-                                  View All Leads ({leads.length})
+                                  View All Leads ({visibleLeads.length})
                                 </Button>
                               )}
                             </div>
@@ -606,16 +861,16 @@ function VendorDashboardContent() {
                     <h1 className="text-3xl font-bold text-primary mb-2">Leads & Inquiries</h1>
                     <p className="text-muted-foreground">Manage your incoming leads</p>
                   </div>
-                  {(!vendor || isPending) ? (
+                  {(!activeVendor || isPending) ? (
                     renderAccessCard('Leads are locked')
                   ) : (
                     <Card>
                       <CardContent className="pt-6">
-                        {leads.length === 0 ? (
+                        {visibleLeads.length === 0 ? (
                           <p className="text-muted-foreground text-center py-8">No leads yet</p>
                         ) : (
                           <div className="space-y-4">
-                            {leads.map((lead) => (
+                            {visibleLeads.map((lead) => (
                               <div key={lead.id} className="p-4 border rounded-lg">
                                 <div className="flex items-start justify-between mb-2">
                                   <div>
@@ -639,7 +894,7 @@ function VendorDashboardContent() {
               )}
 
               {activeSection === 'edit-profile' && (
-                (!vendor || isPending) ? (
+                (!activeVendor || isPending) ? (
                   renderAccessCard('Profile editing is locked')
                 ) : editedVendor ? (
                   <div className="space-y-6">
@@ -652,39 +907,56 @@ function VendorDashboardContent() {
                         <CardTitle>Company Information</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-6">
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Company Logo</label>
-                          <div className="flex items-center gap-4">
-                            {editedVendor.logo_url && (
-                              <img src={editedVendor.logo_url} alt="Logo" className="w-20 h-20 rounded-lg object-contain border" />
-                            )}
-                            <div>
-                              <Input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleLogoUpload}
-                                disabled={uploading}
-                                className="w-full"
-                              />
-                              {uploading && <p className="text-sm text-muted-foreground mt-1">Uploading...</p>}
-                            </div>
+                        <div className="flex items-center gap-4">
+                          {editedVendor.logo_url && (
+                            <img src={editedVendor.logo_url} alt="Logo" className="w-20 h-20 rounded-lg object-contain border" />
+                          )}
+                          <div>
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoUpload}
+                              disabled={uploading}
+                              className="w-full"
+                            />
+                            {uploading && <p className="text-sm text-muted-foreground mt-1">Uploading...</p>}
                           </div>
                         </div>
 
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Company Name</label>
-                          <Input
-                            value={editedVendor.company_name || ''}
-                            onChange={(e) => setEditedVendor({ ...editedVendor, company_name: e.target.value })}
-                          />
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Company Name</label>
+                            <Input
+                              value={editedVendor.company_name || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, company_name: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Pricing</label>
+                            <Input
+                              value={editedVendor.pricing || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, pricing: e.target.value })}
+                              placeholder="$0 - $29 /mo"
+                            />
+                          </div>
                         </div>
 
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Tagline</label>
-                          <Input
-                            value={editedVendor.tagline || ''}
-                            onChange={(e) => setEditedVendor({ ...editedVendor, tagline: e.target.value })}
-                          />
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Tagline</label>
+                            <Input
+                              value={editedVendor.tagline || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, tagline: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block">Website</label>
+                            <Input
+                              value={editedVendor.website || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, website: e.target.value })}
+                              placeholder="https://example.com"
+                            />
+                          </div>
                         </div>
 
                         <div>
@@ -692,17 +964,47 @@ function VendorDashboardContent() {
                           <Textarea
                             value={editedVendor.description || ''}
                             onChange={(e) => setEditedVendor({ ...editedVendor, description: e.target.value })}
-                            rows={5}
+                            rows={4}
                           />
                         </div>
 
-                        <div>
-                          <label className="text-sm font-medium mb-2 block">Website</label>
-                          <Input
-                            value={editedVendor.website || ''}
-                            onChange={(e) => setEditedVendor({ ...editedVendor, website: e.target.value })}
-                            placeholder="https://example.com"
-                          />
+                        <div className="grid md:grid-cols-4 gap-4">
+                          <div>
+                            <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                              <UserIcon size={16} className="text-gray-500" /> First Name
+                            </label>
+                            <Input
+                              value={editedVendor.first_name || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, first_name: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                              <UserIcon size={16} className="text-gray-500" /> Last Name
+                            </label>
+                            <Input
+                              value={editedVendor.last_name || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, last_name: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                              <Mail size={16} className="text-gray-500" /> Email
+                            </label>
+                            <Input
+                              value={editedVendor.email || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, email: e.target.value })}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-sm font-medium mb-2 block flex items-center gap-2">
+                              <Phone size={16} className="text-gray-500" /> Phone
+                            </label>
+                            <Input
+                              value={editedVendor.phone || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, phone: e.target.value })}
+                            />
+                          </div>
                         </div>
 
                         <div>
@@ -729,17 +1031,436 @@ function VendorDashboardContent() {
                             ))}
                           </div>
                         </div>
+                      </CardContent>
+                    </Card>
 
-                        <div className="flex gap-4">
-                          <Button onClick={handleSaveProfile} className="bg-primary hover:bg-primary/90">
-                            Save Changes
-                          </Button>
-                          <Button variant="outline" onClick={() => setActiveSection('dashboard')}>
-                            Cancel
-                          </Button>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Product Highlights</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Check size={16} className="text-green-500" />
+                              <p className="font-semibold text-sm">Key Features</p>
+                            </div>
+                            <div className="space-y-2 mb-3">
+                              {(editedVendor.features || []).map((feature, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
+                                  <span className="text-sm text-gray-700">{feature}</span>
+                                  <button
+                                    onClick={() =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        features: (editedVendor.features || []).filter((_, i) => i !== idx),
+                                      })
+                                    }
+                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Add feature..."
+                                value={editedVendor.newFeature || ''}
+                                onChange={(e) => setEditedVendor({ ...editedVendor, newFeature: e.target.value })}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && editedVendor.newFeature?.trim()) {
+                                    setEditedVendor({
+                                      ...editedVendor,
+                                      features: [...(editedVendor.features || []), editedVendor.newFeature.trim()],
+                                      newFeature: '',
+                                    });
+                                  }
+                                }}
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (editedVendor.newFeature?.trim()) {
+                                    setEditedVendor({
+                                      ...editedVendor,
+                                      features: [...(editedVendor.features || []), editedVendor.newFeature.trim()],
+                                      newFeature: '',
+                                    });
+                                  }
+                                }}
+                              >
+                                <Plus size={16} />
+                              </Button>
+                            </div>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <Puzzle size={16} className="text-blue-500" />
+                              <p className="font-semibold text-sm">Integrations</p>
+                            </div>
+                            <div className="space-y-2 mb-3">
+                              {(editedVendor.integrations || []).map((integration, idx) => (
+                                <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
+                                  <span className="text-sm text-gray-700">{integration}</span>
+                                  <button
+                                    onClick={() =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        integrations: (editedVendor.integrations || []).filter((_, i) => i !== idx),
+                                      })
+                                    }
+                                    className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Add integration..."
+                                value={editedVendor.newIntegration || ''}
+                                onChange={(e) => setEditedVendor({ ...editedVendor, newIntegration: e.target.value })}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter' && editedVendor.newIntegration?.trim()) {
+                                    setEditedVendor({
+                                      ...editedVendor,
+                                      integrations: [...(editedVendor.integrations || []), editedVendor.newIntegration.trim()],
+                                      newIntegration: '',
+                                    });
+                                  }
+                                }}
+                              />
+                              <Button
+                                onClick={() => {
+                                  if (editedVendor.newIntegration?.trim()) {
+                                    setEditedVendor({
+                                      ...editedVendor,
+                                      integrations: [...(editedVendor.integrations || []), editedVendor.newIntegration.trim()],
+                                      newIntegration: '',
+                                    });
+                                  }
+                                }}
+                              >
+                                <Plus size={16} />
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Product Market Fit</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1.5">
+                              <Users size={12} /> Team Size
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {['independent', 'small', 'med', 'large'].map((val) => {
+                                const labels: Record<string, string> = {
+                                  independent: 'independent (1-2)',
+                                  small: 'small (3-6)',
+                                  med: 'med (7-10)',
+                                  large: 'large (10+)',
+                                };
+                                const selected = (editedVendor.teamSize || []).includes(val);
+                                return (
+                                  <button
+                                    key={val}
+                                    onClick={() =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        teamSize: selected
+                                          ? (editedVendor.teamSize || []).filter((v) => v !== val)
+                                          : [...(editedVendor.teamSize || []), val],
+                                      })
+                                    }
+                                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                                      selected
+                                        ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {labels[val]}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase mb-2 flex items-center gap-1.5">
+                              <DollarSign size={12} /> Ideal Customer Revenue
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {[
+                                { value: 'under_15k', label: 'Under $15k / month' },
+                                { value: '15k_30k', label: '$15k - $30k / month' },
+                                { value: '30k_60k', label: '$30k - $60k / month' },
+                                { value: '60k_100k', label: '$60k - $100k / month' },
+                                { value: '100k_plus', label: '$100k+ / month' },
+                              ].map((opt) => {
+                                const selected = (editedVendor.revenue || []).includes(opt.value);
+                                return (
+                                  <button
+                                    key={opt.value}
+                                    onClick={() =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        revenue: selected
+                                          ? (editedVendor.revenue || []).filter((v) => v !== opt.value)
+                                          : [...(editedVendor.revenue || []), opt.value],
+                                      })
+                                    }
+                                    className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                                      selected
+                                        ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                                        : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                    }`}
+                                  >
+                                    {opt.label}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs font-bold text-gray-500 uppercase mb-2">Ideal Budget</p>
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                                  <DollarSign size={14} />
+                                </div>
+                                <Input
+                                  type="number"
+                                  value={editedVendor.budgetAmount || ''}
+                                  onChange={(e) => setEditedVendor({ ...editedVendor, budgetAmount: e.target.value })}
+                                  className="pl-8"
+                                />
+                              </div>
+                              <select
+                                value={editedVendor.budgetPeriod || 'monthly'}
+                                onChange={(e) =>
+                                  setEditedVendor({ ...editedVendor, budgetPeriod: e.target.value as VendorForm['budgetPeriod'] })
+                                }
+                                className="border rounded-md px-3 py-2 text-sm"
+                              >
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="project">Project</option>
+                              </select>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs font-bold text-gray-500 uppercase mb-2">Looking to:</p>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {[
+                              { value: 'reduce_admin', label: 'Reduce admin and manual work' },
+                              { value: 'improve_client', label: 'Improve client experience' },
+                              { value: 'scale_no_hire', label: 'Scale without hiring' },
+                              { value: 'better_reporting', label: 'Get better reporting or visibility' },
+                              { value: 'compliance_confidence', label: 'Improve compliance confidence' },
+                              { value: 'replace_spreadsheets', label: 'Replace spreadsheets or legacy tools' },
+                              { value: 'consolidate_systems', label: 'Consolidate multiple systems' },
+                              { value: 'other', label: 'Other' },
+                            ].map((opt) => {
+                              const selected = (editedVendor.lookingTo || []).includes(opt.value);
+                              return (
+                                <button
+                                  key={opt.value}
+                                  onClick={() =>
+                                    setEditedVendor({
+                                      ...editedVendor,
+                                      lookingTo: selected
+                                        ? (editedVendor.lookingTo || []).filter((v) => v !== opt.value)
+                                        : [...(editedVendor.lookingTo || []), opt.value],
+                                    })
+                                  }
+                                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${
+                                    selected
+                                      ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                                      : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                  }`}
+                                >
+                                  <div
+                                    className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors ${
+                                      selected ? 'bg-white border-white' : 'bg-white border-gray-200'
+                                    }`}
+                                  >
+                                    {selected && <Check size={10} className="text-blue-900" />}
+                                  </div>
+                                  {opt.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {(editedVendor.lookingTo || []).includes('other') && (
+                          <div>
+                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Other goals</label>
+                            <Textarea
+                              rows={2}
+                              value={editedVendor.lookingToOther || ''}
+                              onChange={(e) => setEditedVendor({ ...editedVendor, lookingToOther: e.target.value })}
+                            />
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Not the right fit for:</label>
+                          <Textarea
+                            rows={2}
+                            value={editedVendor.notFitFor || ''}
+                            onChange={(e) => setEditedVendor({ ...editedVendor, notFitFor: e.target.value })}
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Training Materials</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <p className="text-sm font-semibold">
+                            Upload Media <span className="text-xs text-gray-500 ml-2">({(editedVendor.materials || []).length}/5)</span>
+                          </p>
+                          {!editedVendor.isTrainingPublic && (
+                            <div className="flex items-center gap-2 px-3 py-1 bg-orange-50 text-orange-600 rounded-lg border border-orange-100 text-[10px] font-bold">
+                              <AlertCircle size={10} /> Private Mode
+                            </div>
+                          )}
+                        </div>
+                        {editedVendor.isTrainingPublic ? (
+                          <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                              {(editedVendor.materials || []).map((m, i) => (
+                                <div key={i} className="p-4 bg-gray-50 border border-gray-200 rounded-2xl relative group">
+                                  <div className="flex items-start justify-between mb-2">
+                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                      {m.type === 'video' ? (
+                                        <Video size={14} className="text-purple-500" />
+                                      ) : m.type === 'pdf' ? (
+                                        <FileText size={14} className="text-red-500" />
+                                      ) : (
+                                        <LinkIcon size={14} className="text-blue-500" />
+                                      )}
+                                    </div>
+                                    <button
+                                      onClick={() =>
+                                        setEditedVendor({
+                                          ...editedVendor,
+                                          materials: (editedVendor.materials || []).filter((_, idx) => idx !== i),
+                                        })
+                                      }
+                                      className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                  <p className="text-sm font-bold text-gray-900 truncate">{m.title}</p>
+                                  <p className="text-[10px] text-gray-500 truncate mt-1">{m.link}</p>
+                                </div>
+                              ))}
+                              {(editedVendor.materials || []).length < 5 && (
+                                <div className="p-4 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 bg-gray-50/30">
+                                  <Plus size={24} className="mb-1" />
+                                  <span className="text-xs font-medium">Add new item below</span>
+                                </div>
+                              )}
+                            </div>
+                            {(editedVendor.materials || []).length < 5 && (
+                              <div className="bg-white border border-gray-200 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end shadow-sm">
+                                <div className="md:col-span-1">
+                                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Title</label>
+                                  <Input
+                                    placeholder="e.g. Intro Video"
+                                    value={editedVendor.newMaterial?.title || ''}
+                                    onChange={(e) =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        newMaterial: { ...(editedVendor.newMaterial || { type: 'video', link: '' }), title: e.target.value },
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <div className="md:col-span-1">
+                                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Type</label>
+                                  <select
+                                    value={editedVendor.newMaterial?.type || 'video'}
+                                    onChange={(e) =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        newMaterial: { ...(editedVendor.newMaterial || { title: '', link: '' }), type: e.target.value as VendorMaterial['type'] },
+                                      })
+                                    }
+                                    className="border rounded-md px-3 py-2 text-sm"
+                                  >
+                                    <option value="video">Video</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="link">Weblink</option>
+                                  </select>
+                                </div>
+                                <div className="md:col-span-1">
+                                  <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Link URL</label>
+                                  <Input
+                                    placeholder="https://..."
+                                    value={editedVendor.newMaterial?.link || ''}
+                                    onChange={(e) =>
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        newMaterial: { ...(editedVendor.newMaterial || { title: '', type: 'video' }), link: e.target.value },
+                                      })
+                                    }
+                                  />
+                                </div>
+                                <Button
+                                  onClick={() => {
+                                    if (
+                                      editedVendor.newMaterial?.title &&
+                                      editedVendor.newMaterial.link &&
+                                      (editedVendor.materials || []).length < 5
+                                    ) {
+                                      setEditedVendor({
+                                        ...editedVendor,
+                                        materials: [...(editedVendor.materials || []), editedVendor.newMaterial as VendorMaterial],
+                                        newMaterial: { title: '', type: 'video', link: '' },
+                                      });
+                                    }
+                                  }}
+                                >
+                                  Add Material
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        ) : (
+                          <div className="p-6 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-center text-sm text-gray-600">
+                            Training Materials are hidden. Contact admin to enable public visibility.
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <div className="flex gap-4">
+                      <Button onClick={handleSaveProfile} className="bg-primary hover:bg-primary/90">
+                        Save Changes
+                      </Button>
+                      <Button variant="outline" onClick={() => setActiveSection('dashboard')}>
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
                 ) : (
                   <Card><CardContent className="pt-6 text-sm text-muted-foreground">Loading profile...</CardContent></Card>
@@ -747,7 +1468,7 @@ function VendorDashboardContent() {
               )}
 
               {activeSection === 'analytics' && (
-                (!vendor || isPending) ? renderAccessCard('Analytics locked') : (
+                (!activeVendor || isPending) ? renderAccessCard('Analytics locked') : (
                   <div className="space-y-6">
                     <div>
                       <h1 className="text-3xl font-bold text-primary mb-2">Analytics</h1>
@@ -763,7 +1484,7 @@ function VendorDashboardContent() {
               )}
 
               {activeSection === 'upgrade' && (
-                (!vendor || isPending) ? renderAccessCard('Upgrade options locked') : (
+                (!activeVendor || isPending) ? renderAccessCard('Upgrade options locked') : (
                   <div className="space-y-6">
                     <div>
                       <h1 className="text-3xl font-bold text-primary mb-2">Upgrade Plan</h1>

@@ -97,7 +97,7 @@ export default function WhyBrokerToolsPage() {
                             <div className="space-y-3 text-xl leading-relaxed">
                                 <h3 className="text-2xl font-bold text-brand-orange">The Methodologies We Operate Under</h3>
                                 <p className="font-italic text-brand-cream">
-                                How do you decide what tools to run and optimise your business? <br /><br /> The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology. 
+                                How do you decide what tools to use, run and optimise your business? <br /><br /> The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology. 
                                 </p><br />
                                 <p className="text-brand-cream/90">
                                     At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries. <br/><br />These lenses keep every recommendation grounded in outcomes, time capacity and risk.

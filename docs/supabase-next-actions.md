@@ -14,8 +14,9 @@ Context from UI:
 ## Required Supabase tables
 
 ### user_profiles (extends existing)
-- id uuid PK references auth.users, email text, first_name text, last_name text, user_type text check ('consumer','vendor','admin','broker'), user_access text, admin_dashboard bool, vendor_dashboard bool, broker_dashboard bool, default_dashboard text check ('admin','broker','vendor'), default_profile text, profile_image text, phone text, company text, website text, notification_frequency text, display_name text.
+- id uuid PK references auth.users, email text, first_name text, last_name text, full_name text, user_type text check ('consumer','vendor','admin','broker'), user_access text, admin_dashboard bool, vendor_dashboard bool, broker_dashboard bool (default true for landing), default_dashboard text check ('admin','broker','vendor'), default_profile text, profile_image/ avatar_url text, phone text, company text, website text, notification_frequency text, display_name text.
 - Broker-specific fields used in UI: broker_services text[], broker_service_other text, commercial_finance_areas text[], commercial_finance_other text, what_brought_you_here text?, aggregator text, aggregator_other text, team_size text, team_location text, top_priorities text[], lead_capture_crm text, fact_find_software text, email_system text, phone_system text, has_it_support bool, has_accountant bool, has_marketing_agency bool, has_mindset_coach bool, has_lawyer bool, has_insurance_broker bool, has_ai_specialist bool, considering_change bool, change_details text.
+- Marketing capture: heard_from text, heard_from_other text.
 - Timestamps: created_at default now(), updated_at, created_by, updated_by.
 
 ### vendors

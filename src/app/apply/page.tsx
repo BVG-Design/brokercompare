@@ -1,747 +1,807 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Building2, Sparkles, X, Upload, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import {
+  Save,
+  Plus,
+  Trash2,
+  Globe,
+  Type,
+  AlignLeft,
+  Tag,
+  Puzzle,
+  Video,
+  FileText,
+  Link as LinkIcon,
+  AlertCircle,
+  Target,
+  Users,
+  DollarSign,
+  Check,
+  User,
+  Mail,
+  Phone,
+  CopyPlus,
+  Layers,
+} from 'lucide-react';
 
-type ApplyOption = {
-  label: string;
-  value: string;
-};
+type MaterialType = 'video' | 'pdf' | 'link';
 
-type FormState = {
-  business_type: string;
-  business_type_other: string;
-  company_name: string;
-  contact_name: string;
+type ApplicationData = {
+  tagline: string;
+  description: string;
+  website: string;
+  pricing: string;
+  firstName: string;
+  lastName: string;
   email: string;
   phone: string;
-  website: string;
-  company_description: string;
-  logo_url: string;
-  categories: string[];
-  category_other: string;
-  commercial_finance_subcategories: string[];
-  commercial_finance_other: string;
-  broker_types: string[];
-  broker_type_other: string;
   features: string[];
-  feature_other: string;
+  newFeature: string;
   integrations: string[];
-  integration_other: string;
-  pricing_structure: string;
-  pricing_details: string;
-  special_offer: string;
-  why_join: string;
-  referral_source: string;
-  referral_name: string;
+  newIntegration: string;
+  teamSize: string[];
+  revenue: string[];
+  budgetAmount: string;
+  budgetPeriod: 'monthly' | 'yearly' | 'project';
+  lookingTo: string[];
+  lookingToOther: string;
+  notFitFor: string;
+  materials: { title: string; type: MaterialType; link: string }[];
+  newMaterial: { title: string; type: MaterialType; link: string };
+  isTrainingPublic: boolean;
 };
 
-const CATEGORY_OPTIONS = [
-  { value: 'mortgage_software', label: 'Mortgage Software' },
-  { value: 'asset_finance_tools', label: 'Asset Finance Tools' },
-  { value: 'commercial_finance', label: 'Commercial Finance' },
-  { value: 'crm_systems', label: 'CRM Systems' },
-  { value: 'lead_generation', label: 'Lead Generation' },
-  { value: 'compliance_tools', label: 'Compliance Tools' },
-  { value: 'document_management', label: 'Document Management' },
-  { value: 'loan_origination', label: 'Loan Origination' },
-  { value: 'broker_tools', label: 'Broker Tools' },
-  { value: 'marketing_services', label: 'Marketing Services' },
-  { value: 'accounting_software_services', label: 'Accounting Software or Services' },
-  { value: 'credit_reporting', label: 'Credit Reporting' },
-  { value: 'fraud_checks_id_verification', label: 'Fraud Checks and ID Verification' },
-  { value: 'esignatures', label: 'eSignatures' },
-  { value: 'legal_services', label: 'Legal Services' },
-  { value: 'insurance_products', label: 'Insurance Products' },
-  { value: 'training_education', label: 'Training & Education' },
-  { value: 'data_analytics', label: 'Data Analytics' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const COMMERCIAL_FINANCE_SUBCATEGORIES = [
-  { value: 'commercial_mortgage', label: 'Commercial Mortgage' },
-  { value: 'bridging_loans', label: 'Bridging Loans' },
-  { value: 'equipment', label: 'Equipment' },
-  { value: 'invoicing', label: 'Invoicing' },
-  { value: 'trade_finance', label: 'Trade Finance' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const BROKER_TYPES = [
-  { value: 'mortgage_broker', label: 'Mortgage Brokers' },
-  { value: 'asset_finance_broker', label: 'Asset Finance Brokers' },
-  { value: 'commercial_finance_broker', label: 'Commercial Finance Brokers' },
-  { value: 'all_brokers', label: 'All Broker Types' },
-  { value: 'other', label: 'Other' },
-] as const;
-
-const REFERRAL_SOURCES = [
-  { value: 'facebook', label: 'Facebook' },
-  { value: 'linkedin', label: 'LinkedIn' },
-  { value: 'youtube', label: 'YouTube' },
-  { value: 'x', label: 'X' },
-  { value: 'tiktok', label: 'TikTok' },
-  { value: 'chatgpt_ai', label: 'ChatGPT/AI Chat' },
-  { value: 'google', label: 'Google' },
-  { value: 'friend_referral', label: 'Friend/Referral' },
-] as const;
-
-const MAX_FEATURE_SELECTIONS = 9;
-const MAX_INTEGRATION_SELECTIONS = 9;
-const OTHER_OPTION: ApplyOption = { value: 'other', label: 'Other' };
-
-const initialForm: FormState = {
-  business_type: '',
-  business_type_other: '',
-  company_name: '',
-  contact_name: '',
-  email: '',
-  phone: '',
-  website: '',
-  company_description: '',
-  logo_url: '',
-  categories: [],
-  category_other: '',
-  commercial_finance_subcategories: [],
-  commercial_finance_other: '',
-  broker_types: [],
-  broker_type_other: '',
-  features: [],
-  feature_other: '',
-  integrations: [],
-  integration_other: '',
-  pricing_structure: '',
-  pricing_details: '',
-  special_offer: '',
-  why_join: '',
-  referral_source: '',
-  referral_name: '',
+type VendorApplication = {
+  id: string;
+  name: string;
+  status: 'draft' | 'submitted';
+  data: ApplicationData;
 };
 
-export default function ApplyVendor() {
+const TEAM_SIZE_OPTIONS = [
+  { value: 'independent', label: 'independent (1-2)' },
+  { value: 'small', label: 'small (3-6)' },
+  { value: 'med', label: 'med (7-10)' },
+  { value: 'large', label: 'large (10+)' },
+];
+
+const REVENUE_OPTIONS = [
+  { value: 'under_15k', label: 'Under $15k / month' },
+  { value: '15k_30k', label: '$15k - $30k / month' },
+  { value: '30k_60k', label: '$30k - $60k / month' },
+  { value: '60k_100k', label: '$60k - $100k / month' },
+  { value: '100k_plus', label: '$100k+ / month' },
+];
+
+const LOOKING_TO_OPTIONS = [
+  { value: 'reduce_admin', label: 'Reduce admin and manual work' },
+  { value: 'improve_client', label: 'Improve client experience' },
+  { value: 'scale_no_hire', label: 'Scale without hiring' },
+  { value: 'better_reporting', label: 'Get better reporting or visibility' },
+  { value: 'compliance_confidence', label: 'Improve compliance confidence' },
+  { value: 'replace_spreadsheets', label: 'Replace spreadsheets or legacy tools' },
+  { value: 'consolidate_systems', label: 'Consolidate multiple systems' },
+  { value: 'other', label: 'Other' },
+];
+
+const buildApplicationData = (overrides: Partial<ApplicationData> = {}): ApplicationData => ({
+  tagline: 'All-in-one productivity platform',
+  description: 'ClickUp is a central hub for planning, organizing, and collaborating on work.',
+  website: 'https://clickup.com',
+  pricing: '$0 - $29 /mo',
+  firstName: 'Katey',
+  lastName: 'Shaw',
+  email: 'katey.shaw@bearventuregroup.com',
+  phone: '+1 (555) 000-0000',
+  features: ['Task Management', 'Time Tracking', 'Automations'],
+  newFeature: '',
+  integrations: ['Slack', 'Google Drive', 'GitHub'],
+  newIntegration: '',
+  teamSize: ['small', 'med'],
+  revenue: ['15k_30k', '30k_60k'],
+  budgetAmount: '500',
+  budgetPeriod: 'monthly',
+  lookingTo: ['reduce_admin', 'better_reporting'],
+  lookingToOther: '',
+  notFitFor: 'Solo brokers on a tight budget',
+  materials: [
+    { title: 'Dashboard Tutorial', type: 'video', link: 'https://youtube.com/...' },
+    { title: 'Feature Guide', type: 'pdf', link: 'https://clickup.com/guide.pdf' },
+  ],
+  newMaterial: { title: '', type: 'video', link: '' },
+  isTrainingPublic: true,
+  ...overrides,
+});
+
+export default function ApplyVendorPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [formData, setFormData] = useState<FormState>(initialForm);
-  const [uploading, setUploading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [featureOptions, setFeatureOptions] = useState<ApplyOption[]>([]);
-  const [integrationOptions, setIntegrationOptions] = useState<ApplyOption[]>([]);
-  const [loadingOptions, setLoadingOptions] = useState(false);
 
-  useEffect(() => {
-    const loadOptions = async () => {
-      setLoadingOptions(true);
-      try {
-        const response = await fetch('/api/apply/options');
-        if (!response.ok) {
-          throw new Error('Failed to load apply options');
-        }
+  const [applications, setApplications] = useState<VendorApplication[]>([
+    { id: 'app-1', name: 'Primary profile', status: 'draft', data: buildApplicationData() },
+  ]);
+  const [selectedAppId, setSelectedAppId] = useState('app-1');
 
-        const data = await response.json();
-        setFeatureOptions(Array.isArray(data.features) ? data.features : []);
-        setIntegrationOptions(Array.isArray(data.directoryListings) ? data.directoryListings : []);
-      } catch (error) {
-        console.error('Error loading apply options', error);
-        toast({
-          title: 'Unable to load suggestions',
-          description: 'Please refresh to retry loading features and integrations.',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoadingOptions(false);
-      }
+  const selectedApp = useMemo(
+    () => applications.find((app) => app.id === selectedAppId) || applications[0],
+    [applications, selectedAppId],
+  );
+  const selectedData = selectedApp?.data;
+
+  const updateAppData = (updater: (data: ApplicationData) => ApplicationData) => {
+    if (!selectedApp) return;
+    setApplications((prev) =>
+      prev.map((app) => (app.id === selectedApp.id ? { ...app, data: updater(app.data) } : app)),
+    );
+  };
+
+  const handleCreateApplication = () => {
+    const newId = `app-${Date.now()}`;
+    const newApplication: VendorApplication = {
+      id: newId,
+      name: `Application ${applications.length + 1}`,
+      status: 'draft',
+      data: buildApplicationData({
+        tagline: '',
+        description: '',
+        website: '',
+        pricing: '',
+        firstName: '',
+        lastName: '',
+        email: '',
+        phone: '',
+        features: [],
+        integrations: [],
+        teamSize: [],
+        revenue: [],
+        lookingTo: [],
+        lookingToOther: '',
+        notFitFor: '',
+        materials: [],
+        budgetAmount: '',
+        budgetPeriod: 'monthly',
+      }),
     };
 
-    loadOptions();
-  }, [toast]);
+    setApplications((prev) => [...prev, newApplication]);
+    setSelectedAppId(newId);
+    toast({ title: 'New application created', description: 'Fill in the details for this profile.' });
+  };
 
-  const toggleValue = (field: keyof Pick<FormState, 'categories' | 'commercial_finance_subcategories' | 'broker_types'>, value: string) => {
-    setFormData(prev => {
-      const current = prev[field];
-      const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
-      return { ...prev, [field]: next };
+  const handleSubmit = () => {
+    if (!selectedApp) return;
+    setApplications((prev) =>
+      prev.map((app) => (app.id === selectedApp.id ? { ...app, status: 'submitted' } : app)),
+    );
+    toast({
+      title: 'Application saved',
+      description: `${selectedApp.name} has been captured. You can manage multiple profiles here.`,
+    });
+    router.push('/dashboard/vendor');
+  };
+
+  const toggleArrayValue = (field: 'teamSize' | 'revenue' | 'lookingTo', value: string) => {
+    updateAppData((data) => ({
+      ...data,
+      [field]: data[field].includes(value)
+        ? data[field].filter((v) => v !== value)
+        : [...data[field], value],
+    }));
+  };
+
+  const addFeature = () => {
+    updateAppData((data) => {
+      if (!data.newFeature.trim()) return data;
+      return { ...data, features: [...data.features, data.newFeature.trim()], newFeature: '' };
     });
   };
 
-  const setSlotSelection = (
-    field: keyof Pick<FormState, 'features' | 'integrations'>,
-    index: number,
-    value: string
-  ) => {
-    setFormData(prev => {
-      if (value === 'none') {
-        const trimmed = [...prev[field]];
-        while (trimmed.length < index + 1) {
-          trimmed.push('');
-        }
-        trimmed[index] = '';
-        const cleaned = trimmed.filter(Boolean);
-        const clearOther =
-          field === 'features' && !cleaned.includes('other')
-            ? { feature_other: '' }
-            : field === 'integrations' && !cleaned.includes('other')
-              ? { integration_other: '' }
-              : {};
-        return {
-          ...prev,
-          [field]: cleaned,
-          ...clearOther,
-        };
-      }
+  const addIntegration = () => {
+    updateAppData((data) => {
+      if (!data.newIntegration.trim()) return data;
+      return { ...data, integrations: [...data.integrations, data.newIntegration.trim()], newIntegration: '' };
+    });
+  };
 
-      const next = [...prev[field]];
-      while (next.length < index + 1) {
-        next.push('');
-      }
-      next[index] = value;
-
-      const cleaned = next.filter(Boolean);
-      const unique = cleaned.filter((v, i) => cleaned.indexOf(v) === i);
-
-      const clearOther =
-        field === 'features' && !unique.includes('other')
-          ? { feature_other: '' }
-          : field === 'integrations' && !unique.includes('other')
-            ? { integration_other: '' }
-            : {};
-
+  const addMaterial = () => {
+    updateAppData((data) => {
+      if (data.materials.length >= 5 || !data.newMaterial.title || !data.newMaterial.link) return data;
       return {
-        ...prev,
-        [field]: unique.slice(0, 9),
-        ...clearOther,
+        ...data,
+        materials: [...data.materials, data.newMaterial],
+        newMaterial: { title: '', type: 'video', link: '' },
       };
     });
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const fileUrl = URL.createObjectURL(file);
-    setFormData(prev => ({ ...prev, logo_url: fileUrl }));
-    toast({ description: 'Logo uploaded successfully!' });
-    setUploading(false);
+  const handleInput = <K extends keyof ApplicationData>(key: K, value: ApplicationData[K]) => {
+    updateAppData((data) => ({ ...data, [key]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (!formData.business_type) {
-      toast({ title: 'Error', description: 'Please select business type', variant: 'destructive' });
-      return;
-    }
-    if (formData.business_type === 'other' && !formData.business_type_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your business type', variant: 'destructive' });
-      return;
-    }
-    if (formData.categories.length === 0) {
-      toast({ title: 'Error', description: 'Please select at least one category', variant: 'destructive' });
-      return;
-    }
-    if (formData.broker_types.length === 0) {
-      toast({ title: 'Error', description: 'Please select at least one broker type', variant: 'destructive' });
-      return;
-    }
-    if (formData.features.includes('other') && !formData.feature_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your other features', variant: 'destructive' });
-      return;
-    }
-    if (formData.integrations.includes('other') && !formData.integration_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your other integrations', variant: 'destructive' });
-      return;
-    }
-
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsSubmitting(false);
-    toast({ title: 'Success!', description: 'Your application has been submitted.' });
-    router.push('/');
-  };
-
-  const showCommercialFinanceSubcategories = formData.categories.includes('commercial_finance');
-  const showCategoryOther = formData.categories.includes('other');
-  const showBrokerTypeOther = formData.broker_types.includes('other');
-  const showCommercialFinanceOther = formData.commercial_finance_subcategories.includes('other');
-  const showReferralName = formData.referral_source === 'friend_referral';
-  const showFeatureOther = formData.features.includes('other');
-  const showIntegrationOther = formData.integrations.includes('other');
-  const featureOptionList = [...featureOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
-  const integrationOptionList = [...integrationOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
-  const featureSlots = Array.from({ length: MAX_FEATURE_SELECTIONS }, (_v, idx) => formData.features[idx] || '');
-  const integrationSlots = Array.from({ length: MAX_INTEGRATION_SELECTIONS }, (_v, idx) => formData.integrations[idx] || '');
+  if (!selectedApp || !selectedData) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="bg-gradient-to-br from-[#132847] to-[#1a3a5f] text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#05d8b5] to-[#ef4e23] mb-6">
-            <Building2 className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[#f8fafc]">
+      <div className="bg-gradient-to-br from-[#0f172a] to-[#1f2937] text-white py-12">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-sm uppercase tracking-widest text-gray-300 mb-2">Vendor applications</p>
+            <h1 className="text-4xl font-bold">Manage your listings</h1>
+            <p className="text-gray-300 mt-2 max-w-2xl">
+              Keep the full VendorApply experience while supporting multiple applications or profiles per vendor.
+            </p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">List Your Business</h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Join our directory and connect with brokers looking for your solutions
-          </p>
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              className="bg-white/10 hover:bg-white/20 text-white border border-white/20"
+              onClick={handleCreateApplication}
+            >
+              <CopyPlus className="w-4 h-4 mr-2" /> New application
+            </Button>
+            <Button className="bg-emerald-500 hover:bg-emerald-600 text-white" onClick={handleSubmit}>
+              <Save className="w-4 h-4 mr-2" /> Save &amp; continue
+            </Button>
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {[
-            { title: 'Pre-Qualified Leads', description: 'Get connected with brokers actively looking for your services' },
-            { title: 'Increased Visibility', description: 'Showcase your business to a targeted audience of finance professionals' },
-            { title: 'Verified Listing', description: 'Build trust with our vetting process and quality badge' },
-          ].map((benefit, idx) => (
-            <Card key={idx} className="border-[#05d8b5]/20">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#132847] to-[#05d8b5] flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-white" />
+      <div className="max-w-6xl mx-auto px-6 py-10 space-y-6">
+        <div className="bg-white border border-gray-100 shadow-sm rounded-2xl p-6 flex flex-col gap-4">
+          <div className="flex items-center justify-between flex-wrap gap-3">
+            <div className="flex items-center gap-2">
+              <Layers className="text-[#132847]" />
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Applications</p>
+                <p className="text-xs text-gray-500">Switch profiles or start another application.</p>
+              </div>
+            </div>
+            <Button variant="outline" onClick={handleCreateApplication} className="border-dashed">
+              <Plus className="w-4 h-4 mr-2" />
+              Add another profile
+            </Button>
+          </div>
+          <div className="flex gap-3 flex-wrap">
+            {applications.map((app) => (
+              <button
+                key={app.id}
+                onClick={() => setSelectedAppId(app.id)}
+                className={`px-4 py-3 rounded-xl border transition-all text-left ${
+                  selectedAppId === app.id
+                    ? 'bg-[#132847] text-white border-[#132847] shadow-lg shadow-gray-200'
+                    : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-white'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">{app.name}</span>
+                  <span
+                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                      app.status === 'submitted'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}
+                  >
+                    {app.status}
+                  </span>
                 </div>
-                <h3 className="text-lg font-bold text-[#132847] mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </CardContent>
-            </Card>
-          ))}
+                <p className="text-[11px] text-gray-500 mt-1">
+                  {app.status === 'submitted' ? 'Awaiting review' : 'Draft in progress'}
+                </p>
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-3">
+            <label className="text-sm font-semibold text-gray-700">Rename selected</label>
+            <input
+              value={selectedApp.name}
+              onChange={(e) =>
+                setApplications((prev) =>
+                  prev.map((app) => (app.id === selectedApp.id ? { ...app, name: e.target.value } : app)),
+                )
+              }
+              className="px-3 py-2 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+              placeholder="Profile name"
+            />
+          </div>
         </div>
 
-        <Card className="max-w-3xl mx-auto shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-            <CardTitle className="text-2xl text-[#132847]">Application Form</CardTitle>
-            <p className="text-gray-600 mt-2">
-              Fill out the form below and we&apos;ll review your application within 2-3 business days
-            </p>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Business Type *</h3>
-                <RadioGroup
-                  value={formData.business_type}
-                  onValueChange={value =>
-                    setFormData(prev => ({
-                      ...prev,
-                      business_type: value,
-                      business_type_other: value === 'other' ? prev.business_type_other : '',
-                    }))
-                  }
-                >
-                  {['software', 'service', 'both', 'other'].map(value => (
-                    <div className="flex items-center space-x-2" key={value}>
-                      <RadioGroupItem value={value} id={value} />
-                      <Label htmlFor={value} className="cursor-pointer capitalize">
-                        {value}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-                {formData.business_type === 'other' && (
-                  <div>
-                    <Label htmlFor="business_type_other">Please specify your business type</Label>
-                    <Input
-                      id="business_type_other"
-                      value={formData.business_type_other}
-                      onChange={e => setFormData(prev => ({ ...prev, business_type_other: e.target.value }))}
-                      placeholder="Describe your business type"
-                    />
-                  </div>
-                )}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 animate-in fade-in duration-300 overflow-hidden">
+          <div className="px-8 py-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-md z-40">
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Vendor Application ({selectedApp.name})</h2>
+              <p className="text-sm text-gray-500">Styled with the VendorApply layout</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/')}
+                className="px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSubmit}
+                className="px-6 py-2 text-sm font-semibold text-white bg-gray-900 hover:bg-gray-800 rounded-lg flex items-center gap-2 shadow-lg shadow-gray-200 transition-all"
+              >
+                <Save size={16} /> Save Application
+              </button>
+            </div>
+          </div>
+
+          <div className="p-8 space-y-10">
+            <section>
+              <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
+                  <Type size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Basic Information</h3>
               </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Company Information</h3>
-                <div>
-                  <Label>Company Logo</Label>
-                  <p className="text-sm text-gray-500 mb-2">Upload a square logo (recommended 400x400px)</p>
-                  {formData.logo_url ? (
-                    <div className="relative inline-block">
-                      <img src={formData.logo_url} alt="Company Logo" className="w-32 h-32 object-contain border rounded-lg bg-white p-2" />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        className="absolute -top-2 -right-2 p-1 h-auto w-auto rounded-full"
-                        onClick={() => setFormData({ ...formData, logo_url: '' })}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <label
-                      className={`flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                        uploading ? 'bg-gray-100 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {uploading ? (
-                        <span className="text-sm text-gray-500">Uploading...</span>
-                      ) : (
-                        <>
-                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                          <span className="text-xs text-gray-500">Upload Logo</span>
-                        </>
-                      )}
-                      <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={uploading} />
-                    </label>
-                  )}
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="company_name">Company Name *</Label>
-                    <Input
-                      id="company_name"
-                      value={formData.company_name}
-                      onChange={e => setFormData({ ...formData, company_name: e.target.value })}
-                      required
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                      <Type size={14} className="text-gray-400" /> Tagline
+                    </span>
+                    <input
+                      type="text"
+                      value={selectedData.tagline}
+                      onChange={(e) => handleInput('tagline', e.target.value)}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
                     />
-                  </div>
-                  <div>
-                    <Label htmlFor="website">Website *</Label>
-                    <Input id="website" type="url" placeholder="https://" value={formData.website} onChange={e => setFormData({ ...formData, website: e.target.value })} required />
-                  </div>
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                      <Globe size={14} className="text-gray-400" /> Website Link
+                    </span>
+                    <input
+                      type="url"
+                      value={selectedData.website}
+                      onChange={(e) => handleInput('website', e.target.value)}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                      <Tag size={14} className="text-gray-400" /> Pricing Structure
+                    </span>
+                    <input
+                      type="text"
+                      value={selectedData.pricing}
+                      onChange={(e) => handleInput('pricing', e.target.value)}
+                      className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                    />
+                  </label>
                 </div>
-
-                <div>
-                  <Label htmlFor="company_description">Company Description *</Label>
-                  <Textarea
-                    id="company_description"
-                    value={formData.company_description}
-                    onChange={e => setFormData({ ...formData, company_description: e.target.value })}
-                    rows={4}
-                    placeholder="Tell us about your company and what you offer..."
-                    required
+                <label className="block">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <AlignLeft size={14} className="text-gray-400" /> Description
+                  </span>
+                  <textarea
+                    rows={8}
+                    value={selectedData.description}
+                    onChange={(e) => handleInput('description', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm resize-none"
                   />
-                </div>
+                </label>
               </div>
+            </section>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Contact Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contact_name">Contact Name *</Label>
-                    <Input id="contact_name" value={formData.contact_name} onChange={e => setFormData({ ...formData, contact_name: e.target.value })} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-                  </div>
+            <section className="pt-8 border-t border-gray-100">
+              <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
+                  <User size={18} />
                 </div>
-                <div>
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input id="email" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
-                </div>
+                <h3 className="text-lg font-bold text-gray-900">Contact Details</h3>
               </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <label className="block">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <User size={14} className="text-gray-400" /> First Name
+                  </span>
+                  <input
+                    type="text"
+                    value={selectedData.firstName}
+                    onChange={(e) => handleInput('firstName', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <User size={14} className="text-gray-400" /> Last Name
+                  </span>
+                  <input
+                    type="text"
+                    value={selectedData.lastName}
+                    onChange={(e) => handleInput('lastName', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Mail size={14} className="text-gray-400" /> Email
+                  </span>
+                  <input
+                    type="email"
+                    value={selectedData.email}
+                    onChange={(e) => handleInput('email', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  />
+                </label>
+                <label className="block">
+                  <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Phone size={14} className="text-gray-400" /> Phone
+                  </span>
+                  <input
+                    type="tel"
+                    value={selectedData.phone}
+                    onChange={(e) => handleInput('phone', e.target.value)}
+                    className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                  />
+                </label>
+              </div>
+            </section>
 
-              <div className="space-y-4">
+            <section className="pt-8 border-t border-gray-100">
+              <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
+                  <Puzzle size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Product Highlights</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 <div>
-                  <Label className="text-base">
-                    Service Categories * <span className="text-sm font-normal text-gray-500">(Select all that apply)</span>
-                  </Label>
-                  <div className="grid md:grid-cols-2 gap-3 mt-3">
-                    {CATEGORY_OPTIONS.map(category => (
-                      <div key={category.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={category.value}
-                          checked={formData.categories.includes(category.value)}
-                          onCheckedChange={(_checked) => toggleValue('categories', category.value)}
-                        />
-                        <label htmlFor={category.value} className="text-sm text-gray-700 cursor-pointer">
-                          {category.label}
-                        </label>
+                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Check size={16} className="text-green-500" /> Key Features
+                  </h3>
+                  <div className="space-y-2 mb-4">
+                    {selectedData.features.map((f, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group"
+                      >
+                        <span className="text-sm text-gray-700">{f}</span>
+                        <button
+                          onClick={() =>
+                            handleInput(
+                              'features',
+                              selectedData.features.filter((_, idx) => idx !== i),
+                            )
+                          }
+                          className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add feature..."
+                      value={selectedData.newFeature}
+                      onChange={(e) => handleInput('newFeature', e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && addFeature()}
+                      className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                    <button
+                      onClick={addFeature}
+                      className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                    >
+                      <Plus size={20} />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <Puzzle size={16} className="text-blue-500" /> Integrations
+                  </h3>
+                  <div className="space-y-2 mb-4">
+                    {selectedData.integrations.map((n, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group"
+                      >
+                        <span className="text-sm text-gray-700">{n}</span>
+                        <button
+                          onClick={() =>
+                            handleInput(
+                              'integrations',
+                              selectedData.integrations.filter((_, idx) => idx !== i),
+                            )
+                          }
+                          className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Add integration..."
+                      value={selectedData.newIntegration}
+                      onChange={(e) => handleInput('newIntegration', e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && addIntegration()}
+                      className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                    />
+                    <button
+                      onClick={addIntegration}
+                      className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                    >
+                      <Plus size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="pt-8 border-t border-gray-100">
+              <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
+                  <Target size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Product Market Fit</h3>
+              </div>
+
+              <div className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-1.5">
+                      <Users size={12} /> Best suited for: Team Size
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {TEAM_SIZE_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => toggleArrayValue('teamSize', opt.value)}
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                            selectedData.teamSize.includes(opt.value)
+                              ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-1.5">
+                      <DollarSign size={12} /> Ideal Customer Revenue
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {REVENUE_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => toggleArrayValue('revenue', opt.value)}
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                            selectedData.revenue.includes(opt.value)
+                              ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                              : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Ideal Budget</label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                          <DollarSign size={14} />
+                        </div>
+                        <input
+                          type="number"
+                          value={selectedData.budgetAmount}
+                          onChange={(e) => handleInput('budgetAmount', e.target.value)}
+                          className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm"
+                        />
+                      </div>
+                      <select
+                        value={selectedData.budgetPeriod}
+                        onChange={(e) => handleInput('budgetPeriod', e.target.value as ApplicationData['budgetPeriod'])}
+                        className="w-32 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-semibold"
+                      >
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="project">Project</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-3">Looking to:</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {LOOKING_TO_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => toggleArrayValue('lookingTo', opt.value)}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${
+                          selectedData.lookingTo.includes(opt.value)
+                            ? 'bg-blue-900 text-white border-blue-900 shadow-md'
+                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                        }`}
+                      >
+                        <div
+                          className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors ${
+                            selectedData.lookingTo.includes(opt.value)
+                              ? 'bg-white border-white'
+                              : 'bg-white border-gray-200'
+                          }`}
+                        >
+                          {selectedData.lookingTo.includes(opt.value) && <Check size={10} className="text-blue-900" />}
+                        </div>
+                        {opt.label}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                {showCategoryOther && (
-                  <div>
-                    <Label htmlFor="category_other">Please specify other category</Label>
-                    <Input
-                      id="category_other"
-                      value={formData.category_other}
-                      onChange={e => setFormData({ ...formData, category_other: e.target.value })}
-                      placeholder="Enter category details..."
+                {selectedData.lookingTo.includes('other') && (
+                  <label className="block">
+                    <span className="text-xs font-bold text-gray-500 uppercase mb-2 block">Other goals</span>
+                    <textarea
+                      rows={2}
+                      value={selectedData.lookingToOther}
+                      onChange={(e) => handleInput('lookingToOther', e.target.value)}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm resize-none"
                     />
-                  </div>
+                  </label>
                 )}
 
-                {showCommercialFinanceSubcategories && (
-                  <div className="border-l-4 border-[#05d8b5] pl-4">
-                    <Label className="text-base">Commercial Finance Subcategories</Label>
-                    <div className="grid md:grid-cols-2 gap-3 mt-3">
-                      {COMMERCIAL_FINANCE_SUBCATEGORIES.map(subcat => (
-                        <div key={subcat.value} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`cf_${subcat.value}`}
-                            checked={formData.commercial_finance_subcategories.includes(subcat.value)}
-                            onCheckedChange={(_checked) => toggleValue('commercial_finance_subcategories', subcat.value)}
-                          />
-                          <label htmlFor={`cf_${subcat.value}`} className="text-sm text-gray-700 cursor-pointer">
-                            {subcat.label}
-                          </label>
+                <label className="block">
+                  <span className="text-xs font-bold text-gray-500 uppercase mb-2 block">Not the right fit for:</span>
+                  <textarea
+                    rows={2}
+                    value={selectedData.notFitFor}
+                    onChange={(e) => handleInput('notFitFor', e.target.value)}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm resize-none"
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="pt-8 border-t border-gray-100">
+              <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                <div className="p-2 bg-gray-50 rounded-lg text-gray-500">
+                  <Video size={18} />
+                </div>
+                <h3 className="text-lg font-bold text-gray-900">Training Materials</h3>
+              </div>
+
+              <div className="flex items-center justify-between mb-6">
+                <h4 className="text-sm font-bold text-gray-900">
+                  Upload Media{' '}
+                  <span className="text-[10px] font-normal text-gray-400 uppercase tracking-widest ml-2">
+                    ({selectedData.materials.length}/5)
+                  </span>
+                </h4>
+                {!selectedData.isTrainingPublic && (
+                  <div className="flex items-center gap-2 px-3 py-1 bg-orange-50 text-orange-600 rounded-lg border border-orange-100 text-[10px] font-bold">
+                    <AlertCircle size={10} /> Private Mode - Hidden from Public
+                  </div>
+                )}
+              </div>
+
+              {selectedData.isTrainingPublic ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {selectedData.materials.map((m, i) => (
+                      <div key={i} className="p-4 bg-gray-50 border border-gray-200 rounded-2xl relative group">
+                        <div className="flex items-start justify-between mb-2">
+                          <div className="p-2 bg-white rounded-lg shadow-sm">
+                            {m.type === 'video' ? (
+                              <Video size={14} className="text-purple-500" />
+                            ) : m.type === 'pdf' ? (
+                              <FileText size={14} className="text-red-500" />
+                            ) : (
+                              <LinkIcon size={14} className="text-blue-500" />
+                            )}
+                          </div>
+                          <button
+                            onClick={() =>
+                              handleInput(
+                                'materials',
+                                selectedData.materials.filter((_, idx) => idx !== i),
+                              )
+                            }
+                            className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <Trash2 size={14} />
+                          </button>
                         </div>
-                      ))}
-                    </div>
-                    {showCommercialFinanceOther && (
-                      <div className="mt-3">
-                        <Label htmlFor="commercial_finance_other">Please specify other subcategory</Label>
-                        <Input
-                          id="commercial_finance_other"
-                          value={formData.commercial_finance_other}
-                          onChange={e => setFormData({ ...formData, commercial_finance_other: e.target.value })}
-                          placeholder="Enter subcategory details..."
-                        />
+                        <p className="text-sm font-bold text-gray-900 truncate">{m.title}</p>
+                        <p className="text-[10px] text-gray-500 truncate mt-1">{m.link}</p>
+                      </div>
+                    ))}
+                    {selectedData.materials.length < 5 && (
+                      <div className="p-4 border-2 border-dashed border-gray-200 rounded-2xl flex flex-col items-center justify-center text-gray-400 bg-gray-50/30">
+                        <Plus size={24} className="mb-1" />
+                        <span className="text-xs font-medium">Add new item below</span>
                       </div>
                     )}
                   </div>
-                )}
-              </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-base">
-                    Target Broker Types * <span className="text-sm font-normal text-gray-500">(Select all that apply)</span>
-                  </Label>
-                  <div className="grid md:grid-cols-2 gap-3 mt-3">
-                    {BROKER_TYPES.map(type => (
-                      <div key={type.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type.value}
-                          checked={formData.broker_types.includes(type.value)}
-                          onCheckedChange={(_checked) => toggleValue('broker_types', type.value)}
+                  {selectedData.materials.length < 5 && (
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 grid grid-cols-1 md:grid-cols-4 gap-4 items-end shadow-sm">
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Title</label>
+                        <input
+                          type="text"
+                          placeholder="e.g. Intro Video"
+                          value={selectedData.newMaterial.title}
+                          onChange={(e) =>
+                            handleInput('newMaterial', { ...selectedData.newMaterial, title: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-purple-500"
                         />
-                        <label htmlFor={type.value} className="text-sm text-gray-700 cursor-pointer">
-                          {type.label}
-                        </label>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {showBrokerTypeOther && (
-                  <div>
-                    <Label htmlFor="broker_type_other">Please specify other broker type</Label>
-                    <Input
-                      id="broker_type_other"
-                      value={formData.broker_type_other}
-                      onChange={e => setFormData({ ...formData, broker_type_other: e.target.value })}
-                      placeholder="Enter broker type details..."
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-base">
-                    Features <span className="text-sm font-normal text-gray-500">(Up to {MAX_FEATURE_SELECTIONS})</span>
-                  </Label>
-                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading feature suggestions...</p>}
-                  <div className="grid md:grid-cols-3 gap-3 mt-3">
-                    {featureSlots.map((value, idx) => (
-                      <div key={`feature_slot_${idx}`}>
-                        <Label className="text-xs text-gray-500">Feature {idx + 1}</Label>
-                        <Select
-                          value={value || undefined}
-                          onValueChange={val => setSlotSelection('features', idx, val)}
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Type</label>
+                        <select
+                          value={selectedData.newMaterial.type}
+                          onChange={(e) =>
+                            handleInput(
+                              'newMaterial',
+                              { ...selectedData.newMaterial, type: e.target.value as MaterialType },
+                            )
+                          }
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-purple-500"
                         >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select feature" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {featureOptionList.map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                          <option value="video">Video</option>
+                          <option value="pdf">PDF</option>
+                          <option value="link">Weblink</option>
+                        </select>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {showFeatureOther && (
-                  <div>
-                    <Label htmlFor="feature_other">Please specify other features</Label>
-                    <Input
-                      id="feature_other"
-                      value={formData.feature_other}
-                      onChange={e => setFormData(prev => ({ ...prev, feature_other: e.target.value }))}
-                      placeholder="Enter other features (comma separated if needed)"
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-base">
-                    Do you integrate with or work with other software?
-                    <span className="text-sm font-normal text-gray-500"> (Up to {MAX_INTEGRATION_SELECTIONS})</span>
-                  </Label>
-                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading integration suggestions...</p>}
-                  <div className="grid md:grid-cols-3 gap-3 mt-3">
-                    {integrationSlots.map((value, idx) => (
-                      <div key={`integration_slot_${idx}`}>
-                        <Label className="text-xs text-gray-500">Integration {idx + 1}</Label>
-                        <Select
-                          value={value || undefined}
-                          onValueChange={val => setSlotSelection('integrations', idx, val)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select software" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {integrationOptionList.map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                      <div className="md:col-span-1">
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Link URL</label>
+                        <input
+                          type="url"
+                          placeholder="https://..."
+                          value={selectedData.newMaterial.link}
+                          onChange={(e) =>
+                            handleInput('newMaterial', { ...selectedData.newMaterial, link: e.target.value })
+                          }
+                          className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs outline-none focus:ring-1 focus:ring-purple-500"
+                        />
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {showIntegrationOther && (
-                  <div>
-                    <Label htmlFor="integration_other">Please specify other software</Label>
-                    <Input
-                      id="integration_other"
-                      value={formData.integration_other}
-                      onChange={e => setFormData(prev => ({ ...prev, integration_other: e.target.value }))}
-                      placeholder="List any other software or services..."
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="pricing_structure">Pricing Structure</Label>
-                  <Select value={formData.pricing_structure} onValueChange={value => setFormData({ ...formData, pricing_structure: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select pricing structure" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="subscription">Subscription</SelectItem>
-                      <SelectItem value="tiered">Tiered</SelectItem>
-                      <SelectItem value="set_fee">Set Fee</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {formData.pricing_structure && (
-                  <div>
-                    <Label htmlFor="pricing_details">Pricing Details</Label>
-                    <Textarea
-                      id="pricing_details"
-                      value={formData.pricing_details}
-                      onChange={e => setFormData({ ...formData, pricing_details: e.target.value })}
-                      rows={3}
-                      placeholder="Provide details about your pricing..."
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="special_offer">Do you have a special offer?</Label>
-                <Textarea
-                  id="special_offer"
-                  value={formData.special_offer}
-                  onChange={e => setFormData({ ...formData, special_offer: e.target.value })}
-                  rows={3}
-                  placeholder="Describe any special offers or promotions..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="why_join">Any other questions or notes? *</Label>
-                <Textarea
-                  id="why_join"
-                  value={formData.why_join}
-                  onChange={e => setFormData({ ...formData, why_join: e.target.value })}
-                  rows={4}
-                  placeholder="Share anything else we should know about your application..."
-                  required
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="referral_source">How did you hear about us?</Label>
-                  <Select value={formData.referral_source} onValueChange={value => setFormData({ ...formData, referral_source: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select source" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {REFERRAL_SOURCES.map(source => (
-                        <SelectItem key={source.value} value={source.value}>
-                          {source.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {showReferralName && (
-                  <div>
-                    <Label htmlFor="referral_name">Referral Name</Label>
-                    <Input
-                      id="referral_name"
-                      value={formData.referral_name}
-                      onChange={e => setFormData({ ...formData, referral_name: e.target.value })}
-                      placeholder="Enter the name of the person who referred you..."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">We&apos;d love to thank them!</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 border-t">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full md:w-auto bg-[#132847] hover:bg-[#1a3a5f] text-white"
-                  disabled={isSubmitting || uploading}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    <>
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Submit Application
-                    </>
+                      <button
+                        onClick={addMaterial}
+                        className="bg-purple-600 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-purple-700 transition-colors h-[34px]"
+                      >
+                        Add Material
+                      </button>
+                    </div>
                   )}
-                </Button>
-                <p className="text-sm text-gray-500 mt-4">
-                  * All applications are reviewed manually. We&apos;ll get back to you within 2-3 business days.
-                </p>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+                </div>
+              ) : (
+                <div className="p-8 bg-gray-50 border border-dashed border-gray-200 rounded-2xl flex flex-col items-center text-center">
+                  <AlertCircle size={32} className="text-gray-300 mb-3" />
+                  <p className="text-sm font-semibold text-gray-600">Training Materials section is currently hidden.</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Contact your admin to enable public training material visibility.
+                  </p>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
       </div>
     </div>
-
   );
 }

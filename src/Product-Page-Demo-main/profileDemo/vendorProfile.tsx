@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, Mail, UserPlus, BarChart3, TrendingUp, Settings, Eye, Users, Star, MessageSquare, ExternalLink, Edit2, Zap, Library, Plus } from 'lucide-react';
+import { LayoutDashboard, Mail, UserPlus, BarChart3, TrendingUp, Settings, Eye, Users, Star, MessageSquare, ExternalLink, Edit2, Zap, Library, Plus, Target } from 'lucide-react';
 import EditVendorProfile from './EditVendorProfile';
 
 interface VendorDashboardProps {
@@ -43,10 +43,10 @@ const VendorDashboard: React.FC<VendorDashboardProps> = ({ onUpgrade, isUpgraded
       {/* Sidebar */}
       <aside className="w-72 bg-white border-r border-gray-100 p-6 space-y-8 sticky top-0 h-screen overflow-y-auto">
         <div className="flex flex-col items-center text-center px-2 py-6 border-b border-gray-100 mb-6">
-          <div className="w-20 h-20 bg-[#1e293b] rounded-full flex items-center justify-center p-4 mb-4 shadow-xl border-4 border-white">
+          <div className="w-20 h-20 bg-[#1e293b] rounded-full flex items-center justify-center p-4 mb-4 shadow-xl border-4 border-white text-white font-bold text-4xl">
              <img src="https://www.google.com/s2/favicons?domain=clickup.com&sz=128" alt="Vendor" className="w-12 h-12 rounded" />
           </div>
-          <h2 className="text-xl font-bold text-gray-900">Test Deal Creation</h2>
+          <h2 className="text-xl font-bold text-gray-900">ClickUp</h2>
           <div className="flex items-center gap-2 mt-3">
              <span className={`text-[10px] font-bold px-2.5 py-1 rounded shadow-sm ${isUpgraded ? 'bg-purple-600 text-white' : 'bg-gray-100 text-gray-500'}`}>
                 {isUpgraded ? 'premium' : 'basic'}
@@ -99,6 +99,45 @@ const VendorDashboard: React.FC<VendorDashboardProps> = ({ onUpgrade, isUpgraded
                       <p className="text-xs text-gray-400 font-medium">{s.label}</p>
                     </div>
                   ))}
+                </div>
+              </section>
+
+              {/* Product Market Fit Summary (NEW) */}
+              <section className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-in slide-in-from-right-4 duration-500">
+                <div className="px-8 py-5 border-b border-gray-50 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Target size={20} className="text-blue-600" />
+                        <h2 className="font-bold text-gray-900">Product Market Fit</h2>
+                    </div>
+                    <button onClick={() => setActiveView('edit')} className="text-blue-600 text-xs font-bold hover:underline">Manage PMF</button>
+                </div>
+                <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-4">
+                      <div>
+                         <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Ideal Team Size</h4>
+                         <div className="flex flex-wrap gap-2">
+                            {['Small (3-6)', 'Med (7-10)'].map(s => <span key={s} className="px-2 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded">{s}</span>)}
+                         </div>
+                      </div>
+                      <div>
+                         <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Target Customer Revenue</h4>
+                         <div className="flex flex-wrap gap-2">
+                            {['$30k – $60k / mo'].map(s => <span key={s} className="px-2 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded">{s}</span>)}
+                         </div>
+                      </div>
+                   </div>
+                   <div className="space-y-4">
+                      <div>
+                         <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-2">Key Customer Goals</h4>
+                         <div className="flex flex-wrap gap-2">
+                            {['Reduce Admin', 'Better Reporting'].map(s => <span key={s} className="px-2 py-1 bg-purple-50 text-purple-700 text-[10px] font-bold rounded">{s}</span>)}
+                         </div>
+                      </div>
+                      <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
+                         <h4 className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">Target Budget</h4>
+                         <p className="text-sm font-bold text-gray-900">$500 / monthly</p>
+                      </div>
+                   </div>
                 </div>
               </section>
 
