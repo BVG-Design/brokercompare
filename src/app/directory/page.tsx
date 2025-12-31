@@ -3,14 +3,13 @@
 import React, { useEffect, useMemo, useState, Suspense } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Sparkles } from 'lucide-react';
 import VendorCard from '@/components/vendors/VendorCard';
 import AIChatDialog from '@/components/vendors/AIChatDialog';
-import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
+import { fetchDirectoryListings, fetchCategories, fetchResourcePosts, fetchSearchIntents, SearchIntentSummary } from '@/services/sanity';
 
 function BrowseVendorsContent() {
   const searchParams = useSearchParams();
@@ -28,6 +27,7 @@ function BrowseVendorsContent() {
   const [resourcePosts, setResourcePosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dynamicCategories, setDynamicCategories] = useState<{ label: string; value: string }[]>([]);
+  const [searchIntents, setSearchIntents] = useState<SearchIntentSummary[]>([]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -37,23 +37,26 @@ function BrowseVendorsContent() {
         let fetchedCats: any[] = [];
 
         if (typeFilter === 'resourceGuide') {
-          const [posts, cats] = await Promise.all([fetchResourcePosts(), fetchCategories()]);
+          const [posts, cats, intents] = await Promise.all([fetchResourcePosts(), fetchCategories(), fetchSearchIntents()]);
           fetchedListings = [];
           setResourcePosts(posts);
           fetchedCats = cats;
+          setSearchIntents(intents);
         } else {
-          const [listings, cats] = await Promise.all([
+          const [listings, cats, intents] = await Promise.all([
             fetchDirectoryListings({
               search: searchTerm,
               categories: categoryFilter,
               brokerType: brokerTypeFilter,
               type: typeFilter !== 'all' ? typeFilter : undefined
             }),
-            fetchCategories()
+            fetchCategories(),
+            fetchSearchIntents()
           ]);
           fetchedListings = listings;
           fetchedCats = cats;
           setResourcePosts([]);
+          setSearchIntents(intents);
         }
 
         setVendors(fetchedListings);
@@ -127,6 +130,12 @@ function BrowseVendorsContent() {
     }));
   }, [resourcePosts]);
 
+  const intentByCategory = useMemo(() => {
+    return new Map(searchIntents.map((intent) => [intent.categoryKey, intent]));
+  }, [searchIntents]);
+
+  const activeIntent = categoryFilter !== 'all' ? intentByCategory.get(categoryFilter) : undefined;
+
   const handleSearch = () => {
     // search handled by debounced effect
   };
@@ -146,28 +155,30 @@ function BrowseVendorsContent() {
 
             {/* Search Bar */}
             <div className="max-w-3xl mx-auto">
-              <div className="bg-background rounded-2xl shadow-2xl p-2">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search for vendors, products, or services..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                      className="pl-12 pr-4 h-14 text-lg border-0 focus-visible:ring-0"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleSearch}
-                    size="lg"
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 h-14"
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  handleSearch();
+                }}
+                className="relative max-w-2xl mx-auto mb-6"
+              >
+                <div className="relative flex items-center bg-white rounded-xl shadow-2xl p-2 transition-all focus-within:ring-4 focus-within:ring-brand-green/20">
+                  <Search className="text-gray-400 ml-4" size={20} />
+                  <input
+                    type="text"
+                    placeholder="Search for vendors, products, or services..."
+                    className="w-full px-4 py-3 outline-none text-gray-700 caret-blue-600 placeholder-gray-400 bg-transparent"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                  <button
+                    type="submit"
+                    className="bg-brand-orange hover:bg-orange-600 text-white p-3 rounded-lg transition-colors"
                   >
-                    <Search className="w-5 h-5" />
-                  </Button>
+                    <Search size={20} />
+                  </button>
                 </div>
-              </div>
+              </form>
 
               {/* AI Chat Button */}
               <div className="mt-4 text-center">
@@ -210,6 +221,14 @@ function BrowseVendorsContent() {
                     ))}
                   </SelectContent>
                 </Select>
+                {activeIntent && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Looking for the search intent page?{' '}
+                    <Link href={`/search/${activeIntent.slug}`} className="text-primary font-semibold hover:underline">
+                      {activeIntent.title}
+                    </Link>
+                  </p>
+                )}
               </div>
 
               <div>
