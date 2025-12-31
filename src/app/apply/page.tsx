@@ -172,6 +172,7 @@ export default function ApplyPartnerPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
 
   const [featureSuggestions, setFeatureSuggestions] = useState<string[]>([]);
   const [integrationSuggestions, setIntegrationSuggestions] = useState<string[]>([]);
@@ -186,6 +187,7 @@ export default function ApplyPartnerPage() {
     lastName: '',
     email: '',
     phone: '',
+    logoFile: null as File | null,
   });
 
   const [applications, setApplications] = useState<ApplicationData[]>([
@@ -262,14 +264,11 @@ export default function ApplyPartnerPage() {
     }
   };
 
-  const validate = () => {
-    // Regex validations
+  const validateStep1 = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const urlRegex = /^https?:\/\/.+/i; // Simple protocol check
-    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+    const urlRegex = /^https?:\/\/.+/i;
 
-    // Validate Profile
-    if (!profile.companyName || !profile.website || !profile.referralSource || !profile.firstName || !profile.lastName || !profile.email || !profile.phone) {
+    if (!profile.companyName || !profile.website || !profile.referralSource || !profile.firstName || !profile.lastName || !profile.email) {
       toast({ title: "Validation Error", description: 'Please fill in all required fields in the Public Partner Profile section.', variant: "destructive" });
       return false;
     }
@@ -282,12 +281,21 @@ export default function ApplyPartnerPage() {
       toast({ title: "Validation Error", description: 'Please enter a valid website URL starting with http:// or https://', variant: "destructive" });
       return false;
     }
-    if (!phoneRegex.test(profile.phone)) {
-      toast({ title: "Validation Error", description: 'Please enter a valid phone number (min 10 digits).', variant: "destructive" });
-      return false;
+    // Phone is optional now
+    if (profile.phone) {
+      const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+      if (!phoneRegex.test(profile.phone)) {
+        toast({ title: "Validation Error", description: 'Please enter a valid phone number (min 10 digits).', variant: "destructive" });
+        return false;
+      }
     }
 
-    // Validate Applications
+    return true;
+  };
+
+  const validateStep2 = () => {
+    const urlRegex = /^https?:\/\/.+/i;
+
     for (const app of applications) {
       if (!app.type || !app.name || !app.description) {
         toast({ title: "Validation Error", description: `Please fill in all required fields for "${app.name || 'Application'}": Type, Name, and Description.`, variant: "destructive" });
@@ -302,25 +310,111 @@ export default function ApplyPartnerPage() {
         return false;
       }
     }
-
     return true;
+  };
+
+  const checkCompanyExists = async (email: string) => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('company')
+      .select('id')
+      .eq('contact_email', email)
+      .single();
+    return !!data;
+  };
+
+  const uploadLogo = async (file: File, companyName: string) => {
+    const supabase = createClient();
+    const fileExt = file.name.split('.').pop();
+    const sanitizedName = companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const fileName = `${sanitizedName}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('CompanyBrand Logos')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('CompanyBrand Logos')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep1()) return;
+
+    setIsSubmitting(true);
+    try {
+      const exists = await checkCompanyExists(profile.email);
+      if (exists) {
+        toast({
+          title: "Account Exists",
+          description: "An account with this email already exists. Please login to the portal to continue your application.",
+          variant: "destructive"
+        });
+        return;
+      }
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateStep2()) return;
 
     setIsSubmitting(true);
     const supabase = createClient();
 
     try {
+      // 1. Check again just in case (optional, but safe)
+      const exists = await checkCompanyExists(profile.email);
+      if (exists) {
+        toast({ title: "Account Exists", description: "An account with this email already exists.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 2. Upload Logo if exists
+      let logoUrl = profile.logo;
+      if (profile.logoFile) {
+        logoUrl = await uploadLogo(profile.logoFile, profile.companyName);
+      }
+
+      // 3. Create Company
+      const { data: companyData, error: companyError } = await supabase
+        .from('company')
+        .insert({
+          company_name: profile.companyName,
+          company_website: profile.website,
+          contact_email: profile.email,
+          contact_first_name: profile.firstName,
+          contact_last_name: profile.lastName,
+          contact_phone: profile.phone,
+          logo: logoUrl
+        })
+        .select()
+        .single();
+
+      if (companyError) throw companyError;
+
+      // 4. Create Partner Application(s)
       const inserts = applications.map(app => ({
+        company_id: companyData.id,
         company_name: profile.companyName,
         website: profile.website,
         contact_name: `${profile.firstName} ${profile.lastName}`.trim(),
         email: profile.email,
         phone: profile.phone,
-        referral_source: profile.referralSource,
+        heard_about_us: profile.referralSource, // Mapped
         referral_name: profile.referralName,
 
         // Application specific
@@ -328,7 +422,7 @@ export default function ApplyPartnerPage() {
         business_type_other: app.typeOther,
         tagline: app.tagline,
         description: app.description,
-        pricing: app.pricingStructure, // Mapping pricingStructure to pricing column
+        pricing: app.pricingStructure,
         pricing_details: app.pricingDetails,
         special_offer: app.specialOffer,
 
@@ -351,22 +445,26 @@ export default function ApplyPartnerPage() {
         not_fit_for: app.notFitFor,
 
         materials: {
-          logo: profile.logo,
+          logo: logoUrl, // Use the uploaded URL
           product_image: app.productImage
         },
 
-        status: 'pending' // Default status
+        status: 'pending'
       }));
 
-      const { error } = await supabase.from('partner_application').insert(inserts);
+      const { error: appError } = await supabase.from('partner_application').insert(inserts);
 
-      if (error) throw error;
+      if (appError) throw appError;
 
       toast({ title: "Application Submitted", description: 'Your partner application has been submitted for review! Our team will contact you shortly.' });
       router.push('/');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Submission error:', error);
-      toast({ title: "Error", description: 'There was an error submitting your application. Please try again.', variant: "destructive" });
+      toast({
+        title: "Error",
+        description: error.message || 'There was an error submitting your application. Please try again.',
+        variant: "destructive"
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -376,8 +474,11 @@ export default function ApplyPartnerPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    if (field === 'logo') setProfile(prev => ({ ...prev, logo: url }));
-    else updateAppData(app => ({ ...app, productImage: url }));
+    if (field === 'logo') {
+      setProfile(prev => ({ ...prev, logo: url, logoFile: file }));
+    } else {
+      updateAppData(app => ({ ...app, productImage: url }));
+    }
   };
 
   const toggleBrokerType = (val: string) => {
@@ -406,9 +507,11 @@ export default function ApplyPartnerPage() {
             <button onClick={() => router.back()} className="px-6 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 font-bold transition-all">
               Cancel
             </button>
-            <button onClick={handleSubmit} className="px-8 py-2.5 rounded-xl bg-brand-green text-white hover:bg-brand-green/90 font-bold shadow-lg shadow-brand-green/20 transition-all flex items-center gap-2">
-              <Save size={18} /> Submit
-            </button>
+            {step === 2 && (
+              <button onClick={handleSubmit} className="px-8 py-2.5 rounded-xl bg-brand-green text-white hover:bg-brand-green/90 font-bold shadow-lg shadow-brand-green/20 transition-all flex items-center gap-2">
+                <Save size={18} /> Submit
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -541,7 +644,7 @@ export default function ApplyPartnerPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
-                    <Phone size={14} className="text-gray-400" /> Phone<RequiredAsterisk />
+                    <Phone size={14} className="text-gray-400" /> Phone
                   </label>
                   <input
                     type="tel"
@@ -553,620 +656,669 @@ export default function ApplyPartnerPage() {
               </div>
             </div>
           </div>
+          {step === 1 && (
+            <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-end">
+              <button
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="px-8 py-3 rounded-xl bg-brand-blue text-white hover:bg-brand-blue/90 font-bold shadow-lg shadow-brand-blue/20 transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" /> Checking...
+                  </>
+                ) : (
+                  <>
+                    Next Step <ChevronRight size={18} />
+                  </>
+                )}
+              </button>
+            </div>
+          )}
         </section>
 
-        {/* 2. Application Section */}
-        <section className="space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Layers className="text-brand-blue" size={20} />
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Applications</h2>
-                <p className="text-sm text-gray-500">You can submit multiple products or services in one application.</p>
-              </div>
-            </div>
-            <button
-              onClick={handleAddApplication}
-              className="px-5 py-2.5 rounded-xl border-2 border-dashed border-brand-blue text-brand-orange hover:border-brand-green hover:text-brand-blue font-bold text-sm transition-all flex items-center gap-2"
-            >
-              <Plus size={18} /> Add Another Product/Service
-            </button>
-          </div>
-
-          <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
-            {applications.map((app) => (
-              <button
-                key={app.id}
-                onClick={() => setSelectedAppId(app.id)}
-                className={`px-5 py-3 rounded-2xl border flex-shrink-0 transition-all text-left min-w-[180px] group relative ${selectedAppId === app.id
-                  ? 'bg-brand-green text-white border-brand-green shadow-xl shadow-gray-200'
-                  : 'bg-white text-brand-blue border-gray-200 hover:border-purple-200'
-                  }`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-bold truncate max-w-[120px]">{app.name || 'Untitled'}</span>
-                  {applications.length > 1 && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleRemoveApplication(app.id); }}
-                      className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-0.5"
-                    >
-                      <X size={14} />
-                    </button>
-                  )}
+        {
+          step === 2 && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+              {/* 2. Application Section */}
+              <section className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Layers className="text-brand-blue" size={20} />
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Applications</h2>
+                      <p className="text-sm text-gray-500">You can submit multiple products or services in one application.</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={handleAddApplication}
+                    className="px-5 py-2.5 rounded-xl border-2 border-dashed border-brand-blue text-brand-orange hover:border-brand-green hover:text-brand-blue font-bold text-sm transition-all flex items-center gap-2"
+                  >
+                    <Plus size={18} /> Add Another Product/Service
+                  </button>
                 </div>
-                <p className={`text-[10px] mt-1 uppercase tracking-wider font-bold ${selectedAppId === app.id ? 'text-green-100' : 'text-gray-400'}`}>
-                  {app.type}
-                </p>
-              </button>
-            ))}
-          </div>
 
-          <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 animate-in fade-in duration-300">
-            <div className="p-8 border-b border-gray-100">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
-                    <Tag size={14} className="text-gray-400" /> Selected Offering
-                  </label>
-                  <input
-                    value={selectedApp.name}
-                    onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
-                    className="text-2xl font-bold text-gray-900 border-none p-0 focus:ring-0 w-full"
-                    placeholder="Offering Name..."
-                  />
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs font-bold text-gray-500 uppercase mr-2">This is a:<RequiredAsterisk /></span>
-                  {(['Software', 'Service', 'Product', 'Other'] as ProductType[]).map(t => (
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                  {applications.map((app) => (
                     <button
-                      key={t}
-                      onClick={() => updateAppData(app => ({ ...app, type: t }))}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${selectedApp.type === t ? 'bg-brand-green text-white border-brand-green shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-white'}`}
+                      key={app.id}
+                      onClick={() => setSelectedAppId(app.id)}
+                      className={`px-5 py-3 rounded-2xl border flex-shrink-0 transition-all text-left min-w-[180px] group relative ${selectedAppId === app.id
+                        ? 'bg-brand-green text-white border-brand-green shadow-xl shadow-gray-200'
+                        : 'bg-white text-brand-blue border-gray-200 hover:border-purple-200'
+                        }`}
                     >
-                      {t}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold truncate max-w-[120px]">{app.name || 'Untitled'}</span>
+                        {applications.length > 1 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemoveApplication(app.id); }}
+                            className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-0.5"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <p className={`text-[10px] mt-1 uppercase tracking-wider font-bold ${selectedAppId === app.id ? 'text-green-100' : 'text-gray-400'}`}>
+                        {app.type}
+                      </p>
                     </button>
                   ))}
                 </div>
-              </div>
-              {selectedApp.type === 'Other' && (
-                <input
-                  className="mt-4 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
-                  placeholder="Specify offering type..."
-                  value={selectedApp.typeOther}
-                  onChange={e => updateAppData(app => ({ ...app, typeOther: e.target.value }))}
-                />
-              )}
-            </div>
 
-            <div className="p-8 space-y-12">
-              {/* Basic Information Section */}
-              <section>
-                <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
-                  <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Type size={18} /></div>
-                  <h3 className="text-lg font-bold text-gray-900">Basic Information</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-6">
-                    <div>
-                      <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                        <Building2 size={14} className="text-gray-400" /> Product/Service Image
-                      </label>
-                      <div className="relative group w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue/40 transition-colors cursor-pointer">
-                        {selectedApp.productImage ? (
-                          <img src={selectedApp.productImage} className="w-full h-full object-cover" alt="Product" />
-                        ) : (
-                          <div className="text-center p-4">
-                            <Upload size={24} className="text-gray-400 mx-auto mb-1" />
-                            <span className="text-[10px] font-bold text-gray-500 uppercase">Upload Media</span>
-                          </div>
-                        )}
-                        <input type="file" onChange={(e) => handleFileUpload('productImage', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
-                      </div>
-                    </div>
-                    <label className="block">
-                      <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Type size={14} className="text-gray-400" /> Tagline</span>
-                      <input
-                        type="text"
-                        value={selectedApp.tagline}
-                        onChange={e => updateAppData(app => ({ ...app, tagline: e.target.value }))}
-                        placeholder="e.g. Streamline your mortgage workflow"
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Globe size={14} className="text-gray-400" /> Website Link</span>
-                      <input
-                        type="url"
-                        value={selectedApp.website}
-                        onChange={e => updateAppData(app => ({ ...app, website: e.target.value }))}
-                        placeholder="https://..."
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                      />
-                    </label>
-                  </div>
-                  <div className="space-y-6">
-                    <label className="block">
-                      <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Product/Service Name<RequiredAsterisk /></span>
-                      <input
-                        type="text"
-                        value={selectedApp.name}
-                        onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
-                        placeholder="e.g. Primary Offering"
-                        className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><AlignLeft size={14} className="text-gray-400" /> Description<RequiredAsterisk /></span>
-                      <textarea
-                        rows={5}
-                        value={selectedApp.description}
-                        onChange={e => updateAppData(app => ({ ...app, description: e.target.value }))}
-                        placeholder="Tell us what makes this offering special..."
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
-                      />
-                    </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <label className="block">
-                        <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Pricing Structure</span>
-                        <select
-                          value={selectedApp.pricingStructure}
-                          onChange={e => updateAppData(app => ({ ...app, pricingStructure: e.target.value }))}
-                          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none appearance-none"
-                        >
-                          <option value="">Select Structure</option>
-                          {PRICING_OPTIONS.map(opt => (
-                            <option key={opt} value={opt}>{opt}</option>
-                          ))}
-                        </select>
-                      </label>
-                      <label className="block">
-                        <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Sparkles size={14} className="text-brand-orange" /> Special Offer (optional)</span>
+                <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 animate-in fade-in duration-300">
+                  <div className="p-8 border-b border-gray-100">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                          <Tag size={14} className="text-gray-400" /> Selected Offering
+                        </label>
                         <input
-                          type="text"
-                          value={selectedApp.specialOffer}
-                          onChange={e => updateAppData(app => ({ ...app, specialOffer: e.target.value }))}
-                          placeholder="e.g. 10% off"
-                          className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                          value={selectedApp.name}
+                          onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
+                          className="text-2xl font-bold text-gray-900 border-none p-0 focus:ring-0 w-full"
+                          placeholder="Offering Name..."
                         />
-                      </label>
-                    </div>
-                    <label className="block">
-                      <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Info size={14} className="text-gray-400" /> Pricing Details</span>
-                      <textarea
-                        rows={2}
-                        value={selectedApp.pricingDetails}
-                        onChange={e => updateAppData(app => ({ ...app, pricingDetails: e.target.value }))}
-                        placeholder="Additional context on pricing..."
-                        className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
-                      />
-                    </label>
-                  </div>
-                </div>
-              </section>
-
-              {/* Product Highlights Section */}
-              <section>
-                <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
-                  <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Puzzle size={18} /></div>
-                  <h3 className="text-lg font-bold text-gray-900">Product Highlights</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <Check size={16} className="text-brand-green" /> Key Features
-                    </h4>
-                    <div className="space-y-2 mb-4">
-                      {selectedApp.features.map((f, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
-                          <span className="text-sm text-gray-700">{f}</span>
-                          <button onClick={() => updateAppData(app => ({ ...app, features: app.features.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="relative">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Add feature..."
-                          value={selectedApp.newFeature}
-                          onChange={e => updateAppData(app => ({ ...app, newFeature: e.target.value }))}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              if (selectedApp.newFeature.trim()) {
-                                updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
-                                setFeatureSuggestions([]);
-                              }
-                            }
-                          }}
-                          className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                        />
-                        <button
-                          onClick={() => {
-                            if (selectedApp.newFeature.trim()) {
-                              updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
-                              setFeatureSuggestions([]);
-                            }
-                          }}
-                          className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
-                        >
-                          <Plus size={20} />
-                        </button>
                       </div>
-                      {featureSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                          {featureSuggestions.map((suggestion, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                updateAppData(app => ({ ...app, features: [...app.features, suggestion], newFeature: '' }));
-                                setFeatureSuggestions([]);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
-                            >
-                              {suggestion}
-                              <span className="text-xs text-gray-400 italic">Existing</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <Puzzle size={16} className="text-brand-blue" /> Key Integrations
-                    </h4>
-                    <div className="space-y-2 mb-4">
-                      {selectedApp.integrations.map((n, i) => (
-                        <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
-                          <span className="text-sm text-gray-700">{n}</span>
-                          <button onClick={() => updateAppData(app => ({ ...app, integrations: app.integrations.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="relative">
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          placeholder="Add integration..."
-                          value={selectedApp.newIntegration}
-                          onChange={e => updateAppData(app => ({ ...app, newIntegration: e.target.value }))}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              if (selectedApp.newIntegration.trim()) {
-                                updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
-                                setIntegrationSuggestions([]);
-                              }
-                            }
-                          }}
-                          className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                        />
-                        <button
-                          onClick={() => {
-                            if (selectedApp.newIntegration.trim()) {
-                              updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
-                              setIntegrationSuggestions([]);
-                            }
-                          }}
-                          className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
-                        >
-                          <Plus size={20} />
-                        </button>
-                      </div>
-                      {integrationSuggestions.length > 0 && (
-                        <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                          {integrationSuggestions.map((suggestion, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => {
-                                updateAppData(app => ({ ...app, integrations: [...app.integrations, suggestion], newIntegration: '' }));
-                                setIntegrationSuggestions([]);
-                              }}
-                              className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
-                            >
-                              {suggestion}
-                              <span className="text-xs text-gray-400 italic">Existing</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Product Market Fit Section */}
-              <section>
-                <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
-                  <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Target size={18} /></div>
-                  <h3 className="text-lg font-bold text-gray-900">Product Market Fit</h3>
-                </div>
-                <div className="space-y-10">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                        <Users size={14} className="text-gray-400" /> Best suited for: Team Size (select all that apply)<RequiredAsterisk />
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {TEAM_SIZE_OPTIONS.map(opt => (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-bold text-gray-500 uppercase mr-2">This is a:<RequiredAsterisk /></span>
+                        {(['Software', 'Service', 'Product', 'Other'] as ProductType[]).map(t => (
                           <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => updateAppData(app => ({
-                              ...app,
-                              teamSize: app.teamSize.includes(opt.value) ? app.teamSize.filter(v => v !== opt.value) : [...app.teamSize, opt.value]
-                            }))}
-                            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.teamSize.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                            key={t}
+                            onClick={() => updateAppData(app => ({ ...app, type: t }))}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${selectedApp.type === t ? 'bg-brand-green text-white border-brand-green shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-white'}`}
                           >
-                            {opt.label}
+                            {t}
                           </button>
                         ))}
                       </div>
                     </div>
-                    <div>
-                      <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                        <DollarSign size={14} className="text-gray-400" /> Ideal Customer Revenue (select all that apply)<RequiredAsterisk />
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {REVENUE_OPTIONS.map(opt => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => updateAppData(app => ({
-                              ...app,
-                              revenue: app.revenue.includes(opt.value) ? app.revenue.filter(v => v !== opt.value) : [...app.revenue, opt.value]
-                            }))}
-                            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.revenue.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                        <DollarSign size={14} className="text-gray-400" /> Ideal Budget
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><DollarSign size={14} /></div>
-                          <input
-                            type="number"
-                            value={selectedApp.budgetAmount}
-                            onChange={e => updateAppData(app => ({ ...app, budgetAmount: e.target.value }))}
-                            className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                            placeholder="Amount"
-                          />
-                        </div>
-                        <select
-                          value={selectedApp.budgetPeriod}
-                          onChange={e => updateAppData(app => ({ ...app, budgetPeriod: e.target.value as any }))}
-                          className="w-32 px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm font-bold text-gray-900 focus:border-brand-blue outline-none"
-                        >
-                          <option value="monthly">Monthly</option>
-                          <option value="yearly">Yearly</option>
-                          <option value="project">Project</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                        <Briefcase size={14} className="text-gray-400" /> Broker Type (select all that apply)<RequiredAsterisk />
-                      </label>
-                      <div className="flex flex-wrap gap-2">
-                        {BROKER_TYPE_OPTIONS.map(opt => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => toggleBrokerType(opt.value)}
-                            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.brokerType.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                      {selectedApp.brokerType.includes('other') && (
-                        <input
-                          className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
-                          placeholder="Specify other broker type..."
-                          value={selectedApp.brokerTypeOther}
-                          onChange={e => updateAppData(app => ({ ...app, brokerTypeOther: e.target.value }))}
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  {selectedApp.brokerType.includes('commercial') && (
-                    <div className="animate-in slide-in-from-top-2 p-6 bg-brand-blue/5 rounded-2xl border border-blue-100">
-                      <label className="text-sm font-bold text-brand-blue flex items-center gap-2 mb-4">
-                        <Check size={14} /> Commercial Subcategories
-                      </label>
-                      <div className="flex flex-wrap gap-3">
-                        {COMMERCIAL_SUBTYPES.map(opt => (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => toggleCommSubtype(opt.value)}
-                            className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${selectedApp.commercialSubtypes.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white text-brand-blue border-blue-200 hover:bg-blue-100'}`}
-                          >
-                            {opt.label}
-                          </button>
-                        ))}
-                      </div>
-                      {selectedApp.commercialSubtypes.includes('other') && (
-                        <input
-                          className="mt-4 w-full p-3 bg-white border border-blue-200 rounded-xl text-sm animate-in slide-in-from-top-2 text-brand-blue placeholder:text-blue-300"
-                          placeholder="Specify commercial type..."
-                          value={selectedApp.commercialTypeOther}
-                          onChange={e => updateAppData(app => ({ ...app, commercialTypeOther: e.target.value }))}
-                        />
-                      )}
-                    </div>
-                  )}
-
-                  <div>
-                    <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                      <Target size={14} className="text-gray-400" /> Looking to:
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {LOOKING_TO_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => updateAppData(app => ({
-                            ...app,
-                            lookingTo: app.lookingTo.includes(opt.value) ? app.lookingTo.filter(v => v !== opt.value) : [...app.lookingTo, opt.value]
-                          }))}
-                          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${selectedApp.lookingTo.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
-                        >
-                          <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors ${selectedApp.lookingTo.includes(opt.value) ? 'bg-white border-white' : 'bg-white border-gray-400'}`}>
-                            {selectedApp.lookingTo.includes(opt.value) && <Check size={10} className="text-brand-blue" />}
-                          </div>
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                    {selectedApp.lookingTo.includes('other') && (
+                    {selectedApp.type === 'Other' && (
                       <input
-                        className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
-                        placeholder="Specify other goals..."
-                        value={selectedApp.lookingToOther}
-                        onChange={e => updateAppData(app => ({ ...app, lookingToOther: e.target.value }))}
+                        className="mt-4 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                        placeholder="Specify offering type..."
+                        value={selectedApp.typeOther}
+                        onChange={e => updateAppData(app => ({ ...app, typeOther: e.target.value }))}
                       />
                     )}
                   </div>
 
+                  <div className="p-8 space-y-12">
+                    {/* Basic Information Section */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Type size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Basic Information</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-6">
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <Building2 size={14} className="text-gray-400" /> Product/Service Image
+                            </label>
+                            <div className="relative group w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue/40 transition-colors cursor-pointer">
+                              {selectedApp.productImage ? (
+                                <img src={selectedApp.productImage} className="w-full h-full object-cover" alt="Product" />
+                              ) : (
+                                <div className="text-center p-4">
+                                  <Upload size={24} className="text-gray-400 mx-auto mb-1" />
+                                  <span className="text-[10px] font-bold text-gray-500 uppercase">Upload Media</span>
+                                </div>
+                              )}
+                              <input type="file" onChange={(e) => handleFileUpload('productImage', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                            </div>
+                          </div>
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Type size={14} className="text-gray-400" /> Tagline</span>
+                            <input
+                              type="text"
+                              value={selectedApp.tagline}
+                              onChange={e => updateAppData(app => ({ ...app, tagline: e.target.value }))}
+                              placeholder="e.g. Streamline your mortgage workflow"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Globe size={14} className="text-gray-400" /> Website Link</span>
+                            <input
+                              type="url"
+                              value={selectedApp.website}
+                              onChange={e => updateAppData(app => ({ ...app, website: e.target.value }))}
+                              placeholder="https://..."
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                            />
+                          </label>
+                        </div>
+                        <div className="space-y-6">
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-1000 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Product/Service Name<RequiredAsterisk /></span>
+                            <input
+                              type="text"
+                              value={selectedApp.name}
+                              onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
+                              placeholder="e.g. Primary Offering"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><AlignLeft size={14} className="text-gray-400" /> Description<RequiredAsterisk /></span>
+                            <textarea
+                              rows={5}
+                              value={selectedApp.description}
+                              onChange={e => updateAppData(app => ({ ...app, description: e.target.value }))}
+                              placeholder="Tell us what makes this offering special..."
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
+                            />
+                          </label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <label className="block">
+                              <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Pricing Structure</span>
+                              <select
+                                value={selectedApp.pricingStructure}
+                                onChange={e => updateAppData(app => ({ ...app, pricingStructure: e.target.value }))}
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none appearance-none"
+                              >
+                                <option value="">Select Structure</option>
+                                {PRICING_OPTIONS.map(opt => (
+                                  <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                              </select>
+                            </label>
+                            <label className="block">
+                              <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Sparkles size={14} className="text-brand-orange" /> Special Offer (optional)</span>
+                              <input
+                                type="text"
+                                value={selectedApp.specialOffer}
+                                onChange={e => updateAppData(app => ({ ...app, specialOffer: e.target.value }))}
+                                placeholder="e.g. 10% off"
+                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                              />
+                            </label>
+                          </div>
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Info size={14} className="text-gray-400" /> Pricing Details</span>
+                            <textarea
+                              rows={2}
+                              value={selectedApp.pricingDetails}
+                              onChange={e => updateAppData(app => ({ ...app, pricingDetails: e.target.value }))}
+                              placeholder="Additional context on pricing..."
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Product Highlights Section */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Puzzle size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Product Highlights</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <Check size={16} className="text-brand-green" /> Key Features
+                          </h4>
+                          <div className="space-y-2 mb-4">
+                            {selectedApp.features.map((f, i) => (
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
+                                <span className="text-sm text-gray-700">{f}</span>
+                                <button onClick={() => updateAppData(app => ({ ...app, features: app.features.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="relative">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Add feature..."
+                                value={selectedApp.newFeature}
+                                onChange={e => updateAppData(app => ({ ...app, newFeature: e.target.value }))}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (selectedApp.newFeature.trim()) {
+                                      if (selectedApp.features.length >= 9) {
+                                        toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
+                                        return;
+                                      }
+                                      updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
+                                      setFeatureSuggestions([]);
+                                    }
+                                  }
+                                }}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                              />
+                              <button
+                                onClick={() => {
+                                  if (selectedApp.newFeature.trim()) {
+                                    if (selectedApp.features.length >= 9) {
+                                      toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
+                                      return;
+                                    }
+                                    updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
+                                    setFeatureSuggestions([]);
+                                  }
+                                }}
+                                className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                              >
+                                <Plus size={20} />
+                              </button>
+                            </div>
+                            {featureSuggestions.length > 0 && (
+                              <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                {featureSuggestions.map((suggestion, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => {
+                                      if (selectedApp.features.length >= 9) {
+                                        toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
+                                        return;
+                                      }
+                                      updateAppData(app => ({ ...app, features: [...app.features, suggestion], newFeature: '' }));
+                                      setFeatureSuggestions([]);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
+                                  >
+                                    {suggestion}
+                                    <span className="text-xs text-gray-400 italic">Existing</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
+                            <Puzzle size={16} className="text-brand-blue" /> Key Integrations
+                          </h4>
+                          <div className="space-y-2 mb-4">
+                            {selectedApp.integrations.map((n, i) => (
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
+                                <span className="text-sm text-gray-700">{n}</span>
+                                <button onClick={() => updateAppData(app => ({ ...app, integrations: app.integrations.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="relative">
+                            <div className="flex gap-2">
+                              <input
+                                type="text"
+                                placeholder="Add integration..."
+                                value={selectedApp.newIntegration}
+                                onChange={e => updateAppData(app => ({ ...app, newIntegration: e.target.value }))}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (selectedApp.newIntegration.trim()) {
+                                      if (selectedApp.integrations.length >= 9) {
+                                        toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
+                                        return;
+                                      }
+                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
+                                      setIntegrationSuggestions([]);
+                                    }
+                                  }
+                                }}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                              />
+                              <button
+                                onClick={() => {
+                                  if (selectedApp.newIntegration.trim()) {
+                                    if (selectedApp.integrations.length >= 9) {
+                                      toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
+                                      return;
+                                    }
+                                    updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
+                                    setIntegrationSuggestions([]);
+                                  }
+                                }}
+                                className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                              >
+                                <Plus size={20} />
+                              </button>
+                            </div>
+                            {integrationSuggestions.length > 0 && (
+                              <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
+                                {integrationSuggestions.map((suggestion, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => {
+                                      if (selectedApp.integrations.length >= 9) {
+                                        toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
+                                        return;
+                                      }
+                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, suggestion], newIntegration: '' }));
+                                      setIntegrationSuggestions([]);
+                                    }}
+                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
+                                  >
+                                    {suggestion}
+                                    <span className="text-xs text-gray-400 italic">Existing</span>
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Product Market Fit Section */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Target size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Product Market Fit</h3>
+                      </div>
+                      <div className="space-y-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <Users size={14} className="text-gray-400" /> Best suited for: Team Size (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {TEAM_SIZE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => updateAppData(app => ({
+                                    ...app,
+                                    teamSize: app.teamSize.includes(opt.value) ? app.teamSize.filter(v => v !== opt.value) : [...app.teamSize, opt.value]
+                                  }))}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.teamSize.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <DollarSign size={14} className="text-gray-400" /> Ideal Customer Revenue (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {REVENUE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => updateAppData(app => ({
+                                    ...app,
+                                    revenue: app.revenue.includes(opt.value) ? app.revenue.filter(v => v !== opt.value) : [...app.revenue, opt.value]
+                                  }))}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.revenue.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <DollarSign size={14} className="text-gray-400" /> Ideal Budget
+                            </label>
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><DollarSign size={14} /></div>
+                                <input
+                                  type="number"
+                                  value={selectedApp.budgetAmount}
+                                  onChange={e => updateAppData(app => ({ ...app, budgetAmount: e.target.value }))}
+                                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                  placeholder="Amount"
+                                />
+                              </div>
+                              <select
+                                value={selectedApp.budgetPeriod}
+                                onChange={e => updateAppData(app => ({ ...app, budgetPeriod: e.target.value as any }))}
+                                className="w-32 px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm font-bold text-gray-900 focus:border-brand-blue outline-none"
+                              >
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="project">Project</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <Briefcase size={14} className="text-gray-400" /> Broker Type (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {BROKER_TYPE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => toggleBrokerType(opt.value)}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.brokerType.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                            {selectedApp.brokerType.includes('other') && (
+                              <input
+                                className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                                placeholder="Specify other broker type..."
+                                value={selectedApp.brokerTypeOther}
+                                onChange={e => updateAppData(app => ({ ...app, brokerTypeOther: e.target.value }))}
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {selectedApp.brokerType.includes('commercial') && (
+                          <div className="animate-in slide-in-from-top-2 p-6 bg-brand-blue/5 rounded-2xl border border-blue-100">
+                            <label className="text-sm font-bold text-brand-blue flex items-center gap-2 mb-4">
+                              <Check size={14} /> Commercial Subcategories
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                              {COMMERCIAL_SUBTYPES.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => toggleCommSubtype(opt.value)}
+                                  className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${selectedApp.commercialSubtypes.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white text-brand-blue border-blue-200 hover:bg-blue-100'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                            {selectedApp.commercialSubtypes.includes('other') && (
+                              <input
+                                className="mt-4 w-full p-3 bg-white border border-blue-200 rounded-xl text-sm animate-in slide-in-from-top-2 text-brand-blue placeholder:text-blue-300"
+                                placeholder="Specify commercial type..."
+                                value={selectedApp.commercialTypeOther}
+                                onChange={e => updateAppData(app => ({ ...app, commercialTypeOther: e.target.value }))}
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                            <Target size={14} className="text-gray-400" /> Looking to:
+                          </label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {LOOKING_TO_OPTIONS.map(opt => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => updateAppData(app => ({
+                                  ...app,
+                                  lookingTo: app.lookingTo.includes(opt.value) ? app.lookingTo.filter(v => v !== opt.value) : [...app.lookingTo, opt.value]
+                                }))}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${selectedApp.lookingTo.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                              >
+                                <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors ${selectedApp.lookingTo.includes(opt.value) ? 'bg-white border-white' : 'bg-white border-gray-400'}`}>
+                                  {selectedApp.lookingTo.includes(opt.value) && <Check size={10} className="text-brand-blue" />}
+                                </div>
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                          {selectedApp.lookingTo.includes('other') && (
+                            <input
+                              className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                              placeholder="Specify other goals..."
+                              value={selectedApp.lookingToOther}
+                              onChange={e => updateAppData(app => ({ ...app, lookingToOther: e.target.value }))}
+                            />
+                          )}
+                        </div>
+
+                        <label className="block">
+                          <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
+                            <AlertCircle size={14} className="text-gray-400" /> Not the right fit for:
+                          </span>
+                          <textarea
+                            rows={2}
+                            value={selectedApp.notFitFor}
+                            onChange={e => updateAppData(app => ({ ...app, notFitFor: e.target.value }))}
+                            placeholder="e.g. Solo brokers on a tight budget..."
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
+                          />
+                        </label>
+                      </div>
+                    </section>
+
+                    {/* Training Material Section (LOCKED) */}
+                    <section>
+                      {/* Header - same style as others */}
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Video size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Training Material</h3>
+                      </div>
+
+                      {/* Orange dashed border container for Training Material */}
+                      <div className="relative group overflow-hidden rounded-2xl border-2 border-dashed border-brand-orange bg-brand-orange/5 min-h-[450px]">
+                        {/* Blur Overlay & Content */}
+                        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-8 xs:p-12 overflow-y-auto">
+                          <div className="w-16 h-16 bg-brand-blue text-white rounded-full flex items-center justify-center mb-4 shadow-xl border-4 border-white flex-shrink-0">
+                            <Lock size={28} />
+                          </div>
+                          <h4 className="text-xl font-bold text-gray-900 mb-2">Paid Premium Feature</h4>
+                          <p className="text-sm text-gray-600 max-w-sm mb-6">
+                            Showcase your expertise with videos, guides, and interactive training content directly on your public profile.
+                          </p>
+                          <label className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-400 rounded-2xl shadow-sm hover:border-brand-blue transition-all cursor-pointer flex-shrink-0">
+                            <input
+                              type="checkbox"
+                              className="w-5 h-5 rounded border-gray-400 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                              checked={selectedApp.wantsTraining}
+                              onChange={e => updateAppData(app => ({ ...app, wantsTraining: e.target.checked }))}
+                            />
+                            <span className="text-sm font-bold text-gray-800">
+                              Interested in uploading Training Material?
+                            </span>
+                          </label>
+                          {selectedApp.wantsTraining && (
+                            <p className="mt-4 text-xs font-bold text-brand-blue animate-in slide-in-from-top-2 flex-shrink-0">
+                              Check noted! Our team will discuss the options available to you.
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Mock Blurred UI Content */}
+                        <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-none select-none opacity-40 h-full">
+                          {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="aspect-video bg-gray-100 rounded-xl border border-gray-300 flex flex-col items-center justify-center p-4">
+                              <div className="p-3 bg-white rounded-lg mb-2"><Video size={20} className="text-gray-300" /></div>
+                              <div className="h-2 w-24 bg-gray-200 rounded-full"></div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </div>
+              </section>
+
+              {/* 3. Final Details */}
+              <section className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-in fade-in duration-500">
+                <div className="p-8 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
+                      <AlignLeft size={24} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Final Details</h2>
+                  </div>
+                </div>
+                <div className="p-8">
                   <label className="block">
-                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
-                      <AlertCircle size={14} className="text-gray-400" /> Not the right fit for:
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                      <AlignLeft size={14} className="text-gray-400" /> Any other questions or notes?
                     </span>
                     <textarea
-                      rows={2}
-                      value={selectedApp.notFitFor}
-                      onChange={e => updateAppData(app => ({ ...app, notFitFor: e.target.value }))}
-                      placeholder="e.g. Solo brokers on a tight budget..."
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
+                      rows={4}
+                      value={finalNotes}
+                      onChange={e => setFinalNotes(e.target.value)}
+                      placeholder="Is there anything else we should know about your application?"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-400 rounded-2xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
                     />
                   </label>
                 </div>
               </section>
 
-              {/* Training Material Section (LOCKED) */}
-              <section>
-                {/* Header - same style as others */}
-                <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
-                  <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Video size={18} /></div>
-                  <h3 className="text-lg font-bold text-gray-900">Training Material</h3>
+              {/* Submit Button */}
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="flex items-start gap-4 max-w-2xl text-center bg-brand-blue/5 p-6 rounded-2xl border border-brand-blue/10 mb-4">
+                  <AlertCircle size={20} className="text-brand-blue mt-1 flex-shrink-0 mx-auto" />
+                  <p className="text-sm text-brand-blue leading-relaxed font-medium">
+                    By submitting, you agree to our <span className="font-bold underline cursor-pointer">Partner Terms</span>. Our team will review your application and offerings to ensure they meet our quality standards.
+                  </p>
                 </div>
-
-                {/* Orange dashed border container for Training Material */}
-                <div className="relative group overflow-hidden rounded-2xl border-2 border-dashed border-brand-orange bg-brand-orange/5 min-h-[450px]">
-                  {/* Blur Overlay & Content */}
-                  <div className="absolute inset-0 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-8 xs:p-12 overflow-y-auto">
-                    <div className="w-16 h-16 bg-brand-blue text-white rounded-full flex items-center justify-center mb-4 shadow-xl border-4 border-white flex-shrink-0">
-                      <Lock size={28} />
-                    </div>
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">Paid Premium Feature</h4>
-                    <p className="text-sm text-gray-600 max-w-sm mb-6">
-                      Showcase your expertise with videos, guides, and interactive training content directly on your public profile.
-                    </p>
-                    <label className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-400 rounded-2xl shadow-sm hover:border-brand-blue transition-all cursor-pointer flex-shrink-0">
-                      <input
-                        type="checkbox"
-                        className="w-5 h-5 rounded border-gray-400 text-brand-blue focus:ring-brand-blue cursor-pointer"
-                        checked={selectedApp.wantsTraining}
-                        onChange={e => updateAppData(app => ({ ...app, wantsTraining: e.target.checked }))}
-                      />
-                      <span className="text-sm font-bold text-gray-800">
-                        Interested in uploading Training Material?
-                      </span>
-                    </label>
-                    {selectedApp.wantsTraining && (
-                      <p className="mt-4 text-xs font-bold text-brand-blue animate-in slide-in-from-top-2 flex-shrink-0">
-                        Check noted! Our team will discuss the options available to you.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Mock Blurred UI Content */}
-                  <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-none select-none opacity-40 h-full">
-                    {[1, 2, 3, 4, 5, 6].map(i => (
-                      <div key={i} className="aspect-video bg-gray-100 rounded-xl border border-gray-300 flex flex-col items-center justify-center p-4">
-                        <div className="p-3 bg-white rounded-lg mb-2"><Video size={20} className="text-gray-300" /></div>
-                        <div className="h-2 w-24 bg-gray-200 rounded-full"></div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
-            </div>
-          </div>
-        </section>
-
-        {/* 3. Final Details */}
-        <section className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-in fade-in duration-500">
-          <div className="p-8 border-b border-gray-100 bg-gray-50/50">
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
-                <AlignLeft size={24} />
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`w-full max-w-xl py-5 rounded-2xl font-bold text-lg text-white shadow-2xl transition-all flex items-center justify-center gap-3 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-brand-blue via-brand-blue to-[#132847] hover:scale-[1.02] hover:shadow-brand-blue/20'}`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      Processing Application...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle size={24} />
+                      Submit
+                    </>
+                  )}
+                </button>
+                <p className="text-xs text-gray-400 font-bold flex items-center gap-1.5">
+                  <Lock size={12} /> Secure encrypted transmission
+                </p>
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Final Details</h2>
             </div>
-          </div>
-          <div className="p-8">
-            <label className="block">
-              <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                <AlignLeft size={14} className="text-gray-400" /> Any other questions or notes?
-              </span>
-              <textarea
-                rows={4}
-                value={finalNotes}
-                onChange={e => setFinalNotes(e.target.value)}
-                placeholder="Is there anything else we should know about your application?"
-                className="w-full px-6 py-4 bg-gray-50 border border-gray-400 rounded-2xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
-              />
-            </label>
-          </div>
-        </section>
-
-        {/* Submit Button */}
-        <div className="flex flex-col items-center gap-4 py-8">
-          <div className="flex items-start gap-4 max-w-2xl text-center bg-brand-blue/5 p-6 rounded-2xl border border-brand-blue/10 mb-4">
-            <AlertCircle size={20} className="text-brand-blue mt-1 flex-shrink-0 mx-auto" />
-            <p className="text-sm text-brand-blue leading-relaxed font-medium">
-              By submitting, you agree to our <span className="font-bold underline cursor-pointer">Partner Terms</span>. Our team will review your application and offerings to ensure they meet our quality standards.
-            </p>
-          </div>
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            className={`w-full max-w-xl py-5 rounded-2xl font-bold text-lg text-white shadow-2xl transition-all flex items-center justify-center gap-3 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-brand-blue via-brand-blue to-[#132847] hover:scale-[1.02] hover:shadow-brand-blue/20'}`}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="w-6 h-6 animate-spin" />
-                Processing Application...
-              </>
-            ) : (
-              <>
-                <CheckCircle size={24} />
-                Submit
-              </>
-            )}
-          </button>
-          <p className="text-xs text-gray-400 font-bold flex items-center gap-1.5">
-            <Lock size={12} /> Secure encrypted transmission
-          </p>
-        </div>
+          )
+        }
       </div>
     </div>
   );

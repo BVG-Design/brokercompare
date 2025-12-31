@@ -47,8 +47,8 @@ export async function POST(request: Request) {
       .insert({
         feedback: feedback.trim(),
         page_url: pageUrl,
-        software_slug: softwareSlug,
-        software_name: softwareName,
+        directory_slug: softwareSlug,
+        directorylisting_name: softwareName,
         is_logged_in: isLoggedIn,
         user_id: userId || null,
         user_email: userEmail || null,
@@ -59,12 +59,12 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error('Feedback submission error:', error);
-      
+
       // If table doesn't exist, provide helpful error
       if (error.message?.includes('does not exist') || error.code === '42P01') {
         console.error('Feedback table does not exist. Please create it in Supabase.');
         return NextResponse.json(
-          { 
+          {
             error: 'Feedback system not fully configured. Please contact support.',
             details: 'The feedback table needs to be created in the database.'
           },
@@ -78,9 +78,9 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       success: true,
-      id: data.id 
+      id: data.id
     });
 
   } catch (err: any) {

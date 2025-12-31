@@ -1,185 +1,166 @@
-'use client';
-
-import React, { useMemo, useState } from 'react';
-import { Star, X, Send, ShieldCheck, Sparkles } from 'lucide-react';
-import { computeMarketplaceScore } from '@/lib/marketplace-score';
-import type { RubricScores } from '@/lib/types';
-
-type RubricKey = keyof RubricScores;
-
-const RUBRIC_META: Record<RubricKey, { label: string; helper: string; weight: number }> = {
-  usability: {
-    label: 'Usability',
-    helper: 'Ease of use, onboarding clarity, and day-to-day workflows',
-    weight: 0.25,
-  },
-  support: {
-    label: 'Support',
-    helper: 'Responsiveness, quality of help, and documentation',
-    weight: 0.25,
-  },
-  value: {
-    label: 'Value',
-    helper: 'Price-to-benefit, ROI, and total cost of ownership',
-    weight: 0.25,
-  },
-  features: {
-    label: 'Features',
-    helper: 'Depth of functionality and coverage of broker needs',
-    weight: 0.25,
-  },
-};
-
-export interface ReviewFormData {
-  overallRating: number;
-  rubricScores: RubricScores;
-  title: string;
-  review: string;
-  pros: string;
-  cons: string;
-}
+import React, { useState, useMemo } from 'react';
+import { X, ThumbsUp, ThumbsDown, Send, CheckCircle2, Sparkles } from 'lucide-react';
 
 interface ReviewFormModalProps {
   open: boolean;
   onClose: () => void;
+  onSubmit?: (data: any) => void;
   listingName?: string;
-  isAuthenticated: boolean;
-  onRequestLogin: () => void;
-  onSubmit?: (data: ReviewFormData) => void | Promise<void>;
+  isAuthenticated?: boolean;
+  onRequestLogin?: () => void;
 }
 
-interface StarSelectorProps {
-  value: number;
-  onChange: (value: number) => void;
-  disabled?: boolean;
-  size?: number;
-}
+type MetricKey = 'setup' | 'usability' | 'support' | 'value' | 'reliability';
 
-const StarSelector: React.FC<StarSelectorProps> = ({ value, onChange, disabled = false, size = 28 }) => {
-  const [hover, setHover] = useState<number | null>(null);
-
-  return (
-    <div className="flex gap-1.5">
-      {[1, 2, 3, 4, 5].map((score) => {
-        const isActive = (hover ?? value) >= score;
-        return (
-          <button
-            key={score}
-            type="button"
-            disabled={disabled}
-            onClick={() => onChange(score)}
-            onMouseEnter={() => setHover(score)}
-            onMouseLeave={() => setHover(null)}
-            className="transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:opacity-50"
-            aria-label={`Rate ${score} out of 5`}
-          >
-            <Star
-              size={size}
-              className={isActive ? 'text-orange-400 fill-orange-400' : 'text-gray-300'}
-              strokeWidth={1.5}
-            />
-          </button>
-        );
-      })}
-    </div>
-  );
-};
+const BROKER_TYPES = [
+  { id: 'mortgage', label: 'Mortgage Brokers' },
+  { id: 'asset', label: 'Asset Brokers' },
+  { id: 'commercial', label: 'Commercial Brokers' }
+];
 
 const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
   open,
   onClose,
-  listingName = 'this listing',
-  isAuthenticated,
-  onRequestLogin,
   onSubmit,
+  listingName = 'this listing',
+  isAuthenticated = false,
+  onRequestLogin
 }) => {
-  const [overallRating, setOverallRating] = useState(0);
-  const [rubricScores, setRubricScores] = useState<RubricScores>({
+  const [metrics, setMetrics] = useState<Record<MetricKey, number>>({
+    setup: 0,
     usability: 0,
     support: 0,
     value: 0,
-    features: 0,
+    reliability: 0
   });
+
   const [title, setTitle] = useState('');
-  const [review, setReview] = useState('');
+  const [content, setContent] = useState('');
   const [pros, setPros] = useState('');
   const [cons, setCons] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [recommendations, setRecommendations] = useState<string[]>([]);
 
-  const marketplaceScore = useMemo(
-    () =>
-      computeMarketplaceScore({
-        averageRating: overallRating,
-        rubricScores,
-      }),
-    [overallRating, rubricScores]
-  );
-
-  const resetForm = () => {
-    setOverallRating(0);
-    setRubricScores({ usability: 0, support: 0, value: 0, features: 0 });
-    setTitle('');
-    setReview('');
-    setPros('');
-    setCons('');
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!isAuthenticated) {
-      onRequestLogin();
-      return;
-    }
-
-    const payload: ReviewFormData = {
-      overallRating,
-      rubricScores,
-      title,
-      review,
-      pros,
-      cons,
-    };
-
-    try {
-      setIsSubmitting(true);
-      await onSubmit?.(payload);
-      resetForm();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  // Calculate Overall Rating as the average of all metrics
+  const overallRating = useMemo(() => {
+    const values = Object.values(metrics) as number[];
+    const sum = values.reduce((acc, curr) => acc + curr, 0);
+    const count = values.filter(v => v > 0).length;
+    return count > 0 ? Number((sum / count).toFixed(1)) : 0;
+  }, [metrics]);
 
   if (!open) return null;
 
+  const handleMetricChange = (key: MetricKey, val: number) => {
+    setMetrics(prev => ({ ...prev, [key]: val }));
+  };
+
+  const toggleRecommendation = (id: string) => {
+    setRecommendations(prev =>
+      prev.includes(id) ? prev.filter(r => r !== id) : [...prev, id]
+    );
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      onRequestLogin?.();
+      return;
+    }
+
+    if (onSubmit) {
+      onSubmit({
+        metrics,
+        overallRating,
+        title,
+        content,
+        pros,
+        cons,
+        recommendations
+      });
+    }
+
+    // Reset form
+    setMetrics({ setup: 0, usability: 0, support: 0, value: 0, reliability: 0 });
+    setTitle('');
+    setContent('');
+    setPros('');
+    setCons('');
+    setRecommendations([]);
+  };
+
+  const ThumbsUpRatingField = ({ label, value, onChange }: { label: string, value: number, onChange: (v: number) => void }) => {
+    const [hover, setHover] = useState(0);
+
+    return (
+      <div className={`flex flex-col gap-1 ${!isAuthenticated ? 'opacity-60 pointer-events-none' : ''}`}>
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">{label}</label>
+          <span className="text-xs font-black text-orange-600">{value > 0 ? value.toFixed(1) : '-'}</span>
+        </div>
+        <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
+          {[1, 2, 3, 4, 5].map((iconIdx) => (
+            <div key={iconIdx} className="relative flex h-7 w-7 items-center justify-center">
+              {/* Left half for 0.5 increments */}
+              <button
+                type="button"
+                className="w-1/2 h-full absolute left-0 z-10"
+                onMouseEnter={() => setHover(iconIdx - 0.5)}
+                onClick={() => onChange(iconIdx - 0.5)}
+                aria-label={`${label} ${iconIdx - 0.5} stars`}
+                disabled={!isAuthenticated}
+              />
+              {/* Right half for whole increments */}
+              <button
+                type="button"
+                className="w-1/2 h-full absolute right-0 z-10"
+                onMouseEnter={() => setHover(iconIdx)}
+                onClick={() => onChange(iconIdx)}
+                aria-label={`${label} ${iconIdx} stars`}
+                disabled={!isAuthenticated}
+              />
+              <div className="relative">
+                <ThumbsUp
+                  size={20}
+                  className={`
+                    transition-colors duration-150
+                    ${(hover || value) >= iconIdx
+                      ? 'text-orange-500 fill-orange-500'
+                      : (hover || value) >= iconIdx - 0.5
+                        ? 'text-gray-200 fill-gray-100' // Partially filled look
+                        : 'text-gray-200'}
+                  `}
+                  strokeWidth={2}
+                />
+                {/* Visual half fill overlay */}
+                {((hover || value) >= iconIdx - 0.5 && (hover || value) < iconIdx) && (
+                  <div className="absolute inset-0 overflow-hidden w-1/2">
+                    <ThumbsUp size={20} className="text-orange-500 fill-orange-500" strokeWidth={2} />
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[92vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+
+        {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Write a Review</h2>
-            <p className="text-xs text-gray-500">Scoring {listingName} with the marketplace matrix</p>
+            <p className="text-xs text-gray-500">Share your experience with {listingName}</p>
           </div>
-          <button
-            onClick={() => {
-              resetForm();
-              onClose();
-            }}
-            className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-50 transition-colors"
-          >
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-50 transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="rounded-lg border border-dashed border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 flex items-start gap-3">
-            <ShieldCheck className="w-4 h-4 mt-0.5 text-amber-700" />
-            <div>
-              <p className="font-semibold">Matrix scoring</p>
-              <p className="text-amber-700/90">
-                We normalize reviews across four categories—Usability, Support, Value, and Features—weighted evenly per the scoring guide.
-              </p>
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-8">
 
           {!isAuthenticated && (
             <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-start gap-3">
@@ -198,129 +179,128 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
             </div>
           )}
 
-          <div className="flex flex-col items-center justify-center py-4 bg-gray-50 rounded-lg border border-dashed border-gray-200">
-            <label className="text-sm font-semibold text-gray-700 mb-2">Overall Rating</label>
-            <StarSelector value={overallRating} onChange={setOverallRating} disabled={!isAuthenticated} size={32} />
-            <p className="text-[11px] text-gray-500 mt-2">Fallback score when rubric data is missing</p>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900">Rubric (1-5 for each category)</h3>
-              <span className="text-[11px] text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                Equal weights · see docs/scoring-guide.md
-              </span>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(Object.keys(RUBRIC_META) as RubricKey[]).map((key) => {
-                const meta = RUBRIC_META[key];
-                return (
-                  <div key={key} className="border border-gray-100 rounded-lg p-4 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-900">{meta.label}</p>
-                        <p className="text-xs text-gray-500 leading-snug">{meta.helper}</p>
-                      </div>
-                      <span className="text-[10px] text-gray-500 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">
-                        {(meta.weight * 100).toFixed(0)}% weight
-                      </span>
-                    </div>
-                    <div className="mt-3">
-                      <StarSelector
-                        value={rubricScores[key]}
-                        onChange={(value) => setRubricScores((prev) => ({ ...prev, [key]: value }))}
-                        disabled={!isAuthenticated}
-                        size={24}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-900">Review Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder={`Summarize your experience with ${listingName}`}
-                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all"
-                required
-                disabled={!isAuthenticated}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-900">Marketplace preview</label>
-              <div className="w-full px-4 py-2.5 bg-gray-50 border border-dashed border-gray-200 rounded-lg text-gray-900 text-sm flex items-center justify-between">
+          {/* Detailed Ratings Section */}
+          <div className="bg-gray-50/50 rounded-2xl border border-gray-100 p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-4 mb-2">
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">Performance Metrics</h3>
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Overall Score</span>
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-orange-500" />
-                  <span className="font-semibold">{marketplaceScore || 0}/100</span>
+                  <ThumbsUp size={16} className="text-orange-600 fill-orange-600" />
+                  <span className="text-xl font-black text-gray-900 leading-none">{overallRating.toFixed(1)}</span>
                 </div>
-                <span className="text-[11px] text-gray-500">Weighted rubric ×20</span>
               </div>
             </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+              <ThumbsUpRatingField label="Seamless Setup" value={metrics.setup} onChange={(v) => handleMetricChange('setup', v)} />
+              <ThumbsUpRatingField label="Ease of Use" value={metrics.usability} onChange={(v) => handleMetricChange('usability', v)} />
+              <ThumbsUpRatingField label="Quality of Support" value={metrics.support} onChange={(v) => handleMetricChange('support', v)} />
+              <ThumbsUpRatingField label="Value for Money" value={metrics.value} onChange={(v) => handleMetricChange('value', v)} />
+              <ThumbsUpRatingField label="Reliability" value={metrics.reliability} onChange={(v) => handleMetricChange('reliability', v)} />
+            </div>
           </div>
 
+          {/* Title */}
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-gray-900">Your Review</label>
-            <textarea
-              value={review}
-              onChange={(e) => setReview(e.target.value)}
-              placeholder="What worked well? What could be improved?"
-              rows={5}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all resize-none"
+            <label className="text-sm font-bold text-gray-900">Review Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g., The best project management tool I've used"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all shadow-sm"
               required
               disabled={!isAuthenticated}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Content */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-bold text-gray-900">Detailed Review</label>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="What did you like or dislike? How are you using it?"
+              rows={4}
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
+              required
+              disabled={!isAuthenticated}
+            />
+          </div>
+
+          {/* Pros & Cons */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-900">Pros</label>
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <ThumbsUp size={14} className="text-emerald-600" /> Pros
+              </label>
               <textarea
                 value={pros}
                 onChange={(e) => setPros(e.target.value)}
-                placeholder="What impressed you most?"
+                placeholder="What impressed you the most?"
                 rows={3}
-                className="w-full px-4 py-2 bg-green-50/60 border border-green-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent text-sm transition-all resize-none"
+                className="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
                 disabled={!isAuthenticated}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-900">Cons</label>
+              <label className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                <ThumbsDown size={14} className="text-rose-600" /> Cons
+              </label>
               <textarea
                 value={cons}
                 onChange={(e) => setCons(e.target.value)}
-                placeholder="Where could it improve?"
+                placeholder="What could be better?"
                 rows={3}
-                className="w-full px-4 py-2 bg-red-50/60 border border-red-100 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm transition-all resize-none"
+                className="w-full px-4 py-3 bg-rose-50/30 border border-rose-100 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
                 disabled={!isAuthenticated}
               />
             </div>
           </div>
 
-          <div className="pt-2 flex items-center justify-end gap-3 border-t border-gray-100">
+          {/* Recommendation Section */}
+          <div className="pt-2">
+            <label className="text-sm font-bold text-gray-900 mb-3 block">
+              Would you recommend this for? <span className="text-xs font-normal text-gray-400">(Select all that apply)</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {BROKER_TYPES.map(type => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => toggleRecommendation(type.id)}
+                  disabled={!isAuthenticated}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all shadow-sm ${recommendations.includes(type.id)
+                    ? 'bg-orange-500 text-white border-orange-500'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-orange-200'
+                    }`}
+                >
+                  {recommendations.includes(type.id) && <CheckCircle2 size={14} />}
+                  {type.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Footer Actions */}
+          <div className="pt-6 flex items-center justify-end gap-3 border-t border-gray-100">
             <button
               type="button"
-              onClick={() => {
-                resetForm();
-                onClose();
-              }}
-              className="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium transition-colors"
+              onClick={onClose}
+              className="px-6 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl text-sm font-bold transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || !isAuthenticated}
-              className="px-6 py-2.5 bg-gray-900 hover:bg-gray-800 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2 shadow-lg shadow-gray-200 disabled:opacity-60 disabled:cursor-not-allowed"
+              className="px-8 py-2.5 bg-[#0f172a] hover:bg-black text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-gray-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={!isAuthenticated}
             >
-              {isSubmitting ? 'Submitting...' : 'Submit Review'} <Send size={14} />
+              Submit Review <Send size={14} />
             </button>
           </div>
+
         </form>
       </div>
     </div>

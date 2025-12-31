@@ -256,13 +256,35 @@ function FAQContent() {
 
     setIsSubmittingQuestion(true);
     try {
-      // TODO: Replace with Supabase insert + notification
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      // Table 'faq' fields: id, question, category, helpful_count, view_count, (answer?)
+      // We insert question, category, and potentially user info if the table allows, 
+      // but based on user instruction we stick to the provided schema.
+      const { error } = await supabase
+        .from('faq')
+        .insert({
+          question: askQuestion.trim(),
+          category: questionCategory,
+          // user_id: user?.id // access to user_id wasn't explicitly confirmed in schema, but good practice if column exists. 
+          // If the schema is strictly id, question, category, helpful_count, view_count, we omit user_id.
+          // However, standard practice implies tracking who asked. 
+          // Re-reading user note: "Fields are id, question, category,helpful count, view count."
+          // I will stick to these for safety to avoid 400 errors.
+        });
+
+      if (error) {
+        throw error;
+      }
+
       setShowThankYou(true);
       setAskQuestion('');
       setAskContext('');
       setPostAs('public');
     } catch (error) {
+      console.error('Error submitting question:', error);
       toast({
         title: 'Something went wrong',
         description: 'We could not submit your question. Please try again.',
@@ -343,8 +365,8 @@ function FAQContent() {
                       key={cat.value}
                       onClick={() => setSelectedCategory(cat.value)}
                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.value
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-muted'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-foreground hover:bg-muted'
                         }`}
                     >
                       <cat.icon className="w-4 h-4" />
