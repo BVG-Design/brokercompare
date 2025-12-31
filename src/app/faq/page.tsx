@@ -39,6 +39,7 @@ import StillNotSure from '@/components/product-page/StillNotSure';
 import { createClient } from '@/lib/supabase/client';
 // TODO: Replace with Supabase queries when tables are ready
 // import { faqQueries } from '@/lib/supabase';
+import { submitQuestion } from '@/app/actions/ask-question';
 
 function FAQContent() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -260,23 +261,21 @@ function FAQContent() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      // Table 'faq' fields: id, question, category, helpful_count, view_count, (answer?)
-      // We insert question, category, and potentially user info if the table allows, 
-      // but based on user instruction we stick to the provided schema.
-      const { error } = await supabase
-        .from('faq')
-        .insert({
-          question: askQuestion.trim(),
-          category: questionCategory,
-          // user_id: user?.id // access to user_id wasn't explicitly confirmed in schema, but good practice if column exists. 
-          // If the schema is strictly id, question, category, helpful_count, view_count, we omit user_id.
-          // However, standard practice implies tracking who asked. 
-          // Re-reading user note: "Fields are id, question, category,helpful count, view count."
-          // I will stick to these for safety to avoid 400 errors.
-        });
+      const result = await submitQuestion({
+        question: askQuestion.trim(),
+        context: askContext,
+        category: questionCategory,
+        // Using pathname as source page if available, or just 'faq'
+        sourcePage: window.location.pathname || 'faq',
+        postAs: postAs,
+        userId: user?.id,
+        userEmail: user?.email, // Note: We might want to check the profile for name if available
+        userName: firstName || user?.email,
+        isLoggedIn: !!user,
+      });
 
-      if (error) {
-        throw error;
+      if (result.error) {
+        throw new Error(result.error);
       }
 
       setShowThankYou(true);

@@ -9,6 +9,7 @@ import ReviewsSection from '@/components/product-page/ReviewsSection';
 import ComparisonSummary from '@/components/product-page/ComparisonSummary';
 import ProvidersSection from '@/components/product-page/ProvidersSection';
 import { buildDirectoryPageData } from './comparisonData';
+import { getReviewsBySlug } from '@/services/supabase';
 
 // Mock blogs for the InfoGrid sidebar
 const MOCK_BLOGS = [
@@ -44,6 +45,7 @@ export default async function DirectoryProfilePage(props: PageProps) {
     const { slug } = params;
 
     const pageData = await buildDirectoryPageData(slug);
+    const reviews = await getReviewsBySlug(slug);
 
     if (!pageData) {
         notFound();
@@ -57,8 +59,8 @@ export default async function DirectoryProfilePage(props: PageProps) {
 
             <main className="flex-grow">
                 <MainCard listing={listing} />
-                <InfoGrid listing={listing} blogs={MOCK_BLOGS} />
-                <ReviewsSection listingName={listing.name} listingSlug={slug} />
+                <InfoGrid listing={listing} blogs={MOCK_BLOGS} reviews={reviews} />
+                <ReviewsSection listingName={listing.name} listingSlug={slug} reviews={reviews} />
                 <div className="max-w-6xl mx-auto px-4 space-y-12">
                     <StillNotSure />
                     <ComparisonSummary

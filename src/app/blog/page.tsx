@@ -11,6 +11,7 @@ import { client, sanityConfigured } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 
 export const revalidate = 60;
 
@@ -333,20 +334,22 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   </Link>
 
                   {/* Take the Quiz - Brand Accent */}
-                  <Link href="#" className="block h-full">
-                    <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-accent text-accent-foreground border-none">
-                      <CardContent className="p-6 flex flex-col h-full">
-                        <FileQuestion className="w-8 h-8 text-white mb-4" />
-                        <h3 className="text-lg font-bold mb-2">Take the Quiz</h3>
-                        <p className="text-accent-foreground/90 text-sm flex-1">
-                          Answer a few quick questions to identify your key pain points and opportunities.
-                        </p>
-                        <div className="mt-4 flex items-center text-white text-sm font-semibold group">
-                          Start Quiz <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
+                  <QuizWaitlistModal>
+                    <div className="block h-full cursor-pointer">
+                      <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-accent text-accent-foreground border-none">
+                        <CardContent className="p-6 flex flex-col h-full">
+                          <FileQuestion className="w-8 h-8 text-white mb-4" />
+                          <h3 className="text-lg font-bold mb-2">Take the Quiz</h3>
+                          <p className="text-accent-foreground/90 text-sm flex-1">
+                            Answer a few quick questions to identify your key pain points and opportunities.
+                          </p>
+                          <div className="mt-4 flex items-center text-white text-sm font-semibold group">
+                            Start Quiz <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </QuizWaitlistModal>
                 </div>
               </section>
             </>

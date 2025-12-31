@@ -7,18 +7,19 @@ import { SoftwareListing } from './types';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
 import { computeMarketplaceScore } from '@/lib/marketplace-score';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
 } from '@/components/ui/tooltip';
 
 interface InfoGridProps {
     listing: SoftwareListing;
     blogs?: any[];
+    reviews?: any[];
 }
 
-const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
+const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [], reviews = [] }) => {
     const { editor, worksWith = [], rating, name, slug, serviceArea = [], brokerType = [], trustMetrics } = listing;
     const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
@@ -72,29 +73,34 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
         return slugify(toolName);
     };
 
+    // Calculate dynamic stats from reviews if available, otherwise fallback to listing data
+    const totalReviews = reviews.length > 0 ? reviews.length : (rating?.count || 0);
+    const averageRating = reviews.length > 0
+        ? reviews.reduce((acc, r) => acc + (r.overall_rating || 0), 0) / reviews.length
+        : (rating?.average || 0);
+
+    // Calculate distribution
+    const counts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+    if (reviews.length > 0) {
+        reviews.forEach(r => {
+            const rRating = Math.round(r.overall_rating || 0);
+            if (rRating >= 1 && rRating <= 5) {
+                counts[rRating as keyof typeof counts]++;
+            }
+        });
+    }
+
+    const distribution = [5, 4, 3, 2, 1].map(stars => ({
+        stars,
+        count: counts[stars as keyof typeof counts],
+        percent: reviews.length > 0 ? (counts[stars as keyof typeof counts] / reviews.length) * 100 : 0
+    }));
+
     const marketplaceScore = computeMarketplaceScore({
-        ratingAverage: rating?.average,
-        ratingCount: rating?.count,
+        ratingAverage: averageRating,
+        ratingCount: totalReviews,
         trustMetrics
     });
-
-    const responseTimeValue = trustMetrics?.responseTimeHours;
-    const responseTimeLabel =
-        responseTimeValue !== undefined && responseTimeValue !== null
-            ? `${responseTimeValue} hrs avg`
-            : 'Not available';
-
-    const verifiedRatioLabel =
-        trustMetrics?.verifiedRatio !== undefined && trustMetrics?.verifiedRatio !== null
-            ? `${Math.round(
-                (trustMetrics.verifiedRatio <= 1 ? trustMetrics.verifiedRatio * 100 : trustMetrics.verifiedRatio)
-            )}% verified`
-            : 'Not available';
-
-    const reviewRecencyLabel =
-        trustMetrics?.reviewRecencyDays !== undefined && trustMetrics?.reviewRecencyDays !== null
-            ? `${trustMetrics.reviewRecencyDays} days since last review`
-            : 'Not available';
 
     return (
         <>
@@ -179,33 +185,6 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
 
                     {/* Right Sidebar Column */}
                     <div className="space-y-8 flex flex-col h-full">
-                        {/* Trust Signals */}
-                        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-                            <div className="flex items-center gap-2 mb-4">
-                                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                                <h3 className="font-bold text-gray-900">Trust Signals</h3>
-                            </div>
-                            <div className="space-y-3 text-sm text-gray-600">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Marketplace score</span>
-                                    <span className="font-semibold text-gray-900">
-                                        {marketplaceScore !== null ? `${marketplaceScore.toFixed(0)}/100` : 'Not enough data'}
-                                    </span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Avg response time</span>
-                                    <span className="font-medium text-gray-800">{responseTimeLabel}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Verified review ratio</span>
-                                    <span className="font-medium text-gray-800">{verifiedRatioLabel}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-gray-500">Review recency</span>
-                                    <span className="font-medium text-gray-800">{reviewRecencyLabel}</span>
-                                </div>
-                            </div>
-                        </div>
 
                         {/* Integrations / Works With */}
                         {worksWith.length > 0 && (
@@ -242,19 +221,38 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
                             <h3 className="font-bold text-gray-900 mb-5">User Reviews</h3>
 
                             <div className="flex items-end gap-3 mb-6">
-                                <span className="text-5xl font-bold text-gray-900 tracking-tighter leading-none">{rating?.average?.toFixed(1) || '0.0'}</span>
+                                <span className="text-5xl font-bold text-gray-900 tracking-tighter leading-none">{averageRating.toFixed(1)}</span>
                                 <div className="flex flex-col pb-1">
                                     <div className="flex gap-0.5 mb-1">
                                         {[1, 2, 3, 4, 5].map(i => (
                                             <Star
                                                 key={i}
                                                 size={14}
-                                                className={i <= Math.round(rating?.average || 0) ? "text-orange-400 fill-orange-400" : "text-gray-300"}
+                                                className={i <= Math.round(averageRating) ? "text-orange-400 fill-orange-400" : "text-gray-300"}
                                             />
                                         ))}
                                     </div>
-                                    <span className="text-xs text-gray-500">{rating?.count || 0} reviews</span>
+                                    <span className="text-xs text-gray-500">{totalReviews} reviews</span>
                                 </div>
+                            </div>
+
+                            {/* Rating Distribution Bars */}
+                            <div className="space-y-2 mb-6">
+                                {distribution.map((item) => (
+                                    <div key={item.stars} className="flex items-center gap-2">
+                                        <div className="flex items-center w-4 gap-1">
+                                            <span className="text-[10px] font-semibold text-gray-600">{item.stars}</span>
+                                            <Star size={8} className="text-orange-400 fill-orange-400" />
+                                        </div>
+                                        <div className="flex-1 h-1.5 bg-gray-50 rounded-full overflow-hidden border border-gray-100">
+                                            <div
+                                                className={`h-full rounded-full ${item.percent > 0 ? 'bg-orange-400' : 'bg-transparent'}`}
+                                                style={{ width: `${item.percent}%` }}
+                                            ></div>
+                                        </div>
+                                        <span className="text-[10px] text-gray-400 w-3 text-right">{item.count}</span>
+                                    </div>
+                                ))}
                             </div>
 
                             <button
@@ -266,7 +264,7 @@ const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [] }) => {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             <FeedbackDialog
                 open={feedbackDialogOpen}
