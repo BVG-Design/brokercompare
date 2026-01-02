@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 
-export default function VendorCard({ vendor }: { vendor: any }) {
+export default function PartnerCard({ partner }: { partner: any }) {
   const tierBadges: Record<string, any> = {
     featured: {
       label: 'Featured',
@@ -27,15 +27,15 @@ export default function VendorCard({ vendor }: { vendor: any }) {
     free: null,
   };
 
-  const tierInfo = tierBadges[vendor.listing_tier];
+  const tierInfo = tierBadges[partner.listing_tier];
 
   return (
     <div
-      className={`group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${vendor.listing_tier === 'featured'
-          ? 'border-secondary'
-          : vendor.listing_tier === 'premium'
-            ? 'border-primary'
-            : 'border-border'
+      className={`group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border ${partner.listing_tier === 'featured'
+        ? 'border-secondary'
+        : partner.listing_tier === 'premium'
+          ? 'border-primary'
+          : 'border-border'
         }`}
     >
       {tierInfo && (
@@ -50,43 +50,43 @@ export default function VendorCard({ vendor }: { vendor: any }) {
       <div className="p-6">
         {/* Logo & Company Name */}
         <div className="flex items-start gap-4 mb-4">
-          {vendor.logo_url ? (
+          {partner.logo_url ? (
             <div className="w-16 h-16 relative">
               <Image
-                src={vendor.logo_url}
-                alt={vendor.company_name}
+                src={partner.logo_url}
+                alt={partner.company_name}
                 fill
                 className="rounded-lg object-contain bg-gray-50 border border-gray-200 p-1"
               />
             </div>
           ) : (
             <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground text-2xl font-bold">
-              {vendor.company_name?.[0] || 'V'}
+              {partner.company_name?.[0] || 'V'}
             </div>
           )}
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-primary mb-1 truncate group-hover:text-secondary transition-colors">
-              {vendor.company_name}
+              {partner.company_name}
             </h3>
-            {vendor.tagline && (
+            {partner.tagline && (
               <p className="text-sm text-gray-600 line-clamp-1">
-                {vendor.tagline}
+                {partner.tagline}
               </p>
             )}
           </div>
         </div>
 
         {/* Description */}
-        {vendor.description && (
+        {partner.description && (
           <p className="text-sm text-gray-600 mb-4 line-clamp-3 h-15">
-            {vendor.description}
+            {partner.description}
           </p>
         )}
 
         {/* Categories */}
-        {vendor.categories && vendor.categories.length > 0 && (
+        {partner.categories && partner.categories.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {vendor.categories.slice(0, 3).map((cat: any, idx: number) => (
+            {partner.categories.slice(0, 3).map((cat: any, idx: number) => (
               <Badge
                 key={idx}
                 variant="secondary"
@@ -100,13 +100,13 @@ export default function VendorCard({ vendor }: { vendor: any }) {
 
         {/* Actions */}
         <div className="flex gap-2 mt-auto">
-          <Link href={`/directory/${vendor.slug}`} className="flex-1">
+          <Link href={`/directory/${partner.slug}`} className="flex-1">
             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               View Details
             </Button>
           </Link>
-          {vendor.websiteUrl && (
-            <a href={vendor.websiteUrl} target="_blank" rel="noopener noreferrer">
+          {partner.websiteUrl && (
+            <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
               <Button
                 variant="outline"
                 size="icon"

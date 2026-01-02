@@ -8,11 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, Filter, Sparkles } from 'lucide-react';
-import VendorCard from '@/components/vendors/VendorCard';
-import AIChatDialog from '@/components/vendors/AIChatDialog';
+import PartnerCard from '@/components/partners/PartnerCard';
+import AIChatDialog from '@/components/partners/AIChatDialog';
 import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
 
-function BrowseVendorsContent() {
+function BrowsepartnersContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -24,7 +24,7 @@ function BrowseVendorsContent() {
   const [brokerTypeFilter, setBrokerTypeFilter] = useState(searchParams.get('brokerType') || 'all');
   const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'all');
   const [showAIChat, setShowAIChat] = useState(false);
-  const [vendors, setVendors] = useState<any[]>([]);
+  const [partners, setpartners] = useState<any[]>([]);
   const [resourcePosts, setResourcePosts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dynamicCategories, setDynamicCategories] = useState<{ label: string; value: string }[]>([]);
@@ -45,7 +45,7 @@ function BrowseVendorsContent() {
           const [listings, cats] = await Promise.all([
             fetchDirectoryListings({
               search: searchTerm,
-              categories: categoryFilter,
+              category: categoryFilter,
               brokerType: brokerTypeFilter,
               type: typeFilter !== 'all' ? typeFilter : undefined
             }),
@@ -56,10 +56,10 @@ function BrowseVendorsContent() {
           setResourcePosts([]);
         }
 
-        setVendors(fetchedListings);
+        setpartners(fetchedListings);
         setDynamicCategories((fetchedCats || []).map((cat: any) => ({ label: cat.title, value: cat.value })));
       } catch (err) {
-        console.error('Failed to fetch vendors:', err);
+        console.error('Failed to fetch partners:', err);
       } finally {
         setIsLoading(false);
       }
@@ -90,15 +90,15 @@ function BrowseVendorsContent() {
     { value: 'Commercial', label: 'Commercial' }
   ];
 
-  const filteredVendors = useMemo(() => {
-    return vendors.filter((vendor) => {
-      const matchesBrokerType = brokerTypeFilter === 'all' || vendor.brokerTypes?.includes(brokerTypeFilter);
+  const filteredpartners = useMemo(() => {
+    return partners.filter((partner) => {
+      const matchesBrokerType = brokerTypeFilter === 'all' || partner.brokerTypes?.includes(brokerTypeFilter);
       return matchesBrokerType;
     });
-  }, [vendors, brokerTypeFilter]);
+  }, [partners, brokerTypeFilter]);
 
-  const sortedVendors = useMemo(() => {
-    return [...filteredVendors].sort((a, b) => {
+  const sortedpartners = useMemo(() => {
+    return [...filteredpartners].sort((a, b) => {
       const badgeA = typeof a.badgePriority === 'number' ? a.badgePriority : 999;
       const badgeB = typeof b.badgePriority === 'number' ? b.badgePriority : 999;
       if (badgeA !== badgeB) return badgeA - badgeB;
@@ -110,7 +110,7 @@ function BrowseVendorsContent() {
 
       return (a.name || a.company_name || '').localeCompare(b.name || b.company_name || '');
     });
-  }, [filteredVendors]);
+  }, [filteredpartners]);
 
   const clearAll = () => {
     setSearchTerm('');
@@ -152,7 +152,7 @@ function BrowseVendorsContent() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="text"
-                      placeholder="Search for vendors, products, or services..."
+                      placeholder="Search for partners, products, or services..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -258,13 +258,13 @@ function BrowseVendorsContent() {
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
               <span className="font-semibold text-primary">
-                {typeFilter === 'resourceGuide' ? resourceGuideCards.length : sortedVendors.length}
+                {typeFilter === 'resourceGuide' ? resourceGuideCards.length : sortedpartners.length}
               </span>{' '}
               items found
             </p>
           </div>
 
-          {/* Vendors Grid */}
+          {/* partners Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -317,12 +317,12 @@ function BrowseVendorsContent() {
                 </div>
               ))}
             </div>
-          ) : sortedVendors.length === 0 ? (
+          ) : sortedpartners.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">No vendors found</h3>
+              <h3 className="text-2xl font-bold text-foreground mb-2">No partners found</h3>
               <p className="text-muted-foreground mb-6">Try adjusting your search or filters</p>
               <Button onClick={clearAll} variant="outline">
                 Clear all filters
@@ -330,8 +330,8 @@ function BrowseVendorsContent() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedVendors.map((vendor) => (
-                <VendorCard key={vendor.id} vendor={vendor} />
+              {sortedpartners.map((partner) => (
+                <PartnerCard key={partner.id} partner={partner} />
               ))}
             </div>
           )}
@@ -344,7 +344,7 @@ function BrowseVendorsContent() {
   );
 }
 
-export default function BrowseVendorsPage() {
+export default function BrowsepartnersPage() {
   return (
     <Suspense
       fallback={
@@ -359,7 +359,7 @@ export default function BrowseVendorsPage() {
         </>
       }
     >
-      <BrowseVendorsContent />
+      <BrowsepartnersContent />
     </Suspense>
   );
 }

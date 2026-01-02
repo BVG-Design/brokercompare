@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { searchFeatures, searchIntegrations } from './actions';
+import { searchFeatures, searchIntegrations, searchAggregators } from './actions';
 import {
   Save,
   Plus,
@@ -33,15 +33,18 @@ import {
   Loader2,
   Lock,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Info,
-  Briefcase
+  Briefcase,
+  RefreshCcw,
+  Search
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 type ProductType = 'Software' | 'Service' | 'Product' | 'Other';
 
-const PRICING_OPTIONS = [
+const PRICING_STRUCTURE_OPTIONS = [
   'Flat/Fixed fee',
   'Tiered Pricing',
   'Usage Base',
@@ -50,6 +53,15 @@ const PRICING_OPTIONS = [
   'Subscription',
   'One-time Purchase',
   'Custom Quote'
+];
+
+const AGGREGATOR_COMPATIBILITY_OPTIONS = [
+  { id: 'api', label: 'API' },
+  { id: 'webhook', label: 'Webhook' },
+  { id: 'zapier', label: 'Zapier' },
+  { id: 'nocode', label: 'No Code (e.g. Make.com, n8n' },
+  { id: 'direct', label: 'Direct Integration' },
+  { id: 'none', label: 'No Integration/Standalone' }
 ];
 
 const TEAM_SIZE_OPTIONS = [
@@ -106,16 +118,37 @@ const REFERRAL_SOURCES = [
   { value: 'friend_referral', label: 'Friend/Referral' },
 ];
 
+const DEFAULT_AGGREGATORS = [
+  'LMG',
+  'CONNECTIVE',
+  'FINSURE',
+  'NMB',
+  'AFG',
+  'MORTGAGE CHOICE',
+  'CHOICE',
+  'FAST',
+  'PLAN AUSTRALIA',
+  'OUTSOURCE FINANCIAL'
+];
+
 type ApplicationData = {
   id: string;
   name: string;
   type: ProductType;
   typeOther: string;
   productImage: string;
+  productImageFile: File | null;
   tagline: string;
   description: string;
   website: string;
   pricingStructure: string;
+  pricingPackages: Array<{
+    id: string;
+    name: string;
+    price: string;
+    subtext: string;
+    features: string[];
+  }>;
   specialOffer: string;
   pricingDetails: string;
   features: string[];
@@ -134,6 +167,10 @@ type ApplicationData = {
   lookingToOther: string;
   notFitFor: string;
   wantsTraining: boolean;
+  aggregatorCompatibility: string[];
+  integrationDocsLink: string;
+  selectedAggregators: string[];
+  integrationNotes: string;
 };
 
 const buildInitialAppData = (id: string, count: number): ApplicationData => ({
@@ -142,10 +179,14 @@ const buildInitialAppData = (id: string, count: number): ApplicationData => ({
   type: 'Software',
   typeOther: '',
   productImage: '',
+  productImageFile: null,
   tagline: '',
   description: '',
   website: '',
-  pricingStructure: '',
+  pricingStructure: PRICING_STRUCTURE_OPTIONS[0],
+  pricingPackages: [
+    { id: `pkg-${Date.now()}`, name: '', price: '', subtext: '', features: [''] }
+  ],
   specialOffer: '',
   pricingDetails: '',
   features: [],
@@ -164,6 +205,10 @@ const buildInitialAppData = (id: string, count: number): ApplicationData => ({
   lookingToOther: '',
   notFitFor: '',
   wantsTraining: false,
+  aggregatorCompatibility: [],
+  integrationDocsLink: '',
+  selectedAggregators: [],
+  integrationNotes: '',
 });
 
 const RequiredAsterisk = () => <span className="text-red-500 ml-0.5">*</span>;
@@ -176,6 +221,8 @@ export default function ApplyPartnerPage() {
 
   const [featureSuggestions, setFeatureSuggestions] = useState<string[]>([]);
   const [integrationSuggestions, setIntegrationSuggestions] = useState<string[]>([]);
+  const [aggregatorSearch, setAggregatorSearch] = useState('');
+  const [filteredAggregators, setFilteredAggregators] = useState<string[]>(DEFAULT_AGGREGATORS);
 
   const [profile, setProfile] = useState({
     logo: '',
@@ -200,6 +247,12 @@ export default function ApplyPartnerPage() {
     () => applications.find((app) => app.id === selectedAppId) || applications[0],
     [applications, selectedAppId]
   );
+
+  const hasTechnicalIntegration = ['api', 'webhook', 'zapier', 'nocode'].some(id =>
+    selectedApp.aggregatorCompatibility?.includes(id)
+  );
+  const hasDirectIntegration = selectedApp.aggregatorCompatibility?.includes('direct');
+  const showIntegrationNotes = (selectedApp.aggregatorCompatibility?.length ?? 0) > 0;
 
   const updateAppData = (updater: (data: ApplicationData) => ApplicationData) => {
     setApplications((prev) =>
@@ -248,6 +301,66 @@ export default function ApplyPartnerPage() {
     }, 300);
     return () => clearTimeout(timer);
   }, [selectedApp.newIntegration, selectedApp.integrations]);
+
+  // Debounced search for Aggregators
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      try {
+        const results = await searchAggregators(aggregatorSearch);
+        // If results from DB are zero and search is empty, show defaults
+        if (results.length === 0 && !aggregatorSearch) {
+          setFilteredAggregators(DEFAULT_AGGREGATORS);
+        } else {
+          setFilteredAggregators(results);
+        }
+      } catch (e) {
+        console.error(e);
+        if (!aggregatorSearch) setFilteredAggregators(DEFAULT_AGGREGATORS);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [aggregatorSearch]);
+
+  const toggleAggregatorCompatibility = (optId: string) => {
+    updateAppData(app => ({
+      ...app,
+      aggregatorCompatibility: app.aggregatorCompatibility.includes(optId)
+        ? app.aggregatorCompatibility.filter(id => id !== optId)
+        : [...app.aggregatorCompatibility, optId]
+    }));
+  };
+
+  const toggleAggregatorSelection = (agg: string) => {
+    updateAppData(app => ({
+      ...app,
+      selectedAggregators: app.selectedAggregators.includes(agg)
+        ? app.selectedAggregators.filter(a => a !== agg)
+        : [...app.selectedAggregators, agg]
+    }));
+  };
+  const handleAddPricingPackage = () => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: [
+        ...app.pricingPackages,
+        { id: `pkg-${Date.now()}`, name: '', price: '', subtext: '', features: [''] }
+      ]
+    }));
+  };
+
+  const removePackage = (pkgId: string) => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: app.pricingPackages.filter(p => p.id !== pkgId)
+    }));
+  };
+
+  const updatePackage = (pkgId: string, updates: Partial<ApplicationData['pricingPackages'][0]>) => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: app.pricingPackages.map(p => p.id === pkgId ? { ...p, ...updates } : p)
+    }));
+  };
 
 
   const handleAddApplication = () => {
@@ -343,6 +456,26 @@ export default function ApplyPartnerPage() {
     return data.publicUrl;
   };
 
+  const uploadProductImage = async (file: File, productName: string) => {
+    const supabase = createClient();
+    const fileExt = file.name.split('.').pop();
+    const sanitizedName = productName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const fileName = `${sanitizedName}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('product images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
   const handleNext = async () => {
     if (!validateStep1()) return;
 
@@ -407,49 +540,63 @@ export default function ApplyPartnerPage() {
       if (companyError) throw companyError;
 
       // 4. Create Partner Application(s)
-      const inserts = applications.map(app => ({
-        company_id: companyData.id,
-        company_name: profile.companyName,
-        website: profile.website,
-        contact_name: `${profile.firstName} ${profile.lastName}`.trim(),
-        email: profile.email,
-        phone: profile.phone,
-        heard_about_us: profile.referralSource, // Mapped
-        referral_name: profile.referralName,
+      const inserts = await Promise.all(applications.map(async app => {
+        let appProductImage = app.productImage;
+        if (app.productImageFile) {
+          appProductImage = await uploadProductImage(app.productImageFile, app.name);
+        }
 
-        // Application specific
-        business_type: app.type,
-        business_type_other: app.typeOther,
-        tagline: app.tagline,
-        description: app.description,
-        pricing: app.pricingStructure,
-        pricing_details: app.pricingDetails,
-        special_offer: app.specialOffer,
+        return {
+          company_id: companyData.id,
+          company_name: profile.companyName,
+          website: profile.website,
+          contact_name: `${profile.firstName} ${profile.lastName}`.trim(),
+          email: profile.email,
+          phone: profile.phone,
+          heard_about_us: profile.referralSource, // Mapped
+          referral_name: profile.referralName,
 
-        features: app.features,
-        integrations: app.integrations,
-        is_training_public: app.wantsTraining,
+          // Application specific
+          business_type: app.type,
+          business_type_other: app.typeOther,
+          tagline: app.tagline,
+          description: app.description,
+          pricing: app.pricingStructure,
+          pricing_offer: app.pricingPackages, // Map to new column
+          pricing_details: app.pricingDetails,
+          special_offer: app.specialOffer,
 
-        team_size: app.teamSize,
-        revenue: app.revenue,
-        broker_types: app.brokerType,
-        broker_type_other: app.brokerTypeOther,
-        commercial_finance_subcategories: app.commercialSubtypes,
-        commercial_finance_other: app.commercialTypeOther,
+          features: app.features,
+          integrations: app.integrations,
+          is_training_public: app.wantsTraining,
 
-        budget_amount: app.budgetAmount,
-        budget_period: app.budgetPeriod,
+          // Aggregator Compatibility
+          aggregator_compatibility: app.aggregatorCompatibility,
+          integration_docs_link: app.integrationDocsLink,
+          selected_aggregators: app.selectedAggregators,
+          integration_notes: app.integrationNotes,
 
-        looking_to: app.lookingTo,
-        looking_to_other: app.lookingToOther,
-        not_fit_for: app.notFitFor,
+          team_size: app.teamSize,
+          revenue: app.revenue,
+          broker_types: app.brokerType,
+          broker_type_other: app.brokerTypeOther,
+          commercial_finance_subcategories: app.commercialSubtypes,
+          commercial_finance_other: app.commercialTypeOther,
 
-        materials: {
-          logo: logoUrl, // Use the uploaded URL
-          product_image: app.productImage
-        },
+          budget_amount: app.budgetAmount,
+          budget_period: app.budgetPeriod,
 
-        status: 'pending'
+          looking_to: app.lookingTo,
+          looking_to_other: app.lookingToOther,
+          not_fit_for: app.notFitFor,
+
+          materials: {
+            logo: logoUrl, // Use the uploaded URL
+            product_image: appProductImage
+          },
+
+          status: 'pending'
+        };
       }));
 
       const { error: appError } = await supabase.from('partner_application').insert(inserts);
@@ -477,7 +624,7 @@ export default function ApplyPartnerPage() {
     if (field === 'logo') {
       setProfile(prev => ({ ...prev, logo: url, logoFile: file }));
     } else {
-      updateAppData(app => ({ ...app, productImage: url }));
+      updateAppData(app => ({ ...app, productImage: url, productImageFile: file }));
     }
   };
 
@@ -501,7 +648,7 @@ export default function ApplyPartnerPage() {
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-3xl font-bold mb-2">Apply as a Partner</h1>
-            <p className="text-gray-300">Join our ecosystem of products and services made for Brokers in the Mortgage, Asset & Commercial Finance industry.</p>
+            <p className="text-gray-300">Got a product or service made for Brokers in the Mortgage, Asset & Commercial Finance industry? <br /> Apply to partner with us for free!</p>
           </div>
           <div className="flex gap-3">
             <button onClick={() => router.back()} className="px-6 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 font-bold transition-all">
@@ -525,7 +672,7 @@ export default function ApplyPartnerPage() {
               <div className="p-2.5 bg-brand-blue/10 text-brand-blue rounded-xl">
                 <Building2 size={24} />
               </div>
-              <h2 className="text-xl font-bold text-gray-900">Public Partner Profile</h2>
+              <h2 className="text-xl font-bold text-brand-orange">Public Partner Profile</h2>
             </div>
           </div>
 
@@ -705,7 +852,7 @@ export default function ApplyPartnerPage() {
                       onClick={() => setSelectedAppId(app.id)}
                       className={`px-5 py-3 rounded-2xl border flex-shrink-0 transition-all text-left min-w-[180px] group relative ${selectedAppId === app.id
                         ? 'bg-brand-green text-white border-brand-green shadow-xl shadow-gray-200'
-                        : 'bg-white text-brand-blue border-gray-200 hover:border-purple-200'
+                        : 'bg-white text-brand-blue border-gray-200 hover:border-brand-blue'
                         }`}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -764,7 +911,7 @@ export default function ApplyPartnerPage() {
                   </div>
 
                   <div className="p-8 space-y-12">
-                    {/* Basic Information Section */}
+                    {/* Basic Information */}
                     <section>
                       <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Type size={18} /></div>
@@ -773,98 +920,169 @@ export default function ApplyPartnerPage() {
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-6">
                           <div>
-                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
-                              <Building2 size={14} className="text-gray-400" /> Product/Service Image
-                            </label>
-                            <div className="relative group w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue/40 transition-colors cursor-pointer">
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Product/Service Image</label>
+                            <div className="relative group w-full aspect-video bg-gray-100 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue transition-colors cursor-pointer">
                               {selectedApp.productImage ? (
                                 <img src={selectedApp.productImage} className="w-full h-full object-cover" alt="Product" />
                               ) : (
                                 <div className="text-center p-4">
-                                  <Upload size={24} className="text-gray-400 mx-auto mb-1" />
-                                  <span className="text-[10px] font-bold text-gray-500 uppercase">Upload Media</span>
+                                  <Upload size={24} className="text-gray-300 mx-auto mb-1" />
+                                  <span className="text-[10px] font-bold text-gray-400 uppercase">Upload Media</span>
                                 </div>
                               )}
                               <input type="file" onChange={(e) => handleFileUpload('productImage', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
                             </div>
                           </div>
-                          <label className="block">
-                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Type size={14} className="text-gray-400" /> Tagline</span>
-                            <input
-                              type="text"
-                              value={selectedApp.tagline}
-                              onChange={e => updateAppData(app => ({ ...app, tagline: e.target.value }))}
-                              placeholder="e.g. Streamline your mortgage workflow"
-                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                            />
-                          </label>
-                          <label className="block">
-                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Globe size={14} className="text-gray-400" /> Website Link</span>
-                            <input
-                              type="url"
-                              value={selectedApp.website}
-                              onChange={e => updateAppData(app => ({ ...app, website: e.target.value }))}
-                              placeholder="https://..."
-                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                            />
-                          </label>
                         </div>
-                        <div className="space-y-6">
+                        <div className="space-y-5">
                           <label className="block">
-                            <span className="text-sm font-bold text-gray-1000 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Product/Service Name<RequiredAsterisk /></span>
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Product/Service Name<RequiredAsterisk /></span>
                             <input
                               type="text"
                               value={selectedApp.name}
                               onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
                               placeholder="e.g. Primary Offering"
-                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none font-bold"
                             />
                           </label>
                           <label className="block">
                             <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><AlignLeft size={14} className="text-gray-400" /> Description<RequiredAsterisk /></span>
                             <textarea
-                              rows={5}
+                              rows={3}
                               value={selectedApp.description}
                               onChange={e => updateAppData(app => ({ ...app, description: e.target.value }))}
                               placeholder="Tell us what makes this offering special..."
-                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none resize-none transition-all"
                             />
                           </label>
-                          <div className="grid grid-cols-2 gap-4">
-                            <label className="block">
-                              <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Pricing Structure</span>
-                              <select
-                                value={selectedApp.pricingStructure}
-                                onChange={e => updateAppData(app => ({ ...app, pricingStructure: e.target.value }))}
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none appearance-none"
-                              >
-                                <option value="">Select Structure</option>
-                                {PRICING_OPTIONS.map(opt => (
-                                  <option key={opt} value={opt}>{opt}</option>
-                                ))}
-                              </select>
-                            </label>
-                            <label className="block">
-                              <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Sparkles size={14} className="text-brand-orange" /> Special Offer (optional)</span>
-                              <input
-                                type="text"
-                                value={selectedApp.specialOffer}
-                                onChange={e => updateAppData(app => ({ ...app, specialOffer: e.target.value }))}
-                                placeholder="e.g. 10% off"
-                                className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
-                              />
-                            </label>
+                          <label className="block animate-in slide-in-from-top-2">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Type size={14} className="text-gray-400" /> Offering Tagline</span>
+                            <input
+                              type="text"
+                              value={selectedApp.tagline}
+                              onChange={e => updateAppData(app => ({ ...app, tagline: e.target.value }))}
+                              placeholder="e.g. Streamline your mortgage workflow"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none italic"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* PRICING SECTION */}
+                    <section>
+                      <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><DollarSign size={18} /></div>
+                          <h3 className="text-lg font-bold text-brand-orange">Pricing Configuration</h3>
+                        </div>
+                        <button
+                          onClick={handleAddPricingPackage}
+                          className="px-5 py-2.5 bg-brand-green text-brand-blue rounded-xl text-xs font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg shadow-gray-200"
+                        >
+                          <Plus size={14} /> Add Another Pricing Offer
+                        </button>
+                      </div>
+                      <div className="space-y-8">
+                        <label className="block max-w-sm">
+                          <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Overall Pricing Structure<RequiredAsterisk /></span>
+                          <div className="relative">
+                            <select
+                              value={selectedApp.pricingStructure}
+                              onChange={e => updateAppData(app => ({ ...app, pricingStructure: e.target.value }))}
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none appearance-none font-semibold cursor-pointer"
+                            >
+                              {PRICING_STRUCTURE_OPTIONS.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
                           </div>
-                          <label className="block">
-                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Info size={14} className="text-gray-400" /> Pricing Details</span>
-                            <textarea
-                              rows={2}
-                              value={selectedApp.pricingDetails}
-                              onChange={e => updateAppData(app => ({ ...app, pricingDetails: e.target.value }))}
-                              placeholder="Additional context on pricing..."
-                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none resize-none"
-                            />
-                          </label>
+                        </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {selectedApp.pricingPackages.map((pkg, idx) => (
+                            <div key={pkg.id} className="bg-white border border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all relative group flex flex-col h-full">
+                              {selectedApp.pricingPackages.length > 1 && (
+                                <button
+                                  onClick={() => removePackage(pkg.id)}
+                                  className="absolute -top-2 -right-2 bg-white border border-gray-100 p-2 rounded-full text-red-500 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-50"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                              <div className="space-y-5 flex-grow">
+                                <div className="space-y-1.5">
+                                  <label className="text-[12px] font-black text-brand-blue ml-1">Package Name</label>
+                                  <input
+                                    placeholder="e.g. Free or Unlimited"
+                                    value={pkg.name}
+                                    onChange={e => updatePackage(pkg.id, { name: e.target.value })}
+                                    className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                  />
+                                </div>
+                                <div className="flex gap-4">
+                                  <div className="flex-1 space-y-1.5">
+                                    <label className="text-[12px] font-black text-brand-blue ml-1">Amount</label>
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
+                                      <input
+                                        placeholder="0.00"
+                                        value={pkg.price}
+                                        onChange={e => updatePackage(pkg.id, { price: e.target.value })}
+                                        className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-sm font-black outline-none"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="flex-1 space-y-1.5 relative">
+                                    <div className="flex items-center gap-1 ml-1 group/tip">
+                                      <label className="text-[12px] font-black text-brand-blue">CTA Text</label>
+                                      <Info size={10} className="text-gray-300 cursor-help" />
+                                      <div className="absolute bottom-full left-0 mb-1 hidden group-hover/tip:block w-40 p-2 bg-gray-900 text-white text-[9px] rounded shadow-xl z-20 font-bold leading-tight">
+                                        The call to action button text
+                                      </div>
+                                    </div>
+                                    <input
+                                      placeholder="Try [Product Name]. It's Free"
+                                      value={pkg.subtext}
+                                      onChange={e => updatePackage(pkg.id, { subtext: e.target.value })}
+                                      className="w-full p-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-[10px] font-bold outline-none"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2 pt-2 border-t border-gray-50">
+                                  <p className="text-[12px] font-black text-brand-blue ml-1">Included Offers</p>
+                                  {pkg.features.map((feat, fIdx) => (
+                                    <div key={fIdx} className="flex gap-2 animate-in slide-in-from-left-1">
+                                      <input
+                                        value={feat}
+                                        onChange={e => {
+                                          const nextFeats = [...pkg.features];
+                                          nextFeats[fIdx] = e.target.value;
+                                          updatePackage(pkg.id, { features: nextFeats });
+                                        }}
+                                        className="flex-1 p-2 bg-gray-50 border border-gray-400 focus:border-brand-blue focus:bg-white text-xs font-medium outline-none rounded-lg"
+                                        placeholder="e.g. 100mb storage"
+                                      />
+                                      <button
+                                        onClick={() => {
+                                          const nextFeats = pkg.features.filter((_, i) => i !== fIdx);
+                                          updatePackage(pkg.id, { features: nextFeats });
+                                        }}
+                                        className="text-gray-300 hover:text-red-500 p-1"
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  <button
+                                    onClick={() => updatePackage(pkg.id, { features: [...pkg.features, ''] })}
+                                    className="w-full py-2 border-2 border-dashed border-gray-400 rounded-xl text-gray-400 hover:text-brand-blue hover:border-brand-blue transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5"
+                                  >
+                                    <Plus size={12} /> Add Feature to Card
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     </section>
@@ -875,14 +1093,116 @@ export default function ApplyPartnerPage() {
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Puzzle size={18} /></div>
                         <h3 className="text-lg font-bold text-brand-orange">Product Highlights</h3>
                       </div>
+
+                      {/* Aggregator Compatibility Section */}
+                      <div className="mb-12 bg-slate-50/50 rounded-2xl border border-slate-100 p-8 space-y-8 animate-in slide-in-from-top-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <RefreshCcw className="text-gray-500" size={18} />
+                            <h4 className="text-sm font-bold text-brand-blue uppercase">Aggregator Compatibility</h4>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-4">Select all that apply. How can brokers connect their aggregator software to your offering?</p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {AGGREGATOR_COMPATIBILITY_OPTIONS.map(opt => (
+                              <button
+                                key={opt.id}
+                                onClick={() => toggleAggregatorCompatibility(opt.id)}
+                                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-left text-xs font-bold transition-all ${selectedApp.aggregatorCompatibility.includes(opt.id)
+                                  ? 'bg-brand-blue text-white border-brand-blue shadow-md'
+                                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand-blue'
+                                  }`}
+                              >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${selectedApp.aggregatorCompatibility.includes(opt.id) ? 'bg-white border-white' : 'bg-white border-gray-300'
+                                  }`}>
+                                  {selectedApp.aggregatorCompatibility.includes(opt.id) && <Check size={12} className="text-brand-blue" strokeWidth={3} />}
+                                </div>
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {hasTechnicalIntegration && (
+                          <div className="animate-in slide-in-from-top-2">
+                            <label className="block">
+                              <span className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2 italic">
+                                <LinkIcon size={14} className="text-brand-blue" /> Link to integration documentation
+                              </span>
+                              <input
+                                type="url"
+                                value={selectedApp.integrationDocsLink}
+                                onChange={e => updateAppData(app => ({ ...app, integrationDocsLink: e.target.value }))}
+                                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none"
+                                placeholder="https://docs.yoursite.com/api"
+                              />
+                            </label>
+                          </div>
+                        )}
+
+                        {hasDirectIntegration && (
+                          <div className="animate-in slide-in-from-top-2 space-y-4">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">Select Compatible Aggregators</span>
+                              <div className="relative flex-1 max-w-xs">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                                <input
+                                  type="text"
+                                  placeholder="Search aggregators..."
+                                  value={aggregatorSearch}
+                                  onChange={e => setAggregatorSearch(e.target.value)}
+                                  className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-brand-blue"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-4 bg-white border border-gray-100 rounded-xl no-scrollbar">
+                              {filteredAggregators.map(agg => (
+                                <button
+                                  key={agg}
+                                  onClick={() => toggleAggregatorSelection(agg)}
+                                  className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase transition-all ${selectedApp.selectedAggregators.includes(agg)
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200'
+                                    }`}
+                                >
+                                  {agg}
+                                  {selectedApp.selectedAggregators.includes(agg) && <Check size={10} className="inline ml-1" />}
+                                </button>
+                              ))}
+                              {filteredAggregators.length === 0 && <p className="text-[10px] text-slate-300 italic mx-auto">No aggregators found matching search.</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {showIntegrationNotes && (
+                          <div className="animate-in slide-in-from-top-2">
+                            <label className="block">
+                              <span className="text-xs font-bold text-gray-700 mb-2 block uppercase tracking-tight">Any further notes or limitations</span>
+                              <textarea
+                                rows={2}
+                                value={selectedApp.integrationNotes}
+                                onChange={e => updateAppData(app => ({ ...app, integrationNotes: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none resize-none"
+                                placeholder="e.g. Only compatible with certain LMG tiers, or requiere Enterprise API plan..."
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div>
-                          <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <Check size={16} className="text-brand-green" /> Key Features
-                          </h4>
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                              <Check size={16} className="text-green-500" /> Key Features
+                            </h4>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.features.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                              {selectedApp.features.length} / 9 Limit
+                            </span>
+                          </div>
                           <div className="space-y-2 mb-4">
                             {selectedApp.features.map((f, i) => (
-                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
                                 <span className="text-sm text-gray-700">{f}</span>
                                 <button onClick={() => updateAppData(app => ({ ...app, features: app.features.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
                                   <Trash2 size={14} />
@@ -890,8 +1210,8 @@ export default function ApplyPartnerPage() {
                               </div>
                             ))}
                           </div>
-                          <div className="relative">
-                            <div className="flex gap-2">
+                          {selectedApp.features.length < 9 ? (
+                            <div className="flex gap-2 animate-in fade-in duration-300">
                               <input
                                 type="text"
                                 placeholder="Add feature..."
@@ -901,26 +1221,16 @@ export default function ApplyPartnerPage() {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     if (selectedApp.newFeature.trim()) {
-                                      if (selectedApp.features.length >= 9) {
-                                        toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
-                                        return;
-                                      }
-                                      updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
-                                      setFeatureSuggestions([]);
+                                      updateAppData(app => ({ ...app, features: [...app.features, selectedApp.newFeature.trim()], newFeature: '' }));
                                     }
                                   }
                                 }}
-                                className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:border-gray-500 outline-none"
                               />
                               <button
                                 onClick={() => {
                                   if (selectedApp.newFeature.trim()) {
-                                    if (selectedApp.features.length >= 9) {
-                                      toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
-                                      return;
-                                    }
-                                    updateAppData(app => ({ ...app, features: [...app.features, app.newFeature.trim()], newFeature: '' }));
-                                    setFeatureSuggestions([]);
+                                    updateAppData(app => ({ ...app, features: [...app.features, selectedApp.newFeature.trim()], newFeature: '' }));
                                   }
                                 }}
                                 className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
@@ -928,37 +1238,25 @@ export default function ApplyPartnerPage() {
                                 <Plus size={20} />
                               </button>
                             </div>
-                            {featureSuggestions.length > 0 && (
-                              <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                                {featureSuggestions.map((suggestion, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => {
-                                      if (selectedApp.features.length >= 9) {
-                                        toast({ title: "Limit Reached", description: "You can select up to 9 key features.", variant: "destructive" });
-                                        return;
-                                      }
-                                      updateAppData(app => ({ ...app, features: [...app.features, suggestion], newFeature: '' }));
-                                      setFeatureSuggestions([]);
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
-                                  >
-                                    {suggestion}
-                                    <span className="text-xs text-gray-400 italic">Existing</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                          ) : (
+                            <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 text-xs font-bold flex items-center justify-center gap-2">
+                              <AlertCircle size={14} /> Maximum of 9 features reached.
+                            </div>
+                          )}
                         </div>
 
                         <div>
-                          <h4 className="text-sm font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <Puzzle size={16} className="text-brand-blue" /> Key Integrations
-                          </h4>
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                              <Puzzle size={16} className="text-blue-500" /> Key Integrations
+                            </h4>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.integrations.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                              {selectedApp.integrations.length} / 9 Limit
+                            </span>
+                          </div>
                           <div className="space-y-2 mb-4">
                             {selectedApp.integrations.map((n, i) => (
-                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-200 group">
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
                                 <span className="text-sm text-gray-700">{n}</span>
                                 <button onClick={() => updateAppData(app => ({ ...app, integrations: app.integrations.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
                                   <Trash2 size={14} />
@@ -966,8 +1264,8 @@ export default function ApplyPartnerPage() {
                               </div>
                             ))}
                           </div>
-                          <div className="relative">
-                            <div className="flex gap-2">
+                          {selectedApp.integrations.length < 9 ? (
+                            <div className="flex gap-2 animate-in fade-in duration-300">
                               <input
                                 type="text"
                                 placeholder="Add integration..."
@@ -977,26 +1275,16 @@ export default function ApplyPartnerPage() {
                                   if (e.key === 'Enter') {
                                     e.preventDefault();
                                     if (selectedApp.newIntegration.trim()) {
-                                      if (selectedApp.integrations.length >= 9) {
-                                        toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
-                                        return;
-                                      }
-                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
-                                      setIntegrationSuggestions([]);
+                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, selectedApp.newIntegration.trim()], newIntegration: '' }));
                                     }
                                   }
                                 }}
-                                className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none"
                               />
                               <button
                                 onClick={() => {
                                   if (selectedApp.newIntegration.trim()) {
-                                    if (selectedApp.integrations.length >= 9) {
-                                      toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
-                                      return;
-                                    }
-                                    updateAppData(app => ({ ...app, integrations: [...app.integrations, app.newIntegration.trim()], newIntegration: '' }));
-                                    setIntegrationSuggestions([]);
+                                    updateAppData(app => ({ ...app, integrations: [...app.integrations, selectedApp.newIntegration.trim()], newIntegration: '' }));
                                   }
                                 }}
                                 className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
@@ -1004,28 +1292,11 @@ export default function ApplyPartnerPage() {
                                 <Plus size={20} />
                               </button>
                             </div>
-                            {integrationSuggestions.length > 0 && (
-                              <div className="absolute top-full left-0 right-12 z-10 mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-48 overflow-y-auto">
-                                {integrationSuggestions.map((suggestion, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => {
-                                      if (selectedApp.integrations.length >= 9) {
-                                        toast({ title: "Limit Reached", description: "You can select up to 9 key integrations.", variant: "destructive" });
-                                        return;
-                                      }
-                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, suggestion], newIntegration: '' }));
-                                      setIntegrationSuggestions([]);
-                                    }}
-                                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center justify-between gap-2"
-                                  >
-                                    {suggestion}
-                                    <span className="text-xs text-gray-400 italic">Existing</span>
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+                          ) : (
+                            <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 text-xs font-bold flex items-center justify-center gap-2">
+                              <AlertCircle size={14} /> Maximum of 9 integrations reached.
+                            </div>
+                          )}
                         </div>
                       </div>
                     </section>

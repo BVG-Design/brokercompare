@@ -40,3 +40,25 @@ export async function searchIntegrations(query: string) {
         .filter(i => i.toLowerCase().includes(query.toLowerCase()))
         .slice(0, 10);
 }
+export async function searchAggregators(query: string) {
+    const supabase = createServerSupabaseClient();
+
+    let dbQuery = supabase
+        .from('Broker Groups')
+        .select('name')
+        .order('name', { ascending: true })
+        .limit(30);
+
+    if (query && query.length >= 2) {
+        dbQuery = dbQuery.ilike('name', `%${query}%`);
+    }
+
+    const { data, error } = await dbQuery;
+
+    if (error || !data) {
+        console.error('Error fetching aggregators:', error);
+        return [];
+    }
+
+    return Array.from(new Set(data.map(row => row.name)));
+}

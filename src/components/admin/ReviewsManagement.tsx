@@ -11,7 +11,7 @@ import { Loader2 } from 'lucide-react';
 
 export default function ReviewsManagement() {
   const [reviews, setReviews] = useState<
-    (ReviewRecord & { vendorName?: string | null })[]
+    (ReviewRecord & { partnerName?: string | null })[]
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -21,7 +21,7 @@ export default function ReviewsManagement() {
       setIsLoading(true);
       const { data, error } = await supabase
         .from('reviews')
-        .select('*, vendors:vendor_id (company_name)')
+        .select('*, partners:partner_id (company_name)')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -30,7 +30,7 @@ export default function ReviewsManagement() {
         const normalized =
           data?.map((review: any) => ({
             ...review,
-            vendorName: review.vendors?.company_name ?? null,
+            partnerName: review.partners?.company_name ?? null,
           })) ?? [];
         setReviews(normalized);
       }
@@ -88,7 +88,7 @@ export default function ReviewsManagement() {
                     <div className="space-y-3">
                       <div className="flex justify-between items-start">
                         <div>
-                          <p className="font-semibold">{review.author} on {review.vendorName || review.vendor_id}</p>
+                          <p className="font-semibold">{review.author} on {review.partnerName || review.partner_id}</p>
                           <p className="text-xs text-muted-foreground">
                             {review.created_at
                               ? new Date(review.created_at).toLocaleDateString()

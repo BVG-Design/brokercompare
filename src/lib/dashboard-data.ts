@@ -8,8 +8,8 @@ export type UserProfile = {
   full_name?: string | null;
   first_name?: string | null;
   last_name?: string | null;
-  user_type?: 'consumer' | 'vendor' | 'admin' | 'broker';
-  vendor_id?: string | null;
+  user_type?: 'consumer' | 'partner' | 'admin' | 'broker';
+  partner_id?: string | null;
   phone?: string | null;
   company?: string | null;
   website?: string | null;
@@ -19,12 +19,35 @@ export type UserProfile = {
   profile_image?: string | null;
   admin_dashboard?: boolean | null;
   broker_dashboard?: boolean | null;
-  vendor_dashboard?: boolean | null;
-  default_dashboard?: 'admin' | 'broker' | 'vendor' | null;
-  default_profile?: 'admin' | 'broker' | 'vendor' | null;
+  partner_dashboard?: boolean | null;
+  default_dashboard?: 'admin' | 'broker' | 'partner' | null;
+  default_profile?: 'admin' | 'broker' | 'partner' | null;
+  // Broker specific fields
+  broker_services?: string[];
+  broker_service_other?: string | null;
+  commercial_finance_areas?: string[];
+  commercial_finance_other?: string | null;
+  aggregator?: string | null;
+  aggregator_other?: string | null;
+  team_size?: string | null;
+  team_location?: string | null;
+  top_priorities?: string[];
+  lead_capture_crm?: string | null;
+  fact_find_software?: string | null;
+  email_system?: string | null;
+  phone_system?: string | null;
+  has_it_support?: boolean | null;
+  has_accountant?: boolean | null;
+  has_marketing_agency?: boolean | null;
+  has_mindset_coach?: boolean | null;
+  has_lawyer?: boolean | null;
+  has_insurance_broker?: boolean | null;
+  has_ai_specialist?: boolean | null;
+  considering_change?: boolean | null;
+  change_details?: string | null;
 };
 
-export type VendorRecord = {
+export type PartnerRecord = {
   id: string;
   company_name?: string | null;
   description?: string | null;
@@ -34,12 +57,32 @@ export type VendorRecord = {
   status?: string | null;
   listing_tier?: string | null;
   categories?: string[];
+  features?: string[];
+  integrations?: string[];
+  teamSize?: string[];
+  revenue?: string[];
+  budgetAmount?: string | null;
+  budgetPeriod?: string | null;
+  lookingTo?: string[];
+  lookingToOther?: string | null;
+  notFitFor?: string | null;
+  materials?: any[];
+  pricing?: string | null;
+  phone?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+  newFeature?: string | null;
+  newIntegration?: string | null;
+  newMaterial?: any;
+  isTrainingPublic?: boolean | null;
   view_count?: number | null;
 };
 
 export type LeadRecord = {
   id: string;
-  vendor_id?: string | null;
+  partner_id?: string | null;
+  partner_name?: string | null;
   broker_id?: string | null;
   broker_name?: string | null;
   broker_email?: string | null;
@@ -51,7 +94,7 @@ export type LeadRecord = {
 
 export type ReviewRecord = {
   id: string;
-  vendor_id?: string | null;
+  partner_id?: string | null;
   author?: string | null;
   rating?: number | null;
   comment?: string | null;
@@ -78,9 +121,9 @@ export type ApplicationRecord = {
 export type ShortlistRecord = {
   id: string;
   user_id?: string | null;
-  vendor_id?: string | null;
-  vendor_name?: string | null;
-  vendor_type?: 'service' | 'software' | string | null;
+  partner_id?: string | null;
+  partner_name?: string | null;
+  partner_type?: 'service' | 'software' | string | null;
 };
 
 type SafeQuery<T> = Promise<T | null>;
@@ -101,67 +144,67 @@ export async function getProfile(
   return data as UserProfile | null;
 }
 
-export async function getVendorForUser(
+export async function getPartnerForUser(
   supabase: SupabaseClient,
   profile: UserProfile
-): SafeQuery<VendorRecord> {
-  if (profile.vendor_id) {
+): SafeQuery<PartnerRecord> {
+  if (profile.partner_id) {
     const { data, error } = await supabase
-      .from('vendors')
+      .from('partners')
       .select('*')
-      .eq('id', profile.vendor_id)
+      .eq('id', profile.partner_id)
       .maybeSingle();
-    if (!error && data) return data as VendorRecord;
+    if (!error && data) return data as PartnerRecord;
   }
 
   if (profile.email) {
     const { data, error } = await supabase
-      .from('vendors')
+      .from('partners')
       .select('*')
       .eq('email', profile.email)
       .maybeSingle();
-    if (!error && data) return data as VendorRecord;
+    if (!error && data) return data as PartnerRecord;
   }
 
   return null;
 }
 
-export async function getVendorLeads(
+export async function getPartnerLeads(
   supabase: SupabaseClient,
-  vendorId: string
+  partnerId: string
 ): SafeQuery<LeadRecord[]> {
   const { data, error } = await supabase
     .from('leads')
     .select('*')
-    .eq('vendor_id', vendorId)
+    .eq('partner_id', partnerId)
     .order('created_at', { ascending: false });
   if (error) {
-    console.warn('getVendorLeads error', error);
+    console.warn('getPartnerLeads error', error);
     return null;
   }
   return (data as LeadRecord[]) ?? [];
 }
 
-export async function getVendorReviews(
+export async function getPartnerReviews(
   supabase: SupabaseClient,
-  vendorId: string
+  partnerId: string
 ): SafeQuery<ReviewRecord[]> {
   const { data, error } = await supabase
     .from('reviews')
     .select('*')
-    .eq('vendor_id', vendorId)
+    .eq('partner_id', partnerId)
     .order('created_at', { ascending: false });
   if (error) {
-    console.warn('getVendorReviews error', error);
+    console.warn('getPartnerReviews error', error);
     return null;
   }
   return (data as ReviewRecord[]) ?? [];
 }
 
 export async function getAdminStats(supabase: SupabaseClient) {
-  const [vendorsResult, applicationsResult, leadsResult, reviewsResult] = await Promise.all([
-    supabase.from('vendors').select('id, status'),
-    supabase.from('vendor_applications').select('id, status'),
+  const [partnersResult, applicationsResult, leadsResult, reviewsResult] = await Promise.all([
+    supabase.from('partners').select('id, status'),
+    supabase.from('partner_application').select('id, status'),
     supabase.from('leads').select('id, status'),
     supabase.from('reviews').select('id, status'),
   ]);
@@ -172,8 +215,8 @@ export async function getAdminStats(supabase: SupabaseClient) {
       : 0;
 
   return {
-    vendorsTotal: count(vendorsResult.data as any[]),
-    vendorsApproved: count(vendorsResult.data as any[], 'approved'),
+    partnersTotal: count(partnersResult.data as any[]),
+    partnersApproved: count(partnersResult.data as any[], 'approved'),
     applicationsTotal: count(applicationsResult.data as any[]),
     applicationsPending: count(applicationsResult.data as any[], 'pending'),
     leadsTotal: count(leadsResult.data as any[]),
@@ -183,15 +226,15 @@ export async function getAdminStats(supabase: SupabaseClient) {
   };
 }
 
-export async function getVendorApplications(
+export async function getPartnerApplications(
   supabase: SupabaseClient
 ): SafeQuery<ApplicationRecord[]> {
   const { data, error } = await supabase
-    .from('vendor_applications')
+    .from('partner_application')
     .select('*')
     .order('created_at', { ascending: false });
   if (error) {
-    console.warn('getVendorApplications error', error);
+    console.warn('getPartnerApplications error', error);
     return null;
   }
   return (data as ApplicationRecord[]) ?? [];
@@ -221,13 +264,13 @@ export async function getBrokerLeads(
     .from('leads')
     .select('*')
     .order('created_at', { ascending: false });
-  
+
   if (email) {
     query = query.or(`broker_id.eq.${userId},broker_email.eq.${email}`);
   } else {
     query = query.eq('broker_id', userId);
   }
-  
+
   const { data, error } = await query;
   if (error) {
     console.warn('getBrokerLeads error', error);

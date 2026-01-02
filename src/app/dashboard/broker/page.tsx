@@ -56,7 +56,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import AIChatDialog from '@/components/vendors/AIChatDialog';
+import AIChatDialog from '@/components/partners/AIChatDialog';
 import { ServiceCard } from '@/app/services/service-card';
 import { SoftwareCard } from '@/app/software/software-card';
 import { supabase } from '@/lib/supabase/client';
@@ -173,10 +173,10 @@ const dashboardOptions = [
     path: '/dashboard/broker',
   },
   {
-    id: 'vendor',
-    label: 'Vendor Dashboard',
-    description: 'Update your vendor listing, track leads, and reviews.',
-    path: '/dashboard/vendor',
+    id: 'partner',
+    label: 'Partner Dashboard',
+    description: 'Update your partner listing, track leads, and reviews.',
+    path: '/dashboard/partner',
   },
   {
     id: 'admin',
@@ -196,7 +196,7 @@ export default function BrokerDashboard() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [showReviewsDialog, setShowReviewsDialog] = useState(false);
@@ -269,7 +269,7 @@ export default function BrokerDashboard() {
         return;
       }
 
-      setUser(user);
+      setUser(user || null);
 
       const prof = await getProfile(supabase, user.id);
       setProfile(prof);
@@ -341,24 +341,24 @@ export default function BrokerDashboard() {
       }
 
       if (optionId === 'admin') return Boolean(profile.admin_dashboard ?? profile.user_type === 'admin');
-      if (optionId === 'vendor') return Boolean(profile.vendor_dashboard ?? profile.user_type === 'vendor');
+      if (optionId === 'partner') return Boolean(profile.partner_dashboard ?? profile.user_type === 'partner');
       return Boolean(profile.broker_dashboard ?? profile.user_type === 'broker');
     };
 
     const accessible = dashboardOptions.filter((option) => hasAccess(option.id)).map((option) => ({ ...option }));
     setAvailableDashboards(accessible);
 
-      const preferredFromProfile =
-        (profile?.default_profile as DashboardKey | null) &&
+    const preferredFromProfile =
+      (profile?.default_profile as DashboardKey | null) &&
         accessible.some((option) => option.id === profile?.default_profile)
-          ? (profile?.default_profile as DashboardKey)
-          : null;
+        ? (profile?.default_profile as DashboardKey)
+        : null;
 
     setDefaultDashboard(preferredFromProfile || accessible[0]?.id || null);
   }, [profile, user]);
 
-  const handleProfileImageUpload = async (e) => {
-    const file = e.target.files[0];
+  const handleProfileImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (!file) return;
 
     setUploading(true);
@@ -400,7 +400,7 @@ export default function BrokerDashboard() {
 
       setWelcomeAnswered(true);
 
-      setUser((prevUser) => ({ ...prevUser, ...profileData }));
+      setUser((prevUser: any) => ({ ...prevUser, ...profileData }));
       toast({ title: 'Profile updated successfully!' });
     } catch (error) {
       console.error('Failed to save profile', error);
@@ -483,9 +483,8 @@ export default function BrokerDashboard() {
     setSavingDefaultDashboard(false);
   };
 
-  const referralLink = `${
-    typeof window !== 'undefined' ? window.location.origin : ''
-  }/?ref=${user?.id}`;
+  const referralLink = `${typeof window !== 'undefined' ? window.location.origin : ''
+    }/?ref=${user?.id}`;
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -593,37 +592,37 @@ export default function BrokerDashboard() {
               </CardContent>
             </Card>
             <Card>
-                <CardHeader>
-                    <CardTitle>My Shortlist</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        {myShortlist.map(item => 'pricing' in item ? 
-                            <SoftwareCard key={item.id} software={item} /> :
-                            <ServiceCard key={item.id} service={item} />
-                        )}
-                    </div>
-                </CardContent>
+              <CardHeader>
+                <CardTitle>My Shortlist</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-4">
+                  {myShortlist.map(item => 'pricing' in item ?
+                    <SoftwareCard key={item.id} software={item} /> :
+                    <ServiceCard key={item.id} service={item} />
+                  )}
+                </div>
+              </CardContent>
             </Card>
           </div>
         );
       case 'inbox':
         return (
-            <Card>
-                <CardHeader><CardTitle>Inbox</CardTitle></CardHeader>
-                <CardContent>
-                    {myLeads.map(lead => (
-                        <div key={lead.id} className="border-b last:border-b-0 py-4">
-                            <div className="flex justify-between items-center">
-                                <p className="font-semibold">{lead.vendor_name}</p>
-                                <Badge variant={lead.status === 'new' ? 'default' : 'outline'}>{lead.status}</Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground mt-1">{lead.message}</p>
-                            <p className="text-xs text-muted-foreground mt-2">{new Date(lead.created_date).toLocaleString()}</p>
-                        </div>
-                    ))}
-                </CardContent>
-            </Card>
+          <Card>
+            <CardHeader><CardTitle>Inbox</CardTitle></CardHeader>
+            <CardContent>
+              {myLeads.map(lead => (
+                <div key={lead.id} className="border-b last:border-b-0 py-4">
+                  <div className="flex justify-between items-center">
+                    <p className="font-semibold">{lead.partner_name}</p>
+                    <Badge variant={lead.status === 'new' ? 'default' : 'outline'}>{lead.status}</Badge>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">{lead.message}</p>
+                  <p className="text-xs text-muted-foreground mt-2">{new Date(lead.created_at || Date.now()).toLocaleString()}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
         );
       case 'products':
         return (
@@ -631,7 +630,7 @@ export default function BrokerDashboard() {
             <CardHeader><CardTitle>My Products</CardTitle></CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {software.slice(0,3).map(item => <SoftwareCard key={item.id} software={item} />)}
+                {software.slice(0, 3).map(item => <SoftwareCard key={item.id} software={item} />)}
               </div>
             </CardContent>
           </Card>
@@ -642,7 +641,7 @@ export default function BrokerDashboard() {
             <CardHeader><CardTitle>My Services</CardTitle></CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {services.slice(0,3).map(item => <ServiceCard key={item.id} service={item} />)}
+                {services.slice(0, 3).map(item => <ServiceCard key={item.id} service={item} />)}
               </div>
             </CardContent>
           </Card>
@@ -1062,7 +1061,7 @@ export default function BrokerDashboard() {
                       </div>
                     )}
                   </div>
-              </TabsContent>
+                </TabsContent>
 
                 <TabsContent value="dashboard-access" className="space-y-6">
                   <div className="space-y-1">
@@ -1072,10 +1071,10 @@ export default function BrokerDashboard() {
                     </p>
                     <p className="text-xs text-gray-500">
                       {availableDashboards.length > 0
-        ? `Access: ${availableDashboards.map((d) => d.label).join(', ')}`
-        : 'Access information not available for this profile yet.'}
-    </p>
-  </div>
+                        ? `Access: ${availableDashboards.map((d) => d.label).join(', ')}`
+                        : 'Access information not available for this profile yet.'}
+                    </p>
+                  </div>
 
                   {availableDashboards.length === 0 ? (
                     <div className={`p-4 rounded-lg ${fieldBoxClass}`}>
@@ -1094,9 +1093,8 @@ export default function BrokerDashboard() {
                         {availableDashboards.map((dashboard) => (
                           <div
                             key={dashboard.id}
-                            className={`p-4 rounded-lg ${fieldBoxClass} ${
-                              defaultDashboard === dashboard.id ? 'ring-2 ring-[#132847]' : ''
-                            }`}
+                            className={`p-4 rounded-lg ${fieldBoxClass} ${defaultDashboard === dashboard.id ? 'ring-2 ring-[#132847]' : ''
+                              }`}
                           >
                             <div className="flex items-start gap-3">
                               <RadioGroupItem value={dashboard.id} id={`dashboard-${dashboard.id}`} />
@@ -1189,19 +1187,18 @@ export default function BrokerDashboard() {
                       <input type="file" className="hidden" accept="image/*" onChange={handleProfileImageUpload} disabled={uploading} />
                     </label>
                     <h3 className="font-bold text-lg text-[#132847]">{user.full_name}</h3>
-                    <p className="text-sm text-gray-500">Member since {new Date(user.created_date).getFullYear()}</p>
+                    <p className="text-sm text-gray-500">Member since {new Date(user.created_at || Date.now()).getFullYear()}</p>
                   </div>
                   <nav className="space-y-1">
                     {menuItems.map((item) => (
                       <button
                         key={item.id}
                         onClick={() => setActiveSection(item.id)}
-                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
-                          activeSection === item.id ? 'bg-[#132847] text-white' : 'text-gray-700 hover:bg-gray-100'
-                        }`}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${activeSection === item.id ? 'bg-[#132847] text-white' : 'text-gray-700 hover:bg-gray-100'
+                          }`}
                       >
                         <div className="flex items-center gap-3"><item.icon className="w-5 h-5" /><span>{item.label}</span></div>
-                        {item.badge > 0 && <Badge className="bg-[#ef4e23] text-white">{item.badge}</Badge>}
+                        {(item.badge ?? 0) > 0 && <Badge className="bg-[#ef4e23] text-white">{item.badge}</Badge>}
                       </button>
                     ))}
                   </nav>
@@ -1225,15 +1222,15 @@ export default function BrokerDashboard() {
       </div>
 
       <Dialog open={showReferralDialog} onOpenChange={setShowReferralDialog}>
-          <DialogContent>
-              <DialogHeader><DialogTitle>Refer a Friend</DialogTitle></DialogHeader>
-              <p>Share your unique referral link to earn rewards!</p>
-              <div className="flex items-center space-x-2">
-                <Input value={referralLink} readOnly />
-                <Button onClick={copyReferralLink}>Copy</Button>
-                <Button onClick={shareReferral}><Share className="mr-2 h-4 w-4"/>Share</Button>
-              </div>
-          </DialogContent>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Refer a Friend</DialogTitle></DialogHeader>
+          <p>Share your unique referral link to earn rewards!</p>
+          <div className="flex items-center space-x-2">
+            <Input value={referralLink} readOnly />
+            <Button onClick={copyReferralLink}>Copy</Button>
+            <Button onClick={shareReferral}><Share className="mr-2 h-4 w-4" />Share</Button>
+          </div>
+        </DialogContent>
       </Dialog>
       <Dialog open={recommendationOpen} onOpenChange={setRecommendationOpen}>
         <DialogContent>
@@ -1330,27 +1327,27 @@ export default function BrokerDashboard() {
           )}
         </DialogContent>
       </Dialog>
-       <Dialog open={showReviewsDialog} onOpenChange={setShowReviewsDialog}>
-          <DialogContent>
-              <DialogHeader><DialogTitle>Your Reviews</DialogTitle></DialogHeader>
-              <p className="text-center text-muted-foreground p-8">You haven't written any reviews yet.</p>
-          </DialogContent>
+      <Dialog open={showReviewsDialog} onOpenChange={setShowReviewsDialog}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Your Reviews</DialogTitle></DialogHeader>
+          <p className="text-center text-muted-foreground p-8">You haven't written any reviews yet.</p>
+        </DialogContent>
       </Dialog>
       <Dialog open={showBadgesDialog} onOpenChange={setShowBadgesDialog}>
-          <DialogContent>
-              <DialogHeader><DialogTitle>Your Badges</DialogTitle></DialogHeader>
-              <div className="text-center p-8">
-                <Award className="mx-auto w-16 h-16 text-yellow-500 mb-4"/>
-                <p className="font-semibold">Early Adopter</p>
-                <p className="text-sm text-muted-foreground">Thanks for joining us in the beginning!</p>
-              </div>
-          </DialogContent>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Your Badges</DialogTitle></DialogHeader>
+          <div className="text-center p-8">
+            <Award className="mx-auto w-16 h-16 text-yellow-500 mb-4" />
+            <p className="font-semibold">Early Adopter</p>
+            <p className="text-sm text-muted-foreground">Thanks for joining us in the beginning!</p>
+          </div>
+        </DialogContent>
       </Dialog>
       <Dialog open={showQuestionsDialog} onOpenChange={setShowQuestionsDialog}>
-          <DialogContent>
-              <DialogHeader><DialogTitle>Your Answers</DialogTitle></DialogHeader>
-               <p className="text-center text-muted-foreground p-8">You haven't answered any questions yet.</p>
-          </DialogContent>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Your Answers</DialogTitle></DialogHeader>
+          <p className="text-center text-muted-foreground p-8">You haven't answered any questions yet.</p>
+        </DialogContent>
       </Dialog>
 
     </>

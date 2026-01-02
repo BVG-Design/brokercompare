@@ -13,12 +13,12 @@ import ReactMarkdown from 'react-markdown';
 import { recommendServiceProviders } from '@/ai/ai-service-provider-recommendation';
 import { recommendSoftware } from '@/ai/ai-software-recommendation';
 
-export default function AIChatDialog({ open, onOpenChange }) {
+export default function AIChatDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
       content:
-        "Hi! I'm your AI assistant. Tell me about your brokerage needs and I'll recommend the perfect vendors and solutions for you. What type of broker are you (mortgage, asset finance, or commercial finance)?",
+        "Hi! I'm your AI assistant. Tell me about your brokerage needs and I'll recommend the perfect partners and solutions for you. What type of broker are you (mortgage, asset finance, or commercial finance)?",
     },
   ]);
   const [input, setInput] = useState('');
@@ -78,7 +78,7 @@ export default function AIChatDialog({ open, onOpenChange }) {
         {
           role: 'assistant',
           content:
-            "I apologize, but I encountered an error. Please try again or browse our vendors directly.",
+            "I apologize, but I encountered an error. Please try again or browse our partners directly.",
         },
       ]);
     }
@@ -94,7 +94,7 @@ export default function AIChatDialog({ open, onOpenChange }) {
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#05d8b5] to-[#ef4e23] flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
-            AI Vendor Recommendations
+            AI Partner Recommendations
           </DialogTitle>
         </DialogHeader>
 
@@ -108,8 +108,8 @@ export default function AIChatDialog({ open, onOpenChange }) {
             >
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-3 ${message.role === 'user'
-                    ? 'bg-[#132847] text-white'
-                    : 'bg-gray-100 text-gray-900'
+                  ? 'bg-[#132847] text-white'
+                  : 'bg-gray-100 text-gray-900'
                   }`}
               >
                 <ReactMarkdown

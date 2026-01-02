@@ -16,7 +16,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
 
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('user_type, user_access, admin_dashboard, vendor_dashboard, broker_dashboard')
+    .select('user_type, user_access, admin_dashboard, partner_dashboard, broker_dashboard')
     .eq('id', session.user.id)
     .single();
 
@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     Boolean(profile?.admin_dashboard) ||
     profile?.user_access === 'admin' ||
     profile?.user_type === 'admin';
-  const canVendor = Boolean(profile?.vendor_dashboard) || profile?.user_type === 'vendor';
+  const canVendor = Boolean(profile?.partner_dashboard) || profile?.user_type === 'vendor';
   const canBroker = Boolean(profile?.broker_dashboard) || profile?.user_type === 'broker';
 
   if (!canAdmin) {

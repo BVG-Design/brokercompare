@@ -17,7 +17,7 @@ import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { ExternalLink, Loader2, Mail, Star, TrendingUp } from 'lucide-react';
 
-type Vendor = {
+type Partner = {
   id: string;
   company_name?: string | null;
   tagline?: string | null;
@@ -31,7 +31,7 @@ type Vendor = {
 
 type Review = {
   id: string;
-  vendor_id?: string | null;
+  partner_id?: string | null;
   author?: string | null;
   rating?: number | null;
   comment?: string | null;
@@ -43,13 +43,13 @@ type Review = {
 
 const supabase = createClient();
 
-function VendorProfileContent() {
+function PartnerProfileContent() {
   const params = useParams<{ id: string }>();
-  const vendorId = params?.id;
+  const partnerId = params?.id;
 
-  const [vendor, setVendor] = useState<Vendor | null>(null);
+  const [partner, setPartner] = useState<Partner | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [similarVendors, setSimilarVendors] = useState<Vendor[]>([]);
+  const [similarPartners, setSimilarPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [leadOpen, setLeadOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -86,34 +86,34 @@ function VendorProfileContent() {
   const marketplaceScore = computeMarketplaceScore({ averageRating });
 
   useEffect(() => {
-    if (!vendorId) return;
+    if (!partnerId) return;
 
     const fetchData = async () => {
       setLoading(true);
 
-      const { data: vendorRow, error: vendorError } = await supabase
-        .from('vendors')
+      const { data: partnerRow, error: partnerError } = await supabase
+        .from('partners')
         .select('*')
-        .eq('id', vendorId)
+        .eq('id', partnerId)
         .maybeSingle();
 
-      if (vendorError) {
-        console.warn('Error fetching vendor', vendorError);
+      if (partnerError) {
+        console.warn('Error fetching partner', partnerError);
         setLoading(false);
         return;
       }
 
-      if (!vendorRow) {
+      if (!partnerRow) {
         setLoading(false);
         return;
       }
 
-      setVendor(vendorRow as Vendor);
+      setPartner(partnerRow as Partner);
 
       const { data: reviewRows, error: reviewError } = await supabase
         .from('reviews')
         .select('*')
-        .eq('vendor_id', vendorId)
+        .eq('partner_id', partnerId)
         .order('created_at', { ascending: false });
 
       if (reviewError) {
@@ -122,19 +122,19 @@ function VendorProfileContent() {
 
       setReviews((reviewRows as Review[]) || []);
 
-      if (vendorRow.categories && vendorRow.categories.length) {
-        const firstCategory = vendorRow.categories[0];
+      if (partnerRow.categories && partnerRow.categories.length) {
+        const firstCategory = partnerRow.categories[0];
         const { data: similarRows, error: similarError } = await supabase
-          .from('vendors')
+          .from('partners')
           .select('id, company_name, tagline, categories, logo_url, listing_tier, website, view_count')
           .contains('categories', [firstCategory])
-          .neq('id', vendorId)
+          .neq('id', partnerId)
           .limit(6);
 
         if (similarError) {
-          console.warn('Error fetching similar vendors', similarError);
+          console.warn('Error fetching similar partners', similarError);
         } else {
-          setSimilarVendors((similarRows as Vendor[]) || []);
+          setSimilarPartners((similarRows as Partner[]) || []);
         }
       }
 
@@ -142,15 +142,15 @@ function VendorProfileContent() {
     };
 
     fetchData();
-  }, [vendorId]);
+  }, [partnerId]);
 
   const handleSubmitLead = async () => {
-    if (!vendor) return;
+    if (!partner) return;
     setLeadSubmitting(true);
 
     const payload = {
       ...leadData,
-      vendor_id: vendor.id,
+      partner_id: partner.id,
       status: 'new',
     };
 
@@ -169,7 +169,7 @@ function VendorProfileContent() {
 
     toast({
       title: 'Lead submitted',
-      description: 'We sent your inquiry to the vendor.',
+      description: 'We sent your inquiry to the partner.',
     });
     setLeadOpen(false);
     setLeadData({
@@ -181,11 +181,11 @@ function VendorProfileContent() {
   };
 
   const handleSubmitReview = async () => {
-    if (!vendor) return;
+    if (!partner) return;
     setReviewSubmitting(true);
 
     const payload = {
-      vendor_id: vendor.id,
+      partner_id: partner.id,
       rating: reviewData.rating,
       comment: reviewData.comment,
       author: reviewData.author || null,
@@ -228,17 +228,17 @@ function VendorProfileContent() {
     );
   }
 
-  if (!vendor) {
+  if (!partner) {
     return (
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 md:px-6 py-16">
           <Card className="max-w-xl mx-auto">
             <CardHeader>
-              <CardTitle>Vendor not found</CardTitle>
+              <CardTitle>Partner not found</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-muted-foreground">
-                We could not find that vendor profile. Try browsing the directory to discover verified vendors.
+                We could not find that partner profile. Try browsing the directory to discover verified partners.
               </p>
               <Button asChild>
                 <Link href="/directory">Back to directory</Link>
@@ -257,24 +257,24 @@ function VendorProfileContent() {
           <CardContent className="p-6 md:p-8 space-y-6">
             <div className="flex flex-col md:flex-row md:items-center gap-6">
               <div className="relative h-20 w-20 md:h-24 md:w-24 rounded-xl bg-gray-50 border border-dashed flex items-center justify-center overflow-hidden">
-                {vendor.logo_url ? (
+                {partner.logo_url ? (
                   <Image
-                    src={vendor.logo_url}
-                    alt={vendor.company_name || 'Vendor logo'}
+                    src={partner.logo_url}
+                    alt={partner.company_name || 'Partner logo'}
                     fill
                     className="object-contain p-2"
                   />
                 ) : (
                   <span className="text-3xl font-semibold text-primary">
-                    {vendor.company_name?.[0] || 'V'}
+                    {partner.company_name?.[0] || 'V'}
                   </span>
                 )}
               </div>
               <div className="flex-1 space-y-2">
-                <h1 className="text-3xl font-bold text-primary">{vendor.company_name}</h1>
-                {vendor.tagline && <p className="text-lg text-muted-foreground">{vendor.tagline}</p>}
+                <h1 className="text-3xl font-bold text-primary">{partner.company_name}</h1>
+                {partner.tagline && <p className="text-lg text-muted-foreground">{partner.tagline}</p>}
                 <div className="flex flex-wrap gap-2">
-                  {(vendor.categories || []).map((category) => (
+                  {(partner.categories || []).map((category) => (
                     <Badge key={category} variant="secondary" className="bg-gray-100 text-gray-700">
                       {category}
                     </Badge>
@@ -285,12 +285,12 @@ function VendorProfileContent() {
                     <DialogTrigger asChild>
                       <Button>
                         <Mail className="w-4 h-4 mr-2" />
-                        Contact vendor
+                        Contact partner
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-lg">
                       <DialogHeader>
-                        <DialogTitle>Contact {vendor.company_name}</DialogTitle>
+                        <DialogTitle>Contact {partner.company_name}</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-3">
                         <Input
@@ -371,7 +371,7 @@ function VendorProfileContent() {
                     </DialogContent>
                   </Dialog>
 
-                  {vendor.website && (
+                  {partner.website && (
                     <Button asChild variant="ghost">
                       <a href={vendor.website} target="_blank" rel="noreferrer">
                         <ExternalLink className="w-4 h-4 mr-2" />
@@ -406,13 +406,13 @@ function VendorProfileContent() {
               <Card>
                 <CardContent className="p-4">
                   <p className="text-sm text-muted-foreground">Listing tier</p>
-                  <p className="text-2xl font-bold capitalize">{vendor.listing_tier || 'Standard'}</p>
+                  <p className="text-2xl font-bold capitalize">{partner.listing_tier || 'Standard'}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4">
                   <p className="text-sm text-muted-foreground">Profile views</p>
-                  <p className="text-2xl font-bold">{vendor.view_count ?? '—'}</p>
+                  <p className="text-2xl font-bold">{partner.view_count ?? '—'}</p>
                 </CardContent>
               </Card>
             </div>
@@ -426,7 +426,7 @@ function VendorProfileContent() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-gray-700 leading-relaxed">
-                {vendor.description || 'This vendor has not added a description yet.'}
+                {partner.description || 'This partner has not added a description yet.'}
               </p>
             </CardContent>
           </Card>
@@ -437,14 +437,14 @@ function VendorProfileContent() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Share your goals and we will introduce you to this vendor with the right context.
+                Share your goals and we will introduce you to this partner with the right context.
               </p>
               <Button onClick={() => setLeadOpen(true)} className="w-full">
                 <Mail className="w-4 h-4 mr-2" />
                 Start a conversation
               </Button>
               <Button variant="outline" asChild className="w-full">
-                <Link href="/compare">Compare vendors</Link>
+                <Link href="/compare">Compare partners</Link>
               </Button>
             </CardContent>
           </Card>
@@ -486,10 +486,10 @@ function VendorProfileContent() {
         {similarVendors.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle>Similar vendors</CardTitle>
+              <CardTitle>Similar partners</CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {similarVendors.map((similar) => (
+              {similarPartners.map((similar) => (
                 <div key={similar.id} className="border rounded-lg p-4 space-y-3 hover:shadow-sm transition">
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-lg bg-gray-100 flex items-center justify-center text-primary font-semibold">
@@ -525,7 +525,7 @@ function VendorProfileContent() {
   );
 }
 
-export default function VendorProfilePage() {
+export default function PartnerProfilePage() {
   return (
     <Suspense
       fallback={
@@ -536,7 +536,7 @@ export default function VendorProfilePage() {
         </main>
       }
     >
-      <VendorProfileContent />
+      <PartnerProfileContent />
     </Suspense>
   );
 }

@@ -8,12 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Search, Filter, Sparkles } from 'lucide-react';
-import VendorCard from '@/components/vendors/VendorCard';
-import AIChatDialog from '@/components/vendors/AIChatDialog';
+import PartnerCard from '@/components/partners/PartnerCard';
+import AIChatDialog from '@/components/partners/AIChatDialog';
 // TODO: Replace with Supabase queries when tables are ready
-// import { vendorQueries } from '@/lib/supabase';
+// import { partnerQueries } from '@/lib/supabase';
 
-function BrowseVendorsContent() {
+function BrowsepartnersContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || 'all';
 
@@ -22,18 +22,18 @@ function BrowseVendorsContent() {
   const [brokerTypeFilter, setBrokerTypeFilter] = useState('all');
   const [tierFilter, setTierFilter] = useState('all');
   const [showAIChat, setShowAIChat] = useState(false);
-  const [vendors, setVendors] = useState<any[]>([]);
+  const [partners, setpartners] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // TODO: Replace with Supabase query when tables are ready
   React.useEffect(() => {
     // Placeholder: This will be replaced with actual Supabase query
-    // const fetchVendors = async () => {
-    //   const data = await vendorQueries.getAll({ status: 'approved' });
-    //   setVendors(data);
+    // const fetchpartners = async () => {
+    //   const data = await partnerQueries.getAll({ status: 'approved' });
+    //   setpartners(data);
     //   setIsLoading(false);
     // };
-    // fetchVendors();
+    // fetchpartners();
 
     // For now, use empty array
     setIsLoading(false);
@@ -61,36 +61,36 @@ function BrowseVendorsContent() {
     { value: 'commercial_finance_broker', label: 'Commercial Finance Brokers' },
   ];
 
-  const filteredVendors = useMemo(() => {
-    return vendors.filter(vendor => {
-      const matchesSearch = vendor.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        vendor.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredpartners = useMemo(() => {
+    return partners.filter(partner => {
+      const matchesSearch = partner.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        partner.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        partner.tagline?.toLowerCase().includes(searchTerm.toLowerCase());
 
       const matchesCategory = categoryFilter === 'all' ||
-        vendor.categories?.includes(categoryFilter);
+        partner.categories?.includes(categoryFilter);
 
       const matchesBrokerType = brokerTypeFilter === 'all' ||
-        vendor.broker_types?.includes(brokerTypeFilter) ||
-        vendor.broker_types?.includes('all_brokers');
+        partner.broker_types?.includes(brokerTypeFilter) ||
+        partner.broker_types?.includes('all_brokers');
 
-      const matchesTier = tierFilter === 'all' || vendor.listing_tier === tierFilter;
+      const matchesTier = tierFilter === 'all' || partner.listing_tier === tierFilter;
 
       return matchesSearch && matchesCategory && matchesBrokerType && matchesTier;
     });
-  }, [vendors, searchTerm, categoryFilter, brokerTypeFilter, tierFilter]);
+  }, [partners, searchTerm, categoryFilter, brokerTypeFilter, tierFilter]);
 
   // Sort: featured first, then premium, then by view count
-  const sortedVendors = useMemo(() => {
-    return [...filteredVendors].sort((a, b) => {
-      const tierWeight = { featured: 3, premium: 2, free: 1 };
-      const aTier = tierWeight[a.listing_tier] || 0;
-      const bTier = tierWeight[b.listing_tier] || 0;
+  const sortedpartners = useMemo(() => {
+    return [...filteredpartners].sort((a, b) => {
+      const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
+      const aTier = tierWeight[a.listing_tier as string] || 0;
+      const bTier = tierWeight[b.listing_tier as string] || 0;
 
       if (aTier !== bTier) return bTier - aTier;
       return (b.view_count || 0) - (a.view_count || 0);
     });
-  }, [filteredVendors]);
+  }, [filteredpartners]);
 
   const handleSearch = () => {
     // Search is handled by the searchTerm state
@@ -120,7 +120,7 @@ function BrowseVendorsContent() {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                     <Input
                       type="text"
-                      placeholder="Search for vendors, products, or services..."
+                      placeholder="Search for partners, products, or services..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
@@ -228,11 +228,11 @@ function BrowseVendorsContent() {
           {/* Results Count */}
           <div className="flex items-center justify-between mb-6">
             <p className="text-muted-foreground">
-              <span className="font-semibold text-primary">{sortedVendors.length}</span> vendors found
+              <span className="font-semibold text-primary">{sortedpartners.length}</span> partners found
             </p>
           </div>
 
-          {/* Vendors Grid */}
+          {/* partners Grid */}
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[1, 2, 3, 4, 5, 6].map(i => (
@@ -244,12 +244,12 @@ function BrowseVendorsContent() {
                 </div>
               ))}
             </div>
-          ) : sortedVendors.length === 0 ? (
+          ) : sortedpartners.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="w-10 h-10 text-muted-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-foreground mb-2">No vendors found</h3>
+              <h3 className="text-2xl font-bold text-foreground mb-2">No partners found</h3>
               <p className="text-muted-foreground mb-6">Try adjusting your search or filters</p>
               <Button
                 onClick={() => {
@@ -265,8 +265,8 @@ function BrowseVendorsContent() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedVendors.map(vendor => (
-                <VendorCard key={vendor.id} vendor={vendor} />
+              {sortedpartners.map(partner => (
+                <PartnerCard key={partner.id} partner={partner} />
               ))}
             </div>
           )}
@@ -280,7 +280,7 @@ function BrowseVendorsContent() {
   );
 }
 
-export default function BrowseVendorsPage() {
+export default function BrowsepartnersPage() {
   return (
     <Suspense fallback={
       <>
@@ -295,7 +295,7 @@ export default function BrowseVendorsPage() {
 
       </>
     }>
-      <BrowseVendorsContent />
+      <BrowsepartnersContent />
     </Suspense>
   );
 }
