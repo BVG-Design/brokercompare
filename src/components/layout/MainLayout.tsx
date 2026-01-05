@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
+import { SubscribeModal } from '@/components/shared/SubscribeModal';
 import mixpanel from 'mixpanel-browser';
 
 type NavLink = {
@@ -19,6 +20,8 @@ type MainLayoutProps = {
 const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [feedbackOpen, setFeedbackOpen] = useState(false);
+    const [subscribeOpen, setSubscribeOpen] = useState(false);
+    const [suggestOpen, setSuggestOpen] = useState(false);
 
     useEffect(() => {
         mixpanel.init('16b895b70692275a77cc85aa3099d050', {
@@ -56,18 +59,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
 
                     {/* Actions */}
                     <div className="hidden lg:flex items-center gap-4">
-                        <Link
-                            href="/login"
-                            className="px-4 py-2 rounded-lg border border-white/20 hover:bg-white/10 transition-colors flex items-center gap-2"
-                        >
-                            Login
-                        </Link>
-                        <Link
-                            href="/signup"
+                        <button
+                            onClick={() => setSubscribeOpen(true)}
                             className="px-5 py-2 rounded-lg bg-brand-orange hover:bg-orange-600 transition-colors font-semibold"
                         >
-                            Signup
-                        </Link>
+                            Subscribe
+                        </button>
                     </div>
 
                     {/* Mobile Menu Toggle */}
@@ -93,20 +90,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                             </Link>
                         ))}
                         <div className="flex flex-col gap-3 mt-4">
-                            <Link
-                                href="/login"
-                                onClick={() => setIsMenuOpen(false)}
-                                className="w-full py-3 rounded-lg border border-white/20 text-center text-white"
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/signup"
-                                onClick={() => setIsMenuOpen(false)}
+                            <button
+                                onClick={() => {
+                                    setSubscribeOpen(true);
+                                    setIsMenuOpen(false);
+                                }}
                                 className="w-full py-3 rounded-lg bg-brand-orange text-center font-bold text-white"
                             >
-                                Signup
-                            </Link>
+                                Subscribe
+                            </button>
                         </div>
                     </div>
                 )}
@@ -156,7 +148,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                                     </button>
                                 </li>
                                 <li><Link href="/faq" className="hover:text-brand-orange transition-colors">FAQs</Link></li>
-                                <li><Link href="/terms" className="hover:text-brand-orange transition-colors">Terms & Conditions</Link></li>
+                                <li><Link href="/terms" className="hover:text-brand-orange transition-colors">Terms of Service</Link></li>
                             </ul>
                         </div>
 
@@ -182,6 +174,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                 </div>
             </footer>
             <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
+            <SubscribeModal open={subscribeOpen} onOpenChange={setSubscribeOpen} />
         </div>
     );
 };

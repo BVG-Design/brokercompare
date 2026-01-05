@@ -39,93 +39,101 @@ export const blogType = defineType({
       type: 'reference',
       to: [{ type: 'category' }],
       validation: Rule => Rule.required()
-  }),
+    }),
 
-  defineField({
-    name: 'serviceAreas',
-    title: 'Service Areas',
-    type: 'array',
-    of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
-}),
+    defineField({
+      name: 'serviceAreas',
+      title: 'Service Areas',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
+    }),
 
-defineField({
-  name: 'brokerType',
-  title: 'Broker Types',
-  type: 'array',
-  of: [{ type: 'string' }],
-  options: {
-      list: [
+    defineField({
+      name: 'brokerType',
+      title: 'Broker Types',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
           { title: 'Mortgage', value: 'Mortgage' },
           { title: 'Asset Finance', value: 'Asset Finance' },
           { title: 'Commercial', value: 'Commercial' }
-      ]
-  }
-}),
+        ]
+      }
+    }),
 
-defineField({
-  name: 'worksWith',
-  title: 'Works With / Integrations',
-  type: 'array',
-  of: [
-      {
+    defineField({
+      name: 'worksWith',
+      title: 'Works With / Integrations',
+      type: 'array',
+      of: [
+        {
           type: 'reference',
           to: [{ type: 'directoryListing' }],
           options: {
-              filter: 'listingType == "software"'
+            filter: 'listingType == "software"'
           }
-      }
-  ],
-  description: 'Other software tools this listing integrates with',
-  validation: Rule =>
-      Rule.custom((refs, context) => {
+        }
+      ],
+      description: 'Other software tools this listing integrates with',
+      validation: Rule =>
+        Rule.custom((refs, context) => {
           if (!refs || !Array.isArray(refs)) return true
 
           const selfId = context.document?._id
           if (!selfId) return true
 
           const hasSelfReference = refs.some(
-              (ref: any) => ref._ref === selfId
+            (ref: any) => ref._ref === selfId
           )
 
           return hasSelfReference
-              ? 'A listing cannot reference itself in “Works With”.'
-              : true
-      })
-}),
+            ? 'A listing cannot reference itself in “Works With”.'
+            : true
+        })
+    }),
 
-defineField({
-  name: 'editorNotes',
-  title: 'Editor Notes',
-  type: 'text',
-  description: 'Public Commentary',
-}),
+    defineField({
+      name: 'editorNotes',
+      title: 'Editor Notes',
+      type: 'text',
+      description: 'Public Commentary',
+    }),
 
-defineField({
-  name: 'listingType',
-  title: 'Listing Type',
-  type: 'string',
-  options: {
-      list: [
+    defineField({
+      name: 'listingType',
+      title: 'Listing Type',
+      type: 'string',
+      options: {
+        list: [
           { title: 'Software', value: 'software' },
           { title: 'Service', value: 'service' }
-      ],
-      layout: 'radio'
-  },
-  validation: Rule => Rule.required()
-}),
+        ],
+        layout: 'radio'
+      },
+      validation: Rule => Rule.required()
+    }),
 
-defineField({
-  name: 'badges',
-  title: 'Badges',
-  type: 'array',
-  of: [
-      {
+    defineField({
+      name: 'badges',
+      title: 'Badges',
+      type: 'array',
+      of: [
+        {
           type: 'reference',
           to: [{ type: 'badge' }]
-      }
-  ],
-  description: 'Editorial or commercial badges applied to this listing'
-}),
+        }
+      ],
+      description: 'Editorial or commercial badges applied to this listing'
+    }),
+
+    defineField({
+      name: 'journeyStages',
+      title: 'Journey Stages',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'journeyStage' }] }],
+      description: 'The journey stages this article is relevant to.'
+    }),
 
     defineField({
       name: 'heroImage',
@@ -162,7 +170,7 @@ defineField({
       type: 'number',
       validation: Rule => Rule.min(1).max(60),
     }),
-    
+
     defineField({
       name: 'seo',
       title: 'SEO settings',

@@ -274,6 +274,27 @@ export const directoryListingType = defineType({
         }
       ],
       description: 'Editorial or commercial badges applied to this listing'
+    }),
+    defineField({
+      name: 'journeyStage',
+      title: 'Journey Stage',
+      type: 'reference',
+      to: [{ type: 'journeyStage' }],
+      description: 'The primary stage of the broker journey this tool serves.'
+    }),
+    defineField({
+      name: 'journeyAssociations',
+      title: 'Journey Associations',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'People', value: 'people' },
+          { title: 'Tools', value: 'tools' },
+          { title: 'Processes & Automations', value: 'processes_automations' }
+        ]
+      },
+      description: 'The types of business pillars this tool impacts.'
     })
   ],
   preview: {
