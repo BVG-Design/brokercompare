@@ -24,8 +24,8 @@ export default async function DashboardPage() {
   if (profile?.default_dashboard === 'admin') {
     redirect('/admin');
   }
-  if (profile?.default_dashboard === 'partner' || profile?.default_dashboard === 'vendor') {
-    redirect('/dashboard/vendor');
+  if (profile?.default_dashboard === 'partner') {
+    redirect('/dashboard/partner');
   }
   if (profile?.default_dashboard === 'broker') {
     redirect('/dashboard/broker');
@@ -34,8 +34,8 @@ export default async function DashboardPage() {
   if (profile?.admin_dashboard || profile?.user_type === 'admin') {
     redirect('/admin');
   }
-  if (profile?.partner_dashboard || profile?.user_type === 'vendor') {
-    redirect('/dashboard/vendor');
+  if (profile?.partner_dashboard || profile?.user_type === 'partner') {
+    redirect('/dashboard/partner');
   }
   if (profile?.broker_dashboard || profile?.user_type === 'broker') {
     redirect('/dashboard/broker');

@@ -24,11 +24,11 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     Boolean(profile?.admin_dashboard) ||
     profile?.user_access === 'admin' ||
     profile?.user_type === 'admin';
-  const canVendor = Boolean(profile?.partner_dashboard) || profile?.user_type === 'vendor';
+  const canPartner = Boolean(profile?.partner_dashboard) || profile?.user_type === 'partner';
   const canBroker = Boolean(profile?.broker_dashboard) || profile?.user_type === 'broker';
 
   if (!canAdmin) {
-    if (canVendor) redirect('/dashboard/vendor');
+    if (canPartner) redirect('/dashboard/partner');
     if (canBroker) redirect('/dashboard/broker');
     redirect('/dashboard');
   }

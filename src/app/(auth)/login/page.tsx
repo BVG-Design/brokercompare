@@ -25,7 +25,7 @@ export default function LoginPage() {
   }, [searchParams]);
 
   const resolveDashboardPath = (profile?: {
-    default_dashboard?: 'admin' | 'broker' | 'partner' | 'vendor' | null;
+    default_dashboard?: 'admin' | 'broker' | 'partner' | null;
     user_type?: string | null;
     admin_dashboard?: boolean | null;
     partner_dashboard?: boolean | null;
@@ -42,11 +42,11 @@ export default function LoginPage() {
       // #endregion
       return '/admin';
     }
-    if (profile?.default_dashboard === 'partner' || profile?.default_dashboard === 'vendor') {
+    if (profile?.default_dashboard === 'partner') {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning partner path', data: { reason: 'default_dashboard===partner/vendor' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
-      return '/dashboard/vendor';
+      return '/dashboard/partner';
     }
     if (profile?.default_dashboard === 'broker') {
       // #region agent log
@@ -60,11 +60,11 @@ export default function LoginPage() {
       // #endregion
       return '/admin';
     }
-    if (profile?.partner_dashboard || profile?.user_type === 'vendor') {
+    if (profile?.partner_dashboard || profile?.user_type === 'partner') {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning partner path (fallback)', data: { reason: 'partner_dashboard||user_type===vendor' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
-      return '/dashboard/vendor';
+      return '/dashboard/partner';
     }
     if (profile?.broker_dashboard || profile?.user_type === 'broker') {
       // #region agent log

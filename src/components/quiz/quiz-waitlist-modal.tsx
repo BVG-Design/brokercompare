@@ -1033,7 +1033,7 @@ function QuizBody({ onClose }: { onClose: () => void }) {
       <div className="min-h-screen bg-[#f8fafc] flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-2xl shadow-brand-blue/10 text-center animate-in zoom-in-95 duration-500">
           <img
-            src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Digging%20Profile.png"
+            src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Photo%20Dig.png"
             alt="Simba Digging profile"
             className="w-20 h-20 rounded-full object-contain mx-auto mb-6 border-2 border-brand-green/30 shadow bg-white"
           />

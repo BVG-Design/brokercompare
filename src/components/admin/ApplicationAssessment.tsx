@@ -26,6 +26,22 @@ const BADGES = [
 
 const SERVICE_REGIONS = ['North America', 'Europe', 'Asia Pacific', 'AU/NZ Only', 'Global'];
 
+const STAGE_OPTIONS = [
+    { value: 'pre_start', label: 'Pre-Start' },
+    { value: 'client_acquisition', label: 'Client Acquisition' },
+    { value: 'application', label: 'Application' },
+    { value: 'settlement', label: 'Settlement' },
+    { value: 'post_settlement', label: 'Post-Settlement' },
+    { value: 'ongoing', label: 'Ongoing' },
+    { value: 'ninja_mode', label: 'Ninja-Mode' }
+];
+
+const STAGE_ASSOCIATION_OPTIONS = [
+    { value: 'people', label: 'People' },
+    { value: 'tools', label: 'Tools' },
+    { value: 'processes_automations', label: 'Processes & Automations' }
+];
+
 interface ApplicationAssessmentProps {
     isOpen: boolean;
     onClose: () => void;
@@ -55,6 +71,8 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
     const [alternatives, setAlternatives] = useState('');
     const [faqs, setFaqs] = useState<any[]>([]);
     const [linkedResources, setLinkedResources] = useState<any[]>([]);
+    const [stage, setStage] = useState<string>('');
+    const [stageAssociations, setStageAssociations] = useState<string[]>([]);
 
     const [features, setFeatures] = useState<any[]>([]);
 
@@ -84,6 +102,8 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                 });
                 setFeatureAuditInProgress(data.audit_in_progress || false);
                 setLinkedResources(data.linked_resources || []);
+                setStage(data.stage || '');
+                setStageAssociations(data.stage_associations || []);
             } else {
                 // Initialize from application data
                 const initialFeatures: any[] = [];
@@ -112,6 +132,8 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                     });
                 }
                 setFeatures(initialFeatures);
+                setStage('');
+                setStageAssociations([]);
             }
         };
 
@@ -173,6 +195,12 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
         setPublishedSections(prev => ({ ...prev, [section]: !prev[section] }));
     };
 
+    const toggleStageAssociation = (value: string) => {
+        setStageAssociations(prev => prev.includes(value)
+            ? prev.filter(v => v !== value)
+            : [...prev, value]);
+    };
+
     const PublishToggle = ({ section }: { section: string }) => (
         <button
             onClick={() => toggleSectionPublish(section)}
@@ -221,6 +249,8 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                 audit_in_progress: featureAuditInProgress,
                 pricing_entry: pricingEntry,
                 linked_resources: linkedResources,
+                stage,
+                stage_associations: stageAssociations,
                 updated_at: new Date().toISOString()
             };
 
@@ -510,6 +540,39 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                             Pricing & Mapping
                                         </h3>
                                         <div className="space-y-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Stage</p>
+                                                    <select
+                                                        value={stage}
+                                                        onChange={(e) => setStage(e.target.value)}
+                                                        className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 text-[10px] font-bold text-slate-600 outline-none"
+                                                    >
+                                                        <option value="">Select stage...</option>
+                                                        {STAGE_OPTIONS.map((s) => (
+                                                            <option key={s.value} value={s.value}>{s.label}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Stage Associations</p>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {STAGE_ASSOCIATION_OPTIONS.map((assoc) => {
+                                                            const isActive = stageAssociations.includes(assoc.value);
+                                                            return (
+                                                                <button
+                                                                    type="button"
+                                                                    key={assoc.value}
+                                                                    onClick={() => toggleStageAssociation(assoc.value)}
+                                                                    className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase border transition-all ${isActive ? 'bg-orange-600 text-white border-orange-500 shadow-sm' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'}`}
+                                                                >
+                                                                    {assoc.label}
+                                                                </button>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div>
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Display Alternatives</p>
                                                 <input
