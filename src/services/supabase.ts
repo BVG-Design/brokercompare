@@ -63,6 +63,7 @@ export const registerUser = async ({ email, firstName, lastName, heardFrom, hear
     return { data, error: error?.message };
 };
 
+
 interface QuizWaitlistData {
     first_name: string;
     last_name: string;
@@ -71,7 +72,7 @@ interface QuizWaitlistData {
 
 export const joinQuizWaitlist = async (data: QuizWaitlistData) => {
     const { error } = await supabase
-        .from('quiz') // Using lowercase table name as is standard convention, user said "Quiz" but often Postgres is case sensitive or normalized. sticking to 'quiz' is safer usually, or I should double check if I can. Let's try 'quiz' first.
+        .from('quiz')
         .insert([data]);
 
     if (error) {
@@ -79,4 +80,33 @@ export const joinQuizWaitlist = async (data: QuizWaitlistData) => {
         return { error: error.message };
     }
     return { error: null };
+};
+
+export const getReviewsBySlug = async (slug: string) => {
+    // 1. Get Directory Listing ID
+    const { data: listing, error: listingError } = await supabase
+        .from('partner')
+        .select('id')
+        .eq('slug', slug)
+        .single();
+
+    if (listingError || !listing) {
+        console.error('Error fetching listing for reviews:', listingError);
+        return [];
+    }
+
+    // 2. Get Reviews
+    const { data: reviews, error: reviewsError } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('directory_listing_id', listing.id)
+        .eq('is_published', true) // Only show published reviews
+        .order('created_at', { ascending: false });
+
+    if (reviewsError) {
+        console.error('Error fetching reviews:', reviewsError);
+        return [];
+    }
+
+    return reviews;
 };

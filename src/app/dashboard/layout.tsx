@@ -20,18 +20,28 @@ export default async function DashboardLayout({
 
   const { data: profile } = await supabase
     .from('user_profiles')
-    .select('id, full_name, user_type, default_dashboard, admin_dashboard, vendor_dashboard, broker_dashboard')
+    .select('id, full_name, user_type, default_dashboard, admin_dashboard, partner_dashboard, broker_dashboard')
     .eq('id', session.user.id)
     .single();
 
-  // Redirect based on default_dashboard or user_type
-  if (profile?.default_dashboard === 'admin' || profile?.admin_dashboard || profile?.user_type === 'admin') {
+  // Honor explicit default_dashboard first, then fall back to allowed dashboards
+  if (profile?.default_dashboard === 'admin') {
     redirect('/admin');
   }
-  if (profile?.default_dashboard === 'vendor' || profile?.vendor_dashboard || profile?.user_type === 'vendor') {
-    redirect('/dashboard/vendor');
+  if (profile?.default_dashboard === 'partner') {
+    redirect('/dashboard/partner');
   }
-  if (profile?.default_dashboard === 'broker' || profile?.broker_dashboard || profile?.user_type === 'broker') {
+  if (profile?.default_dashboard === 'broker') {
+    redirect('/dashboard/broker');
+  }
+
+  if (profile?.admin_dashboard || profile?.user_type === 'admin') {
+    redirect('/admin');
+  }
+  if (profile?.partner_dashboard || profile?.user_type === 'partner') {
+    redirect('/dashboard/partner');
+  }
+  if (profile?.broker_dashboard || profile?.user_type === 'broker') {
     redirect('/dashboard/broker');
   }
 

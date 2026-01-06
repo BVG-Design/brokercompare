@@ -12,18 +12,21 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/lib/supabase/client';
 import type { ApplicationRecord } from '@/lib/dashboard-data';
+import ApplicationAssessment from './ApplicationAssessment';
 
 export default function ApplicationsManagement() {
   const { toast } = useToast();
   const [applications, setApplications] = useState<ApplicationRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
+  const [isAssessmentOpen, setIsAssessmentOpen] = useState(false);
 
   useEffect(() => {
     const loadApplications = async () => {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('vendor_applications')
+        .from('partner_application')
         .select('*')
         .order('created_at', { ascending: false });
 
@@ -43,6 +46,23 @@ export default function ApplicationsManagement() {
     loadApplications();
   }, [toast]);
 
+  const handleReview = (app: ApplicationRecord) => {
+    setSelectedApp(app);
+    setIsAssessmentOpen(true);
+  };
+
+  const handleAssessmentSaved = () => {
+    // Refresh applications or update local state
+    const loadApplications = async () => {
+      const { data } = await supabase
+        .from('partner_application')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (data) setApplications(data);
+    };
+    loadApplications();
+  };
+
   const pendingApplications = applications.filter(
     (app) => app.status === 'pending'
   );
@@ -56,7 +76,7 @@ export default function ApplicationsManagement() {
     reason = ''
   ) => {
     const { error } = await supabase
-      .from('vendor_applications')
+      .from('partner_application')
       .update({ status, reject_reason: reason || null })
       .eq('id', appId);
 
@@ -132,7 +152,11 @@ export default function ApplicationsManagement() {
                       </p>
                     )}
                   </div>
-                  <Button size="sm" variant="outline">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleReview(app)}
+                  >
                     <FileText className="w-4 h-4 mr-2" />
                     Review
                   </Button>
@@ -143,6 +167,15 @@ export default function ApplicationsManagement() {
         </CardContent>
       </Card>
       {/* Other cards will go here */}
+
+      {selectedApp && (
+        <ApplicationAssessment
+          isOpen={isAssessmentOpen}
+          onClose={() => setIsAssessmentOpen(false)}
+          application={selectedApp}
+          onSaved={handleAssessmentSaved}
+        />
+      )}
     </div>
   );
 }

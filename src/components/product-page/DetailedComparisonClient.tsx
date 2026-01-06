@@ -16,6 +16,7 @@ import {
   Star,
   X
 } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 import { ComparisonFeatureGroup, ComparisonProduct } from "@/types/comparison";
 import ComparisonMatrix from "./ComparisonMatrix";
 import StillNotSure from "./StillNotSure";
@@ -99,10 +100,44 @@ const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
     }
   }, [open, options]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const supabase = createClient();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !question.trim()) return;
-    setSubmitted(true);
+
+    // Simple basic loading state via 'submitted' flag isn't enough, but for this modal, 
+    // we can just set submitted=true ONLY on success.
+    // However, we need a loading state potentially. 
+    // The current UI sets submitted=true immediately to show success message.
+    // We should await the insert.
+
+    try {
+      const { error } = await supabase
+        .from('faq')
+        .insert({
+          question: question.trim(),
+          category: selectedOption,
+          // Omitting user_id and other fields not strictly in the requested schema list, 
+          // but relying on the schema: id, question, category, helpful_count, view_count.
+        });
+
+      if (error) {
+        console.error('Error submitting question:', error);
+        // Maybe show an error toast here if we had toast imported in this component context? 
+        // This component doesn't import useToast.
+        // I will just return or alert.
+        // Actually, let's just log it and fallback to success UI to not block user, 
+        // or better, alert.
+        alert('Failed to submit question. Please try again.');
+        return;
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Submission exception:', err);
+      alert('An error occurred.');
+    }
   };
 
   return (
@@ -385,8 +420,8 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">All Listings</h4>
             </>
           )}
-             {filteredAllListings.map(renderCard)}
-             {filteredAllListings.length === 0 && (
+          {filteredAllListings.map(renderCard)}
+          {filteredAllListings.length === 0 && (
             <div className="text-sm text-gray-500 text-center py-6">No matches found.</div>
           )}
         </div>
@@ -514,14 +549,12 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
             <React.Fragment key={p.slug}>
               <button
                 onClick={() => openModalForSlot(idx)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${
-                  p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
-                }`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
+                  }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${
-                    p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
-                  }`}
+                  className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
+                    }`}
                 >
                   {p.logoUrl ? (
                     <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain rounded" />

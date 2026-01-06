@@ -1,0 +1,10 @@
+_id,title,slug,order,description
+"featureCategory-security-compliance","Security & Compliance","security-compliance","6","Trust, identity, and governance"
+"featureCategory-ai-intelligence","AI & Intelligence","ai-intelligence","5","Machine-assisted productivity and insight"
+"featureCategory-communication-collaboration","Communication & Collaboration","communication-collaboration","1","How people work together inside the platform"
+"featureCategory-automation-workflows","Automation & Workflows","automation-workflows","2","How work is triggered, routed, and automated"
+"featureCategory-integrations-apis","Integrations & APIs","integrations-apis","4","How the platform connects to other systems"
+"featureCategory-marketing-channels","Marketing Channels","marketing-channels","8","Outbound, inbound, and growth connectivity"
+"featureCategory-data-insights-reporting","Data Insights & Reporting","data-insights-reporting","3","How users gain insight and make decisions"
+"featureCategory-platform-infrastructure","Platform & Infrastructure","platform-infrastructure","7","How the system is delivered and operated"
+"cdd1a3be-a30e-452a-98e8-770583b2f6d4","Useability","useability","1","Measures how easy a product is to set up, learn, and use day-to-day. It reflects onboarding experience, interface clarity, support quality, and how quickly users can get real value with minimal effort or frustration."

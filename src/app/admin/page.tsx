@@ -54,7 +54,7 @@ function UpgradeRequestsPlaceholder() {
         <Card>
           <CardContent className="pt-4">
             <p className="font-semibold text-primary">Featured placement</p>
-            <p className="text-sm text-muted-foreground">Prioritise vendors that need review.</p>
+            <p className="text-sm text-muted-foreground">Prioritise partners that need review.</p>
           </CardContent>
         </Card>
       </div>
@@ -70,8 +70,8 @@ export default function AdminDashboard() {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [stats, setStats] = useState({
-    vendorsTotal: 0,
-    vendorsApproved: 0,
+    partnersTotal: 0,
+    partnersApproved: 0,
     applicationsTotal: 0,
     applicationsPending: 0,
     leadsTotal: 0,
@@ -111,7 +111,7 @@ export default function AdminDashboard() {
         {id === 'directory' && (
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="flex-1">
-              <Input placeholder="Search vendors..." className="w-full" />
+              <Input placeholder="Search partners..." className="w-full" />
             </div>
             <div className="w-full md:w-56">
               <Select defaultValue="all">
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
           <div className="flex flex-wrap gap-3 mt-3">
             {[
               { label: 'Broker Dashboard', href: '/dashboard/broker' },
-              { label: 'Vendor Dashboard', href: '/dashboard/vendor' },
+              { label: 'partner Dashboard', href: '/dashboard/partner' },
               { label: 'Admin Dashboard', href: '/admin' },
             ].map((item) => (
               <Button key={item.href} variant="outline" asChild>
@@ -340,8 +340,8 @@ export default function AdminDashboard() {
                   {[
                     {
                       title: 'Directory Listings',
-                      value: stats.vendorsTotal,
-                      subtitle: `${stats.vendorsApproved} approved`,
+                      value: stats.partnersTotal,
+                      subtitle: `${stats.partnersApproved} approved`,
                       icon: Briefcase,
                     },
                     {

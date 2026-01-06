@@ -1,0 +1,6 @@
+_id,title,slug,description,badgeType,color,priority
+"c24d67d6-78a5-45f6-90e8-680c3d790647","Recommended Partner","recommended-partner","This badge is awarded at our discretion and can not be bought, it is bestowed upon a business we actively trust, value and recommend based on quality, reliability, and alignment with our standards. ","editorial","orange","1"
+"041c1c41-1392-4a71-97ef-be8dba35fc53","Editor's Choice","editors-choice","Selected by our editorial team as a standout option in its category, based on overall performance, usability, and value for brokers.","editorial","gold","2"
+"47c85fe7-2532-480b-bb21-3d870c8db9f8","Premium Listing","premium-listing","A listing that includes richer profile content, and priority placement across the directory.","commercial","purple","3"
+"9e0d24df-5dad-4541-be8c-6a62d65425c9","Featured Tool","featured-tool","Highlighted for its relevance, momentum, or usefulness within the current broker ecosystem. It is usually a frequently recommended tool or service by brokers within our community.","status","blue","4"
+"04a86552-ba67-445b-9d00-32335f9da12a","Loved by Auctus Coaching","loved-by-auctus-coaching","A business personally used, trusted, and valued by the Auctus Coaching team through real-world experience and collaboration. This label reflects genuine affinity, not a paid placement.","editorial","green","5"

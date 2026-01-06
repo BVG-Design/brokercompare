@@ -24,11 +24,11 @@ export default function Layout({ children, currentPageName }) {
   const isAdmin = user?.role === 'admin';
 
   const navigation = [
-    { name: 'AI Automations', href: createPageUrl('BrowseVendors?category=ai_automations') },
-    { name: 'CRMs & Fact Finds', href: createPageUrl('BrowseVendors?category=crm_systems') },
-    { name: 'VA Services', href: createPageUrl('BrowseVendors?category=va_services') },
-    { name: 'Marketing & Sales', href: createPageUrl('BrowseVendors?category=marketing_services') },
-    { name: 'Directory', href: createPageUrl('BrowseVendors') },
+    { name: 'AI Automations', href: createPageUrl('BrowsePartners?category=ai_automations') },
+    { name: 'CRMs & Fact Finds', href: createPageUrl('BrowsePartners?category=crm_systems') },
+    { name: 'VA Services', href: createPageUrl('BrowsePartners?category=va_services') },
+    { name: 'Marketing & Sales', href: createPageUrl('BrowsePartners?category=marketing_services') },
+    { name: 'Directory', href: createPageUrl('BrowsePartners') },
     { name: 'Podcast', href: createPageUrl('Blog') },
   ];
 
@@ -82,7 +82,7 @@ export default function Layout({ children, currentPageName }) {
                 </Button>
               ) : (
                 <>
-                  <Link to={createPageUrl('ApplyVendor')}>
+                  <Link to={createPageUrl('ApplyPartner')}>
                     <Button className="bg-[#ef4e23] hover:bg-[#d63d15] text-white">
                       <PlusCircle className="w-4 h-4 mr-2" />
                       List Your Business
@@ -115,9 +115,9 @@ export default function Layout({ children, currentPageName }) {
                       ) : (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link to={createPageUrl('VendorDashboard')} className="flex items-center cursor-pointer">
+                            <Link to={createPageUrl('PartnerDashboard')} className="flex items-center cursor-pointer">
                               <LayoutDashboard className="w-4 h-4 mr-2" />
-                              Vendor Dashboard
+                              Partner Dashboard
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
@@ -169,9 +169,9 @@ export default function Layout({ children, currentPageName }) {
             <div>
               <h3 className="font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2 text-gray-300 text-sm">
-                <li><Link to={createPageUrl('BrowseVendors')} className="hover:text-[#05d8b5] transition-colors">Browse Directory</Link></li>
+                <li><Link to={createPageUrl('BrowsePartners')} className="hover:text-[#05d8b5] transition-colors">Browse Directory</Link></li>
                 <li><Link to={createPageUrl('Blog')} className="hover:text-[#05d8b5] transition-colors">Podcast</Link></li>
-                <li><Link to={createPageUrl('ApplyVendor')} className="hover:text-[#05d8b5] transition-colors">List Your Business</Link></li>
+                <li><Link to={createPageUrl('ApplyPartner')} className="hover:text-[#05d8b5] transition-colors">List Your Business</Link></li>
               </ul>
             </div>
             <div>

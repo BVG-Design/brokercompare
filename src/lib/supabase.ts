@@ -11,7 +11,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Placeholder types - will be updated when tables are created
-export type Vendor = {
+export type Partner = {
   id: string;
   company_name: string;
   description?: string;
@@ -39,15 +39,15 @@ export type FAQ = {
 };
 
 // Helper functions for data fetching (to be implemented when tables are ready)
-export const vendorQueries = {
+export const partnerQueries = {
   getAll: async (filters?: { status?: string }) => {
     // TODO: Implement Supabase query
     // For now, return empty array
-    return [] as Vendor[];
+    return [] as Partner[];
   },
   getById: async (id: string) => {
     // TODO: Implement Supabase query
-    return null as Vendor | null;
+    return null as Partner | null;
   },
 };
 

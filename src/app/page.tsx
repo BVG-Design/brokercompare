@@ -75,7 +75,7 @@ const Home: React.FC = () => {
               <Search className="text-gray-400 ml-4" size={20} />
               <input
                 type="text"
-                placeholder="Search for vendors, products, or services..."
+                placeholder="Search for partners, products, or services..."
                 className="w-full px-4 py-3 outline-none text-gray-700 caret-blue-600 placeholder-gray-400 bg-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -236,7 +236,7 @@ const Home: React.FC = () => {
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-brand-blue mb-4">Explore by Category</h2>
-            <p className="text-gray-600">Browse vendors by the type of solution you need</p>
+            <p className="text-gray-600">Browse partners by the type of solution you need</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

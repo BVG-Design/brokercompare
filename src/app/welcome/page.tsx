@@ -53,6 +53,12 @@ export default function WelcomePage() {
         e.preventDefault();
         if (!user) return;
 
+        const normalizedEmail = (user.email || '').trim().toLowerCase();
+        if (!normalizedEmail) {
+            setError('Your account is missing an email address.');
+            return;
+        }
+
         if (!comment.trim()) {
             setError('Please tell us what brought you here.');
             return;
@@ -63,44 +69,22 @@ export default function WelcomePage() {
 
         try {
             const answer = comment.trim();
-            const { data: profile, error: profileError } = await supabase
-                .from('user_profiles')
-                .select('id')
-                .eq('id', user.id)
-                .single();
-
-            if (profileError) throw profileError;
-
             const entry = {
                 answer,
                 first_name: firstName || null,
                 last_name: lastName || null,
-                email: user.email,
+                email: normalizedEmail,
                 created_at: new Date().toISOString(),
                 created_by: user.id,
+                updated_by: user.id,
             };
 
-            const { data: existing } = await supabase
+            // Upsert to avoid duplicate-key errors on the unique created_by constraint
+            const { error: upsertError } = await supabase
                 .from('what_brought_you_here')
-                .select('id')
-                .eq('created_by', user.id)
-                .maybeSingle();
+                .upsert(entry, { onConflict: 'email' });
 
-            let mutationError = null;
-            if (existing?.id) {
-                const { error } = await supabase
-                    .from('what_brought_you_here')
-                    .update(entry)
-                    .eq('id', existing.id);
-                mutationError = error;
-            } else {
-                const { error } = await supabase
-                    .from('what_brought_you_here')
-                    .insert(entry);
-                mutationError = error;
-            }
-
-            if (mutationError) throw mutationError;
+            if (upsertError) throw upsertError;
 
             await supabase
                 .from('user_profiles')
@@ -110,7 +94,8 @@ export default function WelcomePage() {
             router.push('/dashboard/broker');
         } catch (err: any) {
             console.error('Error submitting response:', err);
-            setError('Something went wrong. Please try again.');
+            const message = err?.message || 'Something went wrong. Please try again.';
+            setError(message);
         } finally {
             setSubmitting(false);
         }

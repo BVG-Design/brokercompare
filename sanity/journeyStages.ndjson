@@ -1,0 +1,7 @@
+{"_type": "journeyStage", "title": "Pre-Start", "slug": {"_type": "slug", "current": "pre-start"}, "position": 1, "description": "Laying the foundations, setting up the business, and preparing for the first client."}
+{"_type": "journeyStage", "title": "Client Acquisition", "slug": {"_type": "slug", "current": "client-acquisition"}, "position": 2, "description": "Focusing on marketing, lead generation, and initial client engagement."}
+{"_type": "journeyStage", "title": "Application", "slug": {"_type": "slug", "current": "application"}, "position": 3, "description": "The core process of gathering data, documents, and submitting loan applications."}
+{"_type": "journeyStage", "title": "Settlement", "slug": {"_type": "slug", "current": "settlement"}, "position": 4, "description": "Managing the final stages of the loan process through to successful settlement."}
+{"_type": "journeyStage", "title": "Post-Settlement", "slug": {"_type": "slug", "current": "post-settlement"}, "position": 5, "description": "Following up with clients after settlement to ensure satisfaction and ongoing support."}
+{"_type": "journeyStage", "title": "Ongoing", "slug": {"_type": "slug", "current": "ongoing"}, "position": 6, "description": "Managing long-term client relationships and regular reviews."}
+{"_type": "journeyStage", "title": "Ninja-Mode", "slug": {"_type": "slug", "current": "ninja-mode"}, "position": 7, "description": "Advanced automation and scaling for high-performing brokerage businesses."}

@@ -25,55 +25,55 @@ export default function LoginPage() {
   }, [searchParams]);
 
   const resolveDashboardPath = (profile?: {
-    default_dashboard?: 'admin' | 'broker' | 'vendor' | null;
+    default_dashboard?: 'admin' | 'broker' | 'partner' | null;
     user_type?: string | null;
     admin_dashboard?: boolean | null;
-    vendor_dashboard?: boolean | null;
+    partner_dashboard?: boolean | null;
     broker_dashboard?: boolean | null;
   }) => {
     // #region agent log
-    const logData = {profile,default_dashboard:profile?.default_dashboard,user_type:profile?.user_type,admin_dashboard:profile?.admin_dashboard,vendor_dashboard:profile?.vendor_dashboard,broker_dashboard:profile?.broker_dashboard};
-    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'resolveDashboardPath entry',data:logData,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C'})}).catch(()=>{});
+    const logData = { profile, default_dashboard: profile?.default_dashboard, user_type: profile?.user_type, admin_dashboard: profile?.admin_dashboard, partner_dashboard: profile?.partner_dashboard, broker_dashboard: profile?.broker_dashboard };
+    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'resolveDashboardPath entry', data: logData, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A,B,C' }) }).catch(() => { });
     // #endregion
-    
+
     if (profile?.default_dashboard === 'admin') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning admin path',data:{reason:'default_dashboard===admin'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning admin path', data: { reason: 'default_dashboard===admin' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       return '/admin';
     }
-    if (profile?.default_dashboard === 'vendor') {
+    if (profile?.default_dashboard === 'partner') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning vendor path',data:{reason:'default_dashboard===vendor'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning partner path', data: { reason: 'default_dashboard===partner/vendor' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
-      return '/dashboard/vendor';
+      return '/dashboard/partner';
     }
     if (profile?.default_dashboard === 'broker') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning broker path',data:{reason:'default_dashboard===broker'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning broker path', data: { reason: 'default_dashboard===broker' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       return '/dashboard/broker';
     }
     if (profile?.admin_dashboard || profile?.user_type === 'admin') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning admin path (fallback)',data:{reason:'admin_dashboard||user_type===admin'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning admin path (fallback)', data: { reason: 'admin_dashboard||user_type===admin' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       return '/admin';
     }
-    if (profile?.vendor_dashboard || profile?.user_type === 'vendor') {
+    if (profile?.partner_dashboard || profile?.user_type === 'partner') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning vendor path (fallback)',data:{reason:'vendor_dashboard||user_type===vendor'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning partner path (fallback)', data: { reason: 'partner_dashboard||user_type===vendor' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
-      return '/dashboard/vendor';
+      return '/dashboard/partner';
     }
     if (profile?.broker_dashboard || profile?.user_type === 'broker') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning broker path (fallback)',data:{reason:'broker_dashboard||user_type===broker'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning broker path (fallback)', data: { reason: 'broker_dashboard||user_type===broker' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       return '/dashboard/broker';
     }
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:resolveDashboardPath',message:'Returning default broker path',data:{reason:'no dashboard configured'},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+    fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:resolveDashboardPath', message: 'Returning default broker path', data: { reason: 'no dashboard configured' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
     // Default to broker dashboard if no specific dashboard is configured
     return '/dashboard/broker';
@@ -99,18 +99,18 @@ export default function LoginPage() {
           // Try with default_dashboard first, fallback if column doesn't exist
           let profile: any = null;
           let profileError: any = null;
-          
+
           const { data: profileWithDefault, error: errorWithDefault } = await supabase
             .from('user_profiles')
-            .select('default_dashboard, user_type, admin_dashboard, vendor_dashboard, broker_dashboard')
+            .select('default_dashboard, user_type, admin_dashboard, partner_dashboard, broker_dashboard')
             .eq('id', session.user.id)
             .maybeSingle();
-          
+
           if (errorWithDefault?.message?.includes('default_dashboard does not exist')) {
             // Column doesn't exist, query without it
             const { data: profileWithoutDefault, error: errorWithoutDefault } = await supabase
               .from('user_profiles')
-              .select('user_type, admin_dashboard, vendor_dashboard, broker_dashboard')
+              .select('user_type, admin_dashboard, partner_dashboard, broker_dashboard')
               .eq('id', session.user.id)
               .maybeSingle();
             profile = profileWithoutDefault;
@@ -119,17 +119,17 @@ export default function LoginPage() {
             profile = profileWithDefault;
             profileError = errorWithDefault;
           }
-          
+
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:checkSession',message:'Login page profile query result',data:{hasProfile:!!profile,profileError:profileError?.message,profileData:profile,userId:session.user.id,hasDefaultDashboard:!!profile?.default_dashboard},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:checkSession', message: 'Login page profile query result', data: { hasProfile: !!profile, profileError: profileError?.message, profileData: profile, userId: session.user.id, hasDefaultDashboard: !!profile?.default_dashboard }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
           // #endregion
-          
+
           const destination = nextPath || resolveDashboardPath(profile || undefined);
-          
+
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'login/page.tsx:checkSession',message:'Login page redirect destination',data:{destination,nextPath,resolvedPath:resolveDashboardPath(profile || undefined)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,C,E'})}).catch(()=>{});
+          fetch('http://127.0.0.1:7242/ingest/fd862b92-28de-446b-a32b-39d1fc192b91', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'login/page.tsx:checkSession', message: 'Login page redirect destination', data: { destination, nextPath, resolvedPath: resolveDashboardPath(profile || undefined) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A,C,E' }) }).catch(() => { });
           // #endregion
-          
+
           router.replace(destination);
         }
       } catch (err) {
@@ -203,7 +203,7 @@ export default function LoginPage() {
         const { data: profile } = await supabase
           .from('user_profiles')
           .select(
-            'default_dashboard, user_type, admin_dashboard, vendor_dashboard, broker_dashboard',
+            'default_dashboard, user_type, admin_dashboard, partner_dashboard, broker_dashboard',
           )
           .eq('id', user.id)
           .maybeSingle();

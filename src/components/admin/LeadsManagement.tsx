@@ -55,7 +55,7 @@ export default function LeadsManagement() {
                       {lead.broker_email || 'No email'})
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      to {lead.vendor_id || 'Unknown vendor'}
+                      to {lead.partner_id || 'Unknown partner'}
                     </p>
                   </div>
                   <Badge variant={lead.status === 'new' ? 'default' : 'outline'}>

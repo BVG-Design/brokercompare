@@ -10,6 +10,7 @@ import { featureCategoryType } from './featureCategory'
 import { listingFeatureType } from './listingFeature'
 import { badgeType } from './badge'
 import { organisationType } from './organisation'
+import { journeyStageType } from './journeyStage'
 
 export const schemaTypes = [
   blogType,
@@ -24,4 +25,5 @@ export const schemaTypes = [
   listingFeatureType,
   badgeType,
   organisationType,
+  journeyStageType,
 ]

@@ -16,15 +16,15 @@ export default function WriteReviewPage() {
     const router = useRouter();
     const { user } = useAuth();
     const [searchTerm, setSearchTerm] = useState('');
-    const [vendors, setVendors] = useState<any[]>([]);
-    const [selectedVendor, setSelectedVendor] = useState<any | null>(null);
+    const [partners, setPartners] = useState<any[]>([]);
+    const [selectedPartner, setselectedPartner] = useState<any | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     // Debounced search logic could be added here, simplified for now
     React.useEffect(() => {
-        const searchVendors = async () => {
+        const searchpartners = async () => {
             if (searchTerm.length < 2) {
-                setVendors([]);
+                setPartners([]);
                 return;
             }
 
@@ -33,28 +33,28 @@ export default function WriteReviewPage() {
                 const results = await fetchDirectoryListings({ search: searchTerm });
                 // Map Sanity results to a simplified format if needed, similar to directory/page.tsx logic
                 // Assuming fetchDirectoryListings returns a format we can mostly use
-                const mappedVendors = results.map(p => ({
+                const mappedpartners = results.map(p => ({
                     id: p.id,
                     company_name: p.name,
                     logo_url: p.logoUrl,
                     slug: p.slug
                 })).slice(0, 5); // Limit results
-                setVendors(mappedVendors);
+                setPartners(mappedpartners);
             } catch (error) {
-                console.error("Failed to search vendors", error);
+                console.error("Failed to search partners", error);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        const timer = setTimeout(searchVendors, 300);
+        const timer = setTimeout(searchpartners, 300);
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    const handleSelectVendor = (vendor: any) => {
-        setSelectedVendor(vendor);
-        setSearchTerm(vendor.company_name); // Fill input with name
-        setVendors([]); // Clear dropdown
+    const handleSelectpartner = (partner: any) => {
+        setselectedPartner(partner);
+        setSearchTerm(partner.company_name); // Fill input with name
+        setPartners([]); // Clear dropdown
     };
 
     const handleStartReview = () => {
@@ -72,7 +72,7 @@ export default function WriteReviewPage() {
         // Feature not ready yet
         toast({
             title: "Coming Soon",
-            description: `Review form for ${selectedVendor?.company_name} is under construction.`,
+            description: `Review form for ${selectedPartner?.company_name} is under construction.`,
         });
     };
 
@@ -107,31 +107,31 @@ export default function WriteReviewPage() {
                                     value={searchTerm}
                                     onChange={(e) => {
                                         setSearchTerm(e.target.value);
-                                        setSelectedVendor(null); // Reset selection on edit
+                                        setselectedPartner(null); // Reset selection on edit
                                     }}
                                     className="pl-12 h-14 text-lg"
                                 />
                             </div>
 
                             {/* Dropdown Results */}
-                            {vendors.length > 0 && !selectedVendor && (
+                            {partners.length > 0 && !selectedPartner && (
                                 <div className="absolute top-full left-0 right-0 bg-popover border rounded-md shadow-lg mt-1 z-50 overflow-hidden">
-                                    {vendors.map((vendor) => (
+                                    {partners.map((partner) => (
                                         <button
-                                            key={vendor.id}
-                                            onClick={() => handleSelectVendor(vendor)}
+                                            key={partner.id}
+                                            onClick={() => handleSelectpartner(partner)}
                                             className="w-full text-left px-4 py-3 hover:bg-accent hover:text-accent-foreground flex items-center transition-colors"
                                         >
                                             {/* Fallback for logo if needed */}
                                             <div className="w-8 h-8 rounded bg-muted mr-3 flex items-center justify-center text-xs font-bold text-muted-foreground">
-                                                {vendor.company_name?.substring(0, 2).toUpperCase()}
+                                                {partner.company_name?.substring(0, 2).toUpperCase()}
                                             </div>
-                                            <span className="font-medium">{vendor.company_name}</span>
+                                            <span className="font-medium">{partner.company_name}</span>
                                         </button>
                                     ))}
                                 </div>
                             )}
-                            {isLoading && searchTerm.length >= 2 && vendors.length === 0 && (
+                            {isLoading && searchTerm.length >= 2 && partners.length === 0 && (
                                 <div className="absolute top-full left-0 right-0 bg-popover border rounded-md shadow-lg mt-1 z-50 p-4 text-center text-muted-foreground">
                                     Loading...
                                 </div>
@@ -140,9 +140,9 @@ export default function WriteReviewPage() {
 
                         {/* Action Area */}
                         <div className="mt-8 text-center space-y-4">
-                            {selectedVendor ? (
+                            {selectedPartner ? (
                                 <div className="bg-accent/10 p-6 rounded-lg border border-accent/20 animate-in fade-in zoom-in duration-300">
-                                    <h3 className="text-lg font-semibold mb-2">Reviewing: <span className="text-primary">{selectedVendor.company_name}</span></h3>
+                                    <h3 className="text-lg font-semibold mb-2">Reviewing: <span className="text-primary">{selectedPartner.company_name}</span></h3>
                                     {!user ? (
                                         <div className="space-y-3">
                                             <p className="text-sm text-muted-foreground">Please login to verify your professional status.</p>

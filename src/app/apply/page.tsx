@@ -1,89 +1,111 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle, Building2, Sparkles, X, Upload, Loader2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { searchFeatures, searchIntegrations, searchAggregators } from './actions';
+import {
+  Save,
+  Plus,
+  Trash2,
+  Globe,
+  Type,
+  AlignLeft,
+  Tag,
+  Puzzle,
+  Video,
+  FileText,
+  Link as LinkIcon,
+  AlertCircle,
+  Target,
+  Users,
+  DollarSign,
+  Check,
+  User,
+  Mail,
+  Phone,
+  CopyPlus,
+  Layers,
+  Building2,
+  Upload,
+  X,
+  CheckCircle,
+  Loader2,
+  Lock,
+  ChevronRight,
+  ChevronDown,
+  Sparkles,
+  Info,
+  Briefcase,
+  RefreshCcw,
+  Search
+} from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
-type ApplyOption = {
-  label: string;
-  value: string;
-};
+type ProductType = 'Software' | 'Service' | 'Product' | 'Other';
 
-type FormState = {
-  business_type: string;
-  business_type_other: string;
-  company_name: string;
-  contact_name: string;
-  email: string;
-  phone: string;
-  website: string;
-  company_description: string;
-  logo_url: string;
-  categories: string[];
-  category_other: string;
-  commercial_finance_subcategories: string[];
-  commercial_finance_other: string;
-  broker_types: string[];
-  broker_type_other: string;
-  features: string[];
-  feature_other: string;
-  integrations: string[];
-  integration_other: string;
-  pricing_structure: string;
-  pricing_details: string;
-  special_offer: string;
-  why_join: string;
-  referral_source: string;
-  referral_name: string;
-};
+const PRICING_STRUCTURE_OPTIONS = [
+  'Flat/Fixed fee',
+  'Tiered Pricing',
+  'Usage Base',
+  'Per Seat/User',
+  'Percentage/Revenue Share',
+  'Subscription',
+  'One-time Purchase',
+  'Custom Quote'
+];
 
-const CATEGORY_OPTIONS = [
-  { value: 'mortgage_software', label: 'Mortgage Software' },
-  { value: 'asset_finance_tools', label: 'Asset Finance Tools' },
-  { value: 'commercial_finance', label: 'Commercial Finance' },
-  { value: 'crm_systems', label: 'CRM Systems' },
-  { value: 'lead_generation', label: 'Lead Generation' },
-  { value: 'compliance_tools', label: 'Compliance Tools' },
-  { value: 'document_management', label: 'Document Management' },
-  { value: 'loan_origination', label: 'Loan Origination' },
-  { value: 'broker_tools', label: 'Broker Tools' },
-  { value: 'marketing_services', label: 'Marketing Services' },
-  { value: 'accounting_software_services', label: 'Accounting Software or Services' },
-  { value: 'credit_reporting', label: 'Credit Reporting' },
-  { value: 'fraud_checks_id_verification', label: 'Fraud Checks and ID Verification' },
-  { value: 'esignatures', label: 'eSignatures' },
-  { value: 'legal_services', label: 'Legal Services' },
-  { value: 'insurance_products', label: 'Insurance Products' },
-  { value: 'training_education', label: 'Training & Education' },
-  { value: 'data_analytics', label: 'Data Analytics' },
+const AGGREGATOR_COMPATIBILITY_OPTIONS = [
+  { id: 'api', label: 'API' },
+  { id: 'webhook', label: 'Webhook' },
+  { id: 'zapier', label: 'Zapier' },
+  { id: 'nocode', label: 'No Code (e.g. Make.com, n8n' },
+  { id: 'direct', label: 'Direct Integration' },
+  { id: 'none', label: 'No Integration/Standalone' }
+];
+
+const TEAM_SIZE_OPTIONS = [
+  { value: 'independent', label: 'independent (1-2)' },
+  { value: 'small', label: 'small (3-6)' },
+  { value: 'med', label: 'med (7-10)' },
+  { value: 'large', label: 'large (10+)' },
+];
+
+const REVENUE_OPTIONS = [
+  { value: 'under_15k', label: 'Under $15k / month' },
+  { value: '15k_30k', label: '$15k - $30k / month' },
+  { value: '30k_60k', label: '$30k - $60k / month' },
+  { value: '60k_100k', label: '$60k - $100k / month' },
+  { value: '100k_plus', label: '$100k+ / month' },
+];
+
+const BROKER_TYPE_OPTIONS = [
+  { value: 'mortgage', label: 'Mortgage' },
+  { value: 'asset', label: 'Asset' },
+  { value: 'commercial', label: 'Commercial' },
   { value: 'other', label: 'Other' },
-] as const;
+];
 
-const COMMERCIAL_FINANCE_SUBCATEGORIES = [
-  { value: 'commercial_mortgage', label: 'Commercial Mortgage' },
-  { value: 'bridging_loans', label: 'Bridging Loans' },
-  { value: 'equipment', label: 'Equipment' },
-  { value: 'invoicing', label: 'Invoicing' },
+const COMMERCIAL_SUBTYPES = [
+  { value: 'dev_finance', label: 'Development Finance' },
+  { value: 'sme_lending', label: 'SME Lending' },
+  { value: 'equipment', label: 'Equipment Finance' },
+  { value: 'cashflow', label: 'Cashflow Finance' },
+  { value: 'comm_property', label: 'Commercial Property' },
   { value: 'trade_finance', label: 'Trade Finance' },
   { value: 'other', label: 'Other' },
-] as const;
+];
 
-const BROKER_TYPES = [
-  { value: 'mortgage_broker', label: 'Mortgage Brokers' },
-  { value: 'asset_finance_broker', label: 'Asset Finance Brokers' },
-  { value: 'commercial_finance_broker', label: 'Commercial Finance Brokers' },
-  { value: 'all_brokers', label: 'All Broker Types' },
+const LOOKING_TO_OPTIONS = [
+  { value: 'reduce_admin', label: 'Reduce admin and manual work' },
+  { value: 'improve_client', label: 'Improve client experience' },
+  { value: 'scale_no_hire', label: 'Scale without hiring' },
+  { value: 'better_reporting', label: 'Get better reporting or visibility' },
+  { value: 'compliance_confidence', label: 'Improve compliance confidence' },
+  { value: 'replace_spreadsheets', label: 'Replace spreadsheets or legacy tools' },
+  { value: 'consolidate_systems', label: 'Consolidate multiple systems' },
   { value: 'other', label: 'Other' },
-] as const;
+];
 
 const REFERRAL_SOURCES = [
   { value: 'facebook', label: 'Facebook' },
@@ -94,654 +116,1481 @@ const REFERRAL_SOURCES = [
   { value: 'chatgpt_ai', label: 'ChatGPT/AI Chat' },
   { value: 'google', label: 'Google' },
   { value: 'friend_referral', label: 'Friend/Referral' },
-] as const;
+];
 
-const MAX_FEATURE_SELECTIONS = 9;
-const MAX_INTEGRATION_SELECTIONS = 9;
-const OTHER_OPTION: ApplyOption = { value: 'other', label: 'Other' };
+const DEFAULT_AGGREGATORS = [
+  'LMG',
+  'CONNECTIVE',
+  'FINSURE',
+  'NMB',
+  'AFG',
+  'MORTGAGE CHOICE',
+  'CHOICE',
+  'FAST',
+  'PLAN AUSTRALIA',
+  'OUTSOURCE FINANCIAL'
+];
 
-const initialForm: FormState = {
-  business_type: '',
-  business_type_other: '',
-  company_name: '',
-  contact_name: '',
-  email: '',
-  phone: '',
-  website: '',
-  company_description: '',
-  logo_url: '',
-  categories: [],
-  category_other: '',
-  commercial_finance_subcategories: [],
-  commercial_finance_other: '',
-  broker_types: [],
-  broker_type_other: '',
-  features: [],
-  feature_other: '',
-  integrations: [],
-  integration_other: '',
-  pricing_structure: '',
-  pricing_details: '',
-  special_offer: '',
-  why_join: '',
-  referral_source: '',
-  referral_name: '',
+type ApplicationData = {
+  id: string;
+  name: string;
+  type: ProductType;
+  typeOther: string;
+  productImage: string;
+  productImageFile: File | null;
+  tagline: string;
+  description: string;
+  website: string;
+  pricingStructure: string;
+  pricingPackages: Array<{
+    id: string;
+    name: string;
+    price: string;
+    subtext: string;
+    features: string[];
+  }>;
+  specialOffer: string;
+  pricingDetails: string;
+  features: string[];
+  newFeature: string;
+  integrations: string[];
+  newIntegration: string;
+  teamSize: string[];
+  revenue: string[];
+  brokerType: string[];
+  brokerTypeOther: string;
+  commercialSubtypes: string[];
+  commercialTypeOther: string;
+  budgetAmount: string;
+  budgetPeriod: 'monthly' | 'yearly' | 'project';
+  lookingTo: string[];
+  lookingToOther: string;
+  notFitFor: string;
+  wantsTraining: boolean;
+  aggregatorCompatibility: string[];
+  integrationDocsLink: string;
+  selectedAggregators: string[];
+  integrationNotes: string;
 };
 
-export default function ApplyVendor() {
+const buildInitialAppData = (id: string, count: number): ApplicationData => ({
+  id,
+  name: count === 0 ? 'Primary Offering' : `Offering ${count + 1}`,
+  type: 'Software',
+  typeOther: '',
+  productImage: '',
+  productImageFile: null,
+  tagline: '',
+  description: '',
+  website: '',
+  pricingStructure: PRICING_STRUCTURE_OPTIONS[0],
+  pricingPackages: [
+    { id: `pkg-${Date.now()}`, name: '', price: '', subtext: '', features: [''] }
+  ],
+  specialOffer: '',
+  pricingDetails: '',
+  features: [],
+  newFeature: '',
+  integrations: [],
+  newIntegration: '',
+  teamSize: [],
+  revenue: [],
+  brokerType: [],
+  brokerTypeOther: '',
+  commercialSubtypes: [],
+  commercialTypeOther: '',
+  budgetAmount: '',
+  budgetPeriod: 'monthly',
+  lookingTo: [],
+  lookingToOther: '',
+  notFitFor: '',
+  wantsTraining: false,
+  aggregatorCompatibility: [],
+  integrationDocsLink: '',
+  selectedAggregators: [],
+  integrationNotes: '',
+});
+
+const RequiredAsterisk = () => <span className="text-red-500 ml-0.5">*</span>;
+
+export default function ApplyPartnerPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [formData, setFormData] = useState<FormState>(initialForm);
-  const [uploading, setUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [featureOptions, setFeatureOptions] = useState<ApplyOption[]>([]);
-  const [integrationOptions, setIntegrationOptions] = useState<ApplyOption[]>([]);
-  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [step, setStep] = useState<1 | 2>(1);
 
+  const [featureSuggestions, setFeatureSuggestions] = useState<string[]>([]);
+  const [integrationSuggestions, setIntegrationSuggestions] = useState<string[]>([]);
+  const [aggregatorSearch, setAggregatorSearch] = useState('');
+  const [filteredAggregators, setFilteredAggregators] = useState<string[]>(DEFAULT_AGGREGATORS);
+
+  const [profile, setProfile] = useState({
+    logo: '',
+    companyName: '',
+    website: '',
+    referralSource: '',
+    referralName: '',
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    logoFile: null as File | null,
+  });
+
+  const [applications, setApplications] = useState<ApplicationData[]>([
+    buildInitialAppData('app-1', 0)
+  ]);
+  const [selectedAppId, setSelectedAppId] = useState('app-1');
+  const [finalNotes, setFinalNotes] = useState('');
+
+  const selectedApp = useMemo(
+    () => applications.find((app) => app.id === selectedAppId) || applications[0],
+    [applications, selectedAppId]
+  );
+
+  const hasTechnicalIntegration = ['api', 'webhook', 'zapier', 'nocode'].some(id =>
+    selectedApp.aggregatorCompatibility?.includes(id)
+  );
+  const hasDirectIntegration = selectedApp.aggregatorCompatibility?.includes('direct');
+  const showIntegrationNotes = (selectedApp.aggregatorCompatibility?.length ?? 0) > 0;
+
+  const updateAppData = (updater: (data: ApplicationData) => ApplicationData) => {
+    setApplications((prev) =>
+      prev.map((app) => (app.id === selectedAppId ? updater(app) : app))
+    );
+  };
+
+  // Debounced search for Features
   useEffect(() => {
-    const loadOptions = async () => {
-      setLoadingOptions(true);
+    const timer = setTimeout(async () => {
+      if (selectedApp.newFeature && selectedApp.newFeature.length >= 2) {
+        try {
+          const results = await searchFeatures(selectedApp.newFeature);
+          // Filter out features already added - ensure results is array before filtering
+          const items = Array.isArray(results) ? results : [];
+          const available = items.filter(f => !selectedApp.features.includes(f));
+          setFeatureSuggestions(available);
+        } catch (e) {
+          console.error(e);
+          setFeatureSuggestions([]);
+        }
+      } else {
+        setFeatureSuggestions([]);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedApp.newFeature, selectedApp.features]);
+
+  // Debounced search for Integrations
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (selectedApp.newIntegration && selectedApp.newIntegration.length >= 2) {
+        try {
+          const results = await searchIntegrations(selectedApp.newIntegration);
+          // Filter out integrations already added - ensure results is array before filtering
+          const items = Array.isArray(results) ? results : [];
+          const available = items.filter(i => !selectedApp.integrations.includes(i));
+          setIntegrationSuggestions(available);
+        } catch (e) {
+          console.error(e);
+          setIntegrationSuggestions([]);
+        }
+      } else {
+        setIntegrationSuggestions([]);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedApp.newIntegration, selectedApp.integrations]);
+
+  // Debounced search for Aggregators
+  useEffect(() => {
+    const timer = setTimeout(async () => {
       try {
-        const response = await fetch('/api/apply/options');
-        if (!response.ok) {
-          throw new Error('Failed to load apply options');
+        const results = await searchAggregators(aggregatorSearch);
+        // If results from DB are zero and search is empty, show defaults
+        if (results.length === 0 && !aggregatorSearch) {
+          setFilteredAggregators(DEFAULT_AGGREGATORS);
+        } else {
+          setFilteredAggregators(results);
         }
-
-        const data = await response.json();
-        setFeatureOptions(Array.isArray(data.features) ? data.features : []);
-        setIntegrationOptions(Array.isArray(data.directoryListings) ? data.directoryListings : []);
-      } catch (error) {
-        console.error('Error loading apply options', error);
-        toast({
-          title: 'Unable to load suggestions',
-          description: 'Please refresh to retry loading features and integrations.',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoadingOptions(false);
+      } catch (e) {
+        console.error(e);
+        if (!aggregatorSearch) setFilteredAggregators(DEFAULT_AGGREGATORS);
       }
-    };
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [aggregatorSearch]);
 
-    loadOptions();
-  }, [toast]);
-
-  const toggleValue = (field: keyof Pick<FormState, 'categories' | 'commercial_finance_subcategories' | 'broker_types'>, value: string) => {
-    setFormData(prev => {
-      const current = prev[field];
-      const next = current.includes(value) ? current.filter(v => v !== value) : [...current, value];
-      return { ...prev, [field]: next };
-    });
+  const toggleAggregatorCompatibility = (optId: string) => {
+    updateAppData(app => ({
+      ...app,
+      aggregatorCompatibility: app.aggregatorCompatibility.includes(optId)
+        ? app.aggregatorCompatibility.filter(id => id !== optId)
+        : [...app.aggregatorCompatibility, optId]
+    }));
   };
 
-  const setSlotSelection = (
-    field: keyof Pick<FormState, 'features' | 'integrations'>,
-    index: number,
-    value: string
-  ) => {
-    setFormData(prev => {
-      if (value === 'none') {
-        const trimmed = [...prev[field]];
-        while (trimmed.length < index + 1) {
-          trimmed.push('');
-        }
-        trimmed[index] = '';
-        const cleaned = trimmed.filter(Boolean);
-        const clearOther =
-          field === 'features' && !cleaned.includes('other')
-            ? { feature_other: '' }
-            : field === 'integrations' && !cleaned.includes('other')
-              ? { integration_other: '' }
-              : {};
-        return {
-          ...prev,
-          [field]: cleaned,
-          ...clearOther,
-        };
-      }
-
-      const next = [...prev[field]];
-      while (next.length < index + 1) {
-        next.push('');
-      }
-      next[index] = value;
-
-      const cleaned = next.filter(Boolean);
-      const unique = cleaned.filter((v, i) => cleaned.indexOf(v) === i);
-
-      const clearOther =
-        field === 'features' && !unique.includes('other')
-          ? { feature_other: '' }
-          : field === 'integrations' && !unique.includes('other')
-            ? { integration_other: '' }
-            : {};
-
-      return {
-        ...prev,
-        [field]: unique.slice(0, 9),
-        ...clearOther,
-      };
-    });
+  const toggleAggregatorSelection = (agg: string) => {
+    updateAppData(app => ({
+      ...app,
+      selectedAggregators: app.selectedAggregators.includes(agg)
+        ? app.selectedAggregators.filter(a => a !== agg)
+        : [...app.selectedAggregators, agg]
+    }));
+  };
+  const handleAddPricingPackage = () => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: [
+        ...app.pricingPackages,
+        { id: `pkg-${Date.now()}`, name: '', price: '', subtext: '', features: [''] }
+      ]
+    }));
   };
 
-  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const fileUrl = URL.createObjectURL(file);
-    setFormData(prev => ({ ...prev, logo_url: fileUrl }));
-    toast({ description: 'Logo uploaded successfully!' });
-    setUploading(false);
+  const removePackage = (pkgId: string) => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: app.pricingPackages.filter(p => p.id !== pkgId)
+    }));
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const updatePackage = (pkgId: string, updates: Partial<ApplicationData['pricingPackages'][0]>) => {
+    updateAppData(app => ({
+      ...app,
+      pricingPackages: app.pricingPackages.map(p => p.id === pkgId ? { ...p, ...updates } : p)
+    }));
+  };
 
-    if (!formData.business_type) {
-      toast({ title: 'Error', description: 'Please select business type', variant: 'destructive' });
-      return;
+
+  const handleAddApplication = () => {
+    const newId = `app-${Date.now()}`;
+    setApplications(prev => [...prev, buildInitialAppData(newId, prev.length)]);
+    setSelectedAppId(newId);
+  };
+
+  const handleRemoveApplication = (id: string) => {
+    if (applications.length > 1) {
+      const nextApps = applications.filter(a => a.id !== id);
+      setApplications(nextApps);
+      if (selectedAppId === id) setSelectedAppId(nextApps[0].id);
     }
-    if (formData.business_type === 'other' && !formData.business_type_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your business type', variant: 'destructive' });
-      return;
+  };
+
+  const validateStep1 = () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const urlRegex = /^https?:\/\/.+/i;
+
+    if (!profile.companyName || !profile.website || !profile.referralSource || !profile.firstName || !profile.lastName || !profile.email) {
+      toast({ title: "Validation Error", description: 'Please fill in all required fields in the Public Partner Profile section.', variant: "destructive" });
+      return false;
     }
-    if (formData.categories.length === 0) {
-      toast({ title: 'Error', description: 'Please select at least one category', variant: 'destructive' });
-      return;
+
+    if (!emailRegex.test(profile.email)) {
+      toast({ title: "Validation Error", description: 'Please enter a valid email address.', variant: "destructive" });
+      return false;
     }
-    if (formData.broker_types.length === 0) {
-      toast({ title: 'Error', description: 'Please select at least one broker type', variant: 'destructive' });
-      return;
+    if (!urlRegex.test(profile.website)) {
+      toast({ title: "Validation Error", description: 'Please enter a valid website URL starting with http:// or https://', variant: "destructive" });
+      return false;
     }
-    if (formData.features.includes('other') && !formData.feature_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your other features', variant: 'destructive' });
-      return;
+    // Phone is optional now
+    if (profile.phone) {
+      const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+      if (!phoneRegex.test(profile.phone)) {
+        toast({ title: "Validation Error", description: 'Please enter a valid phone number (min 10 digits).', variant: "destructive" });
+        return false;
+      }
     }
-    if (formData.integrations.includes('other') && !formData.integration_other.trim()) {
-      toast({ title: 'Error', description: 'Please specify your other integrations', variant: 'destructive' });
-      return;
+
+    return true;
+  };
+
+  const validateStep2 = () => {
+    const urlRegex = /^https?:\/\/.+/i;
+
+    for (const app of applications) {
+      if (!app.type || !app.name || !app.description) {
+        toast({ title: "Validation Error", description: `Please fill in all required fields for "${app.name || 'Application'}": Type, Name, and Description.`, variant: "destructive" });
+        return false;
+      }
+      if (app.website && !urlRegex.test(app.website)) {
+        toast({ title: "Validation Error", description: `Please enter a valid URL for "${app.name}".`, variant: "destructive" });
+        return false;
+      }
+      if (app.teamSize.length === 0 || app.revenue.length === 0 || !app.budgetAmount || app.brokerType.length === 0) {
+        toast({ title: "Validation Error", description: `Please complete the Product Market Fit section for "${app.name}". All fields (Team Size, Revenue, Budget, and Broker Type) are required.`, variant: "destructive" });
+        return false;
+      }
     }
+    return true;
+  };
+
+  const checkCompanyExists = async (email: string) => {
+    const supabase = createClient();
+    const { data } = await supabase
+      .from('company')
+      .select('id')
+      .eq('contact_email', email)
+      .single();
+    return !!data;
+  };
+
+  const uploadLogo = async (file: File, companyName: string) => {
+    const supabase = createClient();
+    const fileExt = file.name.split('.').pop();
+    const sanitizedName = companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const fileName = `${sanitizedName}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('CompanyBrand Logos')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('CompanyBrand Logos')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const uploadProductImage = async (file: File, productName: string) => {
+    const supabase = createClient();
+    const fileExt = file.name.split('.').pop();
+    const sanitizedName = productName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    const fileName = `${sanitizedName}-${Date.now()}.${fileExt}`;
+    const filePath = `${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('product images')
+      .upload(filePath, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from('product images')
+      .getPublicUrl(filePath);
+
+    return data.publicUrl;
+  };
+
+  const handleNext = async () => {
+    if (!validateStep1()) return;
 
     setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    setIsSubmitting(false);
-    toast({ title: 'Success!', description: 'Your application has been submitted.' });
-    router.push('/');
+    try {
+      const exists = await checkCompanyExists(profile.email);
+      if (exists) {
+        toast({
+          title: "Account Exists",
+          description: "An account with this email already exists. Please login to the portal to continue your application.",
+          variant: "destructive"
+        });
+        return;
+      }
+      setStep(2);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      console.error(e);
+      toast({ title: "Error", description: "Something went wrong. Please try again.", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const showCommercialFinanceSubcategories = formData.categories.includes('commercial_finance');
-  const showCategoryOther = formData.categories.includes('other');
-  const showBrokerTypeOther = formData.broker_types.includes('other');
-  const showCommercialFinanceOther = formData.commercial_finance_subcategories.includes('other');
-  const showReferralName = formData.referral_source === 'friend_referral';
-  const showFeatureOther = formData.features.includes('other');
-  const showIntegrationOther = formData.integrations.includes('other');
-  const featureOptionList = [...featureOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
-  const integrationOptionList = [...integrationOptions.filter(option => option.value !== OTHER_OPTION.value), OTHER_OPTION];
-  const featureSlots = Array.from({ length: MAX_FEATURE_SELECTIONS }, (_v, idx) => formData.features[idx] || '');
-  const integrationSlots = Array.from({ length: MAX_INTEGRATION_SELECTIONS }, (_v, idx) => formData.integrations[idx] || '');
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validateStep2()) return;
+
+    setIsSubmitting(true);
+    const supabase = createClient();
+
+    try {
+      // 1. Check again just in case (optional, but safe)
+      const exists = await checkCompanyExists(profile.email);
+      if (exists) {
+        toast({ title: "Account Exists", description: "An account with this email already exists.", variant: "destructive" });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 2. Upload Logo if exists
+      let logoUrl = profile.logo;
+      if (profile.logoFile) {
+        logoUrl = await uploadLogo(profile.logoFile, profile.companyName);
+      }
+
+      // 3. Create Company
+      const { data: companyData, error: companyError } = await supabase
+        .from('company')
+        .insert({
+          company_name: profile.companyName,
+          company_website: profile.website,
+          contact_email: profile.email,
+          contact_first_name: profile.firstName,
+          contact_last_name: profile.lastName,
+          contact_phone: profile.phone,
+          logo: logoUrl
+        })
+        .select()
+        .single();
+
+      if (companyError) throw companyError;
+
+      // 4. Create Partner Application(s)
+      const inserts = await Promise.all(applications.map(async app => {
+        let appProductImage = app.productImage;
+        if (app.productImageFile) {
+          appProductImage = await uploadProductImage(app.productImageFile, app.name);
+        }
+
+        return {
+          company_id: companyData.id,
+          company_name: profile.companyName,
+          website: profile.website,
+          contact_name: `${profile.firstName} ${profile.lastName}`.trim(),
+          email: profile.email,
+          phone: profile.phone,
+          heard_about_us: profile.referralSource, // Mapped
+          referral_name: profile.referralName,
+
+          // Application specific
+          business_type: app.type,
+          business_type_other: app.typeOther,
+          tagline: app.tagline,
+          description: app.description,
+          pricing: app.pricingStructure,
+          pricing_offer: app.pricingPackages, // Map to new column
+          pricing_details: app.pricingDetails,
+          special_offer: app.specialOffer,
+
+          features: app.features,
+          integrations: app.integrations,
+          is_training_public: app.wantsTraining,
+
+          // Aggregator Compatibility
+          aggregator_compatibility: app.aggregatorCompatibility,
+          integration_docs_link: app.integrationDocsLink,
+          selected_aggregators: app.selectedAggregators,
+          integration_notes: app.integrationNotes,
+
+          team_size: app.teamSize,
+          revenue: app.revenue,
+          broker_types: app.brokerType,
+          broker_type_other: app.brokerTypeOther,
+          commercial_finance_subcategories: app.commercialSubtypes,
+          commercial_finance_other: app.commercialTypeOther,
+
+          budget_amount: app.budgetAmount,
+          budget_period: app.budgetPeriod,
+
+          looking_to: app.lookingTo,
+          looking_to_other: app.lookingToOther,
+          not_fit_for: app.notFitFor,
+
+          materials: {
+            logo: logoUrl, // Use the uploaded URL
+            product_image: appProductImage
+          },
+
+          status: 'pending'
+        };
+      }));
+
+      const { error: appError } = await supabase.from('partner_application').insert(inserts);
+
+      if (appError) throw appError;
+
+      toast({ title: "Application Submitted", description: 'Your partner application has been submitted for review! Our team will contact you shortly.' });
+      router.push('/');
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Error",
+        description: error.message || 'There was an error submitting your application. Please try again.',
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFileUpload = (field: 'logo' | 'productImage', e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    if (field === 'logo') {
+      setProfile(prev => ({ ...prev, logo: url, logoFile: file }));
+    } else {
+      updateAppData(app => ({ ...app, productImage: url, productImageFile: file }));
+    }
+  };
+
+  const toggleBrokerType = (val: string) => {
+    updateAppData(app => ({
+      ...app,
+      brokerType: app.brokerType.includes(val) ? app.brokerType.filter(v => v !== val) : [...app.brokerType, val]
+    }));
+  };
+
+  const toggleCommSubtype = (val: string) => {
+    updateAppData(app => ({
+      ...app,
+      commercialSubtypes: app.commercialSubtypes.includes(val) ? app.commercialSubtypes.filter(v => v !== val) : [...app.commercialSubtypes, val]
+    }));
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="bg-gradient-to-br from-[#132847] to-[#1a3a5f] text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-[#05d8b5] to-[#ef4e23] mb-6">
-            <Building2 className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-brand-cream pb-20 font-body">
+      <div className="bg-brand-blue text-white py-12 px-8">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Apply as a Partner</h1>
+            <p className="text-gray-300">Got a product or service made for Brokers in the Mortgage, Asset & Commercial Finance industry? <br /> Apply to partner with us for free!</p>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">List Your Business</h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Join our directory and connect with brokers looking for your solutions
-          </p>
+          <div className="flex gap-3">
+            <button onClick={() => router.back()} className="px-6 py-2.5 rounded-xl border border-white/20 hover:bg-white/10 font-bold transition-all">
+              Cancel
+            </button>
+            {step === 2 && (
+              <button onClick={handleSubmit} className="px-8 py-2.5 rounded-xl bg-brand-green text-white hover:bg-brand-green/90 font-bold shadow-lg shadow-brand-green/20 transition-all flex items-center gap-2">
+                <Save size={18} /> Submit
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid md:grid-cols-3 gap-6 mb-12">
-          {[
-            { title: 'Pre-Qualified Leads', description: 'Get connected with brokers actively looking for your services' },
-            { title: 'Increased Visibility', description: 'Showcase your business to a targeted audience of finance professionals' },
-            { title: 'Verified Listing', description: 'Build trust with our vetting process and quality badge' },
-          ].map((benefit, idx) => (
-            <Card key={idx} className="border-[#05d8b5]/20">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#132847] to-[#05d8b5] flex items-center justify-center mb-4">
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <h3 className="text-lg font-bold text-[#132847] mb-2">{benefit.title}</h3>
-                <p className="text-gray-600">{benefit.description}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+      <div className="max-w-5xl mx-auto px-6 -mt-8 space-y-8">
 
-        <Card className="max-w-3xl mx-auto shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b">
-            <CardTitle className="text-2xl text-[#132847]">Application Form</CardTitle>
-            <p className="text-gray-600 mt-2">
-              Fill out the form below and we&apos;ll review your application within 2-3 business days
-            </p>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Business Type *</h3>
-                <RadioGroup
-                  value={formData.business_type}
-                  onValueChange={value =>
-                    setFormData(prev => ({
-                      ...prev,
-                      business_type: value,
-                      business_type_other: value === 'other' ? prev.business_type_other : '',
-                    }))
-                  }
-                >
-                  {['software', 'service', 'both', 'other'].map(value => (
-                    <div className="flex items-center space-x-2" key={value}>
-                      <RadioGroupItem value={value} id={value} />
-                      <Label htmlFor={value} className="cursor-pointer capitalize">
-                        {value}
-                      </Label>
+        {/* 1. Public Partner Profile */}
+        <section className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-in slide-in-from-bottom-4 duration-500">
+          <div className="p-8 border-b border-gray-100 bg-gray-50/50">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-brand-blue/10 text-brand-blue rounded-xl">
+                <Building2 size={24} />
+              </div>
+              <h2 className="text-xl font-bold text-brand-orange">Public Partner Profile</h2>
+            </div>
+          </div>
+
+          <div className="p-8 space-y-8">
+            <div className="flex flex-col md:flex-row gap-10">
+              <div className="flex-shrink-0">
+                <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                  <Building2 size={14} className="text-gray-400" /> Company Logo
+                </label>
+                <div className="relative group w-32 h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue/40 transition-colors cursor-pointer">
+                  {profile.logo ? (
+                    <img src={profile.logo} className="w-full h-full object-contain p-4" alt="Company Logo" />
+                  ) : (
+                    <div className="text-center p-4">
+                      <Upload size={24} className="text-gray-400 mx-auto mb-1" />
+                      <span className="text-[10px] font-bold text-gray-500 uppercase">Upload</span>
                     </div>
-                  ))}
-                </RadioGroup>
-                {formData.business_type === 'other' && (
-                  <div>
-                    <Label htmlFor="business_type_other">Please specify your business type</Label>
-                    <Input
-                      id="business_type_other"
-                      value={formData.business_type_other}
-                      onChange={e => setFormData(prev => ({ ...prev, business_type_other: e.target.value }))}
-                      placeholder="Describe your business type"
+                  )}
+                  <input type="file" onChange={(e) => handleFileUpload('logo', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                </div>
+              </div>
+
+              <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Building2 size={14} className="text-gray-400" /> Company Name<RequiredAsterisk />
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.companyName}
+                    onChange={e => setProfile({ ...profile, companyName: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                    placeholder="e.g. Acme Finance"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Globe size={14} className="text-gray-400" /> Company Website<RequiredAsterisk />
+                  </label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                    <input
+                      type="url"
+                      value={profile.website}
+                      onChange={e => setProfile({ ...profile, website: e.target.value })}
+                      className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Users size={14} className="text-gray-400" /> How did you hear about us?<RequiredAsterisk />
+                  </label>
+                  <select
+                    value={profile.referralSource}
+                    onChange={e => setProfile({ ...profile, referralSource: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none font-medium"
+                  >
+                    <option value="">Select source...</option>
+                    {REFERRAL_SOURCES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  </select>
+                </div>
+                {profile.referralSource === 'friend_referral' && (
+                  <div className="space-y-1 animate-in slide-in-from-left-2">
+                    <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                      <User size={14} className="text-gray-400" /> Referral Name
+                    </label>
+                    <input
+                      type="text"
+                      value={profile.referralName}
+                      onChange={e => setProfile({ ...profile, referralName: e.target.value })}
+                      className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                      placeholder="Who referred you?"
                     />
                   </div>
                 )}
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Company Information</h3>
-                <div>
-                  <Label>Company Logo</Label>
-                  <p className="text-sm text-gray-500 mb-2">Upload a square logo (recommended 400x400px)</p>
-                  {formData.logo_url ? (
-                    <div className="relative inline-block">
-                      <img src={formData.logo_url} alt="Company Logo" className="w-32 h-32 object-contain border rounded-lg bg-white p-2" />
-                      <Button
-                        type="button"
-                        size="sm"
-                        variant="destructive"
-                        className="absolute -top-2 -right-2 p-1 h-auto w-auto rounded-full"
-                        onClick={() => setFormData({ ...formData, logo_url: '' })}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <label
-                      className={`flex flex-col items-center justify-center w-32 h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
-                        uploading ? 'bg-gray-100 cursor-not-allowed' : 'hover:bg-gray-50'
-                      }`}
-                    >
-                      {uploading ? (
-                        <span className="text-sm text-gray-500">Uploading...</span>
-                      ) : (
-                        <>
-                          <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                          <span className="text-xs text-gray-500">Upload Logo</span>
-                        </>
-                      )}
-                      <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} disabled={uploading} />
-                    </label>
-                  )}
+            <div className="pt-8 border-t border-gray-200">
+              <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-6">Contact Person</h4>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <User size={14} className="text-gray-400" /> First Name<RequiredAsterisk />
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.firstName}
+                    onChange={e => setProfile({ ...profile, firstName: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                  />
                 </div>
-
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="company_name">Company Name *</Label>
-                    <Input
-                      id="company_name"
-                      value={formData.company_name}
-                      onChange={e => setFormData({ ...formData, company_name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="website">Website *</Label>
-                    <Input id="website" type="url" placeholder="https://" value={formData.website} onChange={e => setFormData({ ...formData, website: e.target.value })} required />
-                  </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <User size={14} className="text-gray-400" /> Last Name<RequiredAsterisk />
+                  </label>
+                  <input
+                    type="text"
+                    value={profile.lastName}
+                    onChange={e => setProfile({ ...profile, lastName: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                  />
                 </div>
-
-                <div>
-                  <Label htmlFor="company_description">Company Description *</Label>
-                  <Textarea
-                    id="company_description"
-                    value={formData.company_description}
-                    onChange={e => setFormData({ ...formData, company_description: e.target.value })}
-                    rows={4}
-                    placeholder="Tell us about your company and what you offer..."
-                    required
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Mail size={14} className="text-gray-400" /> Email<RequiredAsterisk />
+                  </label>
+                  <input
+                    type="email"
+                    value={profile.email}
+                    onChange={e => setProfile({ ...profile, email: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                    <Phone size={14} className="text-gray-400" /> Phone
+                  </label>
+                  <input
+                    type="tel"
+                    value={profile.phone}
+                    onChange={e => setProfile({ ...profile, phone: e.target.value })}
+                    className="w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
                   />
                 </div>
               </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-[#132847]">Contact Information</h3>
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="contact_name">Contact Name *</Label>
-                    <Input id="contact_name" value={formData.contact_name} onChange={e => setFormData({ ...formData, contact_name: e.target.value })} required />
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input id="phone" type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input id="email" type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-base">
-                    Service Categories * <span className="text-sm font-normal text-gray-500">(Select all that apply)</span>
-                  </Label>
-                  <div className="grid md:grid-cols-2 gap-3 mt-3">
-                    {CATEGORY_OPTIONS.map(category => (
-                      <div key={category.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={category.value}
-                          checked={formData.categories.includes(category.value)}
-                          onCheckedChange={(_checked) => toggleValue('categories', category.value)}
-                        />
-                        <label htmlFor={category.value} className="text-sm text-gray-700 cursor-pointer">
-                          {category.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {showCategoryOther && (
-                  <div>
-                    <Label htmlFor="category_other">Please specify other category</Label>
-                    <Input
-                      id="category_other"
-                      value={formData.category_other}
-                      onChange={e => setFormData({ ...formData, category_other: e.target.value })}
-                      placeholder="Enter category details..."
-                    />
-                  </div>
+            </div>
+          </div>
+          {step === 1 && (
+            <div className="p-8 border-t border-gray-100 bg-gray-50 flex justify-end">
+              <button
+                onClick={handleNext}
+                disabled={isSubmitting}
+                className="px-8 py-3 rounded-xl bg-brand-blue text-white hover:bg-brand-blue/90 font-bold shadow-lg shadow-brand-blue/20 transition-all flex items-center gap-2"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" /> Checking...
+                  </>
+                ) : (
+                  <>
+                    Next Step <ChevronRight size={18} />
+                  </>
                 )}
+              </button>
+            </div>
+          )}
+        </section>
 
-                {showCommercialFinanceSubcategories && (
-                  <div className="border-l-4 border-[#05d8b5] pl-4">
-                    <Label className="text-base">Commercial Finance Subcategories</Label>
-                    <div className="grid md:grid-cols-2 gap-3 mt-3">
-                      {COMMERCIAL_FINANCE_SUBCATEGORIES.map(subcat => (
-                        <div key={subcat.value} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`cf_${subcat.value}`}
-                            checked={formData.commercial_finance_subcategories.includes(subcat.value)}
-                            onCheckedChange={(_checked) => toggleValue('commercial_finance_subcategories', subcat.value)}
-                          />
-                          <label htmlFor={`cf_${subcat.value}`} className="text-sm text-gray-700 cursor-pointer">
-                            {subcat.label}
-                          </label>
-                        </div>
-                      ))}
+        {
+          step === 2 && (
+            <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 space-y-8">
+              {/* 2. Application Section */}
+              <section className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Layers className="text-brand-blue" size={20} />
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">Applications</h2>
+                      <p className="text-sm text-gray-500">You can submit multiple products or services in one application.</p>
                     </div>
-                    {showCommercialFinanceOther && (
-                      <div className="mt-3">
-                        <Label htmlFor="commercial_finance_other">Please specify other subcategory</Label>
-                        <Input
-                          id="commercial_finance_other"
-                          value={formData.commercial_finance_other}
-                          onChange={e => setFormData({ ...formData, commercial_finance_other: e.target.value })}
-                          placeholder="Enter subcategory details..."
+                  </div>
+                  <button
+                    onClick={handleAddApplication}
+                    className="px-5 py-2.5 rounded-xl border-2 border-dashed border-brand-blue text-brand-orange hover:border-brand-green hover:text-brand-blue font-bold text-sm transition-all flex items-center gap-2"
+                  >
+                    <Plus size={18} /> Add Another Product/Service
+                  </button>
+                </div>
+
+                <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+                  {applications.map((app) => (
+                    <button
+                      key={app.id}
+                      onClick={() => setSelectedAppId(app.id)}
+                      className={`px-5 py-3 rounded-2xl border flex-shrink-0 transition-all text-left min-w-[180px] group relative ${selectedAppId === app.id
+                        ? 'bg-brand-green text-white border-brand-green shadow-xl shadow-gray-200'
+                        : 'bg-white text-brand-blue border-gray-200 hover:border-brand-blue'
+                        }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold truncate max-w-[120px]">{app.name || 'Untitled'}</span>
+                        {applications.length > 1 && (
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleRemoveApplication(app.id); }}
+                            className="opacity-0 group-hover:opacity-100 hover:text-red-400 p-0.5"
+                          >
+                            <X size={14} />
+                          </button>
+                        )}
+                      </div>
+                      <p className={`text-[10px] mt-1 uppercase tracking-wider font-bold ${selectedAppId === app.id ? 'text-green-100' : 'text-gray-400'}`}>
+                        {app.type}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 animate-in fade-in duration-300">
+                  <div className="p-8 border-b border-gray-100">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                        <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5">
+                          <Tag size={14} className="text-gray-400" /> Selected Offering
+                        </label>
+                        <input
+                          value={selectedApp.name}
+                          onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
+                          className="text-2xl font-bold text-gray-900 border-none p-0 focus:ring-0 w-full"
+                          placeholder="Offering Name..."
                         />
                       </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-xs font-bold text-gray-500 uppercase mr-2">This is a:<RequiredAsterisk /></span>
+                        {(['Software', 'Service', 'Product', 'Other'] as ProductType[]).map(t => (
+                          <button
+                            key={t}
+                            onClick={() => updateAppData(app => ({ ...app, type: t }))}
+                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${selectedApp.type === t ? 'bg-brand-green text-white border-brand-green shadow-md' : 'bg-gray-50 text-gray-500 border-gray-200 hover:bg-white'}`}
+                          >
+                            {t}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                    {selectedApp.type === 'Other' && (
+                      <input
+                        className="mt-4 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                        placeholder="Specify offering type..."
+                        value={selectedApp.typeOther}
+                        onChange={e => updateAppData(app => ({ ...app, typeOther: e.target.value }))}
+                      />
                     )}
                   </div>
-                )}
-              </div>
 
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-base">
-                    Target Broker Types * <span className="text-sm font-normal text-gray-500">(Select all that apply)</span>
-                  </Label>
-                  <div className="grid md:grid-cols-2 gap-3 mt-3">
-                    {BROKER_TYPES.map(type => (
-                      <div key={type.value} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type.value}
-                          checked={formData.broker_types.includes(type.value)}
-                          onCheckedChange={(_checked) => toggleValue('broker_types', type.value)}
-                        />
-                        <label htmlFor={type.value} className="text-sm text-gray-700 cursor-pointer">
-                          {type.label}
+                  <div className="p-8 space-y-12">
+                    {/* Basic Information */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Type size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Basic Information</h3>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                        <div className="space-y-6">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Product/Service Image</label>
+                            <div className="relative group w-full aspect-video bg-gray-100 rounded-2xl border-2 border-dashed border-gray-400 flex items-center justify-center overflow-hidden hover:border-brand-blue transition-colors cursor-pointer">
+                              {selectedApp.productImage ? (
+                                <img src={selectedApp.productImage} className="w-full h-full object-cover" alt="Product" />
+                              ) : (
+                                <div className="text-center p-4">
+                                  <Upload size={24} className="text-gray-300 mx-auto mb-1" />
+                                  <span className="text-[10px] font-bold text-gray-400 uppercase">Upload Media</span>
+                                </div>
+                              )}
+                              <input type="file" onChange={(e) => handleFileUpload('productImage', e)} className="absolute inset-0 opacity-0 cursor-pointer" />
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-5">
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Product/Service Name<RequiredAsterisk /></span>
+                            <input
+                              type="text"
+                              value={selectedApp.name}
+                              onChange={e => updateAppData(app => ({ ...app, name: e.target.value }))}
+                              placeholder="e.g. Primary Offering"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none font-bold"
+                            />
+                          </label>
+                          <label className="block">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><AlignLeft size={14} className="text-gray-400" /> Description<RequiredAsterisk /></span>
+                            <textarea
+                              rows={3}
+                              value={selectedApp.description}
+                              onChange={e => updateAppData(app => ({ ...app, description: e.target.value }))}
+                              placeholder="Tell us what makes this offering special..."
+                              className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none resize-none transition-all"
+                            />
+                          </label>
+                          <label className="block animate-in slide-in-from-top-2">
+                            <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Type size={14} className="text-gray-400" /> Offering Tagline</span>
+                            <input
+                              type="text"
+                              value={selectedApp.tagline}
+                              onChange={e => updateAppData(app => ({ ...app, tagline: e.target.value }))}
+                              placeholder="e.g. Streamline your mortgage workflow"
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none italic"
+                            />
+                          </label>
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* PRICING SECTION */}
+                    <section>
+                      <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><DollarSign size={18} /></div>
+                          <h3 className="text-lg font-bold text-brand-orange">Pricing Configuration</h3>
+                        </div>
+                        <button
+                          onClick={handleAddPricingPackage}
+                          className="px-5 py-2.5 bg-brand-green text-brand-blue rounded-xl text-xs font-bold hover:bg-gray-800 transition-all flex items-center gap-2 shadow-lg shadow-gray-200"
+                        >
+                          <Plus size={14} /> Add Another Pricing Offer
+                        </button>
+                      </div>
+                      <div className="space-y-8">
+                        <label className="block max-w-sm">
+                          <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-1.5"><Tag size={14} className="text-gray-400" /> Overall Pricing Structure<RequiredAsterisk /></span>
+                          <div className="relative">
+                            <select
+                              value={selectedApp.pricingStructure}
+                              onChange={e => updateAppData(app => ({ ...app, pricingStructure: e.target.value }))}
+                              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none appearance-none font-semibold cursor-pointer"
+                            >
+                              {PRICING_STRUCTURE_OPTIONS.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
+                            </select>
+                            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                          </div>
+                        </label>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          {selectedApp.pricingPackages.map((pkg, idx) => (
+                            <div key={pkg.id} className="bg-white border border-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all relative group flex flex-col h-full">
+                              {selectedApp.pricingPackages.length > 1 && (
+                                <button
+                                  onClick={() => removePackage(pkg.id)}
+                                  className="absolute -top-2 -right-2 bg-white border border-gray-100 p-2 rounded-full text-red-500 shadow-md opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-red-50"
+                                >
+                                  <Trash2 size={14} />
+                                </button>
+                              )}
+                              <div className="space-y-5 flex-grow">
+                                <div className="space-y-1.5">
+                                  <label className="text-[12px] font-black text-brand-blue ml-1">Package Name</label>
+                                  <input
+                                    placeholder="e.g. Free or Unlimited"
+                                    value={pkg.name}
+                                    onChange={e => updatePackage(pkg.id, { name: e.target.value })}
+                                    className="flex-1 px-4 py-2 bg-white border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                  />
+                                </div>
+                                <div className="flex gap-4">
+                                  <div className="flex-1 space-y-1.5">
+                                    <label className="text-[12px] font-black text-brand-blue ml-1">Amount</label>
+                                    <div className="relative">
+                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
+                                      <input
+                                        placeholder="0.00"
+                                        value={pkg.price}
+                                        onChange={e => updatePackage(pkg.id, { price: e.target.value })}
+                                        className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-sm font-black outline-none"
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="flex-1 space-y-1.5 relative">
+                                    <div className="flex items-center gap-1 ml-1 group/tip">
+                                      <label className="text-[12px] font-black text-brand-blue">CTA Text</label>
+                                      <Info size={10} className="text-gray-300 cursor-help" />
+                                      <div className="absolute bottom-full left-0 mb-1 hidden group-hover/tip:block w-40 p-2 bg-gray-900 text-white text-[9px] rounded shadow-xl z-20 font-bold leading-tight">
+                                        The call to action button text
+                                      </div>
+                                    </div>
+                                    <input
+                                      placeholder="Try [Product Name]. It's Free"
+                                      value={pkg.subtext}
+                                      onChange={e => updatePackage(pkg.id, { subtext: e.target.value })}
+                                      className="w-full p-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-[10px] font-bold outline-none"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2 pt-2 border-t border-gray-50">
+                                  <p className="text-[12px] font-black text-brand-blue ml-1">Included Offers</p>
+                                  {pkg.features.map((feat, fIdx) => (
+                                    <div key={fIdx} className="flex gap-2 animate-in slide-in-from-left-1">
+                                      <input
+                                        value={feat}
+                                        onChange={e => {
+                                          const nextFeats = [...pkg.features];
+                                          nextFeats[fIdx] = e.target.value;
+                                          updatePackage(pkg.id, { features: nextFeats });
+                                        }}
+                                        className="flex-1 p-2 bg-gray-50 border border-gray-400 focus:border-brand-blue focus:bg-white text-xs font-medium outline-none rounded-lg"
+                                        placeholder="e.g. 100mb storage"
+                                      />
+                                      <button
+                                        onClick={() => {
+                                          const nextFeats = pkg.features.filter((_, i) => i !== fIdx);
+                                          updatePackage(pkg.id, { features: nextFeats });
+                                        }}
+                                        className="text-gray-300 hover:text-red-500 p-1"
+                                      >
+                                        <X size={12} />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  <button
+                                    onClick={() => updatePackage(pkg.id, { features: [...pkg.features, ''] })}
+                                    className="w-full py-2 border-2 border-dashed border-gray-400 rounded-xl text-gray-400 hover:text-brand-blue hover:border-brand-blue transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5"
+                                  >
+                                    <Plus size={12} /> Add Feature to Card
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Product Highlights Section */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Puzzle size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Product Highlights</h3>
+                      </div>
+
+                      {/* Aggregator Compatibility Section */}
+                      <div className="mb-12 bg-slate-50/50 rounded-2xl border border-slate-100 p-8 space-y-8 animate-in slide-in-from-top-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-4">
+                            <RefreshCcw className="text-gray-500" size={18} />
+                            <h4 className="text-sm font-bold text-brand-blue uppercase">Aggregator Compatibility</h4>
+                          </div>
+                          <p className="text-xs text-gray-500 mb-4">Select all that apply. How can brokers connect their aggregator software to your offering?</p>
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            {AGGREGATOR_COMPATIBILITY_OPTIONS.map(opt => (
+                              <button
+                                key={opt.id}
+                                onClick={() => toggleAggregatorCompatibility(opt.id)}
+                                className={`flex items-center gap-2 px-4 py-3 rounded-xl border text-left text-xs font-bold transition-all ${selectedApp.aggregatorCompatibility.includes(opt.id)
+                                  ? 'bg-brand-blue text-white border-brand-blue shadow-md'
+                                  : 'bg-white text-gray-600 border-gray-200 hover:border-brand-blue'
+                                  }`}
+                              >
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 ${selectedApp.aggregatorCompatibility.includes(opt.id) ? 'bg-white border-white' : 'bg-white border-gray-300'
+                                  }`}>
+                                  {selectedApp.aggregatorCompatibility.includes(opt.id) && <Check size={12} className="text-brand-blue" strokeWidth={3} />}
+                                </div>
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {hasTechnicalIntegration && (
+                          <div className="animate-in slide-in-from-top-2">
+                            <label className="block">
+                              <span className="text-xs font-bold text-gray-700 mb-2 flex items-center gap-2 italic">
+                                <LinkIcon size={14} className="text-brand-blue" /> Link to integration documentation
+                              </span>
+                              <input
+                                type="url"
+                                value={selectedApp.integrationDocsLink}
+                                onChange={e => updateAppData(app => ({ ...app, integrationDocsLink: e.target.value }))}
+                                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none"
+                                placeholder="https://docs.yoursite.com/api"
+                              />
+                            </label>
+                          </div>
+                        )}
+
+                        {hasDirectIntegration && (
+                          <div className="animate-in slide-in-from-top-2 space-y-4">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">Select Compatible Aggregators</span>
+                              <div className="relative flex-1 max-w-xs">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-300" size={14} />
+                                <input
+                                  type="text"
+                                  placeholder="Search aggregators..."
+                                  value={aggregatorSearch}
+                                  onChange={e => setAggregatorSearch(e.target.value)}
+                                  className="w-full pl-9 pr-4 py-1.5 bg-white border border-gray-200 rounded-lg text-xs outline-none focus:border-brand-blue"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-4 bg-white border border-gray-100 rounded-xl no-scrollbar">
+                              {filteredAggregators.map(agg => (
+                                <button
+                                  key={agg}
+                                  onClick={() => toggleAggregatorSelection(agg)}
+                                  className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase transition-all ${selectedApp.selectedAggregators.includes(agg)
+                                    ? 'bg-blue-600 text-white border-blue-600'
+                                    : 'bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200'
+                                    }`}
+                                >
+                                  {agg}
+                                  {selectedApp.selectedAggregators.includes(agg) && <Check size={10} className="inline ml-1" />}
+                                </button>
+                              ))}
+                              {filteredAggregators.length === 0 && <p className="text-[10px] text-slate-300 italic mx-auto">No aggregators found matching search.</p>}
+                            </div>
+                          </div>
+                        )}
+
+                        {showIntegrationNotes && (
+                          <div className="animate-in slide-in-from-top-2">
+                            <label className="block">
+                              <span className="text-xs font-bold text-gray-700 mb-2 block uppercase tracking-tight">Any further notes or limitations</span>
+                              <textarea
+                                rows={2}
+                                value={selectedApp.integrationNotes}
+                                onChange={e => updateAppData(app => ({ ...app, integrationNotes: e.target.value }))}
+                                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none resize-none"
+                                placeholder="e.g. Only compatible with certain LMG tiers, or requiere Enterprise API plan..."
+                              />
+                            </label>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                              <Check size={16} className="text-green-500" /> Key Features
+                            </h4>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.features.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                              {selectedApp.features.length} / 9 Limit
+                            </span>
+                          </div>
+                          <div className="space-y-2 mb-4">
+                            {selectedApp.features.map((f, i) => (
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
+                                <span className="text-sm text-gray-700">{f}</span>
+                                <button onClick={() => updateAppData(app => ({ ...app, features: app.features.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          {selectedApp.features.length < 9 ? (
+                            <div className="flex gap-2 animate-in fade-in duration-300">
+                              <input
+                                type="text"
+                                placeholder="Add feature..."
+                                value={selectedApp.newFeature}
+                                onChange={e => updateAppData(app => ({ ...app, newFeature: e.target.value }))}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (selectedApp.newFeature.trim()) {
+                                      updateAppData(app => ({ ...app, features: [...app.features, selectedApp.newFeature.trim()], newFeature: '' }));
+                                    }
+                                  }
+                                }}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:border-gray-500 outline-none"
+                              />
+                              <button
+                                onClick={() => {
+                                  if (selectedApp.newFeature.trim()) {
+                                    updateAppData(app => ({ ...app, features: [...app.features, selectedApp.newFeature.trim()], newFeature: '' }));
+                                  }
+                                }}
+                                className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                              >
+                                <Plus size={20} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 text-xs font-bold flex items-center justify-center gap-2">
+                              <AlertCircle size={14} /> Maximum of 9 features reached.
+                            </div>
+                          )}
+                        </div>
+
+                        <div>
+                          <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                              <Puzzle size={16} className="text-blue-500" /> Key Integrations
+                            </h4>
+                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.integrations.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                              {selectedApp.integrations.length} / 9 Limit
+                            </span>
+                          </div>
+                          <div className="space-y-2 mb-4">
+                            {selectedApp.integrations.map((n, i) => (
+                              <div key={i} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl border border-gray-100 group">
+                                <span className="text-sm text-gray-700">{n}</span>
+                                <button onClick={() => updateAppData(app => ({ ...app, integrations: app.integrations.filter((_, idx) => idx !== i) }))} className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all">
+                                  <Trash2 size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                          {selectedApp.integrations.length < 9 ? (
+                            <div className="flex gap-2 animate-in fade-in duration-300">
+                              <input
+                                type="text"
+                                placeholder="Add integration..."
+                                value={selectedApp.newIntegration}
+                                onChange={e => updateAppData(app => ({ ...app, newIntegration: e.target.value }))}
+                                onKeyDown={e => {
+                                  if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    if (selectedApp.newIntegration.trim()) {
+                                      updateAppData(app => ({ ...app, integrations: [...app.integrations, selectedApp.newIntegration.trim()], newIntegration: '' }));
+                                    }
+                                  }
+                                }}
+                                className="flex-1 px-4 py-2 bg-white border border-gray-200 rounded-xl text-sm focus:border-brand-blue outline-none"
+                              />
+                              <button
+                                onClick={() => {
+                                  if (selectedApp.newIntegration.trim()) {
+                                    updateAppData(app => ({ ...app, integrations: [...app.integrations, selectedApp.newIntegration.trim()], newIntegration: '' }));
+                                  }
+                                }}
+                                className="p-2 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-colors"
+                              >
+                                <Plus size={20} />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="p-3 bg-orange-50 border border-orange-100 rounded-xl text-orange-600 text-xs font-bold flex items-center justify-center gap-2">
+                              <AlertCircle size={14} /> Maximum of 9 integrations reached.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </section>
+
+                    {/* Product Market Fit Section */}
+                    <section>
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Target size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Product Market Fit</h3>
+                      </div>
+                      <div className="space-y-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <Users size={14} className="text-gray-400" /> Best suited for: Team Size (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {TEAM_SIZE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => updateAppData(app => ({
+                                    ...app,
+                                    teamSize: app.teamSize.includes(opt.value) ? app.teamSize.filter(v => v !== opt.value) : [...app.teamSize, opt.value]
+                                  }))}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.teamSize.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <DollarSign size={14} className="text-gray-400" /> Ideal Customer Revenue (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {REVENUE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => updateAppData(app => ({
+                                    ...app,
+                                    revenue: app.revenue.includes(opt.value) ? app.revenue.filter(v => v !== opt.value) : [...app.revenue, opt.value]
+                                  }))}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.revenue.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <DollarSign size={14} className="text-gray-400" /> Ideal Budget
+                            </label>
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"><DollarSign size={14} /></div>
+                                <input
+                                  type="number"
+                                  value={selectedApp.budgetAmount}
+                                  onChange={e => updateAppData(app => ({ ...app, budgetAmount: e.target.value }))}
+                                  className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm text-gray-900 focus:border-brand-blue outline-none"
+                                  placeholder="Amount"
+                                />
+                              </div>
+                              <select
+                                value={selectedApp.budgetPeriod}
+                                onChange={e => updateAppData(app => ({ ...app, budgetPeriod: e.target.value as any }))}
+                                className="w-32 px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm font-bold text-gray-900 focus:border-brand-blue outline-none"
+                              >
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="project">Project</option>
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                              <Briefcase size={14} className="text-gray-400" /> Broker Type (select all that apply)<RequiredAsterisk />
+                            </label>
+                            <div className="flex flex-wrap gap-2">
+                              {BROKER_TYPE_OPTIONS.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => toggleBrokerType(opt.value)}
+                                  className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${selectedApp.brokerType.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                            {selectedApp.brokerType.includes('other') && (
+                              <input
+                                className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                                placeholder="Specify other broker type..."
+                                value={selectedApp.brokerTypeOther}
+                                onChange={e => updateAppData(app => ({ ...app, brokerTypeOther: e.target.value }))}
+                              />
+                            )}
+                          </div>
+                        </div>
+
+                        {selectedApp.brokerType.includes('commercial') && (
+                          <div className="animate-in slide-in-from-top-2 p-6 bg-brand-blue/5 rounded-2xl border border-blue-100">
+                            <label className="text-sm font-bold text-brand-blue flex items-center gap-2 mb-4">
+                              <Check size={14} /> Commercial Subcategories
+                            </label>
+                            <div className="flex flex-wrap gap-3">
+                              {COMMERCIAL_SUBTYPES.map(opt => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  onClick={() => toggleCommSubtype(opt.value)}
+                                  className={`px-4 py-2 rounded-xl border text-xs font-bold transition-all ${selectedApp.commercialSubtypes.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue' : 'bg-white text-brand-blue border-blue-200 hover:bg-blue-100'}`}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </div>
+                            {selectedApp.commercialSubtypes.includes('other') && (
+                              <input
+                                className="mt-4 w-full p-3 bg-white border border-blue-200 rounded-xl text-sm animate-in slide-in-from-top-2 text-brand-blue placeholder:text-blue-300"
+                                placeholder="Specify commercial type..."
+                                value={selectedApp.commercialTypeOther}
+                                onChange={e => updateAppData(app => ({ ...app, commercialTypeOther: e.target.value }))}
+                              />
+                            )}
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                            <Target size={14} className="text-gray-400" /> Looking to:
+                          </label>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {LOOKING_TO_OPTIONS.map(opt => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => updateAppData(app => ({
+                                  ...app,
+                                  lookingTo: app.lookingTo.includes(opt.value) ? app.lookingTo.filter(v => v !== opt.value) : [...app.lookingTo, opt.value]
+                                }))}
+                                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-xs font-medium transition-all ${selectedApp.lookingTo.includes(opt.value) ? 'bg-brand-blue text-white border-brand-blue shadow-md' : 'bg-white text-gray-600 border-gray-400 hover:border-gray-500'}`}
+                              >
+                                <div className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center transition-colors ${selectedApp.lookingTo.includes(opt.value) ? 'bg-white border-white' : 'bg-white border-gray-400'}`}>
+                                  {selectedApp.lookingTo.includes(opt.value) && <Check size={10} className="text-brand-blue" />}
+                                </div>
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                          {selectedApp.lookingTo.includes('other') && (
+                            <input
+                              className="mt-3 w-full p-3 bg-gray-50 border border-gray-400 rounded-xl text-sm animate-in slide-in-from-top-2 text-gray-900"
+                              placeholder="Specify other goals..."
+                              value={selectedApp.lookingToOther}
+                              onChange={e => updateAppData(app => ({ ...app, lookingToOther: e.target.value }))}
+                            />
+                          )}
+                        </div>
+
+                        <label className="block">
+                          <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-2">
+                            <AlertCircle size={14} className="text-gray-400" /> Not the right fit for:
+                          </span>
+                          <textarea
+                            rows={2}
+                            value={selectedApp.notFitFor}
+                            onChange={e => updateAppData(app => ({ ...app, notFitFor: e.target.value }))}
+                            placeholder="e.g. Solo brokers on a tight budget..."
+                            className="w-full px-4 py-3 bg-gray-50 border border-gray-400 rounded-xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
+                          />
                         </label>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    </section>
 
-                {showBrokerTypeOther && (
-                  <div>
-                    <Label htmlFor="broker_type_other">Please specify other broker type</Label>
-                    <Input
-                      id="broker_type_other"
-                      value={formData.broker_type_other}
-                      onChange={e => setFormData({ ...formData, broker_type_other: e.target.value })}
-                      placeholder="Enter broker type details..."
-                    />
-                  </div>
-                )}
-              </div>
-
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-base">
-                    Features <span className="text-sm font-normal text-gray-500">(Up to {MAX_FEATURE_SELECTIONS})</span>
-                  </Label>
-                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading feature suggestions...</p>}
-                  <div className="grid md:grid-cols-3 gap-3 mt-3">
-                    {featureSlots.map((value, idx) => (
-                      <div key={`feature_slot_${idx}`}>
-                        <Label className="text-xs text-gray-500">Feature {idx + 1}</Label>
-                        <Select
-                          value={value || undefined}
-                          onValueChange={val => setSlotSelection('features', idx, val)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select feature" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {featureOptionList.map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    {/* Training Material Section (LOCKED) */}
+                    <section>
+                      {/* Header - same style as others */}
+                      <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
+                        <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Video size={18} /></div>
+                        <h3 className="text-lg font-bold text-brand-orange">Training Material</h3>
                       </div>
-                    ))}
-                  </div>
-                </div>
 
-                {showFeatureOther && (
-                  <div>
-                    <Label htmlFor="feature_other">Please specify other features</Label>
-                    <Input
-                      id="feature_other"
-                      value={formData.feature_other}
-                      onChange={e => setFormData(prev => ({ ...prev, feature_other: e.target.value }))}
-                      placeholder="Enter other features (comma separated if needed)"
-                    />
-                  </div>
-                )}
-              </div>
+                      {/* Orange dashed border container for Training Material */}
+                      <div className="relative group overflow-hidden rounded-2xl border-2 border-dashed border-brand-orange bg-brand-orange/5 min-h-[450px]">
+                        {/* Blur Overlay & Content */}
+                        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-8 xs:p-12 overflow-y-auto">
+                          <div className="w-16 h-16 bg-brand-blue text-white rounded-full flex items-center justify-center mb-4 shadow-xl border-4 border-white flex-shrink-0">
+                            <Lock size={28} />
+                          </div>
+                          <h4 className="text-xl font-bold text-gray-900 mb-2">Paid Premium Feature</h4>
+                          <p className="text-sm text-gray-600 max-w-sm mb-6">
+                            Showcase your expertise with videos, guides, and interactive training content directly on your public profile.
+                          </p>
+                          <label className="flex items-center gap-3 px-6 py-3 bg-white border border-gray-400 rounded-2xl shadow-sm hover:border-brand-blue transition-all cursor-pointer flex-shrink-0">
+                            <input
+                              type="checkbox"
+                              className="w-5 h-5 rounded border-gray-400 text-brand-blue focus:ring-brand-blue cursor-pointer"
+                              checked={selectedApp.wantsTraining}
+                              onChange={e => updateAppData(app => ({ ...app, wantsTraining: e.target.checked }))}
+                            />
+                            <span className="text-sm font-bold text-gray-800">
+                              Interested in uploading Training Material?
+                            </span>
+                          </label>
+                          {selectedApp.wantsTraining && (
+                            <p className="mt-4 text-xs font-bold text-brand-blue animate-in slide-in-from-top-2 flex-shrink-0">
+                              Check noted! Our team will discuss the options available to you.
+                            </p>
+                          )}
+                        </div>
 
-              <div className="space-y-3">
-                <div>
-                  <Label className="text-base">
-                    Do you integrate with or work with other software?
-                    <span className="text-sm font-normal text-gray-500"> (Up to {MAX_INTEGRATION_SELECTIONS})</span>
-                  </Label>
-                  {loadingOptions && <p className="text-sm text-gray-500 mt-2">Loading integration suggestions...</p>}
-                  <div className="grid md:grid-cols-3 gap-3 mt-3">
-                    {integrationSlots.map((value, idx) => (
-                      <div key={`integration_slot_${idx}`}>
-                        <Label className="text-xs text-gray-500">Integration {idx + 1}</Label>
-                        <Select
-                          value={value || undefined}
-                          onValueChange={val => setSlotSelection('integrations', idx, val)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select software" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            {integrationOptionList.map(option => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        {/* Mock Blurred UI Content */}
+                        <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4 pointer-events-none select-none opacity-40 h-full">
+                          {[1, 2, 3, 4, 5, 6].map(i => (
+                            <div key={i} className="aspect-video bg-gray-100 rounded-xl border border-gray-300 flex flex-col items-center justify-center p-4">
+                              <div className="p-3 bg-white rounded-lg mb-2"><Video size={20} className="text-gray-300" /></div>
+                              <div className="h-2 w-24 bg-gray-200 rounded-full"></div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
+                    </section>
                   </div>
                 </div>
+              </section>
 
-                {showIntegrationOther && (
-                  <div>
-                    <Label htmlFor="integration_other">Please specify other software</Label>
-                    <Input
-                      id="integration_other"
-                      value={formData.integration_other}
-                      onChange={e => setFormData(prev => ({ ...prev, integration_other: e.target.value }))}
-                      placeholder="List any other software or services..."
-                    />
+              {/* 3. Final Details */}
+              <section className="bg-white rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden animate-in fade-in duration-500">
+                <div className="p-8 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-indigo-100 text-indigo-600 rounded-xl">
+                      <AlignLeft size={24} />
+                    </div>
+                    <h2 className="text-xl font-bold text-gray-900">Final Details</h2>
                   </div>
-                )}
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="pricing_structure">Pricing Structure</Label>
-                  <Select value={formData.pricing_structure} onValueChange={value => setFormData({ ...formData, pricing_structure: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select pricing structure" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="subscription">Subscription</SelectItem>
-                      <SelectItem value="tiered">Tiered</SelectItem>
-                      <SelectItem value="set_fee">Set Fee</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
-
-                {formData.pricing_structure && (
-                  <div>
-                    <Label htmlFor="pricing_details">Pricing Details</Label>
-                    <Textarea
-                      id="pricing_details"
-                      value={formData.pricing_details}
-                      onChange={e => setFormData({ ...formData, pricing_details: e.target.value })}
-                      rows={3}
-                      placeholder="Provide details about your pricing..."
+                <div className="p-8">
+                  <label className="block">
+                    <span className="text-sm font-bold text-gray-900 flex items-center gap-2 mb-3">
+                      <AlignLeft size={14} className="text-gray-400" /> Any other questions or notes?
+                    </span>
+                    <textarea
+                      rows={4}
+                      value={finalNotes}
+                      onChange={e => setFinalNotes(e.target.value)}
+                      placeholder="Is there anything else we should know about your application?"
+                      className="w-full px-6 py-4 bg-gray-50 border border-gray-400 rounded-2xl text-sm focus:border-brand-blue outline-none resize-none transition-all text-gray-900"
                     />
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <Label htmlFor="special_offer">Do you have a special offer?</Label>
-                <Textarea
-                  id="special_offer"
-                  value={formData.special_offer}
-                  onChange={e => setFormData({ ...formData, special_offer: e.target.value })}
-                  rows={3}
-                  placeholder="Describe any special offers or promotions..."
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="why_join">Any other questions or notes? *</Label>
-                <Textarea
-                  id="why_join"
-                  value={formData.why_join}
-                  onChange={e => setFormData({ ...formData, why_join: e.target.value })}
-                  rows={4}
-                  placeholder="Share anything else we should know about your application..."
-                  required
-                />
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="referral_source">How did you hear about us?</Label>
-                  <Select value={formData.referral_source} onValueChange={value => setFormData({ ...formData, referral_source: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select source" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {REFERRAL_SOURCES.map(source => (
-                        <SelectItem key={source.value} value={source.value}>
-                          {source.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  </label>
                 </div>
+              </section>
 
-                {showReferralName && (
-                  <div>
-                    <Label htmlFor="referral_name">Referral Name</Label>
-                    <Input
-                      id="referral_name"
-                      value={formData.referral_name}
-                      onChange={e => setFormData({ ...formData, referral_name: e.target.value })}
-                      placeholder="Enter the name of the person who referred you..."
-                    />
-                    <p className="text-xs text-gray-500 mt-1">We&apos;d love to thank them!</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="pt-4 border-t">
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="w-full md:w-auto bg-[#132847] hover:bg-[#1a3a5f] text-white"
-                  disabled={isSubmitting || uploading}
+              {/* Submit Button */}
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="flex items-start gap-4 max-w-2xl text-center bg-brand-blue/5 p-6 rounded-2xl border border-brand-blue/10 mb-4">
+                  <AlertCircle size={20} className="text-brand-blue mt-1 flex-shrink-0 mx-auto" />
+                  <p className="text-sm text-brand-blue leading-relaxed font-medium">
+                    By submitting, you agree to our <span className="font-bold underline cursor-pointer">Partner Terms</span>. Our team will review your application and offerings to ensure they meet our quality standards.
+                  </p>
+                </div>
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  className={`w-full max-w-xl py-5 rounded-2xl font-bold text-lg text-white shadow-2xl transition-all flex items-center justify-center gap-3 ${isSubmitting ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-brand-blue via-brand-blue to-[#132847] hover:scale-[1.02] hover:shadow-brand-blue/20'}`}
                 >
                   {isSubmitting ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      Processing Application...
                     </>
                   ) : (
                     <>
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Submit Application
+                      <CheckCircle size={24} />
+                      Submit
                     </>
                   )}
-                </Button>
-                <p className="text-sm text-gray-500 mt-4">
-                  * All applications are reviewed manually. We&apos;ll get back to you within 2-3 business days.
+                </button>
+                <p className="text-xs text-gray-400 font-bold flex items-center gap-1.5">
+                  <Lock size={12} /> Secure encrypted transmission
                 </p>
               </div>
-            </form>
-          </CardContent>
-        </Card>
+            </div>
+          )
+        }
       </div>
     </div>
-
   );
-}
+};

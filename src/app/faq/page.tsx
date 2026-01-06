@@ -39,6 +39,7 @@ import StillNotSure from '@/components/product-page/StillNotSure';
 import { createClient } from '@/lib/supabase/client';
 // TODO: Replace with Supabase queries when tables are ready
 // import { faqQueries } from '@/lib/supabase';
+import { submitQuestion } from '@/app/actions/ask-question';
 
 function FAQContent() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -66,7 +67,7 @@ function FAQContent() {
     {
       id: '1',
       question: 'What is Broker Tools?',
-      answer: 'Broker Tools is a comprehensive directory platform that connects brokers with software vendors and service providers. It helps brokers discover, compare, and connect with tools and services that can enhance their business operations.',
+      answer: 'Broker Tools is a comprehensive directory platform that connects brokers with software partners and service providers. It helps brokers discover, compare, and connect with tools and services that can enhance their business operations.',
       category: 'general',
       helpful_count: 45,
       view_count: 320,
@@ -83,8 +84,8 @@ function FAQContent() {
     },
     {
       id: '3',
-      question: 'How do I search for vendors in the directory?',
-      answer: 'You can search for vendors using the search bar at the top of the directory page. Filter by category, features, or use keywords to find specific vendors. You can also browse by category to discover vendors in specific areas.',
+      question: 'How do I search for partners in the directory?',
+      answer: 'You can search for partners using the search bar at the top of the directory page. Filter by category, features, or use keywords to find specific partners. You can also browse by category to discover partners in specific areas.',
       category: 'directory',
       helpful_count: 52,
       view_count: 410,
@@ -92,9 +93,9 @@ function FAQContent() {
     },
     {
       id: '4',
-      question: 'How do I submit a vendor application?',
-      answer: 'Vendors can submit an application by clicking the "Apply to List" button on the directory page. Fill out the application form with your company details, services, and relevant information. Our team will review your application and get back to you.',
-      category: 'vendors',
+      question: 'How do I submit a partner application?',
+      answer: 'partners can submit an application by clicking the "Apply to List" button on the directory page. Fill out the application form with your company details, services, and relevant information. Our team will review your application and get back to you.',
+      category: 'partners',
       helpful_count: 29,
       view_count: 195,
       published: true,
@@ -102,7 +103,7 @@ function FAQContent() {
     {
       id: '5',
       question: 'What features are available for brokers?',
-      answer: 'Brokers have access to a comprehensive dashboard where they can search and compare vendors, save favorites to a shortlist, read reviews, submit leads, and manage their profile. Premium features may include advanced filtering and priority support.',
+      answer: 'Brokers have access to a comprehensive dashboard where they can search and compare partners, save favorites to a shortlist, read reviews, submit leads, and manage their profile. Premium features may include advanced filtering and priority support.',
       category: 'brokers',
       helpful_count: 41,
       view_count: 350,
@@ -111,7 +112,7 @@ function FAQContent() {
     {
       id: '6',
       question: 'Is Broker Tools free to use?',
-      answer: 'Broker Tools offers both free and premium plans. The free plan includes basic directory access and vendor search. Premium plans unlock advanced features like detailed comparisons, priority support, and exclusive vendor access.',
+      answer: 'Broker Tools offers both free and premium plans. The free plan includes basic directory access and partner search. Premium plans unlock advanced features like detailed comparisons, priority support, and exclusive partner access.',
       category: 'pricing',
       helpful_count: 67,
       view_count: 520,
@@ -128,8 +129,8 @@ function FAQContent() {
     },
     {
       id: '8',
-      question: 'How do I leave a review for a vendor?',
-      answer: 'To leave a review, navigate to the vendor\'s profile page and click the "Write a Review" button. You can rate the vendor and provide detailed feedback about your experience. Reviews help other brokers make informed decisions.',
+      question: 'How do I leave a review for a partner?',
+      answer: 'To leave a review, navigate to the partner\'s profile page and click the "Write a Review" button. You can rate the partner and provide detailed feedback about your experience. Reviews help other brokers make informed decisions.',
       category: 'directory',
       helpful_count: 28,
       view_count: 180,
@@ -146,8 +147,8 @@ function FAQContent() {
     },
     {
       id: '10',
-      question: 'How do I contact vendor support?',
-      answer: 'You can contact vendor support directly through their profile page by clicking the "Contact Vendor" button. This will open a form where you can send a message. Vendors typically respond within 24-48 hours.',
+      question: 'How do I contact partner support?',
+      answer: 'You can contact partner support directly through their profile page by clicking the "Contact partner" button. This will open a form where you can send a message. partners typically respond within 24-48 hours.',
       category: 'brokers',
       helpful_count: 35,
       view_count: 290,
@@ -256,13 +257,33 @@ function FAQContent() {
 
     setIsSubmittingQuestion(true);
     try {
-      // TODO: Replace with Supabase insert + notification
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      const result = await submitQuestion({
+        question: askQuestion.trim(),
+        context: askContext,
+        category: questionCategory,
+        // Using pathname as source page if available, or just 'faq'
+        sourcePage: window.location.pathname || 'faq',
+        postAs: postAs,
+        userId: user?.id,
+        userEmail: user?.email, // Note: We might want to check the profile for name if available
+        userName: firstName || user?.email,
+        isLoggedIn: !!user,
+      });
+
+      if (result.error) {
+        throw new Error(result.error);
+      }
+
       setShowThankYou(true);
       setAskQuestion('');
       setAskContext('');
       setPostAs('public');
     } catch (error) {
+      console.error('Error submitting question:', error);
       toast({
         title: 'Something went wrong',
         description: 'We could not submit your question. Please try again.',
@@ -277,7 +298,7 @@ function FAQContent() {
     { value: 'all', label: 'All Categories', icon: HelpCircle },
     { value: 'general', label: 'General', icon: HelpCircle },
     { value: 'brokers', label: 'For Brokers', icon: HelpCircle },
-    { value: 'vendors', label: 'For Vendors', icon: HelpCircle },
+    { value: 'partners', label: 'For partners', icon: HelpCircle },
     { value: 'directory', label: 'Directory', icon: HelpCircle },
     { value: 'pricing', label: 'Pricing', icon: HelpCircle },
     { value: 'technical', label: 'Technical', icon: HelpCircle },
@@ -343,8 +364,8 @@ function FAQContent() {
                       key={cat.value}
                       onClick={() => setSelectedCategory(cat.value)}
                       className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.value
-                          ? 'bg-primary text-primary-foreground'
-                          : 'text-foreground hover:bg-muted'
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-foreground hover:bg-muted'
                         }`}
                     >
                       <cat.icon className="w-4 h-4" />
