@@ -146,3 +146,23 @@ import { DirectoryProxy } from '@/sanity/lib/proxy';
 export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
   return await DirectoryProxy.getListingBySlug(slug);
 };
+
+export const fetchJourneyStages = async (): Promise<any[]> => {
+  const { JOURNEY_STAGES_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(JOURNEY_STAGES_QUERY, {}, { useCdn: false });
+};
+
+export const fetchDirectoryListingsMatrix = async (): Promise<any[]> => {
+  const { DIRECTORY_LISTINGS_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(DIRECTORY_LISTINGS_MATRIX_QUERY, {}, { useCdn: false });
+};
+
+export const fetchBlogPostsMatrix = async (): Promise<any[]> => {
+  const { BLOG_POSTS_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(BLOG_POSTS_MATRIX_QUERY, {}, { useCdn: false });
+};
+
+export const fetchGuidesMatrix = async (): Promise<any[]> => {
+  const { GUIDES_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(GUIDES_MATRIX_QUERY, {}, { useCdn: false });
+};

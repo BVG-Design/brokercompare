@@ -196,7 +196,7 @@ export const directoryListingType = defineType({
           ],
           preview: {
             select: { title: 'listing.title', priority: 'priority' },
-            prepare({ title, priority }: { title: string; priority: number }) {
+            prepare({ title, priority }: any) {
               return {
                 title: title || 'Select listing',
                 subtitle: priority ? `Priority ${priority}` : 'No priority set'
@@ -290,8 +290,9 @@ export const directoryListingType = defineType({
       options: {
         list: [
           { title: 'People', value: 'people' },
-          { title: 'Tools', value: 'tools' },
-          { title: 'Processes & Automations', value: 'processes_automations' }
+          { title: 'Software', value: 'software' },
+          { title: 'Processes & Automations', value: 'processes_automations' },
+          { title: 'Services', value: 'services' }
         ]
       },
       description: 'The types of business pillars this tool impacts.'

@@ -52,6 +52,61 @@ export const FEATURED_BLOGS_QUERY = groq`
   }
 `;
 
+export const JOURNEY_STAGES_QUERY = groq`
+  *[_type == "journeyStage"] | order(position asc) {
+    "id": _id,
+    title,
+    "slug": slug.current,
+    position,
+    description
+  }
+`;
+
+export const DIRECTORY_LISTINGS_MATRIX_QUERY = groq`
+  *[_type == "directoryListing" && defined(journeyStage)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageId": journeyStage._ref,
+    journeyAssociations,
+    "logo": logo.asset->url,
+    tagline,
+    rating,
+    pricing,
+    features,
+    badges[]->{ _id, title }
+  }
+`;
+
+export const BLOG_POSTS_MATRIX_QUERY = groq`
+  *[_type == "blog" && defined(journeyStages)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageIds": journeyStages[]._ref,
+    journeyAssociations,
+    "logo": heroImage.asset->url,
+    "summary": summary,
+    publishedAt,
+    readTime
+  }
+`;
+
+export const GUIDES_MATRIX_QUERY = groq`
+  *[_type == "guide" && defined(journeyStage)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageId": journeyStage._ref,
+    journeyAssociations,
+    "summary": summary,
+    relatedLinks
+  }
+`;
+
 export const UNIFIED_SEARCH_QUERY = groq`
 *[_type in $contentTypes && (
   count($searchTerms[

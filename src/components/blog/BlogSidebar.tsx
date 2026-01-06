@@ -40,12 +40,13 @@ export function BlogSidebar() {
                         <Sparkles className="w-4 h-4" />
                         <span>AI Recommendations</span>
                     </Link>
-                    <button
+                    <Link
+                        href="/workflow-optimisation"
                         className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-sm text-primary-foreground/70 hover:bg-primary-foreground/5 hover:text-white transition-colors text-left"
                     >
                         <MessageCircle className="w-4 h-4" />
                         <span>Chat with a Human</span>
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>

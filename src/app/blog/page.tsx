@@ -318,7 +318,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   </Link>
 
                   {/* Schedule a Chat - Brand Blue (Primary) */}
-                  <Link href="#" className="block h-full">
+                  <Link href="/workflow-optimisation" className="block h-full">
                     <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-primary text-primary-foreground border-none">
                       <CardContent className="p-6 flex flex-col h-full">
                         <MessageCircle className="w-8 h-8 text-white mb-4" />

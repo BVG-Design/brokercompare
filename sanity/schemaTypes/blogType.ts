@@ -134,6 +134,21 @@ export const blogType = defineType({
       of: [{ type: 'reference', to: [{ type: 'journeyStage' }] }],
       description: 'The journey stages this article is relevant to.'
     }),
+    defineField({
+      name: 'journeyAssociations',
+      title: 'Journey Associations',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'People', value: 'people' },
+          { title: 'Software', value: 'software' },
+          { title: 'Processes & Automations', value: 'processes_automations' },
+          { title: 'Services', value: 'services' }
+        ]
+      },
+      description: 'The types of business pillars this article impacts.'
+    }),
 
     defineField({
       name: 'heroImage',
