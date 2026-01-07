@@ -4,19 +4,18 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { BlogSearchForm } from '../../components/blog/BlogSearchForm';
 import { BlogFilters } from '@/components/blog/BlogFilters';
-import { BlogSidebar } from '@/components/blog/BlogSidebar';
-import { Calendar, Eye, Menu } from 'lucide-react';
+import { Calendar, Eye, Sparkles, MessageCircle, FileQuestion, ArrowRight, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { client, sanityConfigured } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
+import Script from 'next/script';
+import { Badge } from '@/components/ui/badge';
 
 export const revalidate = 60;
 
 
-// Update type definition to match what we need
 type BlogPost = {
   _id: string;
   title: string;
@@ -28,6 +27,7 @@ type BlogPost = {
   tags?: string[];
   viewCount?: number;
   readTime?: number | null;
+  blogType?: string;
   author?: {
     _id: string;
     name: string;
@@ -35,37 +35,60 @@ type BlogPost = {
   };
 };
 
+type Author = {
+  _id: string;
+  name: string;
+  picture?: any;
+};
+
 type DashboardData = {
   featured: BlogPost[];
   guides: BlogPost[];
+  reviews: BlogPost[];
+  podcasts: BlogPost[];
+  latest: BlogPost[];
+  authors: Author[];
 };
 
-async function getPosts(searchTerm?: string, category?: string, brokerType?: string, listingType?: string): Promise<BlogPost[] | DashboardData> {
+async function getBlogDashboardData(): Promise<DashboardData | null> {
+  if (!sanityConfigured) return null;
+
+  const query = `{
+    "featured": *[_type == "blog" && isFeatured == true] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+    },
+    "guides": *[_type == "blog" && blogType == "guide"] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+    },
+    "reviews": *[_type == "blog" && blogType == "review"] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+    },
+    "podcasts": *[_type == "blog" && blogType == "podcast"] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+    },
+    "latest": *[_type == "blog"] | order(publishedAt desc)[0...7] {
+      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType,
+      author->{ _id, name, image }
+    },
+    "authors": *[_type == "author"] { _id, name, picture }
+  }`;
+
+  return await client.fetch<DashboardData>(query);
+}
+
+async function getFilteredPosts(searchTerm?: string, category?: string, brokerType?: string, blogType?: string, authorId?: string): Promise<BlogPost[]> {
   if (!sanityConfigured) return [];
 
   const searchPattern = searchTerm ? `${searchTerm}*` : '';
   const isAll = !category || category === 'all' || category === 'getting-started' || category.endsWith('-all');
   const isBrokerTypeAll = !brokerType || brokerType === 'all';
-  const isListingTypeAll = !listingType || listingType === 'all';
+  const isBlogTypeAll = !blogType || blogType === 'all';
 
-  // If we are in "Dashboard" mode (getting-started/all and no search/filters), fetch specific sections
-  // Only show dashboard if NO specific search or secondary filters are active
-  if (isAll && !searchTerm && isBrokerTypeAll && isListingTypeAll) {
-    const dashboardQuery = `{
-        "featured": *[_type == "blog"] | order(publishedAt desc)[0...3] {
-            _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-            categories[]->{ _id, title }, tags, viewCount, readTime
-        },
-        "guides": *[_type == "blog" && (count(tags[@ match "Guide"]) > 0 || count(categories[@->title match "Guide"]) > 0)] | order(publishedAt desc)[0...3] {
-            _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-            categories[]->{ _id, title }, tags, viewCount, readTime
-        }
-      }`;
-    const data = await client.fetch<DashboardData>(dashboardQuery);
-    return data;
-  }
-
-  // Standard List Query
   const query = `
     *[
       _type == "blog" &&
@@ -78,7 +101,8 @@ async function getPosts(searchTerm?: string, category?: string, brokerType?: str
       )
       ${!isAll ? '&& count(categories[@->title match $category]) > 0' : ''}
       ${!isBrokerTypeAll ? '&& count(tags[@ match $brokerType]) > 0' : ''}
-      ${!isListingTypeAll ? '&& count(tags[@ match $listingType]) > 0' : ''}
+      ${!isBlogTypeAll ? '&& blogType == $blogType' : ''}
+      ${authorId ? '&& author._ref == $authorId' : ''}
     ] | order(publishedAt desc) {
       _id,
       title,
@@ -90,69 +114,50 @@ async function getPosts(searchTerm?: string, category?: string, brokerType?: str
       tags,
       viewCount,
       readTime,
+      blogType,
       author->{ _id, name, image }
     }
   `;
 
-  const data = await client.fetch<BlogPost[] | null>(
-    query,
-    {
-      search: searchPattern,
-      category: category?.replace(/_/g, ' '),
-      brokerType: brokerType,
-      listingType: listingType
-    }
-  );
-
-  return Array.isArray(data) ? data : [];
+  return await client.fetch<BlogPost[]>(query, {
+    search: searchPattern,
+    category: category?.replace(/_/g, ' '),
+    brokerType: brokerType,
+    blogType: blogType,
+    authorId: authorId
+  });
 }
-
-const categoryColors: Record<string, string> = {
-  Marketing: 'bg-accent/20 text-accent',
-  'Virtual Assistant': 'bg-accent/20 text-accent',
-  'Commercial Finance': 'bg-secondary/20 text-secondary-foreground',
-  CRM: 'bg-secondary/20 text-secondary-foreground',
-  'Loan Processing': 'bg-primary/20 text-primary',
-  Compliance: 'bg-accent/20 text-accent',
-  'Marketing Automation': 'bg-secondary/20 text-secondary-foreground',
-};
 
 type BlogPageProps = {
   searchParams?: {
     q?: string;
     category?: string;
     brokerType?: string;
-    listingType?: string;
+    blogType?: string;
+    author?: string;
   };
 };
-
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, MessageCircle, FileQuestion, ArrowRight } from 'lucide-react';
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const searchTerm = searchParams?.q?.trim() ?? '';
   const categoryParam = searchParams?.category?.trim();
-  const categoryFilter = categoryParam || 'getting-started';
-
+  const categoryFilter = categoryParam || 'all';
   const brokerTypeFilter = searchParams?.brokerType?.trim() || 'all';
-  const listingTypeFilter = searchParams?.listingType?.trim() || 'all';
+  const blogTypeFilter = searchParams?.blogType?.trim() || 'all';
+  const authorFilter = searchParams?.author?.trim();
 
-  const postsOrDashboard = await getPosts(searchTerm, categoryFilter, brokerTypeFilter, listingTypeFilter);
-  const isDashboard = !Array.isArray(postsOrDashboard);
+  const isBrowsingAll = !searchTerm && categoryFilter === 'all' && brokerTypeFilter === 'all' && blogTypeFilter === 'all' && !authorFilter;
 
-  // Dashboard Data Extraction
-  const dashboardData = isDashboard ? (postsOrDashboard as DashboardData) : null;
-  const posts = isDashboard ? [] : (postsOrDashboard as BlogPost[]);
+  const dashboardData = isBrowsingAll ? await getBlogDashboardData() : null;
+  const filteredPosts = !isBrowsingAll ? await getFilteredPosts(searchTerm, categoryFilter, brokerTypeFilter, blogTypeFilter, authorFilter) : [];
 
-  // Derive title from category
-  const categoryTitle = categoryFilter === 'all' || categoryFilter === 'getting-started'
-    ? 'Getting Started'
-    : categoryFilter.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  // If we are browsing all, we still need authors for the filters
+  const authors = isBrowsingAll ? dashboardData?.authors : (await client.fetch<Author[]>(`*[_type == "author"] { _id, name, picture }`));
 
-  const renderCard = (post: BlogPost) => (
+  const renderGridCard = (post: BlogPost) => (
     <Card
       key={post._id}
-      className="group overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-200 bg-white"
+      className="group overflow-hidden border-2 border-brand-orange shadow-sm hover:shadow-2xl hover:shadow-brand-green/20 hover:border-brand-green transition-all duration-500 bg-white rounded-2xl"
     >
       <Link
         href={post.slug ? `/blog/${post.slug}` : '#'}
@@ -164,16 +169,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               src={urlFor(post.heroImage).width(600).height(350).url()}
               alt={post.title}
               fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
               No image
             </div>
           )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           {post.categories && post.categories[0] && (
             <span
-              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-xs font-semibold shadow-sm backdrop-blur-md bg-white/90 text-foreground`}
+              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md bg-white/90 text-primary uppercase tracking-wider`}
             >
               {post.categories[0].title}
             </span>
@@ -181,17 +187,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         <CardContent className="flex flex-col flex-1 p-6">
-          <h2 className="text-lg font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+          <h2 className="text-lg font-bold text-primary mb-3 group-hover:text-brand-orange transition-colors line-clamp-2 leading-tight">
             {post.title}
           </h2>
           {post.summary && (
-            <p className="text-muted-foreground text-sm line-clamp-3 mb-4 flex-1">
+            <p className="text-muted-foreground text-sm line-clamp-2 mb-4 flex-1">
               {post.summary}
             </p>
           )}
 
-          <div className="flex items-center text-xs text-muted-foreground mt-auto pt-4 border-t border-border/50">
-            <span className="font-medium text-foreground mr-auto">
+          <div className="flex items-center text-[10px] font-bold text-muted-foreground mt-auto pt-4 border-t border-border/50 uppercase tracking-widest">
+            <span className="text-primary mr-auto">
               {post.readTime ? `${post.readTime} min read` : '5 min read'}
             </span>
             <span>
@@ -205,183 +211,267 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     </Card>
   );
 
-  return (
-    <div className="flex min-h-screen bg-background">
-
-      {/* Desktop Sidebar */}
-      <BlogSidebar />
-
-      {/* Mobile Sidebar (Drawer) */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50">
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button size="icon" className="rounded-full h-14 w-14 shadow-xl bg-primary text-primary-foreground">
-              <Menu className="h-6 w-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-80 bg-primary border-r-0">
-            <BlogSidebar />
-          </SheetContent>
-        </Sheet>
+  const renderListCard = (post: BlogPost) => (
+    <Link
+      key={post._id}
+      href={post.slug ? `/blog/${post.slug}` : '#'}
+      className="group flex flex-col md:flex-row gap-6 p-4 rounded-2xl hover:bg-white transition-all border border-transparent hover:border-border/50 hover:shadow-2xl hover:shadow-brand-green/20"
+    >
+      <div className="relative w-full md:w-64 aspect-[16/9] md:aspect-square rounded-xl overflow-hidden flex-shrink-0">
+        {post.heroImage ? (
+          <Image
+            src={urlFor(post.heroImage).width(400).height(400).url()}
+            alt={post.title}
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground text-xs">No image</div>
+        )}
       </div>
+      <div className="flex flex-col flex-1 py-2">
+        <div className="flex items-center gap-2 mb-3">
+          {post.categories?.[0] && (
+            <span className="text-[10px] font-extrabold text-secondary uppercase tracking-widest">{post.categories[0].title}</span>
+          )}
+          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">• {post.publishedAt ? format(new Date(post.publishedAt), 'MMM d, yyyy') : 'Draft'}</span>
+        </div>
+        <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-brand-orange transition-colors line-clamp-2">{post.title}</h3>
+        {post.summary && (
+          <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{post.summary}</p>
+        )}
+        <div className="mt-auto flex items-center gap-2 text-primary font-bold text-xs">
+          Read More <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+        </div>
+      </div>
+    </Link>
+  );
 
+  return (
+    <div className="min-h-screen bg-brand-cream font-body">
       {/* Main Content Area */}
-      <div className="flex-1 min-w-0">
-        {/* Header Section */}
-        <div className="bg-primary text-primary-foreground py-10 px-8 lg:px-12">
-          <div className="max-w-5xl mx-auto text-center">
-            <h1 className="text-2xl md:text-4xl font-bold font-headline mb-4">
-              {categoryTitle.replace(/-/g, ' ')}
-            </h1>
-            <p className="text-base text-primary-foreground/80 max-w-2xl mx-auto mb-6">
-              Discover insights, guides, and strategies for Australian finance brokers.
-            </p>
-            <div className="max-w-3xl mx-auto mb-4">
-              <BlogSearchForm
-                initialValue={searchTerm}
-                className="w-full"
-              />
+      <div className="w-full">
+        {isBrowsingAll && (
+          <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-16">
+            <div className="text-center mb-12">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-primary mb-6 tracking-tight">
+                The Broker Tools <span className="text-secondary"><br />Resource Centre</span>
+              </h1>
+              <p className="text-lg text-primary/70 max-w-3xl mx-auto leading-relaxed">
+                The Broker Tools blog is your go-to resource for all things related to Broker optimisation. <br />From building automated CRM workflows, to dialing in your marketing and client retention plan, learn from experts who've done it before.
+              </p>
             </div>
-            {/* Filters Section */}
-            <div className="relative z-10 w-full text-left">
-              <BlogFilters />
+
+            {/* Hero Section - Solo Subscribe */}
+            <div className="max-w-4xl mx-auto mb-20">
+              <div className="bg-primary rounded-3xl p-10 lg:p-12 text-white flex flex-col justify-center shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full -ml-32 -mb-32 blur-3xl" />
+
+                <h2 className="text-3xl md:text-4xl font-black mb-6 text-center">Stay Ahead of the Curve</h2>
+                <p className="text-primary-foreground/70 mb-8 max-w-xl mx-auto text-center font-medium">
+                  Subscribe to get the latest automation hacks and tech reviews delivered to your inbox.
+                </p>
+
+                <div className="bg-white rounded-2xl overflow-hidden p-1 shadow-2xl relative z-10 mx-auto w-full max-w-2xl">
+                  <iframe
+                    src="https://link.hubboss.io/widget/form/La2mpDKaSorBUETyReae"
+                    style={{ width: '100%', height: '350px', border: 'none' }}
+                    id="inline-La2mpDKaSorBUETyReae"
+                    data-layout="{'id':'INLINE'}"
+                    data-trigger-type="alwaysShow"
+                    data-form-name="Broker Tools"
+                    title="Broker Tools Subscribe"
+                  ></iframe>
+                  <Script
+                    src="https://link.hubboss.io/js/form_embed.js"
+                    strategy="afterInteractive"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Next Three Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+              <Link href="/blog?blogType=podcast" className="group relative aspect-square rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all hover:-translate-y-2 bg-gray-100 flex items-center justify-center">
+                <Image src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Podcast.png" alt="Podcasts" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              </Link>
+              <Link href="/blog?blogType=guide" className="group relative aspect-square rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all hover:-translate-y-2 bg-gray-100 flex items-center justify-center">
+                <Image src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Workflow%20Guides.png" alt="Guides" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              </Link>
+              <Link href="/blog?blogType=review" className="group relative aspect-square rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all hover:-translate-y-2 bg-gray-100 flex items-center justify-center">
+                <Image src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Read%20Tech%20Reviews.png" alt="Tech Reviews" fill className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              </Link>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Content Grid */}
-        <div className="p-8 lg:p-12 max-w-7xl space-y-16">
-
-          {/* DASHBOARD VIEW */}
-          {isDashboard && dashboardData ? (
+        {/* Filters and List/Grid Area */}
+        <div className="px-8 lg:px-12 pb-24 max-w-7xl mx-auto space-y-24">
+          {/* Dashboard Categorized Sections */}
+          {isBrowsingAll && dashboardData && (
             <>
-              {/* Section 1: Getting Started (Featured) */}
-              <section>
-                <h2 className="text-2xl font-bold font-headline mb-6 text-foreground flex items-center gap-2">
-                  Getting Started
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {dashboardData.featured.length > 0 ? (
-                    dashboardData.featured.map(renderCard)
-                  ) : (
-                    <p className="text-muted-foreground">No featured articles found.</p>
-                  )}
+              {/* Featured */}
+              <section id="featured">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-black text-primary flex items-center gap-3 decoration-secondary/30 decoration-8 underline-offset-4">
+                    Featured Articles
+                  </h2>
+                  <div className="w-12 h-1 bg-secondary/20 rounded-full" />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {dashboardData.featured.map(renderGridCard)}
                 </div>
               </section>
 
-              {/* Section 2: Guides */}
-              <section>
-                <h2 className="text-2xl font-bold font-headline mb-6 text-foreground flex items-center gap-3">
-                  Guides
-                  <Badge variant="secondary" className="bg-secondary text-secondary-foreground">Coming Soon</Badge>
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {dashboardData.guides.length > 0 ? (
-                    dashboardData.guides.map(renderCard)
-                  ) : (
-                    // Placeholder if no guides are found, matching "Coming Soon" vibe
-                    [1, 2, 3].map((i) => (
-                      <Card key={i} className="border-dashed border-2 shadow-none bg-muted/30">
-                        <div className="aspect-[16/9] bg-muted/50 flex items-center justify-center">
-                          <p className="text-sm text-muted-foreground font-medium">Coming Soon</p>
-                        </div>
-                        <CardContent className="p-6">
-                          <div className="h-4 bg-muted rounded w-3/4 mb-4"></div>
-                          <div className="h-4 bg-muted rounded w-1/2"></div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
+              {/* How To */}
+              <section id="how-to">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-black text-primary">How To Guides</h2>
+                  <Link href="/blog?blogType=guide" className="text-secondary font-bold text-sm hover:underline">View all</Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {dashboardData.guides.map(renderGridCard)}
                 </div>
               </section>
 
-              {/* Section 3: Get Matched (Replaced Resources) */}
-              <section>
-                <h2 className="text-2xl font-bold font-headline mb-6 text-foreground">
-                  Get Matched
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* AI Recommendation - Brand Orange (Secondary) */}
-                  <Link href="/recommendations" className="block h-full">
-                    <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-secondary text-secondary-foreground border-none">
-                      <CardContent className="p-6 flex flex-col h-full">
-                        <Sparkles className="w-8 h-8 text-white mb-4" />
-                        <h3 className="text-lg font-bold mb-2">AI Recommendation</h3>
-                        <p className="text-secondary-foreground/90 text-sm flex-1">
-                          Use our advanced AI to find the perfect software stack for your specific brokerage needs.
-                        </p>
-                        <div className="mt-4 flex items-center text-white text-sm font-semibold group">
-                          Get started <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  {/* Schedule a Chat - Brand Blue (Primary) */}
-                  <Link href="/workflow-optimisation" className="block h-full">
-                    <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-primary text-primary-foreground border-none">
-                      <CardContent className="p-6 flex flex-col h-full">
-                        <MessageCircle className="w-8 h-8 text-white mb-4" />
-                        <h3 className="text-lg font-bold mb-2">Schedule a Chat</h3>
-                        <p className="text-primary-foreground/80 text-sm flex-1">
-                          Talk to one of our software experts to get personalized advice and implementation support.
-                        </p>
-                        <div className="mt-4 flex items-center text-white text-sm font-semibold group">
-                          Book a call <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-
-                  {/* Take the Quiz - Brand Accent */}
-                  <QuizWaitlistModal>
-                    <div className="block h-full cursor-pointer">
-                      <Card className="h-full hover:shadow-lg transition-transform hover:-translate-y-1 bg-accent text-accent-foreground border-none">
-                        <CardContent className="p-6 flex flex-col h-full">
-                          <FileQuestion className="w-8 h-8 text-white mb-4" />
-                          <h3 className="text-lg font-bold mb-2">Take the Quiz</h3>
-                          <p className="text-accent-foreground/90 text-sm flex-1">
-                            Answer a few quick questions to identify your key pain points and opportunities.
-                          </p>
-                          <div className="mt-4 flex items-center text-white text-sm font-semibold group">
-                            Start Quiz <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </QuizWaitlistModal>
+              {/* Reviews */}
+              <section id="reviews">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-black text-primary">Reviews</h2>
+                  <Link href="/blog?blogType=review" className="text-secondary font-bold text-sm hover:underline">View all</Link>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {dashboardData.reviews.map(renderGridCard)}
                 </div>
               </section>
-            </>
-          ) : (
-            // STANDARD LIST VIEW (Search results or Category specific)
-            <>
-              {searchTerm && (
-                <p className="text-sm text-muted-foreground mb-6">
-                  Showing {posts.length} {posts.length === 1 ? 'result' : 'results'} for "{searchTerm}"
-                </p>
-              )}
 
-              {posts.length === 0 ? (
-                <div className="text-center py-20">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Calendar className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">No articles found</h3>
-                  <p className="text-muted-foreground">
-                    We couldn't find any articles for this category yet.
-                  </p>
+              {/* Podcasts */}
+              <section id="podcasts">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-black text-primary">Podcasts</h2>
+                  <Link href="/blog?blogType=podcast" className="text-secondary font-bold text-sm hover:underline">View all</Link>
                 </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {posts.map(renderCard)}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {dashboardData.podcasts.map(renderGridCard)}
                 </div>
-              )}
+              </section>
             </>
           )}
+
+          {/* Search and Filters Bar */}
+          <div className="sticky top-4 z-40 space-y-4">
+            <div className="bg-brand-green rounded-3xl p-6 shadow-2xl shadow-primary/5">
+              <div className="flex flex-col lg:flex-row gap-6 items-center">
+                <div className="w-full lg:flex-1">
+                  <BlogSearchForm initialValue={searchTerm} />
+                </div>
+                <div className="w-full lg:w-auto overflow-x-auto">
+                  <BlogFilters authors={authors} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Results Area */}
+          <section className="space-y-12">
+            {!isBrowsingAll && (
+              <div className="mb-8">
+                <h2 className="text-4xl font-black text-primary mb-2">
+                  {searchTerm ? `Search Results for "${searchTerm}"` : 'Resource Library'}
+                </h2>
+                <p className="text-primary/60 font-medium">Found {filteredPosts.length} matching resources</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 gap-8">
+              {(isBrowsingAll ? dashboardData?.latest || [] : filteredPosts || []).map(renderListCard)}
+            </div>
+
+            {/* Pagination Placeholder */}
+            <div className="flex justify-center items-center gap-4 pt-12">
+              <Button variant="outline" className="rounded-xl border-2 font-bold hover:bg-primary hover:text-white transition-colors">Previous</Button>
+              <div className="flex gap-2">
+                <Button className="w-10 h-10 rounded-xl bg-primary text-white font-bold p-0">1</Button>
+                <Button variant="ghost" className="w-10 h-10 rounded-xl font-bold p-0">2</Button>
+                <Button variant="ghost" className="w-10 h-10 rounded-xl font-bold p-0">3</Button>
+              </div>
+              <Button variant="outline" className="rounded-xl border-2 font-bold hover:bg-primary hover:text-white transition-colors">Next</Button>
+            </div>
+          </section>
+
+          {/* Footer Features Section */}
+          <section className="pt-24 border-t border-primary/10">
+            <div className="text-center mb-16 max-w-3xl mx-auto">
+              <h2 className="text-4xl font-black text-primary mb-4">Still not sure?</h2>
+              <p className="text-lg text-primary/70 font-medium leading-relaxed">
+                Talk to AI, our team or take the quiz and we'll help you find the perfect solution for your brokerage
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {/* AI Recommendation */}
+              <Link href="/recommendations" className="group block h-full">
+                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-secondary text-white border-none rounded-3xl overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                  <CardContent className="p-8 flex flex-col h-full relative z-10">
+                    <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-black mb-4">AI Recommendation</h3>
+                    <p className="text-white/80 text-sm leading-relaxed mb-8 flex-1">
+                      Our advanced AI matches your specific brokerage needs with the perfect tech stack in seconds.
+                    </p>
+                    <div className="flex items-center text-white text-sm font-black group/btn">
+                      Get Matched <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Schedule a Chat */}
+              <Link href="/workflow-optimisation" className="group block h-full">
+                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-primary text-white border-none rounded-3xl overflow-hidden relative">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                  <CardContent className="p-8 flex flex-col h-full relative z-10">
+                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
+                      <MessageCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-2xl font-black mb-4">Schedule a Chat</h3>
+                    <p className="text-white/60 text-sm leading-relaxed mb-8 flex-1">
+                      Talk to our software experts for one-on-one advice and tailored implementation support.
+                    </p>
+                    <div className="flex items-center text-white text-sm font-black group/btn">
+                      Book a Session <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+
+              {/* Take the Quiz */}
+              <QuizWaitlistModal>
+                <div className="group block h-full cursor-pointer">
+                  <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-accent text-primary border-none rounded-3xl overflow-hidden relative">
+                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mb-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                    <CardContent className="p-8 flex flex-col h-full relative z-10">
+                      <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
+                        <FileQuestion className="w-6 h-6 text-primary" />
+                      </div>
+                      <h3 className="text-2xl font-black mb-4">Take the Quiz</h3>
+                      <p className="text-primary/70 text-sm leading-relaxed mb-8 flex-1">
+                        Identify your biggest bottlenecks and discover the right solutions with our quick 2-minute diagnostic tool.
+                      </p>
+                      <div className="flex items-center text-primary text-sm font-black group/btn">
+                        Start Now <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </QuizWaitlistModal>
+            </div>
+          </section>
         </div>
       </div>
     </div>
   );
 }
-

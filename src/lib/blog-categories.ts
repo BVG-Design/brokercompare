@@ -72,10 +72,11 @@ export const brokerTypes = [
     { label: 'Commercial Finance Broker', value: 'Commercial Finance Broker' },
 ];
 
-export const listingTypes = [
-    { label: 'All Listings', value: 'all' },
-    { label: 'Guide', value: 'Guide' },
-    { label: 'News', value: 'News' },
-    { label: 'Case Study', value: 'Case Study' },
-    { label: 'Review', value: 'Review' },
+export const blogTypes = [
+    { label: 'All Resources', value: 'all' },
+    { label: 'Guides', value: 'guide' },
+    { label: 'Reviews', value: 'review' },
+    { label: 'Podcasts', value: 'podcast' },
+    { label: 'News', value: 'news' },
+    { label: 'Case Study', value: 'case_study' },
 ];

@@ -14,7 +14,8 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
     "logoUrl": logo.asset->url,
-    listingType
+    listingType,
+    blogType
   }`;
 
   const results = await client.fetch(query);
@@ -28,20 +29,21 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
     link: item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`,
     featuredLabel: item.featuredLabel,
-    listingType: item.listingType
+    listingType: item.listingType,
+    blogType: item.blogType
   }));
 };
 
 export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
   const query = `{
-    "podcast": *[_type == "blog" && listingType == "podcast"] | order(_createdAt desc)[0]{
-      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    "podcast": *[_type == "blog" && blogType == "podcast"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
     },
-    "guide": *[_type == "blog" && listingType == "guide"] | order(_createdAt desc)[0]{
-      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    "guide": *[_type == "blog" && blogType == "guide"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
     },
-    "faq": *[_type == "blog" && listingType == "faq"] | order(_createdAt desc)[0]{
-      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    "faq": *[_type == "blog" && blogType == "faq"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
     }
   }`;
 
@@ -57,7 +59,7 @@ export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
       ctaText: 'EXPLORE',
       imageUrl: item.imageUrl,
       link: `/blog/${item.slug}`,
-      listingType: item.listingType
+      blogType: item.blogType
     };
   };
 
@@ -129,6 +131,9 @@ export const fetchUnifiedSearchResults = async (
 export const fetchDirectoryListings = async (filters: {
   category?: string;
   brokerType?: string;
+  featuredLabel?: string;
+  listingType?: string;
+  blogType?: string;
   tier?: string;
   search?: string;
 } = {}): Promise<DirectoryListing[]> => {

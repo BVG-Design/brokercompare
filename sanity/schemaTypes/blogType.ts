@@ -101,17 +101,18 @@ export const blogType = defineType({
     }),
 
     defineField({
-      name: 'listingType',
-      title: 'Listing Type',
+      name: 'blogType',
+      title: 'Blog Type',
       type: 'string',
       options: {
         list: [
-          { title: 'Software', value: 'software' },
-          { title: 'Service', value: 'service' },
           { title: 'Podcast', value: 'podcast' },
           { title: 'Guide', value: 'guide' },
           { title: 'FAQ', value: 'faq' },
-          { title: 'Resource', value: 'resource' }
+          { title: 'Resource', value: 'resource' },
+          { title: 'Review', value: 'review' },
+          { title: 'News', value: 'news' },
+          { title: 'Case Study', value: 'case_study' }
         ],
         layout: 'radio'
       },
@@ -147,6 +148,7 @@ export const blogType = defineType({
         list: [
           { title: 'People', value: 'people' },
           { title: 'Software', value: 'software' },
+          { title: 'Product', value: 'product' },
           { title: 'Processes & Automations', value: 'processes_automations' },
           { title: 'Services', value: 'services' }
         ]

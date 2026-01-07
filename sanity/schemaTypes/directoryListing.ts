@@ -33,6 +33,7 @@ export const directoryListingType = defineType({
       options: {
         list: [
           { title: 'Software', value: 'software' },
+          { title: 'Product', value: 'product' },
           { title: 'Service', value: 'service' }
         ],
         layout: 'radio'
@@ -291,6 +292,7 @@ export const directoryListingType = defineType({
         list: [
           { title: 'People', value: 'people' },
           { title: 'Software', value: 'software' },
+          { title: 'Product', value: 'product' },
           { title: 'Processes & Automations', value: 'processes_automations' },
           { title: 'Services', value: 'services' }
         ]

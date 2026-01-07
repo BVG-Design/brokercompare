@@ -8,6 +8,7 @@ export interface ResourcePost {
     link: string;
     featuredLabel?: string;
     listingType?: string;
+    blogType?: string;
 }
 export interface DirectoryListing {
     id: string;
@@ -23,5 +24,5 @@ export interface DirectoryListing {
     tags?: string[];
     websiteUrl?: string;
     pricingModel?: string;
-    type: 'software' | 'service'; // To distinguish source
+    type: 'software' | 'service' | 'product'; // To distinguish source
 }

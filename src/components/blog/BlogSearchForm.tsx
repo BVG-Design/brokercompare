@@ -93,47 +93,24 @@ export function BlogSearchForm({ initialValue = '', className }: BlogSearchFormP
   };
 
   return (
-    <form className={`w-full max-w-3xl mx-auto ${className || ''}`} onSubmit={handleSubmit}>
-      <div className="bg-white rounded-lg shadow-sm p-1.5 flex gap-2 items-center max-w-2xl mx-auto">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            name="q"
-            value={value}
-            onChange={handleChange}
-            placeholder="Search articles..."
-            className="pl-10 pr-4 h-10 text-base border-0 focus-visible:ring-0 shadow-none bg-transparent text-gray-700 caret-blue-600 placeholder:text-muted-foreground"
-          />
-          {showIntentSuggestions && (isLoadingSuggestions || suggestions.length > 0) && (
-            <div className="absolute left-0 right-0 top-full mt-2 rounded-md border border-border bg-white shadow-lg z-20 overflow-hidden">
-              {isLoadingSuggestions && (
-                <div className="px-3 py-2 text-xs text-muted-foreground">Searching intents...</div>
-              )}
-              {suggestions.length > 0 && (
-                <ul className="py-1">
-                  {suggestions.map((intent) => (
-                    <li key={intent.slug}>
-                      <Link
-                        href={`/search/${intent.slug}`}
-                        className="block px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
-                      >
-                        {intent.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          )}
+    <form className={`w-full ${className || ''}`} onSubmit={handleSubmit}>
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+          <Search className="h-5 w-5 text-primary/40 group-focus-within:text-secondary transition-colors" />
         </div>
-        <Button
-          type="submit"
-          className="h-10 px-6 rounded-md bg-[#10b981] hover:bg-[#059669] text-white font-medium shadow-sm transition-all" // Using specific green to match image vibe
-          disabled={isPending}
-        >
-          {isPending ? '...' : 'Search'}
-        </Button>
+        <input
+          type="text"
+          name="q"
+          value={value}
+          onChange={handleChange}
+          placeholder="Search the expert resource library..."
+          className="w-full pl-12 pr-4 h-12 bg-white border-none focus:ring-2 focus:ring-secondary/20 rounded-2xl text-primary font-bold placeholder:text-primary/30 transition-all outline-none text-sm"
+        />
+        {isPending && (
+          <div className="absolute right-4 top-1/2 -translate-y-1/2">
+            <div className="animate-spin rounded-full h-4 w-4 border-2 border-secondary border-t-transparent" />
+          </div>
+        )}
       </div>
     </form>
   );
