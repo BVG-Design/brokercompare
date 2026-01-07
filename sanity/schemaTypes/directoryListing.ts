@@ -291,10 +291,8 @@ export const directoryListingType = defineType({
       options: {
         list: [
           { title: 'People', value: 'people' },
-          { title: 'Software', value: 'software' },
-          { title: 'Product', value: 'product' },
-          { title: 'Processes & Automations', value: 'processes_automations' },
-          { title: 'Services', value: 'services' }
+          { title: 'Tools', value: 'tools' },
+          { title: 'Processes', value: 'processes' },
         ]
       },
       description: 'The types of business pillars this tool impacts.'

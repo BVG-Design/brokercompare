@@ -2,7 +2,7 @@ import { defineField, defineType } from 'sanity'
 
 export const guideType = defineType({
     name: 'guide',
-    title: 'Guide / Task',
+    title: 'Activities',
     type: 'document',
     fields: [
         defineField({
@@ -39,9 +39,8 @@ export const guideType = defineType({
             options: {
                 list: [
                     { title: 'People', value: 'people' },
-                    { title: 'Software', value: 'software' },
-                    { title: 'Processes & Automations', value: 'processes_automations' },
-                    { title: 'Services', value: 'services' }
+                    { title: 'Tools', value: 'tools' },
+                    { title: 'Processes', value: 'processes' },
                 ]
             }
         }),

@@ -32,6 +32,13 @@ export const blogType = defineType({
       type: 'reference',
       to: [{ type: 'author' }],
     }),
+    defineField({
+      name: 'authors',
+      title: 'Co-Hosts',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'author' }] }],
+      description: 'Additional authors or guests (Co-Hosts).'
+    }),
 
     defineField({
       name: 'category',
@@ -59,6 +66,19 @@ export const blogType = defineType({
           { title: 'Asset Finance', value: 'Asset Finance' },
           { title: 'Commercial', value: 'Commercial' }
         ]
+      }
+    }),
+    defineField({
+      name: 'listingType',
+      title: 'Listing Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Software', value: 'software' },
+          { title: 'Product', value: 'product' },
+          { title: 'Service', value: 'service' }
+        ],
+        layout: 'radio'
       }
     }),
 
@@ -147,10 +167,8 @@ export const blogType = defineType({
       options: {
         list: [
           { title: 'People', value: 'people' },
-          { title: 'Software', value: 'software' },
-          { title: 'Product', value: 'product' },
-          { title: 'Processes & Automations', value: 'processes_automations' },
-          { title: 'Services', value: 'services' }
+          { title: 'Tools', value: 'tools' },
+          { title: 'Processes', value: 'processes' },
         ]
       },
       description: 'The types of business pillars this article impacts.'
@@ -160,7 +178,7 @@ export const blogType = defineType({
       name: 'video',
       title: 'Featured Video (optional)',
       type: 'videoEmbed',
-      hidden: ({ document }) => !['podcast', 'guide', 'resource'].includes(document?.listingType as string),
+      hidden: ({ document }) => !['podcast', 'guide', 'resource'].includes(document?.blogType as string),
     }),
 
     defineField({
@@ -214,6 +232,21 @@ export const blogType = defineType({
       title: 'Featured on Homepage?',
       type: 'boolean',
       initialValue: false,
+    }),
+    defineField({
+      name: 'related',
+      title: 'Related Content',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [
+            { type: 'blog' },
+            { type: 'directoryListing' }
+          ]
+        }
+      ],
+      description: 'Hand-picked related content (articles, podcasts, reviews, or directory listings).'
     }),
     defineField({
       name: 'featuredLabel',
