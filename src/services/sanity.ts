@@ -13,7 +13,8 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     featuredLabel,
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
-    "logoUrl": logo.asset->url
+    "logoUrl": logo.asset->url,
+    listingType
   }`;
 
   const results = await client.fetch(query);
@@ -26,8 +27,47 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     ctaText: item._type === 'blog' ? 'Read' : 'Explore',
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
     link: item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`,
-    featuredLabel: item.featuredLabel
+    featuredLabel: item.featuredLabel,
+    listingType: item.listingType
   }));
+};
+
+export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
+  const query = `{
+    "podcast": *[_type == "blog" && listingType == "podcast"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    },
+    "guide": *[_type == "blog" && listingType == "guide"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    },
+    "faq": *[_type == "blog" && listingType == "faq"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, listingType
+    }
+  }`;
+
+  const results = await client.fetch(query);
+
+  const mapResult = (item: any, defaultCategory: string) => {
+    if (!item) return null;
+    return {
+      id: item._id,
+      title: item.title,
+      description: item.summary,
+      category: defaultCategory,
+      ctaText: 'EXPLORE',
+      imageUrl: item.imageUrl,
+      link: `/blog/${item.slug}`,
+      listingType: item.listingType
+    };
+  };
+
+  const cards = [
+    mapResult(results.podcast, 'PODCASTS'),
+    mapResult(results.guide, 'GUIDES'),
+    mapResult(results.faq, 'FAQS')
+  ].filter(Boolean) as ResourcePost[];
+
+  return cards;
 };
 
 export interface UnifiedSearchResult {

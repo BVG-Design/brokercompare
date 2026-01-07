@@ -107,7 +107,11 @@ export const blogType = defineType({
       options: {
         list: [
           { title: 'Software', value: 'software' },
-          { title: 'Service', value: 'service' }
+          { title: 'Service', value: 'service' },
+          { title: 'Podcast', value: 'podcast' },
+          { title: 'Guide', value: 'guide' },
+          { title: 'FAQ', value: 'faq' },
+          { title: 'Resource', value: 'resource' }
         ],
         layout: 'radio'
       },
@@ -148,6 +152,13 @@ export const blogType = defineType({
         ]
       },
       description: 'The types of business pillars this article impacts.'
+    }),
+
+    defineField({
+      name: 'video',
+      title: 'Featured Video (optional)',
+      type: 'videoEmbed',
+      hidden: ({ document }) => !['podcast', 'guide', 'resource'].includes(document?.listingType as string),
     }),
 
     defineField({
@@ -209,5 +220,6 @@ export const blogType = defineType({
       description: 'Label to show on homepage (e.g. "GUIDE")',
       hidden: ({ document }) => !document?.isFeatured,
     }),
-  ]
+  ],
+
 })

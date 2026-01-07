@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Search, Sparkles, ArrowRight, Users, MessageSquare, FileText, Megaphone, Target, Home as HomeIcon, BarChart } from 'lucide-react';
+import { Search, Sparkles, ArrowRight, Users, MessageSquare, FileText, Megaphone, Target, Home as HomeIcon, BarChart, Mic, BookOpen, HelpCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,7 @@ import { CrmSystemIcon, DocumentCollectionIcon, VaServicesIcon, AiSoftwareIcon, 
 import { cn } from "@/lib/utils";
 import { FEATURED_BLOGS_QUERY } from "@/sanity/lib/queries";
 import { client } from "@/sanity/lib/client";
-import { fetchResourcePosts } from '@/services/sanity';
+import { fetchResourcePosts, fetchHomepageResourceCards } from '@/services/sanity';
 import { ResourcePost } from '@/types';
 import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
@@ -36,11 +36,11 @@ const Home: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/search/${encodeURIComponent(searchQuery)}`);
+    router.push(`/ search / ${encodeURIComponent(searchQuery)} `);
   };
 
   useEffect(() => {
-    fetchResourcePosts().then(setPosts);
+    fetchHomepageResourceCards().then(setPosts);
   }, []);
 
 
@@ -126,46 +126,40 @@ const Home: React.FC = () => {
             <span className="text-xs font-bold tracking-widest text-gray-500 uppercase mb-2 block">Discover</span>
             <h2 className="text-3xl md:text-4xl font-bold text-brand-blue mb-4">Services that amplify broker success</h2>
             <p className="text-gray-600 max-w-2xl mx-auto">
-              Vetted services that generate leads and support your broker business
+              Listen to a podcast, download a guide, or read a tech review!
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {posts.length === 0 ? (
-              // Skeleton loader
-              [1, 2, 3].map(i => <div key={i} className="h-96 bg-gray-200 animate-pulse rounded-2xl"></div>)
-            ) : (
-              posts.map((post, idx) => (
-                <div
-                  key={post.id}
-                  className={`group relative rounded-2xl p-8 flex flex-col justify-between min-h-[420px] transition-all hover:-translate-y-1 hover:shadow-xl border border-transparent hover:border-brand-green/20 ${idx === 0 ? 'bg-white' : 'bg-gray-100'}`}
-                >
-                  <div>
-                    <span className="text-xs font-bold tracking-wider text-gray-400 uppercase mb-6 block">{post.category}</span>
-                    <h3 className="text-2xl font-bold text-brand-blue mb-4 group-hover:text-brand-orange transition-colors">{post.title}</h3>
-                    <p className="text-gray-600 leading-relaxed mb-8">
-                      {post.description}
-                    </p>
-                  </div>
+            {/* Podcasts Card */}
+            <Link href="/podcast" className="group relative rounded-3xl overflow-hidden aspect-square transition-all hover:-translate-y-2 hover:shadow-2xl bg-gray-100 flex items-center justify-center">
+              <Image
+                src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Podcast.png"
+                alt="Podcasts"
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+            </Link>
 
-                  {/* Image Area */}
-                  {post.imageUrl && (
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none overflow-hidden">
-                      <Image
-                        src={post.imageUrl}
-                        alt={post.title}
-                        fill
-                        className="object-cover rounded-xl"
-                      />
-                    </div>
-                  )}
+            {/* Guides Card */}
+            <div className="group relative rounded-3xl overflow-hidden aspect-square transition-all hover:-translate-y-2 hover:shadow-2xl bg-gray-100 flex items-center justify-center">
+              <Image
+                src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Workflow%20Guides.png"
+                alt="DownloadGuides"
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+            </div>
 
-                  <button className="inline-flex items-center gap-2 text-brand-orange font-bold text-sm hover:gap-3 transition-all">
-                    {post.ctaText} <ArrowRight size={16} />
-                  </button>
-                </div>
-              ))
-            )}
+            {/* Tech Reviews Card */}
+            <div className="group relative rounded-3xl overflow-hidden aspect-square transition-all hover:-translate-y-2 hover:shadow-2xl bg-gray-100 flex items-center justify-center">
+              <Image
+                src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Read%20Tech%20Reviews.png"
+                alt="Tech Reviews"
+                fill
+                className="object-cover transition-transform group-hover:scale-105"
+              />
+            </div>
           </div>
 
           <div className="mt-12 text-center">
@@ -175,6 +169,7 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
 
 
       {/* Promo Grid */}

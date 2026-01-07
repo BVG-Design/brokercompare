@@ -7,6 +7,7 @@ export interface ResourcePost {
     imageUrl?: string;
     link: string;
     featuredLabel?: string;
+    listingType?: string;
 }
 export interface DirectoryListing {
     id: string;

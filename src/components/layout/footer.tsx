@@ -50,7 +50,7 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4 font-headline">Engage</h4>
             <ul className="space-y-2">
-              <li><Link href="/write-review" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Write a Review</Link></li>
+              <li><Link href="/workflow-optimisation" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Schedule a Chat</Link></li>
               <li><Link href="#" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Partner with us</Link></li>
             </ul>
           </div>
