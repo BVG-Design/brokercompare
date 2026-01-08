@@ -19,8 +19,13 @@ export interface DirectoryListing {
     brokerTypes: string[];
     listingTier: 'free' | 'premium' | 'featured';
     slug: string;
-    rating?: number;
+    rating?: any;
     viewCount?: number;
+    trustMetrics?: {
+        responseTimeHours?: number;
+        verifiedRatio?: number;
+        reviewRecencyDays?: number;
+    };
     tags?: string[];
     websiteUrl?: string;
     pricingModel?: string;

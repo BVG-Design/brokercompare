@@ -28,11 +28,17 @@ type BlogPost = {
   viewCount?: number;
   readTime?: number | null;
   blogType?: string;
+  listingType?: string;
   author?: {
     _id: string;
     name: string;
     image?: any;
   };
+  authors?: {
+    _id: string;
+    name: string;
+    image?: any;
+  }[];
 };
 
 type Author = {
@@ -56,24 +62,25 @@ async function getBlogDashboardData(): Promise<DashboardData | null> {
   const query = `{
     "featured": *[_type == "blog" && isFeatured == true] | order(publishedAt desc)[0...3] {
       _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "guides": *[_type == "blog" && blogType == "guide"] | order(publishedAt desc)[0...3] {
       _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "reviews": *[_type == "blog" && blogType == "review"] | order(publishedAt desc)[0...3] {
       _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "podcasts": *[_type == "blog" && blogType == "podcast"] | order(publishedAt desc)[0...3] {
       _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "latest": *[_type == "blog"] | order(publishedAt desc)[0...7] {
       _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType,
-      author->{ _id, name, image }
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, listingType,
+      author->{ _id, name, image },
+      authors[]->{ _id, name, image }
     },
     "authors": *[_type == "author"] { _id, name, picture }
   }`;
@@ -102,7 +109,7 @@ async function getFilteredPosts(searchTerm?: string, category?: string, brokerTy
       ${!isAll ? '&& count(categories[@->title match $category]) > 0' : ''}
       ${!isBrokerTypeAll ? '&& count(tags[@ match $brokerType]) > 0' : ''}
       ${!isBlogTypeAll ? '&& blogType == $blogType' : ''}
-      ${authorId ? '&& author._ref == $authorId' : ''}
+      ${authorId ? '&& (author._ref == $authorId || $authorId in authors[]._ref)' : ''}
     ] | order(publishedAt desc) {
       _id,
       title,
@@ -115,7 +122,10 @@ async function getFilteredPosts(searchTerm?: string, category?: string, brokerTy
       viewCount,
       readTime,
       blogType,
-      author->{ _id, name, image }
+      "listingType": coalesce(listingType->value, listingType),
+      logo,
+      author->{ _id, name, image },
+      authors[]->{ _id, name, image }
     }
   `;
 
@@ -215,7 +225,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
     <Link
       key={post._id}
       href={post.slug ? `/blog/${post.slug}` : '#'}
-      className="group flex flex-col md:flex-row gap-6 p-4 rounded-2xl hover:bg-white transition-all border border-transparent hover:border-border/50 hover:shadow-2xl hover:shadow-brand-green/20"
+      className="group flex flex-col md:flex-row gap-6 p-4 rounded-2xl hover:bg-white transition-all border border-brand-orange hover:border-brand-green hover:shadow-2xl hover:shadow-brand-green/20"
     >
       <div className="relative w-full md:w-64 aspect-[16/9] md:aspect-square rounded-xl overflow-hidden flex-shrink-0">
         {post.heroImage ? (
@@ -268,19 +278,27 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                 <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full -ml-32 -mb-32 blur-3xl" />
 
-                <h2 className="text-3xl md:text-4xl font-black mb-6 text-center">Stay Ahead of the Curve</h2>
+                <h2 className="text-3xl md:text-4xl font-black mb-6 text-center">Optimise the way you work...</h2>
                 <p className="text-primary-foreground/70 mb-8 max-w-xl mx-auto text-center font-medium">
-                  Subscribe to get the latest automation hacks and tech reviews delivered to your inbox.
+                  Subscribe to get the latest automation hacks, tech reviews and tips for Brokers delivered to your inbox.
                 </p>
 
-                <div className="bg-white rounded-2xl overflow-hidden p-1 shadow-2xl relative z-10 mx-auto w-full max-w-2xl">
+                <div className="bg-white rounded-2xl overflow-hidden p-1 shadow-2xl relative z-10 mx-auto w-full max-w-2xl min-h-[400px]">
                   <iframe
                     src="https://link.hubboss.io/widget/form/La2mpDKaSorBUETyReae"
-                    style={{ width: '100%', height: '350px', border: 'none' }}
+                    style={{ width: '100%', height: '100%', border: 'none', borderRadius: '3px' }}
                     id="inline-La2mpDKaSorBUETyReae"
                     data-layout="{'id':'INLINE'}"
                     data-trigger-type="alwaysShow"
+                    data-trigger-value=""
+                    data-activation-type="alwaysActivated"
+                    data-activation-value=""
+                    data-deactivation-type="neverDeactivate"
+                    data-deactivation-value=""
                     data-form-name="Broker Tools"
+                    data-height="400"
+                    data-layout-iframe-id="inline-La2mpDKaSorBUETyReae"
+                    data-form-id="La2mpDKaSorBUETyReae"
                     title="Broker Tools Subscribe"
                   ></iframe>
                   <Script
@@ -390,13 +408,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
             {/* Pagination Placeholder */}
             <div className="flex justify-center items-center gap-4 pt-12">
-              <Button variant="outline" className="rounded-xl border-2 font-bold hover:bg-primary hover:text-white transition-colors">Previous</Button>
+              <Button variant="outline" className="rounded-xl border-2 border-brand-orange text-brand-orange font-bold hover:bg-brand-orange hover:text-white transition-all">Previous</Button>
               <div className="flex gap-2">
-                <Button className="w-10 h-10 rounded-xl bg-primary text-white font-bold p-0">1</Button>
-                <Button variant="ghost" className="w-10 h-10 rounded-xl font-bold p-0">2</Button>
-                <Button variant="ghost" className="w-10 h-10 rounded-xl font-bold p-0">3</Button>
+                <Button className="w-10 h-10 rounded-xl bg-brand-orange text-white font-bold p-0 border-brand-orange">1</Button>
+                <Button variant="outline" className="w-10 h-10 rounded-xl border-brand-orange text-brand-orange font-bold hover:bg-brand-orange hover:text-white p-0 transition-all">2</Button>
+                <Button variant="outline" className="w-10 h-10 rounded-xl border-brand-orange text-brand-orange font-bold hover:bg-brand-orange hover:text-white p-0 transition-all">3</Button>
               </div>
-              <Button variant="outline" className="rounded-xl border-2 font-bold hover:bg-primary hover:text-white transition-colors">Next</Button>
+              <Button variant="outline" className="rounded-xl border-2 border-brand-orange text-brand-orange font-bold hover:bg-brand-orange hover:text-white transition-all">Next</Button>
             </div>
           </section>
 

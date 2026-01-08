@@ -31,8 +31,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Bot, Loader2 } from "lucide-react";
 import type { Service, Software } from "@/lib/types";
-import { ServiceCard } from "../services/service-card";
-import { SoftwareCard } from "../software/software-card";
+import { ServiceCard } from "@/components/directory/service-card";
+import { SoftwareCard } from "@/components/directory/software-card";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -175,9 +175,9 @@ export function RecommendationForm() {
         )}
         {result && (
           <div className="space-y-8 animate-in fade-in-50">
-             <Card className="bg-primary/5">
+            <Card className="bg-primary/5">
               <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2"><Bot className="h-5 w-5"/> AI Analysis</CardTitle>
+                <CardTitle className="font-headline flex items-center gap-2"><Bot className="h-5 w-5" /> AI Analysis</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground">{result.reasoning}</p>
@@ -193,11 +193,11 @@ export function RecommendationForm() {
 
             <div>
               <h3 className="text-2xl font-bold mb-4 font-headline text-primary">Recommended Software</h3>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {result.software.map(sw => <SoftwareCard key={sw.id} software={sw} />)}
               </div>
             </div>
-            
+
             <Button onClick={() => setResult(null)} className="w-full" variant="outline">
               Start Over
             </Button>

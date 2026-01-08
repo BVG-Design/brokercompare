@@ -14,7 +14,7 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
     "logoUrl": logo.asset->url,
-    listingType,
+    "listingType": coalesce(listingType->value, listingType),
     blogType
   }`;
 
@@ -137,11 +137,12 @@ export const fetchDirectoryListings = async (filters: {
   tier?: string;
   search?: string;
 } = {}): Promise<DirectoryListing[]> => {
-  const { category, brokerType, tier, search } = filters;
+  const { category, brokerType, tier, search, listingType } = filters;
 
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
+    ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType)' : ''}
     ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
   ]{
     _id,
@@ -152,29 +153,37 @@ export const fetchDirectoryListings = async (filters: {
     "categories": [category->title],
     brokerType,
     "slug": slug.current,
-    "rating": 5, // Placeholder for now
+    rating,
+    trustMetrics,
+    viewCount,
     websiteURL,
     pricing,
-    listingType,
+    "listingType": coalesce(listingType->value, listingType),
     isFeatured
   }`;
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
   if (search) params.search = search;
+  if (listingType && listingType !== 'all') params.listingType = listingType;
 
   const results = await client.fetch(query, params);
 
   return results.map((item: any) => ({
     id: item._id,
     name: item.name,
+    company_name: item.name, // For PartnerCard
     description: item.description,
     logoUrl: item.logoUrl,
+    logo_url: item.logoUrl, // For PartnerCard
     categories: item.categories || [],
     brokerTypes: item.brokerType || [],
     listingTier: item.isFeatured ? 'featured' : 'free',
+    listing_tier: item.isFeatured ? 'featured' : 'free', // For PartnerCard
     slug: item.slug,
     rating: item.rating,
+    trustMetrics: item.trustMetrics,
+    viewCount: item.viewCount,
     websiteUrl: item.websiteURL,
     pricingModel: item.pricing?.type,
     type: item.listingType

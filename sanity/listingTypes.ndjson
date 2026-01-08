@@ -1,0 +1,3 @@
+np{"_id": "listingType-software", "_type": "listingType", "title": "Software", "value": "software", "description": "Software products and tools for brokers."}
+{"_id": "listingType-service", "_type": "listingType", "title": "Service", "value": "service", "description": "Professional services and implementation partners."}
+{"_id": "listingType-product", "_type": "listingType", "title": "Product", "value": "product", "description": "Hardware or other physical products for brokers."}

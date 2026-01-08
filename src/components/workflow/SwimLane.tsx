@@ -44,7 +44,7 @@ interface SwimLaneProps {
     association: string;
     stages: any[];
     items: any[];
-    viewMode: 'DIRECTORY' | 'ARTICLE' | 'TASK';
+    viewMode: 'DIRECTORY' | 'ARTICLE' | 'ACTIVITY';
     onSelectItem: (item: any) => void;
     selectedItem?: any;
     onCompare?: (item: any) => void;
@@ -107,7 +107,7 @@ export default function SwimLane({
                                 if (viewMode === 'ARTICLE' && item._type === 'blog') {
                                     return <ArticleCard key={item._id} article={item} onSelect={onSelectItem} />;
                                 }
-                                if (viewMode === 'TASK' && item._type === 'guide') {
+                                if (viewMode === 'ACTIVITY' && item._type === 'guide') {
                                     return <TaskCard key={item._id} guide={item} onSelect={onSelectItem} />;
                                 }
                                 if (viewMode === 'DIRECTORY' && item._type === 'directoryListing') {

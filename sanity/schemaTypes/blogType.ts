@@ -71,15 +71,8 @@ export const blogType = defineType({
     defineField({
       name: 'listingType',
       title: 'Listing Type',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Software', value: 'software' },
-          { title: 'Product', value: 'product' },
-          { title: 'Service', value: 'service' }
-        ],
-        layout: 'radio'
-      }
+      type: 'reference',
+      to: [{ type: 'listingType' }]
     }),
 
     defineField({
@@ -91,7 +84,7 @@ export const blogType = defineType({
           type: 'reference',
           to: [{ type: 'directoryListing' }],
           options: {
-            filter: 'listingType == "software"'
+            filter: 'listingType->value == "software"'
           }
         }
       ],

@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 const ASSOCIATIONS = ["people", "software", "processes_automations", "services"];
 
-type ViewMode = 'DIRECTORY' | 'ARTICLE' | 'TASK';
+type ViewMode = 'DIRECTORY' | 'ARTICLE' | 'ACTIVITY';
 
 export default function DecisionMatrixPage() {
     const [stages, setStages] = useState<any[]>([]);
@@ -99,14 +99,14 @@ export default function DecisionMatrixPage() {
                     <div className="flex items-center gap-2">
                         <div className="flex bg-slate-100 p-1 rounded-xl mr-4">
                             <Button
-                                variant={viewMode === 'TASK' ? 'default' : 'ghost'}
-                                onClick={() => setViewMode('TASK')}
+                                variant={viewMode === 'ACTIVITY' ? 'default' : 'ghost'}
+                                onClick={() => setViewMode('ACTIVITY')}
                                 className={cn(
                                     "h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                                    viewMode === 'TASK' ? "bg-white text-slate-900 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900"
+                                    viewMode === 'ACTIVITY' ? "bg-white text-slate-900 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900"
                                 )}
                             >
-                                Task View
+                                Activity View
                             </Button>
                             <Button
                                 variant={viewMode === 'ARTICLE' ? 'default' : 'ghost'}
@@ -133,7 +133,7 @@ export default function DecisionMatrixPage() {
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                             <Input
-                                placeholder={`Search ${viewMode.toLowerCase()}...`}
+                                placeholder={`Search ${viewMode === 'ACTIVITY' ? 'activities' : viewMode.toLowerCase()}...`}
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 className="pl-10 h-11 w-64 bg-slate-50 border-slate-200 rounded-xl text-sm font-medium focus:bg-white transition-all shadow-sm"
