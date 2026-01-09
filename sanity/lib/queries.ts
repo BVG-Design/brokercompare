@@ -53,7 +53,15 @@ export const FEATURED_BLOGS_QUERY = groq`
 `;
 
 export const UNIFIED_SEARCH_QUERY = groq`
-*[_type in $contentTypes && (
+*[_type in $contentTypes 
+  && ($category == null || category->slug.current == $category || $category in categories[]->slug.current)
+  && ($brokerType == null || $brokerType == brokerType || $brokerType in brokerType || $brokerType in brokerTypes)
+  && ($listingType == null 
+      || ($listingType == "software" && (_type == "product" || listingType == "software"))
+      || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service"))
+      || ($listingType == "resourceGuide" && _type == "blog")
+     )
+  && (
   count($searchTerms[
     ^.title match @ ||
     ^.name match @ ||
@@ -63,12 +71,14 @@ export const UNIFIED_SEARCH_QUERY = groq`
     ^.category->title match @ ||
     ^.categories[]->title match @
   ]) > 0
-)]{
+)] | order(defined(tags) desc, defined(brokerType) desc, _updatedAt desc) {
   _id,
   _type,
   title,
   name,
   description,
+  tags,
+  brokerType,
   "slug": slug.current,
   "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
   "logoUrl": select(
