@@ -99,3 +99,26 @@ export const SEARCH_INTENT_NAV_QUERY = groq`
     order
   }
 `;
+
+export const SERVICE_BY_ID_QUERY = groq`
+  *[_type == "serviceProvider" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    description,
+    tagline,
+    "logoUrl": logo.asset->url,
+    "images": images[].asset->url,
+    website,
+    "category": category->title,
+    location,
+    features,
+    reviews
+  }
+`;
+
+export const SERVICES_SLUGS_QUERY = groq`
+  *[_type == "serviceProvider" && defined(slug.current)]{
+    "id": slug.current
+  }
+`;
