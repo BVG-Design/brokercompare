@@ -19,6 +19,7 @@ export const revalidate = 60;
 
 export async function generateStaticParams() {
   const services = await sanity.fetch(SERVICES_SLUGS_QUERY);
+  if (!services || !Array.isArray(services)) return [];
   return services.map((service: { id: string }) => ({
     id: service.id,
   }));

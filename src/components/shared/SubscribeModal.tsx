@@ -24,7 +24,7 @@ export function SubscribeModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] bg-white border-brand-blue/10 p-0 overflow-hidden">
+            <DialogContent className="sm:max-w-[720px] bg-white border-brand-blue/10 p-0 overflow-hidden">
                 <div className="p-6">
                     <DialogHeader>
                         <div className="flex items-center gap-4 mb-2">

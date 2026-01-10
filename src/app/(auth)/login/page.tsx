@@ -7,7 +7,9 @@ import { Loader2, Mail } from 'lucide-react';
 import { signInWithMagicLink } from '@/services/supabase';
 import { createClient } from '@/lib/supabase/client';
 
-export default function LoginPage() {
+import { Suspense } from 'react';
+
+function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = useMemo(() => createClient(), []);
@@ -338,5 +340,17 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-brand-blue flex items-center justify-center">
+        <Loader2 className="animate-spin text-white" size={48} />
+      </div>
+    }>
+      <LoginForm />
+    </Suspense>
   );
 }
