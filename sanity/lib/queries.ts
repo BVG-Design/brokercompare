@@ -108,7 +108,15 @@ export const GUIDES_MATRIX_QUERY = groq`
 `;
 
 export const UNIFIED_SEARCH_QUERY = groq`
-*[_type in $contentTypes && (
+*[_type in $contentTypes 
+  && ($category == null || category->slug.current == $category || $category in categories[]->slug.current)
+  && ($brokerType == null || $brokerType == brokerType || $brokerType in brokerType || $brokerType in brokerTypes || brokerType[] match $brokerType + "*" || brokerType match $brokerType + "*")
+  && ($listingType == null 
+      || ($listingType == "software" && (_type == "product" || listingType == "software" || listingType->value == "software" || listingType->title == "software"))
+      || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service" || listingType->value == "service" || listingType->title == "service"))
+      || ($listingType == "resourceGuide" && _type == "blog")
+     )
+  && (
   count($searchTerms[
     ^.title match @ ||
     ^.name match @ ||
@@ -118,14 +126,23 @@ export const UNIFIED_SEARCH_QUERY = groq`
     ^.category->title match @ ||
     ^.categories[]->title match @
   ]) > 0
-)]{
+)] | order(defined(tags) desc, defined(brokerType) desc, _updatedAt desc) {
   _id,
   _type,
   title,
   name,
   description,
+  tags,
+  brokerType,
   "slug": slug.current,
   "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
+  "listingType": select(
+    _type == "product" => "software",
+    _type == "serviceProvider" => "service",
+    _type == "blog" => "resourceGuide",
+    coalesce(listingType->value, listingType->title, listingType)
+  ),
+  "badges": badges[]->title,
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
@@ -142,5 +159,28 @@ export const SEARCH_INTENT_NAV_QUERY = groq`
     title,
     "slug": slug.current,
     order
+  }
+`;
+
+export const SERVICE_BY_ID_QUERY = groq`
+  *[_type == "serviceProvider" && slug.current == $slug][0] {
+    _id,
+    name,
+    "slug": slug.current,
+    description,
+    tagline,
+    "logoUrl": logo.asset->url,
+    "images": images[].asset->url,
+    website,
+    "category": category->title,
+    location,
+    features,
+    reviews
+  }
+`;
+
+export const SERVICES_SLUGS_QUERY = groq`
+  *[_type == "serviceProvider" && defined(slug.current)]{
+    "id": slug.current
   }
 `;

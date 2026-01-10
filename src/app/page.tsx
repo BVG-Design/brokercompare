@@ -15,6 +15,7 @@ import { ResourcePost } from '@/types';
 import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 import BetaConsentModal from "@/components/shared/BetaConsentModal";
+import AIChatDialog from "@/components/partners/AIChatDialog";
 
 const Home: React.FC = () => {
 
@@ -31,12 +32,13 @@ const Home: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [posts, setPosts] = useState<ResourcePost[]>([]);
+  const [showAIChat, setShowAIChat] = useState(false);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/ search / ${encodeURIComponent(searchQuery)} `);
+    router.push(`/search/${encodeURIComponent(searchQuery)}`);
   };
 
   useEffect(() => {
@@ -86,7 +88,10 @@ const Home: React.FC = () => {
             </div>
           </form>
 
-          <button className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors">
+          <button
+            onClick={() => setShowAIChat(true)}
+            className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
+          >
             <Sparkles size={16} className="text-brand-green" />
             <span>Or ask AI for personalized recommendations</span>
             <ArrowRight size={16} />
@@ -271,6 +276,8 @@ const Home: React.FC = () => {
           </QuizWaitlistModal>
         </div>
       </section>
+
+      <AIChatDialog open={showAIChat} onOpenChange={setShowAIChat} />
     </div>
   );
 };

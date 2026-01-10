@@ -116,7 +116,7 @@ export function SoftwareCard({ software }: SoftwareCardProps) {
             </Button>
           )}
           <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary text-xs h-8 px-2">
-            <Link href={`/software/${software.slug}`}>
+            <Link href={`/directory/${software.slug}`}>
               View Details <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </Button>

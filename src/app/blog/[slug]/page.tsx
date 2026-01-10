@@ -184,7 +184,7 @@ export default async function BlogPostPage({
   const mainCategory = post.categories?.[0];
 
   return (
-    <main className="min-h-screen bg-[#f4f6fb]">
+    <main className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* HERO IMAGE – centred and wide like the reference */}
         {post.heroImage && (

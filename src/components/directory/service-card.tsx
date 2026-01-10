@@ -101,7 +101,7 @@ export function ServiceCard({ service }: ServiceCardProps) {
             </Button>
           )}
           <Button asChild variant="ghost" size="sm" className="text-secondary hover:text-secondary text-xs h-8 px-2">
-            <Link href={`/services/${service.id}`}>
+            <Link href={`/directory/${service.slug || service.id}`}>
               View Details <ArrowRight className="ml-1 h-3 w-3" />
             </Link>
           </Button>

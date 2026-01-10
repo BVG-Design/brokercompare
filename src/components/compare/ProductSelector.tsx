@@ -28,24 +28,27 @@ export function ProductSelector() {
   }, [items]);
 
   useEffect(() => {
-    async function fetchServices() {
+    async function fetchData() {
       try {
-        console.log('Fetching services from API...');
-        const response = await fetch('/api/services');
-        if (!response.ok) {
-          throw new Error('Failed to fetch services');
-        }
-        const data = await response.json();
-        console.log('Fetched services:', data);
-        setServices(data);
+        setLoading(true);
+        // Fetch both software (products) and services
+        const [softwareData, servicesData] = await Promise.all([
+          fetch('/api/software').then(res => res.ok ? res.json() : []),
+          fetch('/api/services').then(res => res.ok ? res.json() : [])
+        ]);
+
+        setSoftware(softwareData);
+        setServices(servicesData);
       } catch (error) {
-        console.error('Failed to fetch services:', error);
+        console.error('Failed to fetch comparison data:', error);
       } finally {
         setLoading(false);
       }
     }
-    fetchServices();
+    fetchData();
   }, []);
+
+  const [software, setSoftware] = useState<Software[]>([]);
 
   const allItems = [
     ...software.map(s => ({ ...s, type: 'software' as const, data: s })),
@@ -53,9 +56,11 @@ export function ProductSelector() {
   ];
 
   const filteredItems = allItems.filter(item => {
+    const itemName = item.name || '';
+    const itemDesc = item.description || '';
     const matchesSearch =
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.description.toLowerCase().includes(searchTerm.toLowerCase());
+      itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      itemDesc.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType = typeFilter === 'all' || item.type === typeFilter;
 
@@ -146,7 +151,7 @@ export function ProductSelector() {
                       </div>
                     </div>
                     <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-                      {item.tagline || item.description.substring(0, 80)}...
+                      {item.tagline || (item.description ? item.description.substring(0, 80) + '...' : '')}
                     </p>
                     <Button
                       size="sm"

@@ -67,9 +67,9 @@ export const flatCategories = [
 
 export const brokerTypes = [
     { label: 'All Broker Types', value: 'all' },
-    { label: 'Mortgage Broker', value: 'Mortgage Broker' },
-    { label: 'Asset Finance Broker', value: 'Asset Finance Broker' },
-    { label: 'Commercial Finance Broker', value: 'Commercial Finance Broker' },
+    { label: 'Mortgage Broker', value: 'Mortgage' },
+    { label: 'Asset Finance Broker', value: 'Asset Finance' },
+    { label: 'Commercial Finance Broker', value: 'Commercial' },
 ];
 
 export const blogTypes = [

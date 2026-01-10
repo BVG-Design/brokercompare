@@ -258,7 +258,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   );
 
   return (
-    <div className="min-h-screen bg-brand-cream font-body">
+    <div className="min-h-screen bg-white font-body">
       {/* Main Content Area */}
       <div className="w-full">
         {isBrowsingAll && (

@@ -82,11 +82,16 @@ export interface UnifiedSearchResult {
   category?: string;
   logoUrl?: string;
   heroImageUrl?: string;
+  tags?: string[];
+  brokerType?: string[];
+  listingType?: string;
+  badges?: string[];
 }
 
 export const fetchUnifiedSearchResults = async (
   searchTerms: string[],
-  contentTypes: string[]
+  contentTypes: string[],
+  filters?: { category?: string; brokerType?: string; type?: string }
 ): Promise<UnifiedSearchResult[]> => {
   const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
   if (normalizedTerms.length === 0 || contentTypes.length === 0) {
@@ -96,7 +101,10 @@ export const fetchUnifiedSearchResults = async (
   const searchPatterns = normalizedTerms.map((term) => `${term}*`);
   const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
     searchTerms: searchPatterns,
-    contentTypes
+    contentTypes,
+    category: filters?.category && filters.category !== 'all' ? filters.category : null,
+    brokerType: filters?.brokerType && filters.brokerType !== 'all' ? filters.brokerType : null,
+    listingType: filters?.type && filters.type !== 'all' ? filters.type : null
   }, { useCdn: false });
 
   // Deduplicate by slug (preferring directoryListing, then product/serviceProvider, then blog)
@@ -142,7 +150,7 @@ export const fetchDirectoryListings = async (filters: {
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
-    ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType)' : ''}
+    ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
     ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
   ]{
     _id,
@@ -158,7 +166,7 @@ export const fetchDirectoryListings = async (filters: {
     viewCount,
     websiteURL,
     pricing,
-    "listingType": coalesce(listingType->value, listingType),
+    "listingType": coalesce(listingType->value, listingType->title, listingType),
     isFeatured
   }`;
 
@@ -191,11 +199,17 @@ export const fetchDirectoryListings = async (filters: {
 };
 
 export const fetchCategories = async (): Promise<{ title: string, value: string }[]> => {
-  const query = `*[_type == "category"] { title, "value": slug.current } | order(title asc)`;
+  const query = `*[_type == "category" && defined(slug.current)] { title, "value": slug.current } | order(title asc)`;
   return await client.fetch(query);
 };
 
 import { DirectoryProxy } from '@/sanity/lib/proxy';
+
+import { SEARCH_INTENT_NAV_QUERY } from '@/sanity/lib/queries';
+
+export const fetchSearchIntents = async (): Promise<{ title: string; slug: string }[]> => {
+  return await client.fetch(SEARCH_INTENT_NAV_QUERY);
+};
 
 export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
   return await DirectoryProxy.getListingBySlug(slug);
@@ -219,4 +233,22 @@ export const fetchBlogPostsMatrix = async (): Promise<any[]> => {
 export const fetchGuidesMatrix = async (): Promise<any[]> => {
   const { GUIDES_MATRIX_QUERY } = await import('@/sanity/lib/queries');
   return await client.fetch(GUIDES_MATRIX_QUERY, {}, { useCdn: false });
+};
+export const fetchRelatedArticles = async (limit: number = 3): Promise<any[]> => {
+  const query = `*[_type == "blog"] | order(_createdAt desc)[0...${limit}] {
+    _id,
+    title,
+    description,
+    "category": category->title,
+    mainImage {
+      asset-> {
+        url
+      }
+    },
+    publishedAt,
+    "author": author->name,
+    "slug": slug.current
+  }`;
+
+  return client.fetch(query);
 };

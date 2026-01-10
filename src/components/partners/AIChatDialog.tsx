@@ -10,8 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Sparkles, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { recommendServiceProviders } from '@/ai/ai-service-provider-recommendation';
-import { recommendSoftware } from '@/ai/ai-software-recommendation';
+import { getRecommendations } from '@/app/recommendations/actions';
 
 export default function AIChatDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [messages, setMessages] = useState([
@@ -33,38 +32,35 @@ export default function AIChatDialog({ open, onOpenChange }: { open: boolean, on
     setIsLoading(true);
 
     try {
-      // Create a mock profile/input for the AI flows
-      const mockProfile = {
-        businessType: 'commercial', // default
-        yearsInBusiness: 5,
-        location: 'Australia',
-        specialization: 'various',
-        needs: input.trim(),
-        budget: 'flexible',
-      };
+      // Use the new Sanity-integrated recommendation action
+      const recommendations = await getRecommendations({
+        businessGoal: "Improve Efficiency", // Default context
+        businessSize: "Unknown", // Default context
+        customNeeds: input.trim()
+      });
 
-      // Call both AI flows
-      const [serviceRecs, softwareRecs] = await Promise.all([
-        recommendServiceProviders(mockProfile),
-        recommendSoftware({
-          brokerProfile: input.trim(),
-          softwareList: 'All available software',
-        }),
-      ]);
+      let assistantResponse = "";
 
-      let assistantResponse =
-        "Based on your needs, here are some recommendations:\n\n";
+      if (recommendations.reasoning) {
+        assistantResponse += recommendations.reasoning + "\n\n";
+      }
 
-      if (serviceRecs && serviceRecs.recommendations.length > 0) {
+      if (recommendations.services.length > 0) {
         assistantResponse += '**Recommended Services:**\n';
-        serviceRecs.recommendations.forEach((rec) => {
-          assistantResponse += `- **${rec.providerName}** (${rec.serviceType}) — Suitability: ${rec.suitabilityScore}/100, Marketplace: ${rec.marketplaceScore}/100. ${rec.rationale}\n`;
+        recommendations.services.forEach((s) => {
+          assistantResponse += `- **${s.name}** (${s.category}): ${s.tagline}\n`;
         });
       }
 
-      if (softwareRecs && softwareRecs.recommendations) {
+      if (recommendations.software.length > 0) {
         assistantResponse += '\n**Recommended Software:**\n';
-        assistantResponse += softwareRecs.recommendations;
+        recommendations.software.forEach((sw) => {
+          assistantResponse += `- **${sw.name}** (${sw.category}): ${sw.tagline}\n`;
+        });
+      }
+
+      if (recommendations.services.length === 0 && recommendations.software.length === 0) {
+        assistantResponse = "I couldn't find any specific partners matching those keywords. Try searching for broader terms like 'CRM' or 'Marketing'.";
       }
 
       setMessages((prev) => [

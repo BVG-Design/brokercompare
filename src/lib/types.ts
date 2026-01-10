@@ -41,8 +41,9 @@ export interface RubricWeights {
 
 export interface Service {
   id: string;
+  slug?: string;
   name: string;
-  category: 'Marketing' | 'Virtual Assistant' | 'Commercial Finance';
+  category: string;
   logoUrl: string;
   images?: string[]; // Array of image URLs
   tagline: string;
@@ -73,7 +74,7 @@ export interface Software {
   id: string;
   slug: string;
   name: string;
-  category: 'CRM' | 'Loan Processing' | 'Compliance' | 'Marketing Automation';
+  category: string;
   logoUrl: string;
   tagline: string;
   description: string;

@@ -21,19 +21,32 @@ function ComparePageContent() {
     const itemsParam = searchParams.get('items');
     if (itemsParam && items.length === 0) {
       const itemIds = itemsParam.split(',').filter(Boolean);
-      itemIds.forEach(id => {
-        // Try to find in software first
-        const softwareItem = software.find(s => s.id === id);
-        if (softwareItem) {
-          addItem(softwareItem, 'software');
-          return;
+
+      const fetchItems = async () => {
+        try {
+          // Fetch both software and services to find the items
+          const [software, services] = await Promise.all([
+            fetch('/api/software').then(res => res.ok ? res.json() : []),
+            fetch('/api/services').then(res => res.ok ? res.json() : [])
+          ]);
+
+          itemIds.forEach(id => {
+            const softwareItem = software.find((s: any) => s.id === id);
+            if (softwareItem) {
+              addItem(softwareItem, 'software');
+              return;
+            }
+            const serviceItem = services.find((s: any) => s.id === id);
+            if (serviceItem) {
+              addItem(serviceItem, 'service');
+            }
+          });
+        } catch (error) {
+          console.error('Failed to items for comparison:', error);
         }
-        // Then try services
-        const serviceItem = services.find(s => s.id === id);
-        if (serviceItem) {
-          addItem(serviceItem, 'service');
-        }
-      });
+      };
+
+      fetchItems();
     }
   }, [searchParams, items.length, addItem]);
 
