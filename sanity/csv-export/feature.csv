@@ -30,7 +30,6 @@ _id,title,slug,description,category,synonyms
 "feature-activity-feeds","Activity Feeds","activity-feeds","","featureCategory-communication-collaboration",""
 "feature-data-export","Data Export","data-export","","featureCategory-data-insights-reporting",""
 "feature-task-process-automation","Task / Process Automation","task-process-automation","","featureCategory-automation-workflows",""
-"feature-api-access","API Access","api-access","","featureCategory-integrations-apis",""
 "feature-dashboards","Dashboards","dashboards","","featureCategory-data-insights-reporting",""
 "feature-workflow-automation","Workflow Automation","workflow-automation","","featureCategory-automation-workflows",""
 "feature-triggers-rules","Triggers & Rules","triggers-rules","","featureCategory-automation-workflows",""

@@ -272,42 +272,20 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </p>
             </div>
 
-            {/* Hero Section - Solo Subscribe */}
-            <div className="max-w-4xl mx-auto mb-20">
-              <div className="bg-primary rounded-3xl p-10 lg:p-12 text-white flex flex-col justify-center shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-32 -mt-32 blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full -ml-32 -mb-32 blur-3xl" />
-
-                <h2 className="text-3xl md:text-4xl font-black mb-6 text-center">Optimise the way you work...</h2>
-                <p className="text-primary-foreground/70 mb-8 max-w-xl mx-auto text-center font-medium">
-                  Subscribe to get the latest automation hacks, tech reviews and tips for Brokers delivered to your inbox.
-                </p>
-
-                <div className="bg-white rounded-2xl overflow-hidden p-1 shadow-2xl relative z-10 mx-auto w-full max-w-2xl min-h-[400px]">
-                  <iframe
-                    src="https://link.hubboss.io/widget/form/La2mpDKaSorBUETyReae"
-                    style={{ width: '100%', height: '100%', border: 'none', borderRadius: '3px' }}
-                    id="inline-La2mpDKaSorBUETyReae"
-                    data-layout="{'id':'INLINE'}"
-                    data-trigger-type="alwaysShow"
-                    data-trigger-value=""
-                    data-activation-type="alwaysActivated"
-                    data-activation-value=""
-                    data-deactivation-type="neverDeactivate"
-                    data-deactivation-value=""
-                    data-form-name="Broker Tools"
-                    data-height="400"
-                    data-layout-iframe-id="inline-La2mpDKaSorBUETyReae"
-                    data-form-id="La2mpDKaSorBUETyReae"
-                    title="Broker Tools Subscribe"
-                  ></iframe>
-                  <Script
-                    src="https://link.hubboss.io/js/form_embed.js"
-                    strategy="afterInteractive"
-                  />
+            {/* Dashboard Categorized Sections - Featured moved to top */}
+            {dashboardData && (
+              <section id="featured" className="mb-20">
+                <div className="flex items-center justify-between mb-8">
+                  <h2 className="text-3xl font-black text-primary flex items-center gap-3 decoration-secondary/30 decoration-8 underline-offset-4">
+                    Featured Articles
+                  </h2>
+                  <div className="w-12 h-1 bg-secondary/20 rounded-full" />
                 </div>
-              </div>
-            </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {dashboardData.featured.map(renderGridCard)}
+                </div>
+              </section>
+            )}
 
             {/* Next Three Section */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
@@ -329,19 +307,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {/* Dashboard Categorized Sections */}
           {isBrowsingAll && dashboardData && (
             <>
-              {/* Featured */}
-              <section id="featured">
-                <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-black text-primary flex items-center gap-3 decoration-secondary/30 decoration-8 underline-offset-4">
-                    Featured Articles
-                  </h2>
-                  <div className="w-12 h-1 bg-secondary/20 rounded-full" />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {dashboardData.featured.map(renderGridCard)}
-                </div>
-              </section>
-
               {/* How To */}
               <section id="how-to">
                 <div className="flex items-center justify-between mb-8">
@@ -490,6 +455,29 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </section>
         </div>
       </div>
-    </div>
+
+      {/* Polite Slide-in Subscribe Form */}
+      <iframe
+        src="https://link.hubboss.io/widget/form/La2mpDKaSorBUETyReae"
+        style={{ display: 'none', width: '100%', height: '100%', border: 'none', borderRadius: '3px' }}
+        id="polite-slide-in-right-La2mpDKaSorBUETyReae"
+        data-layout="{'id':'POLITE_SLIDE_IN','minimizedTitle':'','isLeftAligned':false,'isRightAligned':true,'allowMinimize':false}"
+        data-trigger-type="showOnScrolling"
+        data-trigger-value="50"
+        data-activation-type="alwaysActivated"
+        data-activation-value=""
+        data-deactivation-type="leadCollected"
+        data-deactivation-value=""
+        data-form-name="Broker Tools"
+        data-height="349"
+        data-layout-iframe-id="polite-slide-in-right-La2mpDKaSorBUETyReae"
+        data-form-id="La2mpDKaSorBUETyReae"
+        title="Broker Tools"
+      ></iframe>
+      <Script
+        src="https://link.hubboss.io/js/form_embed.js"
+        strategy="afterInteractive"
+      />
+    </div >
   );
 }

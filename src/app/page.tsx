@@ -67,7 +67,7 @@ const Home: React.FC = () => {
           </h1>
 
           <p className="text-lg text-white/70 mb-10 max-w-2xl mx-auto">
-            Discover vetted products, software, and services tailored for Mortgage, Asset, and Commercial Finance brokers.
+            Discover products, software, and services tailored for Mortgage, Asset, and Commercial Finance brokers.
           </p>
 
           <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto mb-6">
