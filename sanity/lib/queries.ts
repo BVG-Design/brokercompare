@@ -146,9 +146,17 @@ export const UNIFIED_SEARCH_QUERY = groq`
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
-    defined(images[0].asset->url) => images[0].asset->url
+    defined(images[0].asset->url) => images[0].asset->url,
+    defined(mainImage.asset->url) => mainImage.asset->url,
+    defined(heroImage.asset->url) => heroImage.asset->url
   ),
-  "heroImageUrl": heroImage.asset->url
+  "heroImageUrl": heroImage.asset->url,
+  "features": select(
+    _type == "directoryListing" => features[availability == "yes"].feature->title,
+    features
+  ),
+  "rating": coalesce(rating, 0),
+  "reviews": count(*[_type == "review" && references(^._id)])
 }
 `;
 

@@ -37,7 +37,7 @@ export default function ArticleCard({ article, onSelect }: ArticleCardProps) {
 
             <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1">
-                    <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight line-clamp-2">{article.title}</h4>
+                    <h4 className="font-bold text-brand-blue text-xs uppercase tracking-tight line-clamp-2">{article.title}</h4>
                 </div>
                 {article.logo && (
                     <div className="w-10 h-10 rounded-xl overflow-hidden border border-slate-100 bg-slate-50 flex-shrink-0">
@@ -55,7 +55,7 @@ export default function ArticleCard({ article, onSelect }: ArticleCardProps) {
             <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                 <div className="flex items-center gap-1.5">
                     <BookOpen className="w-3 h-3 text-slate-400" />
-                    <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Article</span>
+                    <span className="text-[8px] font-bold uppercase text-slate-400 tracking-widest">Article</span>
                 </div>
                 {article.readTime && (
                     <div className="flex items-center gap-1">

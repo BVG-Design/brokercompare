@@ -50,7 +50,7 @@ export default function StageHeader({ stages }: StageHeaderProps) {
         <div className="flex border-b border-slate-200 sticky top-0 z-20 bg-white/95 backdrop-blur-sm">
             {/* Empty cell for lane labels */}
             <div className="w-48 shrink-0 p-4 border-r border-slate-200 bg-slate-50/50">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                     Category
                 </span>
             </div>
@@ -88,7 +88,7 @@ export default function StageHeader({ stages }: StageHeaderProps) {
                                     key={i}
                                     className={cn(
                                         "h-1 flex-1 rounded-full transition-all duration-500",
-                                        i <= index ? "bg-slate-900 shadow-sm" : "bg-slate-100"
+                                        i <= index ? "bg-brand-blue shadow-sm" : "bg-slate-100"
                                     )}
                                 />
                             ))}

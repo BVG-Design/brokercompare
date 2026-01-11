@@ -672,7 +672,7 @@ export default function ApplyPartnerPage() {
               <div className="p-2.5 bg-brand-blue/10 text-brand-blue rounded-xl">
                 <Building2 size={24} />
               </div>
-              <h2 className="text-xl font-bold text-brand-orange">Public Partner Profile</h2>
+              <h2 className="text-xl font-bold text-brand-blue">Public Partner Profile</h2>
             </div>
           </div>
 
@@ -915,7 +915,7 @@ export default function ApplyPartnerPage() {
                     <section>
                       <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Type size={18} /></div>
-                        <h3 className="text-lg font-bold text-brand-orange">Basic Information</h3>
+                        <h3 className="text-lg font-bold text-brand-blue">Basic Information</h3>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         <div className="space-y-6">
@@ -974,7 +974,7 @@ export default function ApplyPartnerPage() {
                       <div className="flex items-center justify-between pb-4 mb-6 border-b border-gray-100">
                         <div className="flex items-center gap-2">
                           <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><DollarSign size={18} /></div>
-                          <h3 className="text-lg font-bold text-brand-orange">Pricing Configuration</h3>
+                          <h3 className="text-lg font-bold text-brand-blue">Pricing Configuration</h3>
                         </div>
                         <button
                           onClick={handleAddPricingPackage}
@@ -1011,7 +1011,7 @@ export default function ApplyPartnerPage() {
                               )}
                               <div className="space-y-5 flex-grow">
                                 <div className="space-y-1.5">
-                                  <label className="text-[12px] font-black text-brand-blue ml-1">Package Name</label>
+                                  <label className="text-[12px] font-bold text-brand-blue ml-1">Package Name</label>
                                   <input
                                     placeholder="e.g. Free or Unlimited"
                                     value={pkg.name}
@@ -1021,20 +1021,20 @@ export default function ApplyPartnerPage() {
                                 </div>
                                 <div className="flex gap-4">
                                   <div className="flex-1 space-y-1.5">
-                                    <label className="text-[12px] font-black text-brand-blue ml-1">Amount</label>
+                                    <label className="text-[12px] font-bold text-brand-blue ml-1">Amount</label>
                                     <div className="relative">
                                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
                                       <input
                                         placeholder="0.00"
                                         value={pkg.price}
                                         onChange={e => updatePackage(pkg.id, { price: e.target.value })}
-                                        className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-sm font-black outline-none"
+                                        className="w-full pl-7 pr-2 py-2 bg-gray-50 border border-gray-400 rounded-lg focus:border-brand-blue focus:bg-white text-sm font-bold outline-none"
                                       />
                                     </div>
                                   </div>
                                   <div className="flex-1 space-y-1.5 relative">
                                     <div className="flex items-center gap-1 ml-1 group/tip">
-                                      <label className="text-[12px] font-black text-brand-blue">CTA Text</label>
+                                      <label className="text-[12px] font-bold text-brand-blue">CTA Text</label>
                                       <Info size={10} className="text-gray-300 cursor-help" />
                                       <div className="absolute bottom-full left-0 mb-1 hidden group-hover/tip:block w-40 p-2 bg-gray-900 text-white text-[9px] rounded shadow-xl z-20 font-bold leading-tight">
                                         The call to action button text
@@ -1049,7 +1049,7 @@ export default function ApplyPartnerPage() {
                                   </div>
                                 </div>
                                 <div className="space-y-2 pt-2 border-t border-gray-50">
-                                  <p className="text-[12px] font-black text-brand-blue ml-1">Included Offers</p>
+                                  <p className="text-[12px] font-bold text-brand-blue ml-1">Included Offers</p>
                                   {pkg.features.map((feat, fIdx) => (
                                     <div key={fIdx} className="flex gap-2 animate-in slide-in-from-left-1">
                                       <input
@@ -1075,7 +1075,7 @@ export default function ApplyPartnerPage() {
                                   ))}
                                   <button
                                     onClick={() => updatePackage(pkg.id, { features: [...pkg.features, ''] })}
-                                    className="w-full py-2 border-2 border-dashed border-gray-400 rounded-xl text-gray-400 hover:text-brand-blue hover:border-brand-blue transition-all text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5"
+                                    className="w-full py-2 border-2 border-dashed border-gray-400 rounded-xl text-gray-400 hover:text-brand-blue hover:border-brand-blue transition-all text-[10px] font-bold uppercase tracking-widest flex items-center justify-center gap-1.5"
                                   >
                                     <Plus size={12} /> Add Feature to Card
                                   </button>
@@ -1091,7 +1091,7 @@ export default function ApplyPartnerPage() {
                     <section>
                       <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Puzzle size={18} /></div>
-                        <h3 className="text-lg font-bold text-brand-orange">Product Highlights</h3>
+                        <h3 className="text-lg font-bold text-brand-blue">Product Highlights</h3>
                       </div>
 
                       {/* Aggregator Compatibility Section */}
@@ -1160,7 +1160,7 @@ export default function ApplyPartnerPage() {
                                 <button
                                   key={agg}
                                   onClick={() => toggleAggregatorSelection(agg)}
-                                  className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase transition-all ${selectedApp.selectedAggregators.includes(agg)
+                                  className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold uppercase transition-all ${selectedApp.selectedAggregators.includes(agg)
                                     ? 'bg-blue-600 text-white border-blue-600'
                                     : 'bg-slate-50 text-slate-500 border-slate-100 hover:border-slate-200'
                                     }`}
@@ -1196,7 +1196,7 @@ export default function ApplyPartnerPage() {
                             <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                               <Check size={16} className="text-green-500" /> Key Features
                             </h4>
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.features.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${selectedApp.features.length >= 9 ? 'text-brand-orange' : 'text-gray-400'}`}>
                               {selectedApp.features.length} / 9 Limit
                             </span>
                           </div>
@@ -1250,7 +1250,7 @@ export default function ApplyPartnerPage() {
                             <h4 className="text-sm font-bold text-gray-900 flex items-center gap-2">
                               <Puzzle size={16} className="text-blue-500" /> Key Integrations
                             </h4>
-                            <span className={`text-[10px] font-black uppercase tracking-widest ${selectedApp.integrations.length >= 9 ? 'text-orange-500' : 'text-gray-400'}`}>
+                            <span className={`text-[10px] font-bold uppercase tracking-widest ${selectedApp.integrations.length >= 9 ? 'text-brand-orange' : 'text-gray-400'}`}>
                               {selectedApp.integrations.length} / 9 Limit
                             </span>
                           </div>
@@ -1305,7 +1305,7 @@ export default function ApplyPartnerPage() {
                     <section>
                       <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Target size={18} /></div>
-                        <h3 className="text-lg font-bold text-brand-orange">Product Market Fit</h3>
+                        <h3 className="text-lg font-bold text-brand-blue">Product Market Fit</h3>
                       </div>
                       <div className="space-y-10">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -1485,7 +1485,7 @@ export default function ApplyPartnerPage() {
                       {/* Header - same style as others */}
                       <div className="flex items-center gap-2 pb-4 mb-6 border-b border-gray-100">
                         <div className="p-2 bg-gray-50 rounded-lg text-gray-500"><Video size={18} /></div>
-                        <h3 className="text-lg font-bold text-brand-orange">Training Material</h3>
+                        <h3 className="text-lg font-bold text-brand-blue">Training Material</h3>
                       </div>
 
                       {/* Orange dashed border container for Training Material */}

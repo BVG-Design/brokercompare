@@ -189,7 +189,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           {post.categories && post.categories[0] && (
             <span
-              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md bg-white/90 text-primary uppercase tracking-wider`}
+              className={`absolute left-4 top-4 rounded-full px-3 py-1 text-[10px] font-bold shadow-sm backdrop-blur-md bg-white/90 text-brand-blue uppercase tracking-wider`}
             >
               {post.categories[0].title}
             </span>
@@ -197,7 +197,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         <CardContent className="flex flex-col flex-1 p-6">
-          <h2 className="text-lg font-bold text-primary mb-3 group-hover:text-brand-orange transition-colors line-clamp-2 leading-tight">
+          <h2 className="text-lg font-bold text-brand-blue mb-3 group-hover:text-brand-orange transition-colors line-clamp-2 leading-tight">
             {post.title}
           </h2>
           {post.summary && (
@@ -207,7 +207,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           )}
 
           <div className="flex items-center text-[10px] font-bold text-muted-foreground mt-auto pt-4 border-t border-border/50 uppercase tracking-widest">
-            <span className="text-primary mr-auto">
+            <span className="text-brand-blue mr-auto">
               {post.readTime ? `${post.readTime} min read` : '5 min read'}
             </span>
             <span>
@@ -242,15 +242,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       <div className="flex flex-col flex-1 py-2">
         <div className="flex items-center gap-2 mb-3">
           {post.categories?.[0] && (
-            <span className="text-[10px] font-extrabold text-secondary uppercase tracking-widest">{post.categories[0].title}</span>
+            <span className="text-[10px] font-bold text-brand-orange uppercase tracking-widest">{post.categories[0].title}</span>
           )}
           <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">• {post.publishedAt ? format(new Date(post.publishedAt), 'MMM d, yyyy') : 'Draft'}</span>
         </div>
-        <h3 className="text-xl font-bold text-primary mb-3 group-hover:text-brand-orange transition-colors line-clamp-2">{post.title}</h3>
+        <h3 className="text-xl font-bold text-brand-blue mb-3 group-hover:text-brand-orange transition-colors line-clamp-2">{post.title}</h3>
         {post.summary && (
           <p className="text-muted-foreground text-sm line-clamp-2 mb-4">{post.summary}</p>
         )}
-        <div className="mt-auto flex items-center gap-2 text-primary font-bold text-xs">
+        <div className="mt-auto flex items-center gap-2 text-brand-blue font-bold text-xs">
           Read More <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
@@ -264,10 +264,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {isBrowsingAll && (
           <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 lg:py-16">
             <div className="text-center mb-12">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black text-primary mb-6 tracking-tight">
-                The Broker Tools <span className="text-secondary"><br />Resource Centre</span>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-brand-blue mb-6 tracking-tight">
+                The Broker Tools <span className="text-brand-orange"><br />Resource Centre</span>
               </h1>
-              <p className="text-lg text-primary/70 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-lg text-brand-blue/70 max-w-3xl mx-auto leading-relaxed">
                 The Broker Tools blog is your go-to resource for all things related to Broker optimisation. <br />From building automated CRM workflows, to dialing in your marketing and client retention plan, learn from experts who've done it before.
               </p>
             </div>
@@ -276,10 +276,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             {dashboardData && (
               <section id="featured" className="mb-20">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-black text-primary flex items-center gap-3 decoration-secondary/30 decoration-8 underline-offset-4">
+                  <h2 className="text-3xl font-bold text-brand-blue flex items-center gap-3 decoration-brand-orange/30 decoration-8 underline-offset-4">
                     Featured Articles
                   </h2>
-                  <div className="w-12 h-1 bg-secondary/20 rounded-full" />
+                  <div className="w-12 h-1 bg-brand-orange/20 rounded-full" />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {dashboardData.featured.map(renderGridCard)}
@@ -310,8 +310,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               {/* How To */}
               <section id="how-to">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-black text-primary">How To Guides</h2>
-                  <Link href="/blog?blogType=guide" className="text-secondary font-bold text-sm hover:underline">View all</Link>
+                  <h2 className="text-3xl font-bold text-brand-blue">How To Guides</h2>
+                  <Link href="/blog?blogType=guide" className="text-brand-orange font-bold text-sm hover:underline">View all</Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {dashboardData.guides.map(renderGridCard)}
@@ -321,8 +321,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               {/* Reviews */}
               <section id="reviews">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-black text-primary">Reviews</h2>
-                  <Link href="/blog?blogType=review" className="text-secondary font-bold text-sm hover:underline">View all</Link>
+                  <h2 className="text-3xl font-bold text-brand-blue">Reviews</h2>
+                  <Link href="/blog?blogType=review" className="text-brand-orange font-bold text-sm hover:underline">View all</Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {dashboardData.reviews.map(renderGridCard)}
@@ -332,8 +332,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               {/* Podcasts */}
               <section id="podcasts">
                 <div className="flex items-center justify-between mb-8">
-                  <h2 className="text-3xl font-black text-primary">Podcasts</h2>
-                  <Link href="/blog?blogType=podcast" className="text-secondary font-bold text-sm hover:underline">View all</Link>
+                  <h2 className="text-3xl font-bold text-brand-blue">Podcasts</h2>
+                  <Link href="/blog?blogType=podcast" className="text-brand-orange font-bold text-sm hover:underline">View all</Link>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {dashboardData.podcasts.map(renderGridCard)}
@@ -360,10 +360,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           <section className="space-y-12">
             {!isBrowsingAll && (
               <div className="mb-8">
-                <h2 className="text-4xl font-black text-primary mb-2">
+                <h2 className="text-4xl font-bold text-brand-blue mb-2">
                   {searchTerm ? `Search Results for "${searchTerm}"` : 'Resource Library'}
                 </h2>
-                <p className="text-primary/60 font-medium">Found {filteredPosts.length} matching resources</p>
+                <p className="text-brand-blue/60 font-medium">Found {filteredPosts.length} matching resources</p>
               </div>
             )}
 
@@ -386,8 +386,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           {/* Footer Features Section */}
           <section className="pt-24 border-t border-primary/10">
             <div className="text-center mb-16 max-w-3xl mx-auto">
-              <h2 className="text-4xl font-black text-primary mb-4">Still not sure?</h2>
-              <p className="text-lg text-primary/70 font-medium leading-relaxed">
+              <h2 className="text-4xl font-bold text-brand-blue mb-4">Still not sure?</h2>
+              <p className="text-lg text-brand-blue/70 font-medium leading-relaxed">
                 Talk to AI, our team or take the quiz and we'll help you find the perfect solution for your brokerage
               </p>
             </div>
@@ -395,17 +395,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {/* AI Recommendation */}
               <Link href="/recommendations" className="group block h-full">
-                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-secondary text-white border-none rounded-3xl overflow-hidden relative">
+                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-brand-orange text-white border-none rounded-3xl overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                   <CardContent className="p-8 flex flex-col h-full relative z-10">
                     <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
                       <Sparkles className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-black mb-4">AI Recommendation</h3>
+                    <h3 className="text-2xl font-bold mb-4">AI Recommendation</h3>
                     <p className="text-white/80 text-sm leading-relaxed mb-8 flex-1">
                       Our advanced AI matches your specific brokerage needs with the perfect tech stack in seconds.
                     </p>
-                    <div className="flex items-center text-white text-sm font-black group/btn">
+                    <div className="flex items-center text-white text-sm font-bold group/btn">
                       Get Matched <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
                     </div>
                   </CardContent>
@@ -414,17 +414,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
               {/* Schedule a Chat */}
               <Link href="/workflow-optimisation" className="group block h-full">
-                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-primary text-white border-none rounded-3xl overflow-hidden relative">
+                <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-brand-blue text-white border-none rounded-3xl overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                   <CardContent className="p-8 flex flex-col h-full relative z-10">
                     <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
                       <MessageCircle className="w-6 h-6 text-white" />
                     </div>
-                    <h3 className="text-2xl font-black mb-4">Schedule a Chat</h3>
+                    <h3 className="text-2xl font-bold mb-4">Schedule a Chat</h3>
                     <p className="text-white/60 text-sm leading-relaxed mb-8 flex-1">
                       Talk to our software experts for one-on-one advice and tailored implementation support.
                     </p>
-                    <div className="flex items-center text-white text-sm font-black group/btn">
+                    <div className="flex items-center text-white text-sm font-bold group/btn">
                       Book a Session <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
                     </div>
                   </CardContent>
@@ -434,17 +434,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               {/* Take the Quiz */}
               <QuizWaitlistModal>
                 <div className="group block h-full cursor-pointer">
-                  <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-accent text-primary border-none rounded-3xl overflow-hidden relative">
+                  <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-accent text-brand-blue border-none rounded-3xl overflow-hidden relative">
                     <div className="absolute bottom-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mb-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                     <CardContent className="p-8 flex flex-col h-full relative z-10">
                       <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm">
                         <FileQuestion className="w-6 h-6 text-primary" />
                       </div>
-                      <h3 className="text-2xl font-black mb-4">Take the Quiz</h3>
-                      <p className="text-primary/70 text-sm leading-relaxed mb-8 flex-1">
+                      <h3 className="text-2xl font-bold mb-4">Take the Quiz</h3>
+                      <p className="text-brand-blue/70 text-sm leading-relaxed mb-8 flex-1">
                         Identify your biggest bottlenecks and discover the right solutions with our quick 2-minute diagnostic tool.
                       </p>
-                      <div className="flex items-center text-primary text-sm font-black group/btn">
+                      <div className="flex items-center text-brand-blue text-sm font-bold group/btn">
                         Start Now <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover/btn:translate-x-2" />
                       </div>
                     </CardContent>

@@ -84,11 +84,11 @@ export default function DecisionMatrixPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 max-w-[1800px] mx-auto">
                     <div>
                         <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="secondary" className="bg-brand-orange/10 text-brand-orange border-none font-black text-[10px] uppercase px-2 py-0.5">
+                            <Badge variant="secondary" className="bg-brand-orange/10 text-brand-orange border-none font-bold text-[10px] uppercase px-2 py-0.5">
                                 Strategic Tool
                             </Badge>
                         </div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tighter uppercase">
+                        <h1 className="text-3xl font-bold text-brand-blue tracking-tighter uppercase">
                             Broker Tech Stack
                         </h1>
                         <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
@@ -102,8 +102,8 @@ export default function DecisionMatrixPage() {
                                 variant={viewMode === 'ACTIVITY' ? 'default' : 'ghost'}
                                 onClick={() => setViewMode('ACTIVITY')}
                                 className={cn(
-                                    "h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                                    viewMode === 'ACTIVITY' ? "bg-white text-slate-900 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900"
+                                    "h-9 px-4 rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                                    viewMode === 'ACTIVITY' ? "bg-white text-brand-blue shadow-sm hover:bg-white" : "text-slate-500 hover:text-brand-blue"
                                 )}
                             >
                                 Activity View
@@ -112,8 +112,8 @@ export default function DecisionMatrixPage() {
                                 variant={viewMode === 'ARTICLE' ? 'default' : 'ghost'}
                                 onClick={() => setViewMode('ARTICLE')}
                                 className={cn(
-                                    "h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                                    viewMode === 'ARTICLE' ? "bg-white text-slate-900 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900"
+                                    "h-9 px-4 rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                                    viewMode === 'ARTICLE' ? "bg-white text-brand-blue shadow-sm hover:bg-white" : "text-slate-500 hover:text-brand-blue"
                                 )}
                             >
                                 Article Mode
@@ -122,8 +122,8 @@ export default function DecisionMatrixPage() {
                                 variant={viewMode === 'DIRECTORY' ? 'default' : 'ghost'}
                                 onClick={() => setViewMode('DIRECTORY')}
                                 className={cn(
-                                    "h-9 px-4 rounded-lg text-[10px] font-black uppercase tracking-wider",
-                                    viewMode === 'DIRECTORY' ? "bg-white text-slate-900 shadow-sm hover:bg-white" : "text-slate-500 hover:text-slate-900"
+                                    "h-9 px-4 rounded-lg text-[10px] font-bold uppercase tracking-wider",
+                                    viewMode === 'DIRECTORY' ? "bg-white text-brand-blue shadow-sm hover:bg-white" : "text-slate-500 hover:text-brand-blue"
                                 )}
                             >
                                 Directory
@@ -148,13 +148,13 @@ export default function DecisionMatrixPage() {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
                         <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-orange" />
-                        <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Building Matrix...</span>
+                        <span className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Building Matrix...</span>
                     </div>
                 ) : stages.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[60vh] gap-6 text-center px-4">
                         <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100">
                             <Info className="w-8 h-8 text-amber-500 mb-2 mx-auto" />
-                            <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight">No Journey Stages Found</h2>
+                            <h2 className="text-sm font-bold text-brand-blue uppercase tracking-tight">No Journey Stages Found</h2>
                             <p className="text-xs font-medium text-slate-500 mt-2 max-w-sm">
                                 The matrix requires "Journey Stage" documents to be present in Sanity.
                                 Please ensure you have imported the `journeyStages.ndjson` and published them.
@@ -162,7 +162,7 @@ export default function DecisionMatrixPage() {
                         </div>
                         <Button
                             onClick={() => window.location.reload()}
-                            className="bg-slate-900 text-white font-black text-[10px] uppercase px-8"
+                            className="bg-brand-blue text-white font-bold text-[10px] uppercase px-8"
                         >
                             Refresh Page
                         </Button>
@@ -193,7 +193,7 @@ export default function DecisionMatrixPage() {
                                     <Info size={16} />
                                 </div>
                                 <div>
-                                    <h4 className="text-[10px] font-black uppercase text-slate-900 mb-1">Gap Analysis</h4>
+                                    <h4 className="text-[10px] font-bold uppercase text-brand-blue mb-1">Gap Analysis</h4>
                                     <p className="text-[10px] font-medium text-slate-500 leading-relaxed">
                                         Empty cells represent potential bottlenecks or areas where your business logic could be further automated.
                                     </p>

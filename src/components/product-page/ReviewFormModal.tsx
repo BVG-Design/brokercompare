@@ -95,7 +95,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
       <div className={`flex flex-col gap-1 ${!isAuthenticated ? 'opacity-60 pointer-events-none' : ''}`}>
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">{label}</label>
-          <span className="text-xs font-black text-orange-600">{value > 0 ? value.toFixed(1) : '-'}</span>
+          <span className="text-xs font-bold text-brand-orange">{value > 0 ? value.toFixed(1) : '-'}</span>
         </div>
         <div className="flex items-center gap-1" onMouseLeave={() => setHover(0)}>
           {[1, 2, 3, 4, 5].map((iconIdx) => (
@@ -124,7 +124,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                   className={`
                     transition-colors duration-150
                     ${(hover || value) >= iconIdx
-                      ? 'text-orange-500 fill-orange-500'
+                      ? 'text-brand-orange fill-brand-orange'
                       : (hover || value) >= iconIdx - 0.5
                         ? 'text-gray-200 fill-gray-100' // Partially filled look
                         : 'text-gray-200'}
@@ -134,7 +134,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 {/* Visual half fill overlay */}
                 {((hover || value) >= iconIdx - 0.5 && (hover || value) < iconIdx) && (
                   <div className="absolute inset-0 overflow-hidden w-1/2">
-                    <ThumbsUp size={20} className="text-orange-500 fill-orange-500" strokeWidth={2} />
+                    <ThumbsUp size={20} className="text-brand-orange fill-brand-orange" strokeWidth={2} />
                   </div>
                 )}
               </div>
@@ -186,8 +186,8 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               <div className="flex flex-col items-end">
                 <span className="text-[10px] text-gray-400 font-bold uppercase mb-0.5">Overall Score</span>
                 <div className="flex items-center gap-2">
-                  <ThumbsUp size={16} className="text-orange-600 fill-orange-600" />
-                  <span className="text-xl font-black text-gray-900 leading-none">{overallRating.toFixed(1)}</span>
+                  <ThumbsUp size={16} className="text-brand-orange fill-brand-orange" />
+                  <span className="text-xl font-bold text-brand-blue leading-none">{overallRating.toFixed(1)}</span>
                 </div>
               </div>
             </div>
@@ -209,7 +209,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., The best project management tool I've used"
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all shadow-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all shadow-sm font-bold"
               required
               disabled={!isAuthenticated}
             />
@@ -223,7 +223,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               onChange={(e) => setContent(e.target.value)}
               placeholder="What did you like or dislike? How are you using it?"
               rows={4}
-              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
+              className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all resize-none shadow-sm font-medium"
               required
               disabled={!isAuthenticated}
             />
@@ -272,8 +272,8 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                   onClick={() => toggleRecommendation(type.id)}
                   disabled={!isAuthenticated}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all shadow-sm ${recommendations.includes(type.id)
-                    ? 'bg-orange-500 text-white border-orange-500'
-                    : 'bg-white text-gray-600 border-gray-200 hover:border-orange-200'
+                    ? 'bg-brand-orange text-white border-brand-orange'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-brand-orange/20'
                     }`}
                 >
                   {recommendations.includes(type.id) && <CheckCircle2 size={14} />}

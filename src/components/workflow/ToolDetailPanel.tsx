@@ -51,16 +51,16 @@ export default function ToolDetailPanel({ listing, onClose, onCompare }: ToolDet
                                     </div>
                                 ) : (
                                     <div className={cn(
-                                        "w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-black",
+                                        "w-20 h-20 rounded-2xl flex items-center justify-center text-white text-3xl font-bold",
                                         config.color
                                     )}>
                                         {listing.title.charAt(0)}
                                     </div>
                                 )}
                                 <div>
-                                    <h2 className="text-2xl font-black text-slate-900 tracking-tight uppercase">{listing.title}</h2>
+                                    <h2 className="text-2xl font-bold text-brand-blue tracking-tight uppercase">{listing.title}</h2>
                                     <div className="flex items-center gap-2 mt-2">
-                                        <Badge variant="outline" className="text-[10px] font-black uppercase tracking-widest bg-slate-50 border-slate-200">
+                                        <Badge variant="outline" className="text-[10px] font-bold uppercase tracking-widest bg-slate-50 border-slate-200">
                                             {primaryAssoc.replace(/_/g, ' ')}
                                         </Badge>
                                     </div>
@@ -78,7 +78,7 @@ export default function ToolDetailPanel({ listing, onClose, onCompare }: ToolDet
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-1.5">
                                 <Star className="w-5 h-5 fill-brand-orange text-brand-orange" />
-                                <span className="text-lg font-black text-slate-900">4.8</span>
+                                <span className="text-lg font-bold text-brand-blue">4.8</span>
                                 <span className="text-slate-400 font-bold text-sm">/ 5.0</span>
                             </div>
                             <div className="h-4 w-px bg-slate-100" />
@@ -96,15 +96,15 @@ export default function ToolDetailPanel({ listing, onClose, onCompare }: ToolDet
                 <div className="p-8 space-y-10">
                     {/* Tagline & Description */}
                     <div>
-                        <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Strategic Overview</h3>
-                        <p className="text-slate-900 font-bold text-lg leading-snug mb-4">{listing.tagline}</p>
+                        <h3 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-4">Strategic Overview</h3>
+                        <p className="text-brand-blue font-bold text-lg leading-snug mb-4">{listing.tagline}</p>
                         <p className="text-slate-500 text-sm leading-relaxed">{listing.description}</p>
                     </div>
 
                     {/* Capabilities */}
                     {listing.features?.length > 0 && (
                         <div>
-                            <h3 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-6">Core Capabilities</h3>
+                            <h3 className="text-[10px] font-bold text-slate-300 uppercase tracking-widest mb-6">Core Capabilities</h3>
                             <div className="grid grid-cols-1 gap-3">
                                 {listing.features.map((feature: any, index: number) => (
                                     <div key={index} className="flex items-center gap-4 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 group hover:border-slate-200 transition-colors">
@@ -124,12 +124,12 @@ export default function ToolDetailPanel({ listing, onClose, onCompare }: ToolDet
                     <div className="flex gap-4">
                         <Button
                             variant="outline"
-                            className="flex-1 h-12 text-[10px] font-black uppercase tracking-widest rounded-xl border-2"
+                            className="flex-1 h-12 text-[10px] font-bold uppercase tracking-widest rounded-xl border-2"
                             onClick={() => onCompare?.(listing)}
                         >
                             Add to Matrix
                         </Button>
-                        <Button className="flex-1 h-12 bg-brand-orange hover:bg-orange-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl">
+                        <Button className="flex-1 h-12 bg-brand-orange hover:bg-orange-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl">
                             Visit Provider
                             <ExternalLink className="w-4 h-4 ml-2" />
                         </Button>
