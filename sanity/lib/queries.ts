@@ -52,13 +52,68 @@ export const FEATURED_BLOGS_QUERY = groq`
   }
 `;
 
+export const JOURNEY_STAGES_QUERY = groq`
+  *[_type == "journeyStage"] | order(position asc) {
+    "id": _id,
+    title,
+    "slug": slug.current,
+    position,
+    description
+  }
+`;
+
+export const DIRECTORY_LISTINGS_MATRIX_QUERY = groq`
+  *[_type == "directoryListing" && defined(journeyStage)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageId": journeyStage._ref,
+    journeyAssociations,
+    "logo": logo.asset->url,
+    tagline,
+    rating,
+    pricing,
+    features,
+    badges[]->{ _id, title }
+  }
+`;
+
+export const BLOG_POSTS_MATRIX_QUERY = groq`
+  *[_type == "blog" && defined(journeyStages)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageIds": journeyStages[]._ref,
+    journeyAssociations,
+    "logo": heroImage.asset->url,
+    "summary": summary,
+    publishedAt,
+    readTime
+  }
+`;
+
+export const GUIDES_MATRIX_QUERY = groq`
+  *[_type == "guide" && defined(journeyStage)] {
+    _id,
+    _type,
+    title,
+    "slug": slug.current,
+    "journeyStageId": journeyStage._ref,
+    journeyAssociations,
+    "summary": summary,
+    relatedLinks
+  }
+`;
+
 export const UNIFIED_SEARCH_QUERY = groq`
 *[_type in $contentTypes 
   && ($category == null || category->slug.current == $category || $category in categories[]->slug.current)
-  && ($brokerType == null || $brokerType == brokerType || $brokerType in brokerType || $brokerType in brokerTypes)
+  && ($brokerType == null || $brokerType == brokerType || $brokerType in brokerType || $brokerType in brokerTypes || brokerType[] match $brokerType + "*" || brokerType match $brokerType + "*")
   && ($listingType == null 
-      || ($listingType == "software" && (_type == "product" || listingType == "software"))
-      || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service"))
+      || ($listingType == "software" && (_type == "product" || listingType == "software" || listingType->value == "software" || listingType->title == "software"))
+      || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service" || listingType->value == "service" || listingType->title == "service"))
       || ($listingType == "resourceGuide" && _type == "blog")
      )
   && (
@@ -81,6 +136,13 @@ export const UNIFIED_SEARCH_QUERY = groq`
   brokerType,
   "slug": slug.current,
   "category": coalesce(category->title, categories[0]->title, "Uncategorized"),
+  "listingType": select(
+    _type == "product" => "software",
+    _type == "serviceProvider" => "service",
+    _type == "blog" => "resourceGuide",
+    coalesce(listingType->value, listingType->title, listingType)
+  ),
+  "badges": badges[]->title,
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,

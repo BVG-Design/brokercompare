@@ -156,7 +156,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                             <h4 className="font-bold mb-4">Engage</h4>
                             <ul className="space-y-2 text-sm text-white/60">
                                 <li className="group relative w-fit">
-                                    <Link href="/write-review" className="hover:text-brand-orange transition-colors" title="Review a software or servicet.">Write a Review</Link>
+                                    <Link href="/workflow-optimisation" className="hover:text-brand-orange transition-colors" title="Schedule a chat with us.">Schedule a Chat</Link>
                                 </li>
                                 <li className="group relative w-fit">
                                     <Link href="/partner" className="hover:text-brand-orange transition-colors" title="Work with us as a vendor, educator or integration partner.">Partner With Us</Link>

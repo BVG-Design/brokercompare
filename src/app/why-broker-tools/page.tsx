@@ -145,7 +145,7 @@ export default function WhyBrokerToolsPage() {
 
                 <Slide id="lenses" number="02" title="Our Five Decision Lenses" tone="gold">
                     <p className="text-m font-italic text-brand-blue">
-                        Every recommendation is stress-tested through five lenses. Together they reveal if a tool is fit, energising, focused, well-scoped, and safe to trial.
+                        Every recommendation is stress-tested through five lenses. Together they reveal if a tool meets the businesses needs, creates focus and supports your long term goals.
                     </p>
                     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {[

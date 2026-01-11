@@ -7,6 +7,8 @@ export interface ResourcePost {
     imageUrl?: string;
     link: string;
     featuredLabel?: string;
+    listingType?: string;
+    blogType?: string;
 }
 export interface DirectoryListing {
     id: string;
@@ -17,10 +19,15 @@ export interface DirectoryListing {
     brokerTypes: string[];
     listingTier: 'free' | 'premium' | 'featured';
     slug: string;
-    rating?: number;
+    rating?: any;
     viewCount?: number;
+    trustMetrics?: {
+        responseTimeHours?: number;
+        verifiedRatio?: number;
+        reviewRecencyDays?: number;
+    };
     tags?: string[];
     websiteUrl?: string;
     pricingModel?: string;
-    type: 'software' | 'service'; // To distinguish source
+    type: 'software' | 'service' | 'product'; // To distinguish source
 }

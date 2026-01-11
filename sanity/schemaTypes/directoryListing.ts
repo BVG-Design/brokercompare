@@ -29,14 +29,8 @@ export const directoryListingType = defineType({
     defineField({
       name: 'listingType',
       title: 'Listing Type',
-      type: 'string',
-      options: {
-        list: [
-          { title: 'Software', value: 'software' },
-          { title: 'Service', value: 'service' }
-        ],
-        layout: 'radio'
-      },
+      type: 'reference',
+      to: [{ type: 'listingType' }],
       validation: Rule => Rule.required()
     }),
 
@@ -142,7 +136,7 @@ export const directoryListingType = defineType({
           type: 'reference',
           to: [{ type: 'directoryListing' }],
           options: {
-            filter: 'listingType == "software"'
+            filter: 'listingType->value == "software"'
           }
         }
       ],
@@ -196,7 +190,7 @@ export const directoryListingType = defineType({
           ],
           preview: {
             select: { title: 'listing.title', priority: 'priority' },
-            prepare({ title, priority }: { title: string; priority: number }) {
+            prepare({ title, priority }: any) {
               return {
                 title: title || 'Select listing',
                 subtitle: priority ? `Priority ${priority}` : 'No priority set'
@@ -219,7 +213,7 @@ export const directoryListingType = defineType({
           type: 'reference',
           to: [{ type: 'directoryListing' }],
           options: {
-            filter: 'listingType == "service"'
+            filter: 'listingType->value == "service"'
           }
         }
       ],
@@ -276,6 +270,58 @@ export const directoryListingType = defineType({
       description: 'Editorial or commercial badges applied to this listing'
     }),
     defineField({
+      name: 'rating',
+      title: 'Rating',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'average',
+          title: 'Average Rating',
+          type: 'number',
+          description: 'Average score (e.g. 4.5 out of 5)',
+          validation: Rule => Rule.min(0).max(5)
+        }),
+        defineField({
+          name: 'reviewCount',
+          title: 'Review Count',
+          type: 'number',
+          validation: Rule => Rule.min(0)
+        })
+      ]
+    }),
+
+    defineField({
+      name: 'trustMetrics',
+      title: 'Trust Metrics',
+      type: 'object',
+      fields: [
+        defineField({
+          name: 'responseTimeHours',
+          title: 'Response Time (Hours)',
+          type: 'number'
+        }),
+        defineField({
+          name: 'verifiedRatio',
+          title: 'Verified Ratio (0-1)',
+          type: 'number',
+          validation: Rule => Rule.min(0).max(1)
+        }),
+        defineField({
+          name: 'reviewRecencyDays',
+          title: 'Review Recency (Days)',
+          type: 'number'
+        })
+      ]
+    }),
+
+    defineField({
+      name: 'viewCount',
+      title: 'View Count',
+      type: 'number',
+      initialValue: 0
+    }),
+
+    defineField({
       name: 'journeyStage',
       title: 'Journey Stage',
       type: 'reference',
@@ -291,7 +337,7 @@ export const directoryListingType = defineType({
         list: [
           { title: 'People', value: 'people' },
           { title: 'Tools', value: 'tools' },
-          { title: 'Processes & Automations', value: 'processes_automations' }
+          { title: 'Processes', value: 'processes' },
         ]
       },
       description: 'The types of business pillars this tool impacts.'
@@ -300,14 +346,14 @@ export const directoryListingType = defineType({
   preview: {
     select: {
       title: 'title',
-      listingType: 'listingType',
+      listingType: 'listingType->title',
       category: 'category.title',
       media: 'logo'
     },
     prepare({ title, listingType, category, media }) {
       return {
         title: title,
-        subtitle: `${(listingType || '').toUpperCase()} | ${category || 'No Category'}`,
+        subtitle: `${(listingType?.title || '').toUpperCase()} | ${category || 'No Category'}`,
         media: media
       };
     }

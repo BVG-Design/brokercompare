@@ -57,8 +57,8 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import AIChatDialog from '@/components/partners/AIChatDialog';
-import { ServiceCard } from '@/app/services/service-card';
-import { SoftwareCard } from '@/app/software/software-card';
+import { ServiceCard } from '@/components/directory/service-card';
+import { SoftwareCard } from '@/components/directory/software-card';
 import { supabase } from '@/lib/supabase/client';
 import {
   getProfile,

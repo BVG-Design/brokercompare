@@ -13,7 +13,9 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     featuredLabel,
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
-    "logoUrl": logo.asset->url
+    "logoUrl": logo.asset->url,
+    "listingType": coalesce(listingType->value, listingType),
+    blogType
   }`;
 
   const results = await client.fetch(query);
@@ -26,8 +28,48 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     ctaText: item._type === 'blog' ? 'Read' : 'Explore',
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
     link: item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`,
-    featuredLabel: item.featuredLabel
+    featuredLabel: item.featuredLabel,
+    listingType: item.listingType,
+    blogType: item.blogType
   }));
+};
+
+export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
+  const query = `{
+    "podcast": *[_type == "blog" && blogType == "podcast"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
+    },
+    "guide": *[_type == "blog" && blogType == "guide"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
+    },
+    "faq": *[_type == "blog" && blogType == "faq"] | order(_createdAt desc)[0]{
+      _id, _type, title, summary, "slug": slug.current, "imageUrl": heroImage.asset->url, blogType
+    }
+  }`;
+
+  const results = await client.fetch(query);
+
+  const mapResult = (item: any, defaultCategory: string) => {
+    if (!item) return null;
+    return {
+      id: item._id,
+      title: item.title,
+      description: item.summary,
+      category: defaultCategory,
+      ctaText: 'EXPLORE',
+      imageUrl: item.imageUrl,
+      link: `/blog/${item.slug}`,
+      blogType: item.blogType
+    };
+  };
+
+  const cards = [
+    mapResult(results.podcast, 'PODCASTS'),
+    mapResult(results.guide, 'GUIDES'),
+    mapResult(results.faq, 'FAQS')
+  ].filter(Boolean) as ResourcePost[];
+
+  return cards;
 };
 
 export interface UnifiedSearchResult {
@@ -42,6 +84,8 @@ export interface UnifiedSearchResult {
   heroImageUrl?: string;
   tags?: string[];
   brokerType?: string[];
+  listingType?: string;
+  badges?: string[];
 }
 
 export const fetchUnifiedSearchResults = async (
@@ -95,14 +139,18 @@ export const fetchUnifiedSearchResults = async (
 export const fetchDirectoryListings = async (filters: {
   category?: string;
   brokerType?: string;
+  featuredLabel?: string;
+  listingType?: string;
+  blogType?: string;
   tier?: string;
   search?: string;
 } = {}): Promise<DirectoryListing[]> => {
-  const { category, brokerType, tier, search } = filters;
+  const { category, brokerType, tier, search, listingType } = filters;
 
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
+    ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
     ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
   ]{
     _id,
@@ -113,29 +161,37 @@ export const fetchDirectoryListings = async (filters: {
     "categories": [category->title],
     brokerType,
     "slug": slug.current,
-    "rating": 5, // Placeholder for now
+    rating,
+    trustMetrics,
+    viewCount,
     websiteURL,
     pricing,
-    listingType,
+    "listingType": coalesce(listingType->value, listingType->title, listingType),
     isFeatured
   }`;
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
   if (search) params.search = search;
+  if (listingType && listingType !== 'all') params.listingType = listingType;
 
   const results = await client.fetch(query, params);
 
   return results.map((item: any) => ({
     id: item._id,
     name: item.name,
+    company_name: item.name, // For PartnerCard
     description: item.description,
     logoUrl: item.logoUrl,
+    logo_url: item.logoUrl, // For PartnerCard
     categories: item.categories || [],
     brokerTypes: item.brokerType || [],
     listingTier: item.isFeatured ? 'featured' : 'free',
+    listing_tier: item.isFeatured ? 'featured' : 'free', // For PartnerCard
     slug: item.slug,
     rating: item.rating,
+    trustMetrics: item.trustMetrics,
+    viewCount: item.viewCount,
     websiteUrl: item.websiteURL,
     pricingModel: item.pricing?.type,
     type: item.listingType
@@ -157,4 +213,42 @@ export const fetchSearchIntents = async (): Promise<{ title: string; slug: strin
 
 export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
   return await DirectoryProxy.getListingBySlug(slug);
+};
+
+export const fetchJourneyStages = async (): Promise<any[]> => {
+  const { JOURNEY_STAGES_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(JOURNEY_STAGES_QUERY, {}, { useCdn: false });
+};
+
+export const fetchDirectoryListingsMatrix = async (): Promise<any[]> => {
+  const { DIRECTORY_LISTINGS_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(DIRECTORY_LISTINGS_MATRIX_QUERY, {}, { useCdn: false });
+};
+
+export const fetchBlogPostsMatrix = async (): Promise<any[]> => {
+  const { BLOG_POSTS_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(BLOG_POSTS_MATRIX_QUERY, {}, { useCdn: false });
+};
+
+export const fetchGuidesMatrix = async (): Promise<any[]> => {
+  const { GUIDES_MATRIX_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(GUIDES_MATRIX_QUERY, {}, { useCdn: false });
+};
+export const fetchRelatedArticles = async (limit: number = 3): Promise<any[]> => {
+  const query = `*[_type == "blog"] | order(_createdAt desc)[0...${limit}] {
+    _id,
+    title,
+    description,
+    "category": category->title,
+    mainImage {
+      asset-> {
+        url
+      }
+    },
+    publishedAt,
+    "author": author->name,
+    "slug": slug.current
+  }`;
+
+  return client.fetch(query);
 };

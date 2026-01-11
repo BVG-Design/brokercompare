@@ -1,4 +1,4 @@
-import { fetchUnifiedSearchResults, fetchCategories } from '@/services/sanity';
+import { fetchUnifiedSearchResults, fetchCategories, fetchRelatedArticles } from '@/services/sanity';
 import SearchPageClient from './SearchPageClient';
 
 interface PageProps {
@@ -17,13 +17,14 @@ export default async function SearchPage(props: PageProps) {
   const brokerType = typeof searchParams.brokerType === 'string' ? searchParams.brokerType : 'all';
   const type = typeof searchParams.type === 'string' ? searchParams.type : 'all';
 
-  const [results, categories] = await Promise.all([
+  const [results, categories, relatedArticles] = await Promise.all([
     fetchUnifiedSearchResults(
       [decodedTerm],
       ['blog', 'product', 'serviceProvider', 'directoryListing'],
       { category, brokerType, type }
     ),
-    fetchCategories()
+    fetchCategories(),
+    fetchRelatedArticles(3)
   ]);
 
   return (
@@ -32,6 +33,7 @@ export default async function SearchPage(props: PageProps) {
       categories={categories}
       initialSearchTerm={decodedTerm}
       initialFilters={{ category, brokerType, type }}
+      relatedArticles={relatedArticles}
     />
   );
 }

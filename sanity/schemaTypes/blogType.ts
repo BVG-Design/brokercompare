@@ -32,6 +32,13 @@ export const blogType = defineType({
       type: 'reference',
       to: [{ type: 'author' }],
     }),
+    defineField({
+      name: 'authors',
+      title: 'Co-Hosts',
+      type: 'array',
+      of: [{ type: 'reference', to: [{ type: 'author' }] }],
+      description: 'Additional authors or guests (Co-Hosts).'
+    }),
 
     defineField({
       name: 'category',
@@ -61,6 +68,12 @@ export const blogType = defineType({
         ]
       }
     }),
+    defineField({
+      name: 'listingType',
+      title: 'Listing Type',
+      type: 'reference',
+      to: [{ type: 'listingType' }]
+    }),
 
     defineField({
       name: 'worksWith',
@@ -71,7 +84,7 @@ export const blogType = defineType({
           type: 'reference',
           to: [{ type: 'directoryListing' }],
           options: {
-            filter: 'listingType == "software"'
+            filter: 'listingType->value == "software"'
           }
         }
       ],
@@ -101,13 +114,18 @@ export const blogType = defineType({
     }),
 
     defineField({
-      name: 'listingType',
-      title: 'Listing Type',
+      name: 'blogType',
+      title: 'Blog Type',
       type: 'string',
       options: {
         list: [
-          { title: 'Software', value: 'software' },
-          { title: 'Service', value: 'service' }
+          { title: 'Podcast', value: 'podcast' },
+          { title: 'Guide', value: 'guide' },
+          { title: 'FAQ', value: 'faq' },
+          { title: 'Resource', value: 'resource' },
+          { title: 'Review', value: 'review' },
+          { title: 'News', value: 'news' },
+          { title: 'Case Study', value: 'case_study' }
         ],
         layout: 'radio'
       },
@@ -133,6 +151,27 @@ export const blogType = defineType({
       type: 'array',
       of: [{ type: 'reference', to: [{ type: 'journeyStage' }] }],
       description: 'The journey stages this article is relevant to.'
+    }),
+    defineField({
+      name: 'journeyAssociations',
+      title: 'Journey Associations',
+      type: 'array',
+      of: [{ type: 'string' }],
+      options: {
+        list: [
+          { title: 'People', value: 'people' },
+          { title: 'Tools', value: 'tools' },
+          { title: 'Processes', value: 'processes' },
+        ]
+      },
+      description: 'The types of business pillars this article impacts.'
+    }),
+
+    defineField({
+      name: 'video',
+      title: 'Featured Video (optional)',
+      type: 'videoEmbed',
+      hidden: ({ document }) => !['podcast', 'guide', 'resource'].includes(document?.blogType as string),
     }),
 
     defineField({
@@ -188,11 +227,27 @@ export const blogType = defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'related',
+      title: 'Related Content',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [
+            { type: 'blog' },
+            { type: 'directoryListing' }
+          ]
+        }
+      ],
+      description: 'Hand-picked related content (articles, podcasts, reviews, or directory listings).'
+    }),
+    defineField({
       name: 'featuredLabel',
       title: 'Featured Label',
       type: 'string',
       description: 'Label to show on homepage (e.g. "GUIDE")',
       hidden: ({ document }) => !document?.isFeatured,
     }),
-  ]
+  ],
+
 })

@@ -47,7 +47,7 @@ function BrowsepartnersContent() {
               search: searchTerm,
               category: categoryFilter,
               brokerType: brokerTypeFilter,
-              type: typeFilter !== 'all' ? typeFilter : undefined
+              listingType: typeFilter !== 'all' ? typeFilter : undefined
             }),
             fetchCategories()
           ]);

@@ -1,23 +1,15 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Search, Filter, Sparkles, X } from 'lucide-react';
+import { Search, SlidersHorizontal, Grid, List as ListIcon, X, ArrowRight, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
 import { UnifiedSearchResult } from '@/services/sanity';
-import { brokerTypes } from '@/lib/blog-categories';
-import AIChatDialog from '@/components/partners/AIChatDialog';
-
+import DirectoryCard from '@/components/search/DirectoryCard';
+import RelatedArticles from '@/components/search/RelatedArticles';
+import StillNotSure from '@/components/product-page/StillNotSure';
 
 interface SearchPageClientProps {
     initialResults: UnifiedSearchResult[];
@@ -29,6 +21,7 @@ interface SearchPageClientProps {
         type: string;
     };
     isSearchIntent?: boolean;
+    relatedArticles?: any[];
 }
 
 export default function SearchPageClient({
@@ -37,16 +30,69 @@ export default function SearchPageClient({
     initialSearchTerm,
     initialFilters,
     isSearchIntent = false,
+    relatedArticles = [],
 }: SearchPageClientProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // State for inputs (synced with URL via props)
-    const [searchTerm, setSearchTerm] = useState(initialSearchTerm);
-    const [showAIChat, setShowAIChat] = useState(false);
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
+    const [activeCategory, setActiveCategory] = useState(initialFilters.type || 'all');
+    const [isRefineOpen, setIsRefineOpen] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState(initialSearchTerm);
+    const itemsPerPage = 9;
 
-    // Update URL helper
-    const updateFilters = useCallback((key: string, value: string) => {
+    // Dynamically determine available listing types from results
+    const availableListingTypes = useMemo(() => {
+        const types = new Set<string>();
+        (initialResults || []).forEach(item => {
+            if (item.listingType) {
+                // Normalize for display
+                const t = item.listingType.toLowerCase();
+                if (['software', 'service', 'product', 'products'].includes(t)) {
+                    types.add(t);
+                }
+            }
+        });
+        return Array.from(types).map(t => ({
+            label: t.charAt(0).toUpperCase() + t.slice(1),
+            value: t
+        }));
+    }, [initialResults]);
+
+    const filteredResults = useMemo(() => {
+        if (activeCategory === 'all') return (initialResults || []);
+        return (initialResults || []).filter(item =>
+            item.listingType?.toLowerCase() === activeCategory.toLowerCase()
+        );
+    }, [initialResults, activeCategory]);
+
+    const handleCategoryChange = (category: string) => {
+        setActiveCategory(category);
+        setCurrentPage(1); // Reset to first page
+        const params = new URLSearchParams(searchParams.toString());
+        if (category && category !== 'all') {
+            params.set('type', category);
+        } else {
+            params.delete('type');
+        }
+        router.replace(`?${params.toString()}`, { scroll: false });
+    };
+
+    const paginatedResults = useMemo(() => {
+        return filteredResults.slice(0, currentPage * itemsPerPage);
+    }, [filteredResults, currentPage]);
+
+    const hasMore = paginatedResults.length < filteredResults.length;
+
+    const handleSearch = (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+        if (searchQuery.trim()) {
+            router.push(`/search/${encodeURIComponent(searchQuery.trim())}`);
+        }
+    };
+
+    const updateFilterParams = (key: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());
         if (value && value !== 'all') {
             params.set(key, value);
@@ -54,205 +100,208 @@ export default function SearchPageClient({
             params.delete(key);
         }
         router.push(`?${params.toString()}`);
-    }, [searchParams, router]);
-
-    const handleSearch = () => {
-        // Since this is a dynamic route /search/[slug], changing the term technically implies a navigation 
-        // to a new slug or just a param update? 
-        // The directory page uses ?q=... but this page is /search/[slug].
-        // If the user types a new term, typically we'd navigate to /search/new-term or update a 'q' param if we supported it.
-        // Current architectural pattern: /search/[term]. 
-        // Let's assume for now we don't change the route slug on every keystroke, but maybe we should redirect on Enter?
-        // For server-side filtering of *results* matching the *slug*, we are fine.
-        // But if user wants to change the search term:
-        if (searchTerm !== initialSearchTerm) {
-            // Navigate to new slug
-            router.push(`/search/${encodeURIComponent(searchTerm)}`);
-        }
-    };
-
-    const clearAll = () => {
-        setSearchTerm(''); // This might need to redirect to global search or clean slug?
-        // Actually, clearing all filters usually implies keeping the search term or resetting everything?
-        // If we stay on /search/[slug], we can't easily "clear" the search term slug.
-        // Let's just clear the *filters* (category, etc) and keep the term.
-        router.push(`/search/${encodeURIComponent(initialSearchTerm)}`);
     };
 
     return (
-        <>
-            {/* Filters & Results */}
-            <div className="container mx-auto px-4 md:px-6 py-12">
-                {/* Filter Bar */}
-                <div className="bg-card rounded-xl shadow-md p-6 mb-8 border">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Filter className="w-5 h-5 text-primary" />
-                        <h3 className="font-semibold text-primary">Filters</h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">Category</label>
-                            <Select
-                                value={initialFilters.category}
-                                onValueChange={(val) => updateFilters('category', val)}
-                            >
-                                <SelectTrigger className="h-12">
-                                    <SelectValue placeholder="All Categories" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Categories</SelectItem>
-                                    {categories.map((cat) => (
-                                        <SelectItem key={cat.value} value={cat.value}>
-                                            {cat.title}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">Broker Type</label>
-                            <Select
-                                value={initialFilters.brokerType}
-                                onValueChange={(val) => updateFilters('brokerType', val)}
-                            >
-                                <SelectTrigger className="h-12">
-                                    <SelectValue placeholder="All Broker Types" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {brokerTypes.map((type) => (
-                                        <SelectItem key={type.value} value={type.value}>
-                                            {type.label}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <div>
-                            <label className="text-sm font-medium text-foreground mb-2 block">Listing Type</label>
-                            <Select
-                                value={initialFilters.type}
-                                onValueChange={(val) => updateFilters('type', val)}
-                            >
-                                <SelectTrigger className="h-12">
-                                    <SelectValue placeholder="All Listings" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">All Listings</SelectItem>
-                                    <SelectItem value="software">Software</SelectItem>
-                                    <SelectItem value="service">Services</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-
-                    {/* AI Chat CTA - Centered below filters */}
-                    <div className="mt-8 mb-8 text-center">
-                        <Button
-                            onClick={() => setShowAIChat(true)}
-                            size="lg"
-                            className="bg-brand-orange hover:bg-orange-600 text-white shadow-lg hover:shadow-xl transition-all h-14 px-8 text-lg rounded-lg"
-                        >
-                            <Sparkles className="w-5 h-5 mr-2 animate-pulse" />
-                            Ask AI for personalized recommendations
-                        </Button>
-                    </div>
-
-                    {(initialFilters.category !== 'all' || initialFilters.brokerType !== 'all' || initialFilters.type !== 'all') && (
-                        <div className="mt-4 pt-4 border-t flex justify-center">
-                            <Button variant="ghost" size="sm" onClick={clearAll} className="text-muted-foreground hover:text-foreground">
-                                <X className="w-4 h-4 mr-2" />
-                                Clear all filters
-                            </Button>
-                        </div>
-                    )}
-                </div>
-
+        <div className="bg-[#f8fafc] py-12">
+            <div className="max-w-6xl mx-auto px-4 md:px-8">
+                {/* Search Header */}
                 {!isSearchIntent && (
-                    <div className="mb-8">
-                        <h1 className="text-3xl md:text-4xl font-bold text-foreground">Search results</h1>
-                        <p className="text-muted-foreground mt-2">
-                            {initialResults.length} {initialResults.length === 1 ? 'result' : 'results'} for "{searchTerm}"
+                    <div className="mb-12">
+                        <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">Search results</h1>
+                        <p className="text-gray-500 mt-3 font-medium">
+                            {filteredResults.length} {filteredResults.length === 1 ? 'result' : 'results'} for "{initialSearchTerm}"
                         </p>
                     </div>
                 )}
 
-                {initialResults.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-muted-foreground/40 p-8 text-center">
-                        <p className="text-lg font-medium">No results found.</p>
-                        <p className="text-muted-foreground mt-2">Try adjusting your filters or search term.</p>
+                {/* Filters Bar */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+                    <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2">
+                        <button
+                            onClick={() => handleCategoryChange('all')}
+                            className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all border ${activeCategory === 'all' ? 'bg-gray-900 text-white border-gray-900 shadow-xl' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300'}`}
+                        >
+                            All
+                        </button>
+                        {availableListingTypes.map(type => (
+                            <button
+                                key={type.value}
+                                onClick={() => handleCategoryChange(type.value)}
+                                className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all border ${activeCategory === type.value ? 'bg-gray-900 text-white border-gray-900 shadow-xl' : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300'}`}
+                            >
+                                {type.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <button
+                            onClick={() => setIsRefineOpen(!isRefineOpen)}
+                            className={`flex items-center gap-2 px-4 py-2.5 bg-white border ${isRefineOpen ? 'border-gray-900 border-2' : 'border-gray-100'} rounded-xl text-xs font-black uppercase tracking-widest text-gray-600 hover:bg-gray-50 transition-all`}
+                        >
+                            <SlidersHorizontal size={14} /> Refine
+                        </button>
+                        <div className="h-6 w-px bg-gray-200"></div>
+                        <div className="flex bg-white border border-gray-100 rounded-xl p-1 shadow-sm">
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`p-2 rounded-lg transition-all ${viewMode === 'list' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <ListIcon size={16} />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('grid')}
+                                className={`p-2 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-gray-100 text-gray-900' : 'text-gray-400 hover:text-gray-600'}`}
+                            >
+                                <Grid size={16} />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Results Grid/List */}
+                {filteredResults.length === 0 ? (
+                    <div className="bg-white rounded-3xl border-2 border-dashed border-gray-100 p-20 text-center mb-20">
+                        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                            <Search className="w-8 h-8 text-gray-300" />
+                        </div>
+                        <h3 className="text-xl font-black text-gray-900 mb-2">No results found</h3>
+                        <p className="text-gray-500 font-medium">Try adjusting your filters or search term.</p>
                     </div>
                 ) : (
-                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                        {initialResults.map((item) => {
-                            const title = item.title || item.name || 'Untitled';
-                            const imageUrl = item.logoUrl || item.heroImageUrl;
-                            const href = item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`;
-
-                            return (
-                                <Link
+                    <>
+                        <div className={`mb-12 ${viewMode === 'list' ? 'space-y-8' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+                            {paginatedResults.map((item) => (
+                                <DirectoryCard
                                     key={item._id}
-                                    href={href}
-                                    className="group flex flex-col rounded-xl border border-border bg-card p-5 transition hover:shadow-md h-full"
+                                    id={item._id}
+                                    name={item.title || item.name || 'Untitled'}
+                                    type={item.listingType || ''}
+                                    tagline={item.description ? (item.description.substring(0, 80) + (item.description.length > 80 ? '...' : '')) : ''}
+                                    description={item.description || ''}
+                                    logo={item.logoUrl}
+                                    viewMode={viewMode}
+                                    slug={item.slug || ''}
+                                    resultType={item._type}
+                                    badges={item.badges}
+                                />
+                            ))}
+                        </div>
+
+                        {hasMore && (
+                            <div className="flex justify-center mb-20">
+                                <Button
+                                    onClick={() => setCurrentPage(prev => prev + 1)}
+                                    className="bg-gray-900 text-white hover:bg-gray-800 rounded-full px-8 py-6 h-auto text-sm font-black uppercase tracking-widest shadow-xl"
                                 >
-                                    <div className="flex items-start justify-between mb-4">
-                                        {imageUrl ? (
-                                            <img
-                                                src={imageUrl}
-                                                alt={title}
-                                                className="h-16 w-16 rounded-lg object-contain bg-white p-1 border hover:scale-105 transition-transform"
-                                            />
-                                        ) : (
-                                            <div className="h-16 w-16 rounded-lg bg-muted flex items-center justify-center p-2">
-                                                <Search className="h-8 w-8 text-muted-foreground/50" />
-                                            </div>
-                                        )}
-                                        <div className="flex flex-col items-end gap-2">
-                                            {item.tags?.slice(0, 1).map((tag) => (
-                                                <span key={tag} className="inline-flex items-center rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-xs font-medium text-brand-blue border border-brand-blue/20">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                    <div className="flex-1">
-                                        <div className="flex flex-wrap items-center gap-2 mb-2">
-                                            <span className="text-xs font-semibold text-brand-orange uppercase tracking-wider">{item.category}</span>
-                                            {(Array.isArray(item.brokerType) ? item.brokerType : [item.brokerType]).filter(Boolean).slice(0, 2).map((bt) => (
-                                                <span key={bt} className="text-[10px] px-1.5 py-0.5 bg-muted rounded text-muted-foreground font-medium">
-                                                    {bt}
-                                                </span>
-                                            ))}
-                                        </div>
+                                    Load More Results
+                                </Button>
+                            </div>
+                        )}
+                    </>
+                )}
 
-                                        <h2 className="text-xl font-bold text-foreground group-hover:text-primary line-clamp-1 mb-2">
-                                            {title}
-                                        </h2>
-
-                                        {item.description ? (
-                                            <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                                                {item.description}
-                                            </p>
-                                        ) : null}
-                                    </div>
-
-                                    <div className="pt-4 mt-auto border-t border-border/50">
-                                        <Button
-                                            variant="outline"
-                                            className="w-full group-hover:bg-brand-orange group-hover:text-white group-hover:border-brand-orange transition-all"
-                                        >
-                                            See More
-                                        </Button>
-                                    </div>
-                                </Link>
-                            );
-                        })}
+                {/* Refine Section at Bottom */}
+                {isRefineOpen && (
+                    <div className="bg-white rounded-3xl p-8 mb-20 shadow-2xl border border-gray-100 animate-in slide-in-from-bottom-4">
+                        <div className="flex items-center justify-between mb-8 pb-4 border-b">
+                            <h3 className="text-xl font-black text-gray-900 uppercase tracking-tight">Refine Options</h3>
+                            <button onClick={() => setIsRefineOpen(false)} className="p-2 hover:bg-gray-50 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div className="space-y-4">
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Category</label>
+                                <select
+                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-gray-900 outline-none"
+                                    value={initialFilters.category || 'all'}
+                                    onChange={(e) => updateFilterParams('category', e.target.value)}
+                                >
+                                    <option value="all">All Categories</option>
+                                    {(categories || []).map(cat => (
+                                        <option key={cat.value} value={cat.value}>{cat.title}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Broker Type</label>
+                                <select
+                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-gray-900 outline-none"
+                                    value={initialFilters.brokerType || 'all'}
+                                    onChange={(e) => updateFilterParams('brokerType', e.target.value)}
+                                >
+                                    <option value="all">All Broker Types</option>
+                                    <option value="Mortgage">Mortgage Broker</option>
+                                    <option value="Asset Finance">Asset Finance Broker</option>
+                                    <option value="Commercial">Commercial Finance Broker</option>
+                                </select>
+                            </div>
+                            <div className="space-y-4">
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400">Listing Type</label>
+                                <select
+                                    className="w-full p-4 bg-gray-50 border-none rounded-2xl text-sm font-bold focus:ring-2 focus:ring-gray-900 outline-none"
+                                    value={initialFilters.type || 'all'}
+                                    onChange={(e) => updateFilterParams('type', e.target.value)}
+                                >
+                                    <option value="all">All Types</option>
+                                    <option value="software">Software</option>
+                                    <option value="service">Service</option>
+                                    <option value="resourceGuide">Resource Guide</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 )}
-            </div >
-            <AIChatDialog open={showAIChat} onOpenChange={setShowAIChat} />
-        </>
+
+                {/* Bottom Search Bar & Ask AI */}
+                <div className="bg-gray-900 rounded-[3rem] p-12 mb-20 text-center relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-gray-800/50 to-transparent pointer-events-none" />
+                    <h2 className="text-3xl md:text-5xl font-black text-white mb-8 relative z-10 leading-tight">
+                        Still Not Found What You Are After?<br />
+                        <span className="text-gray-400 font-medium text-lg md:text-xl mt-4 block leading-relaxed">
+                            Try searching again or ask our AI for recommendations.
+                        </span>
+                    </h2>
+
+                    <div className="max-w-2xl mx-auto space-y-6 relative z-10">
+                        <form onSubmit={handleSearch} className="relative group/input">
+                            <Input
+                                placeholder="Search for vendors, products, or services"
+                                className="h-16 pl-8 pr-32 rounded-3xl text-white bg-white/10 border-white/20 focus:bg-white focus:text-gray-900 transition-all shadow-2xl text-base font-bold placeholder:text-gray-500"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                            />
+                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                <Button
+                                    type="submit"
+                                    className="h-10 rounded-2xl bg-white text-gray-900 hover:bg-gray-100 px-6 font-black uppercase tracking-widest text-[10px]"
+                                >
+                                    Search
+                                </Button>
+                            </div>
+                        </form>
+
+                        <div className="pt-4">
+                            <button
+                                onClick={() => router.push('/recommendations')}
+                                className="inline-flex items-center gap-3 text-white/60 hover:text-white transition-all font-black uppercase tracking-[0.2em] text-xs group/ai"
+                            >
+                                <span className="p-2 bg-white/5 rounded-xl group-hover/ai:bg-white/10 group-hover/ai:scale-110 transition-all">
+                                    <MessageSquare size={16} />
+                                </span>
+                                Or ask AI for personalized recommendations
+                                <ArrowRight size={16} className="group-hover/ai:translate-x-2 transition-transform" />
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Related Content */}
+                <RelatedArticles articles={relatedArticles} />
+                <StillNotSure />
+            </div>
+        </div>
     );
 }

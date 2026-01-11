@@ -46,7 +46,7 @@ const mappings = {
       _id: doc._id || '',
       title: doc.title || '',
       slug: slugValue(doc.slug),
-      listingType: doc.listingType || '',
+      listingType: refValue(doc.listingType),
       category: refValue(doc.category),
       supabaseId: doc.supabaseId || '',
       tagline: doc.tagline || '',
@@ -55,14 +55,14 @@ const mappings = {
       brokerType: joinStrings(doc.brokerType),
       features: doc.features
         ? JSON.stringify(
-            doc.features.map(f => ({
-              feature: refValue(f.feature),
-              availability: f.availability || '',
-              score: f.score ?? '',
-              limitationType: f.limitationType || '',
-              notes: f.notes || ''
-            }))
-          )
+          doc.features.map(f => ({
+            feature: refValue(f.feature),
+            availability: f.availability || '',
+            score: f.score ?? '',
+            limitationType: f.limitationType || '',
+            notes: f.notes || ''
+          }))
+        )
         : '',
       pricingType: doc.pricing?.type || '',
       pricingStartingFrom: doc.pricing?.startingFrom ?? '',
@@ -71,13 +71,13 @@ const mappings = {
       worksWith: joinRefs(doc.worksWith),
       similarTo: Array.isArray(doc.similarTo)
         ? doc.similarTo
-            .map(entry => {
-              const listing = refValue(entry.listing);
-              const priority = entry.priority ?? '';
-              return listing ? `${listing}${priority ? `:${priority}` : ''}` : '';
-            })
-            .filter(Boolean)
-            .join('|')
+          .map(entry => {
+            const listing = refValue(entry.listing);
+            const priority = entry.priority ?? '';
+            return listing ? `${listing}${priority ? `:${priority}` : ''}` : '';
+          })
+          .filter(Boolean)
+          .join('|')
         : '',
       serviceProviders: joinRefs(doc.serviceProviders),
       author: refValue(doc.author),
@@ -325,9 +325,9 @@ const mappings = {
       description: doc.description || '',
       features: Array.isArray(doc.features)
         ? doc.features
-            .map(feature => `${feature.name || ''}${feature.featureType ? ` (${feature.featureType})` : ''}`)
-            .filter(Boolean)
-            .join('|')
+          .map(feature => `${feature.name || ''}${feature.featureType ? ` (${feature.featureType})` : ''}`)
+          .filter(Boolean)
+          .join('|')
         : '',
       pricingModel: doc.pricing_model || '',
       websiteURL: doc.websiteURL || '',
@@ -350,9 +350,9 @@ const joinStrings = value => (Array.isArray(value) ? value.filter(Boolean).join(
 const joinRefs = value =>
   Array.isArray(value)
     ? value
-        .map(item => refValue(item))
-        .filter(Boolean)
-        .join('|')
+      .map(item => refValue(item))
+      .filter(Boolean)
+      .join('|')
     : '';
 
 const toCsv = (columns, rows) => {

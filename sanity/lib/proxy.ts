@@ -62,6 +62,8 @@ export const DIRECTORY_LISTING_QUERY = groq`
       }
     },
     pricing,
+    trustMetrics,
+    viewCount,
     "serviceAreas": serviceAreas[]->{ title, group },
     "worksWith": worksWith[]->{
       title,
@@ -140,6 +142,8 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       }
     },
     pricing,
+    trustMetrics,
+    viewCount,
     "serviceAreas": serviceAreas[]->{ title, group },
     "worksWith": worksWith[]->{
       title,
@@ -180,6 +184,8 @@ export const COMPARISON_QUERY = groq`
     pricing,
     websiteURL,
     rating,
+    trustMetrics,
+    viewCount,
     "worksWith": worksWith[]->{
       title,
       "slug": slug.current,
