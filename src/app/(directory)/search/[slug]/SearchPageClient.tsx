@@ -10,6 +10,7 @@ import { UnifiedSearchResult } from '@/services/sanity';
 import DirectoryCard from '@/components/search/DirectoryCard';
 import RelatedArticles from '@/components/search/RelatedArticles';
 import StillNotSure from '@/components/product-page/StillNotSure';
+import { SITE_URLS } from '@/lib/config';
 
 interface SearchPageClientProps {
     initialResults: UnifiedSearchResult[];
@@ -304,7 +305,7 @@ export default function SearchPageClient({
 
                         <div className="pt-4">
                             <button
-                                onClick={() => router.push('/recommendations')}
+                                onClick={() => router.push(`${SITE_URLS.main}/recommendations`)}
                                 className="inline-flex items-center gap-3 text-white/60 hover:text-white transition-all font-bold uppercase tracking-[0.2em] text-xs group/ai"
                             >
                                 <span className="p-2 bg-white/5 rounded-xl group-hover/ai:bg-white/10 group-hover/ai:scale-110 transition-all">

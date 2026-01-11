@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { SITE_URLS } from '@/lib/config';
 import { notFound } from 'next/navigation';
 import HeroSection from '@/components/product-page/HeroSection';
 import MainCard from '@/components/product-page/MainCard';
@@ -67,7 +68,7 @@ export default async function DirectoryProfilePage(props: PageProps) {
                         products={summaryProducts}
                         features={summaryFeatures}
                         focusName={listing.name}
-                        comparisonHref={`/directory/${slug}/comparison`}
+                        comparisonHref={`${SITE_URLS.directory}/partners/${slug}/comparison`}
                     />
                     <ProvidersSection providers={providers} />
                 </div>

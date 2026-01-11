@@ -11,6 +11,7 @@ import { Search, Filter, Sparkles } from 'lucide-react';
 import PartnerCard from '@/components/partners/PartnerCard';
 import AIChatDialog from '@/components/partners/AIChatDialog';
 import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
+import { SITE_URLS } from '@/lib/config';
 
 function BrowsepartnersContent() {
   const searchParams = useSearchParams();
@@ -122,7 +123,7 @@ function BrowsepartnersContent() {
   const resourceGuideCards = useMemo(() => {
     return resourcePosts.map((post) => ({
       ...post,
-      href: post.link || `/blog/${post.slug}`,
+      href: post.link || `${SITE_URLS.resources}/blog/${post.slug}`,
       title: post.title || post.name
     }));
   }, [resourcePosts]);

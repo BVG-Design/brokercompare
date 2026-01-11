@@ -11,6 +11,7 @@ import {
   Eye,
 } from 'lucide-react';
 import Image from 'next/image';
+import { SITE_URLS } from '@/lib/config';
 
 export default function PartnerCard({ partner }: { partner: any }) {
   const tierBadges: Record<string, any> = {
@@ -78,7 +79,7 @@ export default function PartnerCard({ partner }: { partner: any }) {
 
         {/* Description */}
         {partner.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-3 h-15">
+          <p className="text-sm text-gray-600 mb-4 line-clamp-3 h-[3.75rem]">
             {partner.description}
           </p>
         )}
@@ -100,7 +101,7 @@ export default function PartnerCard({ partner }: { partner: any }) {
 
         {/* Actions */}
         <div className="flex gap-2 mt-auto">
-          <Link href={`/directory/${partner.slug}`} className="flex-1">
+          <Link href={`${SITE_URLS.directory}/partners/${partner.slug}`} className="flex-1">
             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               View Details
             </Button>

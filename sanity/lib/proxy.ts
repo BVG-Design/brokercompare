@@ -18,7 +18,13 @@ export const DIRECTORY_LISTING_QUERY = groq`
       title,
       "slug": slug.current
     },
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url
+    ),
     websiteURL,
     brokerType,
     "similarTo": similarTo[]{
@@ -27,7 +33,13 @@ export const DIRECTORY_LISTING_QUERY = groq`
         title,
         listingType,
         "slug": slug.current,
-        "logoUrl": logo.asset->url
+        "logoUrl": select(
+          defined(logo.asset->url) => logo.asset->url,
+          defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+          defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+          defined(images[0].asset->url) => images[0].asset->url,
+          defined(mainImage.asset->url) => mainImage.asset->url
+        )
       }
     },
     "serviceProviders": serviceProviders[]->{
@@ -36,7 +48,13 @@ export const DIRECTORY_LISTING_QUERY = groq`
       listingType,
       "slug": slug.current,
       description,
-      "logoUrl": logo.asset->url,
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      ),
       websiteURL,
       brokerType,
       "badges": badges[]->{
@@ -98,7 +116,14 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       title,
       "slug": slug.current
     },
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     websiteURL,
     brokerType,
     "similarTo": similarTo[]{
@@ -107,7 +132,13 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
         title,
         listingType,
         "slug": slug.current,
-        "logoUrl": logo.asset->url
+        "logoUrl": select(
+          defined(logo.asset->url) => logo.asset->url,
+          defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+          defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+          defined(images[0].asset->url) => images[0].asset->url,
+          defined(mainImage.asset->url) => mainImage.asset->url
+        )
       }
     },
     "serviceProviders": serviceProviders[]->{
@@ -116,7 +147,13 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       listingType,
       "slug": slug.current,
       description,
-      "logoUrl": logo.asset->url,
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      ),
       websiteURL,
       brokerType,
       "badges": badges[]->{
@@ -177,7 +214,13 @@ export const COMPARISON_QUERY = groq`
   *[_type == "directoryListing" && slug.current in $slugs] {
     title,
     "slug": slug.current,
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url
+    ),
     tagline,
     listingType,
     brokerType,
@@ -189,7 +232,13 @@ export const COMPARISON_QUERY = groq`
     "worksWith": worksWith[]->{
       title,
       "slug": slug.current,
-      "logoUrl": logo.asset->url
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      )
     },
     "serviceAreas": serviceAreas[]->{ title, group },
     "alternativesCount": count(similarTo),

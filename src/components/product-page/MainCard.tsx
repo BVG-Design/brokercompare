@@ -2,7 +2,7 @@
 
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus, Brain } from 'lucide-react';
 import { SoftwareListing } from './types';
 import Link from 'next/link';
@@ -67,6 +67,8 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
         category
     } = listing;
 
+    const [imageError, setImageError] = useState(false);
+
     const searchParams = useSearchParams();
     const averageRating = rating?.average || 0;
     const reviewCount = rating?.count || 0;
@@ -107,10 +109,15 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                         <div className="flex gap-6">
                             {/* Logo Box */}
                             <div className="w-20 h-20 bg-white border border-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center p-2 overflow-hidden shadow-sm">
-                                {logoUrl ? (
-                                    <img src={logoUrl} alt={`${name} logo`} className="w-full h-full object-contain" />
+                                {logoUrl && !imageError ? (
+                                    <img
+                                        src={logoUrl}
+                                        alt={`${name} logo`}
+                                        className="w-full h-full object-contain"
+                                        onError={() => setImageError(true)}
+                                    />
                                 ) : (
-                                    <div className="text-gray-400 font-bold text-3xl">{name.charAt(0)}</div>
+                                    <div className="text-gray-400 font-bold text-3xl">{name?.charAt(0) || 'B'}</div>
                                 )}
                             </div>
 

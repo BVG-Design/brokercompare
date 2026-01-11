@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FeedbackDialog } from '@/components/shared/FeedbackDialog';
 import { SubscribeModal } from '@/components/shared/SubscribeModal';
 import mixpanel from 'mixpanel-browser';
+import { SITE_URLS } from '@/lib/config';
 
 type NavLink = {
     name: string;
@@ -40,7 +41,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                         <img
                             src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/BrokerTools%20Logo.png"
                             alt="BrokerTools"
-                            className="h-15 w-auto"
+                            className="h-14 w-auto"
                         />
                     </Link>
 
@@ -129,8 +130,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                         <div>
                             <h4 className="font-bold mb-4">Quick Links</h4>
                             <ul className="space-y-2 text-sm text-white/60">
-                                <li><Link href="/directory" className="hover:text-brand-orange transition-colors">Browse Directory</Link></li>
-                                <li><Link href="/blog" className="hover:text-brand-orange transition-colors">Resources</Link></li>
+                                <li><Link href={`${SITE_URLS.directory}/search`} className="hover:text-brand-orange transition-colors">Browse Directory</Link></li>
+                                <li><Link href={`${SITE_URLS.resources}/blog`} className="hover:text-brand-orange transition-colors">Resources</Link></li>
                                 <li><Link href="/apply" className="hover:text-brand-orange transition-colors">List Your Business</Link></li>
                             </ul>
                         </div>

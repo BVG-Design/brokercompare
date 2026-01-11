@@ -8,9 +8,13 @@ export const productsAsSoftwareQuery = groq`
   name,
   websiteUrl,
   "category": coalesce(categories[0]->title, "Uncategorized"),
-  "logoUrl": coalesce(
-    images[@.isLogo == true][0].asset->url,
-    images[0].asset->url
+  "logoUrl": select(
+    defined(logo.asset->url) => logo.asset->url,
+    defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+    defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+    defined(images[0].asset->url) => images[0].asset->url,
+    defined(mainImage.asset->url) => mainImage.asset->url,
+    defined(heroImage.asset->url) => heroImage.asset->url
   ),
   "tagline": description,
   description,
@@ -70,7 +74,14 @@ export const DIRECTORY_LISTINGS_MATRIX_QUERY = groq`
     "slug": slug.current,
     "journeyStageId": journeyStage._ref,
     journeyAssociations,
-    "logo": logo.asset->url,
+    "logo": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     tagline,
     rating,
     pricing,
@@ -124,7 +135,8 @@ export const UNIFIED_SEARCH_QUERY = groq`
     ^.tagline match @ ||
     ^.slug.current match @ ||
     ^.category->title match @ ||
-    ^.categories[]->title match @
+    ^.categories[]->title match @ ||
+    ^.synonyms[] match @
   ]) > 0
 )] | order(defined(tags) desc, defined(brokerType) desc, _updatedAt desc) {
   _id,
@@ -145,6 +157,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
   "badges": badges[]->title,
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
+    defined(organisation->logo.asset->url) => organisation->logo.asset->url,
     defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
     defined(images[0].asset->url) => images[0].asset->url,
     defined(mainImage.asset->url) => mainImage.asset->url,
@@ -177,7 +190,14 @@ export const SERVICE_BY_ID_QUERY = groq`
     "slug": slug.current,
     description,
     tagline,
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     "images": images[].asset->url,
     website,
     "category": category->title,

@@ -43,7 +43,7 @@ const mapToSoftwareListing = (listing: any): SoftwareListing => ({
   description: listing.description,
   category: listing.category?.title,
   websiteUrl: listing.websiteURL,
-  logoUrl: listing.logoUrl,
+  logoUrl: listing.logoUrl || listing.logo_url,
   badges: (listing.badges || []).map((b: any) => ({ title: b.title, color: b.color })),
   serviceArea: (listing.serviceAreas || [])
     .filter((sa: any) => sa)

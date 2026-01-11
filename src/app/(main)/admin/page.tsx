@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { SITE_URLS } from '@/lib/config';
 import { useRouter } from 'next/navigation';
 import ApplicationsManagement from '@/components/admin/ApplicationsManagement';
 import DirectoryManagement from '@/components/admin/DirectoryManagement';
@@ -95,7 +96,7 @@ export default function AdminDashboard() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = SITE_URLS.main + '/login';
   };
 
   const renderManagementSection = (
@@ -220,9 +221,9 @@ export default function AdminDashboard() {
           </p>
           <div className="flex flex-wrap gap-3 mt-3">
             {[
-              { label: 'Broker Dashboard', href: '/dashboard/broker' },
-              { label: 'partner Dashboard', href: '/dashboard/partner' },
-              { label: 'Admin Dashboard', href: '/admin' },
+              { label: 'Broker Dashboard', href: SITE_URLS.main + '/dashboard/broker' },
+              { label: 'Partner Dashboard', href: SITE_URLS.main + '/dashboard/partner' },
+              { label: 'Admin Dashboard', href: SITE_URLS.main + '/admin' },
             ].map((item) => (
               <Button key={item.href} variant="outline" asChild>
                 <Link href={item.href}>{item.label}</Link>
@@ -294,7 +295,7 @@ export default function AdminDashboard() {
             firstName={firstName}
             email={userEmail}
             page="/admin"
-            backHref="/dashboard/broker"
+            backHref={SITE_URLS.main + "/dashboard/broker"}
           />
         </div>
       )}
@@ -320,11 +321,10 @@ export default function AdminDashboard() {
                         <button
                           key={item.id}
                           onClick={() => setActiveSection(item.id)}
-                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
-                            activeSection === item.id
+                          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeSection === item.id
                               ? 'bg-[#132847] text-white shadow-sm'
                               : 'text-gray-700 hover:bg-gray-100'
-                          }`}
+                            }`}
                         >
                           <item.icon className="w-4 h-4" />
                           <span>{item.label}</span>
@@ -398,13 +398,13 @@ export default function AdminDashboard() {
                         </p>
                         <p className="text-sm text-muted-foreground">
                           If you need help with anything our{' '}
-                          <Link href="/faq" className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
-                          <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
+                          <Link href={SITE_URLS.main + "/faq"} className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
+                          <Link href={SITE_URLS.resources + "/blog"} className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                           can help you out. Otherwise, feel free to reach out to our human support team.
                         </p>
                         <Button
                           className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]"
-                          onClick={() => router.push('/faq?ask=1')}
+                          onClick={() => window.location.href = SITE_URLS.main + '/faq?ask=1'}
                         >
                           Contact support
                         </Button>

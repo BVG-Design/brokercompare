@@ -4,6 +4,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SITE_URLS } from '@/lib/config';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -435,13 +436,13 @@ function PartnerDashboardContent() {
     ? {
       title: 'Complete your partner application',
       body: 'We could not find a partner profile for this account. Start your application to unlock the partner dashboard.',
-      cta: { href: '/apply', label: 'Start application' },
+      cta: { href: SITE_URLS.main + '/apply', label: 'Start application' },
     }
     : isPending
       ? {
         title: 'Application pending review',
         body: 'Your partner application is under review. We will notify you when it is approved.',
-        cta: { href: '/', label: 'Return home' },
+        cta: { href: SITE_URLS.main + '/', label: 'Return home' },
       }
       : null;
 
@@ -491,7 +492,7 @@ function PartnerDashboardContent() {
         </p>
         <div className="flex gap-2 flex-wrap">
           <Button asChild className="bg-[#132847] hover:bg-[#1a3a5f]">
-            <Link href={activePartner ? '/' : '/apply'}>{activePartner ? 'Return home' : 'Start application'}</Link>
+            <Link href={activePartner ? SITE_URLS.main + '/' : SITE_URLS.main + '/apply'}>{activePartner ? 'Return home' : 'Start application'}</Link>
           </Button>
           {!activePartner && (
             <Button variant="outline" asChild>
@@ -634,10 +635,10 @@ function PartnerDashboardContent() {
                       </p>
                       <div className="flex flex-wrap gap-2">
                         <Button asChild className="bg-[#132847] hover:bg-[#1a3a5f]">
-                          <Link href="/apply">Start application</Link>
+                          <Link href={SITE_URLS.main + "/apply"}>Start application</Link>
                         </Button>
                         <Button variant="outline" asChild>
-                          <Link href="/contact">Talk to our team</Link>
+                          <Link href={SITE_URLS.main + "/contact"}>Talk to our team</Link>
                         </Button>
                       </div>
                     </CardContent>
@@ -653,7 +654,7 @@ function PartnerDashboardContent() {
                     <CardContent className="space-y-2 text-sm text-muted-foreground">
                       <p>Your partner application is under review. You will see metrics and lead activity here after approval.</p>
                       <Button variant="outline" asChild className="w-fit">
-                        <Link href="/">Return home</Link>
+                        <Link href={SITE_URLS.main + "/"}>Return home</Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -702,8 +703,8 @@ function PartnerDashboardContent() {
                             </p>
                             <p className="text-sm text-muted-foreground">
                               If you need help with anything our{' '}
-                              <Link href="/faq" className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
-                              <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
+                              <Link href={SITE_URLS.main + "/faq"} className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
+                              <Link href={SITE_URLS.resources + "/blog"} className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                               can help you out. Otherwise, feel free to reach out to our human support team.
                             </p>
                             <Button

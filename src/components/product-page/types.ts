@@ -45,7 +45,8 @@ export interface SoftwareListing {
             weightedScores?: Partial<RubricScores>;
             weights?: Partial<RubricWeights>;
         };
-    }
+    };
+    trustMetrics?: TrustMetrics;
 }
 
 export interface RubricScores {

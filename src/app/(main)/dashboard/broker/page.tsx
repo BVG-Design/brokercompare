@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { SITE_URLS } from '@/lib/config';
 import {
   Card,
   CardContent,
@@ -488,7 +489,7 @@ export default function BrokerDashboard() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    router.push('/login');
+    window.location.href = SITE_URLS.main + '/login';
   };
 
   const copyReferralLink = () => {
@@ -572,18 +573,18 @@ export default function BrokerDashboard() {
                     />
                   </div>
                   <div className="flex-1 space-y-2">
-                    <p className="text-lg font-semibold text-[#132847]">
+                    <p className="text-sm text-muted-foreground">
                       Hi {greetName}, welcome to Broker Tools. <em>I am Simba your Support Dog.</em>
                     </p>
                     <p className="text-sm text-muted-foreground">
                       If you need help with anything our{' '}
-                      <Link href="/faq" className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
-                      <Link href="/blog" className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
+                      <Link href={SITE_URLS.main + "/faq"} className="text-primary underline underline-offset-4">FAQs</Link> and{' '}
+                      <Link href={SITE_URLS.resources + "/blog"} className="text-primary underline underline-offset-4">Getting Started resources</Link>{' '}
                       can help you out. Otherwise, feel free to reach out to our human support team.
                     </p>
                     <Button
                       className="w-fit bg-[#132847] text-white hover:bg-[#1a3a5f]"
-                      onClick={() => router.push('/faq?ask=1')}
+                      onClick={() => window.location.href = SITE_URLS.main + '/faq?ask=1'}
                     >
                       Contact support
                     </Button>

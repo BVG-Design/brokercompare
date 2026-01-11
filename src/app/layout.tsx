@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SITE_URLS } from "@/lib/config";
 import { Toaster } from "@/components/ui/toaster";
 import { ComparisonProvider } from "@/components/compare/ComparisonContext";
 import { ComparisonBar } from "@/components/compare/ComparisonBar";
@@ -19,13 +20,13 @@ export const metadata: Metadata = {
 };
 
 const fallbackNavLinks: NavLink[] = [
-  { name: "AI Recommender", path: "/recommendations" },
-  { name: "Workflow Automations", path: "/directory?category=ai" },
-  { name: "CRMs & Fact Finds", path: "/directory?category=crm" },
-  { name: "VA Services", path: "/directory?category=va" },
-  { name: "Marketing & Sales", path: "/directory?category=marketing" },
-  { name: "Other", path: "/directory?category=other" },
-  { name: "Resources", path: "/blog" },
+  { name: "AI Recommender", path: `${SITE_URLS.main}/recommendations` },
+  { name: "Workflow Automations", path: `${SITE_URLS.directory}/search?category=ai` },
+  { name: "CRMs & Fact Finds", path: `${SITE_URLS.directory}/search?category=crm` },
+  { name: "VA Services", path: `${SITE_URLS.directory}/search?category=va` },
+  { name: "Marketing & Sales", path: `${SITE_URLS.directory}/search?category=marketing` },
+  { name: "Other", path: `${SITE_URLS.directory}/search?category=other` },
+  { name: "Resources", path: `${SITE_URLS.resources}/blog` },
 ];
 
 type SearchIntentNavItem = {
@@ -53,7 +54,7 @@ export default async function RootLayout({
           ?.filter((item) => item?.slug && item?.title)
           .map((item) => ({
             name: item.title as string,
-            path: `/search/${item.slug}`,
+            path: `${SITE_URLS.directory}/search/${item.slug}`,
           })) ?? [];
 
       if (sanitized.length > 0) {

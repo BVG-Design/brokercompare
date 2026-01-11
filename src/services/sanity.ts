@@ -1,6 +1,7 @@
 import { client } from '@/../sanity/lib/client';
 import { UNIFIED_SEARCH_QUERY } from '@/sanity/lib/queries';
 import { DirectoryListing, ResourcePost } from '@/types';
+import { SITE_URLS } from '@/lib/config';
 
 export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
   const query = `*[_type in ["blog", "product", "serviceProvider"] && isFeatured == true]{
@@ -13,7 +14,14 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     featuredLabel,
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     "listingType": coalesce(listingType->value, listingType),
     blogType
   }`;
@@ -27,7 +35,7 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     category: item.featuredLabel || 'RESOURCE',
     ctaText: item._type === 'blog' ? 'Read' : 'Explore',
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
-    link: item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`,
+    link: item._type === 'blog' ? `${SITE_URLS.resources}/blog/${item.slug}` : `${SITE_URLS.directory}/partners/${item.slug}`,
     featuredLabel: item.featuredLabel,
     listingType: item.listingType,
     blogType: item.blogType
@@ -58,7 +66,7 @@ export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
       category: defaultCategory,
       ctaText: 'EXPLORE',
       imageUrl: item.imageUrl,
-      link: `/blog/${item.slug}`,
+      link: `${SITE_URLS.resources}/blog/${item.slug}`,
       blogType: item.blogType
     };
   };
@@ -101,7 +109,7 @@ export const fetchUnifiedSearchResults = async (
     return [];
   }
 
-  const searchPatterns = normalizedTerms.map((term) => `${term}*`);
+  const searchPatterns = normalizedTerms;
   const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
     searchTerms: searchPatterns,
     contentTypes,
@@ -152,15 +160,23 @@ export const fetchDirectoryListings = async (filters: {
 
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
+    ${brokerType && brokerType !== 'all' ? '&& $brokerType in brokerType' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
     ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
-    ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
+    ${search ? '&& (title match $search || description match $search || synonyms[] match $search)' : ''}
   ]{
     _id,
     _type,
     "name": title,
     description,
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     "categories": [category->title],
     brokerType,
     "slug": slug.current,
@@ -175,6 +191,7 @@ export const fetchDirectoryListings = async (filters: {
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
+  if (brokerType && brokerType !== 'all') params.brokerType = brokerType;
   if (search) params.search = search;
   if (listingType && listingType !== 'all') params.listingType = listingType;
 
