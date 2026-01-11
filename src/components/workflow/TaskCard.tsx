@@ -37,9 +37,9 @@ export default function TaskCard({ guide, onSelect }: TaskCardProps) {
 
             <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1">
-                    <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight line-clamp-2">{guide.title}</h4>
+                    <h4 className="font-bold text-brand-blue text-xs uppercase tracking-tight line-clamp-2">{guide.title}</h4>
                 </div>
-                <div className="w-8 h-8 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-900 flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-brand-blue/5 flex items-center justify-center text-brand-blue flex-shrink-0">
                     <ClipboardList className="w-4 h-4" />
                 </div>
             </div>
@@ -53,7 +53,7 @@ export default function TaskCard({ guide, onSelect }: TaskCardProps) {
             <div className="flex items-center justify-between pt-3 border-t border-slate-50">
                 <div className="flex items-center gap-1.5">
                     <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Process Guide</span>
+                    <span className="text-[8px] font-bold uppercase text-slate-400 tracking-widest">Process Guide</span>
                 </div>
                 <div className="flex items-center gap-1">
                     <span className="text-[9px] font-bold text-slate-500">View Blueprint</span>

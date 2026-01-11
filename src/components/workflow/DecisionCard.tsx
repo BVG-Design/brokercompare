@@ -68,8 +68,8 @@ export default function DecisionCard({
             className={cn(
                 "group relative rounded-2xl border-2 p-4 cursor-pointer transition-all duration-300 bg-white shadow-sm",
                 styles.border,
-                isSelected && "ring-2 ring-slate-900 ring-offset-2",
-                isDragging && "shadow-2xl rotate-2 z-50 border-slate-900"
+                isSelected && "ring-2 ring-brand-blue ring-offset-2",
+                isDragging && "shadow-2xl rotate-2 z-50 border-brand-blue"
             )}
             onClick={() => onSelect?.(listing)}
         >
@@ -79,10 +79,10 @@ export default function DecisionCard({
             {/* Header */}
             <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="flex-1 min-w-0">
-                    <h4 className="font-black text-slate-900 text-xs uppercase tracking-tight truncate">{listing.title}</h4>
+                    <h4 className="font-bold text-brand-blue text-xs uppercase tracking-tight truncate">{listing.title}</h4>
                     <div className="flex flex-wrap gap-1 mt-1.5">
                         {listing.badges?.map((badge: any) => (
-                            <span key={badge._id} className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
+                            <span key={badge._id} className="text-[8px] font-bold uppercase px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200">
                                 {badge.title}
                             </span>
                         ))}
@@ -111,12 +111,12 @@ export default function DecisionCard({
                 <div className="flex items-center gap-1.5">
                     <div className="flex items-center gap-0.5">
                         <Star className="w-2.5 h-2.5 fill-brand-orange text-brand-orange" />
-                        <span className="text-[10px] font-bold text-slate-900">{listing.rating?.average || '4.5'}</span>
+                        <span className="text-[10px] font-bold text-brand-blue">{listing.rating?.average || '4.5'}</span>
                     </div>
-                    <span className="text-[8px] font-black uppercase text-slate-300">Score</span>
+                    <span className="text-[8px] font-bold uppercase text-slate-300">Score</span>
                 </div>
                 {listing.pricing?.startingFrom !== undefined && (
-                    <span className="text-[10px] font-black text-slate-900">${listing.pricing.startingFrom}<span className="text-[8px] text-slate-400">/mo</span></span>
+                    <span className="text-[10px] font-bold text-brand-blue">${listing.pricing.startingFrom}<span className="text-[8px] text-slate-400">/mo</span></span>
                 )}
             </div>
 
@@ -127,7 +127,7 @@ export default function DecisionCard({
                         e.stopPropagation();
                         onCompare?.(listing);
                     }}
-                    className="bg-[#0f172a] text-white p-2 rounded-full shadow-xl hover:bg-slate-800 transition-colors"
+                    className="bg-brand-blue text-white p-2 rounded-full shadow-xl hover:bg-slate-800 transition-colors"
                     title="Add to compare"
                 >
                     <Check size={14} className="stroke-[3]" />

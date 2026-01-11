@@ -204,7 +204,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
     const PublishToggle = ({ section }: { section: string }) => (
         <button
             onClick={() => toggleSectionPublish(section)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase transition-all border ${publishedSections[section] ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-400 border-slate-200'}`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all border ${publishedSections[section] ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-400 border-slate-200'}`}
         >
             {publishedSections[section] ? <><Eye size={12} /> Live</> : <><EyeOff size={12} /> Hidden</>}
         </button>
@@ -214,19 +214,19 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
         <div className="absolute right-0 top-full mt-2 w-64 bg-[#0f172a] text-white p-4 rounded-xl shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-200 cursor-default">
             <div className="space-y-4">
                 <div className="pb-2 border-b border-slate-700">
-                    <p className="text-[10px] font-black uppercase text-red-400 mb-1">1-3 Manual</p>
+                    <p className="text-[10px] font-bold uppercase text-red-400 mb-1">1-3 Manual</p>
                     <p className="text-[9px] text-slate-300 leading-tight">Missing parts or heavy manual effort required. Static tools.</p>
                 </div>
                 <div className="pb-2 border-b border-slate-700">
-                    <p className="text-[10px] font-black uppercase text-yellow-400 mb-1">4-6 Standard</p>
+                    <p className="text-[10px] font-bold uppercase text-yellow-400 mb-1">4-6 Standard</p>
                     <p className="text-[9px] text-slate-300 leading-tight">Meets basic digital expectations. Functional but not transformative.</p>
                 </div>
                 <div className="pb-2 border-b border-slate-700">
-                    <p className="text-[10px] font-black uppercase text-blue-400 mb-1">7-8 Advanced</p>
+                    <p className="text-[10px] font-bold uppercase text-blue-400 mb-1">7-8 Advanced</p>
                     <p className="text-[9px] text-slate-300 leading-tight">High efficiency. Uses OCR or APIs to move data automatically.</p>
                 </div>
                 <div>
-                    <p className="text-[10px] font-black uppercase text-purple-400 mb-1">9-10 Elite</p>
+                    <p className="text-[10px] font-bold uppercase text-purple-400 mb-1">9-10 Elite</p>
                     <p className="text-[9px] text-slate-300 leading-tight">AI-native. System predicts next steps or acts on broker behalf.</p>
                 </div>
             </div>
@@ -303,7 +303,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                             {application?.company_name?.[0] || 'V'}
                         </div>
                         <div>
-                            <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Appraising: {application?.company_name || 'Vendor'}</h2>
+                            <h2 className="text-xl font-bold text-slate-900 uppercase tracking-tight">Appraising: {application?.company_name || 'Vendor'}</h2>
                             <div className="flex items-center gap-3 mt-1">
                                 <span className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-500 rounded border border-slate-200 uppercase tracking-wider">Ref: APP-{application?.id?.toString().substring(0, 5) || '8822'}</span>
                                 <span className="text-[10px] font-bold px-2 py-0.5 bg-blue-100 text-blue-700 rounded border border-blue-200 uppercase tracking-wider">Assessor: Editorial Team</span>
@@ -317,7 +317,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                             <div className="flex items-center gap-3 pr-6 border-r border-slate-200">
                                 <button
                                     onClick={() => setFeatureAuditInProgress(!featureAuditInProgress)}
-                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${featureAuditInProgress ? 'bg-orange-600 text-white border-orange-500' : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-white hover:text-slate-600'}`}
+                                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${featureAuditInProgress ? 'bg-orange-600 text-white border-orange-500' : 'bg-slate-100 text-slate-400 border-slate-200 hover:bg-white hover:text-slate-600'}`}
                                 >
                                     {featureAuditInProgress ? <AlertCircle size={14} /> : <Shield size={14} />}
                                     Audit Mode
@@ -326,9 +326,9 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                             </div>
                         )}
                         <div className="text-right border-r border-slate-200 pr-8">
-                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Effective Broker-Fit Score</p>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Effective Broker-Fit Score</p>
                             <div className="flex items-baseline gap-1">
-                                <span className="text-4xl font-black text-slate-900 leading-none tracking-tighter">{overallScore}</span>
+                                <span className="text-4xl font-bold text-slate-900 leading-none tracking-tighter">{overallScore}</span>
                                 <span className="text-sm font-bold text-slate-300">/ 10.0</span>
                             </div>
                         </div>
@@ -351,7 +351,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex items-center gap-2 px-6 py-4 text-[10px] font-black uppercase tracking-widest transition-all relative ${activeTab === tab.id ? 'text-[#0f172a]' : 'text-slate-400 hover:text-slate-600'}`}
+                                className={`flex items-center gap-2 px-6 py-4 text-[10px] font-bold uppercase tracking-widest transition-all relative ${activeTab === tab.id ? 'text-[#0f172a]' : 'text-slate-400 hover:text-slate-600'}`}
                             >
                                 <tab.icon size={14} />
                                 {tab.label}
@@ -362,7 +362,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                     <div className="ml-auto flex items-center gap-3">
                         <button
                             onClick={() => setIsAppDataVisible(!isAppDataVisible)}
-                            className="flex items-center gap-2 px-4 py-2 text-[10px] font-black uppercase text-slate-500 hover:text-[#0f172a] transition-all"
+                            className="flex items-center gap-2 px-4 py-2 text-[10px] font-bold uppercase text-slate-500 hover:text-[#0f172a] transition-all"
                         >
                             <FileText size={14} />
                             {isAppDataVisible ? 'Hide Data' : 'View Data'}
@@ -374,14 +374,14 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                 {isAppDataVisible && (
                     <div className="bg-[#0f172a] text-slate-300 p-8 overflow-y-auto max-h-[400px] border-b border-slate-800">
                         <div className="max-w-4xl mx-auto">
-                            <h3 className="text-white font-black uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
+                            <h3 className="text-white font-bold uppercase text-xs tracking-widest mb-6 flex items-center gap-2">
                                 <FileText size={14} className="text-blue-400" />
                                 Submission Payload
                             </h3>
                             <div className="grid grid-cols-2 gap-12">
                                 <div className="space-y-6">
                                     <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-3">Product Images</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-3">Product Images</p>
                                         <div className="grid grid-cols-2 gap-2">
                                             {application?.product_images?.length > 0 ? application.product_images.map((img: string, i: number) => (
                                                 <img key={i} src={img} alt="Product" className="rounded-lg border border-slate-700 w-full h-24 object-cover" />
@@ -390,7 +390,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     </div>
 
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Aggregator Compatibility</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Aggregator Compatibility</p>
                                         <div className="flex flex-wrap gap-2">
                                             {application?.aggregator_compatibility ? (
                                                 <span className="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-[10px] font-bold border border-blue-500/20">{application.aggregator_compatibility}</span>
@@ -402,7 +402,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     </div>
 
                                     <div>
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Integration Link</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Integration Link</p>
                                         {application?.integration_docs_link ? (
                                             <a href={application.integration_docs_link} target="_blank" className="text-blue-400 hover:underline text-[10px] flex items-center gap-1">
                                                 <ExternalLink size={10} /> Documentation
@@ -412,7 +412,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                 </div>
                                 <div className="space-y-6">
                                     <div className="p-4 bg-slate-900/50 rounded-xl border border-slate-800">
-                                        <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Raw JSON</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase mb-2">Raw JSON</p>
                                         <pre className="text-[10px] font-mono leading-relaxed overflow-x-auto whitespace-pre-wrap max-h-48">
                                             {JSON.stringify(application, null, 2)}
                                         </pre>
@@ -431,7 +431,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-sm">
                                         <div className="flex items-center justify-between mb-8">
                                             <div>
-                                                <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-1">Feature Extraction</h3>
+                                                <h3 className="text-lg font-bold text-slate-900 uppercase tracking-tight mb-1">Feature Extraction</h3>
                                                 <p className="text-xs text-slate-500">Categorise submitted features into standard platform metrics</p>
                                             </div>
                                             <div className="flex gap-2">
@@ -440,7 +440,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                         const id = Math.random().toString(36).substr(2, 9);
                                                         setFeatures([...features, { id, name: '', category: 'security', score: 5, boost: 1, publicNote: '', privateNote: '' }]);
                                                     }}
-                                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0f172a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
+                                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#0f172a] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-200"
                                                 >
                                                     <Plus size={14} /> Add Feature
                                                 </button>
@@ -460,7 +460,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                                     value={feature.name}
                                                                     onChange={(e) => updateFeature(feature.id, { name: e.target.value })}
                                                                     placeholder="Feature Name"
-                                                                    className="w-full bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 rounded-lg px-3 py-2 text-[10px] font-black placeholder:text-slate-300"
+                                                                    className="w-full bg-slate-50 border-none focus:ring-2 focus:ring-blue-500 rounded-lg px-3 py-2 text-[10px] font-bold placeholder:text-slate-300"
                                                                 />
                                                             </div>
                                                             <div className="col-span-3">
@@ -500,18 +500,18 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     <section className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-8 space-y-6">
-                                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                                             <Award size={16} className="text-orange-500" />
                                             Badges & Regions
                                         </h3>
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Marketplace Status</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Marketplace Status</p>
                                             <div className="flex flex-wrap gap-2">
                                                 {BADGES.map(b => (
                                                     <button
                                                         key={b.id}
                                                         onClick={() => setSelectedBadges(prev => prev.includes(b.id) ? prev.filter(x => x !== b.id) : [...prev, b.id])}
-                                                        className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all border ${selectedBadges.includes(b.id) ? b.color : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                                                        className={`px-4 py-2 rounded-xl text-[10px] font-bold uppercase transition-all border ${selectedBadges.includes(b.id) ? b.color : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                                                     >
                                                         {b.icon} {b.label}
                                                     </button>
@@ -519,13 +519,13 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                             </div>
                                         </div>
                                         <div>
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Availability</p>
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">Availability</p>
                                             <div className="flex flex-wrap gap-2">
                                                 {SERVICE_REGIONS.map(r => (
                                                     <button
                                                         key={r}
                                                         onClick={() => setSelectedRegions(prev => prev.includes(r) ? prev.filter(x => x !== r) : [...prev, r])}
-                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all border ${selectedRegions.includes(r) ? 'bg-blue-600 text-white border-blue-500 scale-105' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
+                                                        className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase transition-all border ${selectedRegions.includes(r) ? 'bg-blue-600 text-white border-blue-500 scale-105' : 'bg-slate-50 text-slate-400 border-slate-100'}`}
                                                     >
                                                         {r}
                                                     </button>
@@ -535,14 +535,14 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     </section>
 
                                     <section className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden p-8 space-y-6">
-                                        <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                                        <h3 className="text-sm font-bold text-slate-900 uppercase tracking-tight flex items-center gap-2">
                                             <Layout size={16} className="text-blue-500" />
                                             Pricing & Mapping
                                         </h3>
                                         <div className="space-y-4">
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Stage</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Stage</p>
                                                     <select
                                                         value={stage}
                                                         onChange={(e) => setStage(e.target.value)}
@@ -555,7 +555,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                     </select>
                                                 </div>
                                                 <div>
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Stage Associations</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Stage Associations</p>
                                                     <div className="flex flex-wrap gap-2">
                                                         {STAGE_ASSOCIATION_OPTIONS.map((assoc) => {
                                                             const isActive = stageAssociations.includes(assoc.value);
@@ -564,7 +564,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                                     type="button"
                                                                     key={assoc.value}
                                                                     onClick={() => toggleStageAssociation(assoc.value)}
-                                                                    className={`px-3 py-2 rounded-lg text-[10px] font-black uppercase border transition-all ${isActive ? 'bg-orange-600 text-white border-orange-500 shadow-sm' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'}`}
+                                                                    className={`px-3 py-2 rounded-lg text-[10px] font-bold uppercase border transition-all ${isActive ? 'bg-orange-600 text-white border-orange-500 shadow-sm' : 'bg-slate-50 text-slate-400 border-slate-200 hover:text-slate-600'}`}
                                                                 >
                                                                     {assoc.label}
                                                                 </button>
@@ -574,7 +574,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 </div>
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Display Alternatives</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Display Alternatives</p>
                                                 <input
                                                     value={alternatives} onChange={e => setAlternatives(e.target.value)}
                                                     placeholder="Asana, Monday, Hive..."
@@ -582,7 +582,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 />
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Premium Pricing Entry</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Premium Pricing Entry</p>
                                                 <textarea
                                                     value={pricingEntry} onChange={e => setPricingEntry(e.target.value)}
                                                     placeholder="From $50/mo. Free for teams < 5."
@@ -605,26 +605,26 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                         >
                                             <div className="flex items-center gap-3">
                                                 <Scale size={18} className="text-purple-400" />
-                                                <h3 className="text-sm font-semibold">Assessor Scoring Rubric & Guide</h3>
+                                                <h3 className="text-sm font-bold">Assessor Scoring Rubric & Guide</h3>
                                             </div>
                                             {isRubricOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                                         </button>
                                         {isRubricOpen && (
                                             <div className="px-6 pb-6 pt-2 grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-top-2">
                                                 <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl">
-                                                    <p className="text-xs font-semibold text-red-400 mb-1">1-3 Manual</p>
+                                                    <p className="text-xs font-bold text-red-400 mb-1">1-3 Manual</p>
                                                     <p className="text-xs text-slate-300 leading-relaxed">Present but requires heavy manual work or critical parts are missing.</p>
                                                 </div>
                                                 <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl">
-                                                    <p className="text-xs font-semibold text-yellow-400 mb-1">4-6 Standard</p>
+                                                    <p className="text-xs font-bold text-yellow-400 mb-1">4-6 Standard</p>
                                                     <p className="text-xs text-slate-300 leading-relaxed">Basic expectations met. Digital but static (portals, simple storage).</p>
                                                 </div>
                                                 <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
-                                                    <p className="text-xs font-semibold text-blue-400 mb-1">7-8 Advanced</p>
+                                                    <p className="text-xs font-bold text-blue-400 mb-1">7-8 Advanced</p>
                                                     <p className="text-xs text-slate-300 leading-relaxed">Highly efficient. Uses OCR, APIs, or triggers to move data automatically.</p>
                                                 </div>
                                                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-xl">
-                                                    <p className="text-xs font-semibold text-purple-400 mb-1">9-10 Elite</p>
+                                                    <p className="text-xs font-bold text-purple-400 mb-1">9-10 Elite</p>
                                                     <p className="text-xs text-slate-300 leading-relaxed">AI-native. System predicts next steps or acts on behalf of the broker.</p>
                                                 </div>
                                             </div>
@@ -647,7 +647,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                             <Icon size={18} />
                                                         </div>
                                                         <div>
-                                                            <h4 className="text-base font-semibold text-slate-900">{cat.label}</h4>
+                                                            <h4 className="text-base font-bold text-slate-900">{cat.label}</h4>
                                                             <p className="text-xs font-medium text-slate-500">Weight: {cat.weight * 100}% • {cat.desc}</p>
                                                         </div>
                                                     </div>
@@ -663,7 +663,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
                                                     <table className="w-full text-left border-collapse">
                                                         <thead>
-                                                            <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600">
+                                                            <tr className="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-600">
                                                                 <th className="px-6 py-4 w-1/4 text-left">Feature Name</th>
                                                                 <th className="px-6 py-4 w-[110px] text-center">Rubric (1-10)</th>
                                                                 <th className="px-6 py-4 w-[100px] text-center">
@@ -674,7 +674,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                                                 <HelpCircle className="w-3 h-3 text-slate-400" />
                                                                             </TooltipTrigger>
                                                                             <TooltipContent side="top" className="max-w-xs">
-                                                                                <p className="font-semibold mb-2">AI Boost Multipliers:</p>
+                                                                                <p className="font-bold mb-2">AI Boost Multipliers:</p>
                                                                                 <p className="text-xs mb-1"><strong>1.0x:</strong> Standard feature, no AI enhancement</p>
                                                                                 <p className="text-xs mb-1"><strong>1.2x:</strong> Uses AI to assist workflows (e.g., smart suggestions)</p>
                                                                                 <p className="text-xs"><strong>1.5x:</strong> AI-native feature that automates or predicts broker actions</p>
@@ -701,13 +701,13 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                                         <input
                                                                             type="number" min="1" max="10"
                                                                             value={f.score} onChange={e => updateFeature(f.id, { score: parseInt(e.target.value) || 1 })}
-                                                                            className="w-12 h-10 border-2 border-slate-100 rounded-lg text-center font-black text-slate-900 focus:border-purple-500 outline-none"
+                                                                            className="w-12 h-10 border-2 border-slate-100 rounded-lg text-center font-bold text-slate-900 focus:border-purple-500 outline-none"
                                                                         />
                                                                     </td>
                                                                     <td className="px-6 py-4 text-center">
                                                                         <select
                                                                             value={f.boost} onChange={e => updateFeature(f.id, { boost: parseFloat(e.target.value) })}
-                                                                            className="bg-purple-50 text-purple-700 border border-purple-100 rounded-lg px-2 py-1 text-[10px] font-black outline-none focus:ring-2 focus:ring-purple-500"
+                                                                            className="bg-purple-50 text-purple-700 border border-purple-100 rounded-lg px-2 py-1 text-[10px] font-bold outline-none focus:ring-2 focus:ring-purple-500"
                                                                         >
                                                                             <option value="1.0">1.0x</option>
                                                                             <option value="1.2">1.2x</option>
@@ -749,7 +749,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                             ))}
                                                             <tr>
                                                                 <td colSpan={7} className="px-6 py-3 bg-slate-50/50">
-                                                                    <button onClick={() => handleAddFeature(catKey)} className="flex items-center gap-2 text-xs font-semibold text-brand-blue hover:text-blue-800">
+                                                                    <button onClick={() => handleAddFeature(catKey)} className="flex items-center gap-2 text-xs font-bold text-brand-blue hover:text-blue-800">
                                                                         <Plus size={14} /> Add new {cat.label} Feature
                                                                     </button>
                                                                 </td>
@@ -767,9 +767,9 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                         <Sparkles size={48} className="text-[#22c55e]" />
                                     </div>
                                     <div className="flex-1 space-y-4">
-                                        <h4 className="text-xl font-semibold">Final Assessment Principles</h4>
+                                        <h4 className="text-xl font-bold">Final Assessment Principles</h4>
                                         <p className="text-sm text-slate-100 leading-relaxed">
-                                            Ensure proportionality when applying the <span className="text-white font-semibold">1.5x AI Boost</span>. All expert commentary must provide a direct "no-fluff" insight into how the feature impacts a broker's safety or daily workflow. Ranking priority is strictly determined by market-verified automated efficiency.
+                                            Ensure proportionality when applying the <span className="text-white font-bold">1.5x AI Boost</span>. All expert commentary must provide a direct "no-fluff" insight into how the feature impacts a broker's safety or daily workflow. Ranking priority is strictly determined by market-verified automated efficiency.
                                         </p>
                                         <div className="flex flex-wrap gap-4 pt-4">
                                             <div className="flex items-center gap-2 text-xs font-medium px-3 py-1 bg-white/10 rounded-full border border-white/20">
@@ -789,12 +789,12 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     <div className="md:col-span-2 bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
                                         <div className="p-10 border-b border-slate-100 flex items-center justify-between">
                                             <div>
-                                                <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-1">Final Scorecard</h3>
+                                                <h3 className="text-2xl font-bold text-slate-900 uppercase tracking-tight mb-1">Final Scorecard</h3>
                                                 <p className="text-sm text-slate-500 font-medium italic">Calculated weighted averages based on Stage 2 benchmarks</p>
                                             </div>
                                             <div className="text-right">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Impact Rating</p>
-                                                <div className="px-4 py-1.5 bg-brand-blue text-white rounded-lg text-[10px] font-black uppercase tracking-widest leading-none">
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Impact Rating</p>
+                                                <div className="px-4 py-1.5 bg-brand-blue text-white rounded-lg text-[10px] font-bold uppercase tracking-widest leading-none">
                                                     {overallScore >= 8 ? 'Elite Platform' : overallScore >= 6 ? 'Market Leading' : 'Verified Vendor'}
                                                 </div>
                                             </div>
@@ -816,7 +816,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-baseline gap-1">
-                                                                <span className="text-xl font-black text-slate-900">{score}</span>
+                                                                <span className="text-xl font-bold text-slate-900">{score}</span>
                                                                 <span className="text-[10px] font-bold text-slate-300">/ 10.0</span>
                                                             </div>
                                                         </div>
@@ -835,12 +835,12 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     <div className="space-y-8">
                                         <div className="bg-[#0f172a] text-white rounded-3xl p-8 shadow-2xl relative overflow-hidden group">
                                             <div className="absolute top-0 right-0 w-32 h-32 bg-brand-blue/20 blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700" />
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
                                                 <Sparkles size={12} className="text-yellow-400" />
                                                 Effective Broker-Fit
                                             </p>
                                             <div className="flex items-baseline gap-2 mb-6">
-                                                <h2 className="text-7xl font-black tracking-tighter leading-none">{overallScore}</h2>
+                                                <h2 className="text-7xl font-bold tracking-tighter leading-none">{overallScore}</h2>
                                                 <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">Score</p>
                                             </div>
                                             <p className="text-xs text-slate-400 leading-relaxed font-medium">
@@ -848,18 +848,18 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                             </p>
                                             <div className="mt-8 pt-6 border-t border-slate-800 space-y-4">
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase">Assessor Integrity</span>
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Assessor Integrity</span>
                                                     <CheckCircle2 size={14} className="text-brand-blue" />
                                                 </div>
                                                 <div className="flex items-center justify-between">
-                                                    <span className="text-[10px] font-black text-slate-500 uppercase">Rubric Alignment</span>
+                                                    <span className="text-[10px] font-bold text-slate-500 uppercase">Rubric Alignment</span>
                                                     <CheckCircle2 size={14} className="text-brand-blue" />
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-8">
-                                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Badges Earned</h4>
+                                            <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Badges Earned</h4>
                                             <div className="space-y-3">
                                                 {selectedBadges.map(bid => {
                                                     const b = BADGES.find(x => x.id === bid);
@@ -867,7 +867,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                         <div key={bid} className={`p-4 rounded-2xl border-2 flex items-center justify-between group hover:scale-[1.02] transition-all cursor-default ${b.color}`}>
                                                             <div className="flex items-center gap-3">
                                                                 <span className="text-xl">{b.icon}</span>
-                                                                <span className="text-xs font-black uppercase tracking-tight">{b.label}</span>
+                                                                <span className="text-xs font-bold uppercase tracking-tight">{b.label}</span>
                                                             </div>
                                                             <Award size={18} className="opacity-40 group-hover:opacity-100 transition-opacity" />
                                                         </div>
@@ -886,12 +886,12 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                 <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden p-10">
                                     <div className="flex items-center justify-between mb-8">
                                         <div>
-                                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-1">Knowledge Hub</h3>
+                                            <h3 className="text-2xl font-bold text-slate-900 uppercase tracking-tight mb-1">Knowledge Hub</h3>
                                             <p className="text-sm text-slate-500 font-medium italic">Connect external validation material and broker resources</p>
                                         </div>
                                         <button
                                             onClick={() => setLinkedResources([...linkedResources, { title: '', url: '', type: 'guide' }])}
-                                            className="px-6 py-3 bg-[#0f172a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
+                                            className="px-6 py-3 bg-[#0f172a] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
                                         >
                                             <Plus size={14} /> Add Resource
                                         </button>
@@ -905,7 +905,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 </div>
                                                 <div className="flex-1 grid grid-cols-12 gap-6 items-center">
                                                     <div className="col-span-4">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Title</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Title</p>
                                                         <input
                                                             className="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-blue rounded-lg px-2 py-1 text-sm font-bold text-slate-900"
                                                             value={res.title}
@@ -916,7 +916,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                         />
                                                     </div>
                                                     <div className="col-span-5">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">URL</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">URL</p>
                                                         <input
                                                             className="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-blue rounded-lg px-2 py-1 text-sm font-medium text-slate-500"
                                                             value={res.url}
@@ -927,9 +927,9 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                         />
                                                     </div>
                                                     <div className="col-span-2">
-                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Type</p>
+                                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Type</p>
                                                         <select
-                                                            className="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-blue rounded-lg px-2 py-1 text-xs font-black uppercase text-slate-700"
+                                                            className="w-full bg-transparent border-none focus:ring-2 focus:ring-brand-blue rounded-lg px-2 py-1 text-xs font-bold uppercase text-slate-700"
                                                             value={res.type}
                                                             onChange={e => {
                                                                 const next = [...linkedResources]; next[i].type = e.target.value; setLinkedResources(next);
@@ -957,7 +957,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
                                                     <Plus size={32} className="text-slate-300 group-hover:text-brand-blue" />
                                                 </div>
-                                                <p className="text-sm font-black text-slate-300 uppercase tracking-widest">No resources linked yet</p>
+                                                <p className="text-sm font-bold text-slate-300 uppercase tracking-widest">No resources linked yet</p>
                                                 <p className="text-xs text-slate-400 mt-2 italic font-medium">Click to add technical guides, case studies or pricing sheets</p>
                                             </div>
                                         )}
@@ -969,12 +969,12 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                 <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden p-10">
                                     <div className="flex items-center justify-between mb-8">
                                         <div>
-                                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-1">Product FAQ Editor</h3>
+                                            <h3 className="text-2xl font-bold text-slate-900 uppercase tracking-tight mb-1">Product FAQ Editor</h3>
                                             <p className="text-sm text-slate-500 font-medium italic">Answer critical prospective broker questions up-front</p>
                                         </div>
                                         <button
                                             onClick={() => setFaqs([...faqs, { q: '', a: '', category: 'General' }])}
-                                            className="px-6 py-3 bg-[#0f172a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
+                                            className="px-6 py-3 bg-[#0f172a] text-white rounded-xl text-[10px] font-bold uppercase tracking-widest hover:bg-slate-800 transition-all flex items-center gap-2"
                                         >
                                             <Plus size={14} /> Add FAQ Item
                                         </button>
@@ -990,7 +990,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                     <Trash2 size={16} />
                                                 </button>
                                                 <div className="space-y-2">
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">The Question</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">The Question</p>
                                                     <input
                                                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-900 outline-none focus:ring-2 focus:ring-brand-blue"
                                                         placeholder="e.g., Does this software follow the CDR data security standards?"
@@ -1001,7 +1001,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Executive Answer</p>
+                                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Executive Answer</p>
                                                     <textarea
                                                         className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 outline-none focus:ring-2 focus:ring-brand-blue resize-none"
                                                         placeholder="Provide a concise expert response..."
@@ -1017,7 +1017,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                         {faqs.length === 0 && (
                                             <div className="text-center py-20 border-2 border-dashed border-slate-100 rounded-3xl bg-slate-50/30">
                                                 <MessageCircle size={48} className="text-slate-200 mx-auto mb-4" />
-                                                <p className="text-sm font-black text-slate-300 uppercase tracking-widest">No FAQ items created</p>
+                                                <p className="text-sm font-bold text-slate-300 uppercase tracking-widest">No FAQ items created</p>
                                             </div>
                                         )}
                                     </div>
@@ -1029,18 +1029,18 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     <div className="w-24 h-24 bg-brand-blue text-white rounded-3xl flex items-center justify-center mx-auto shadow-2xl shadow-brand-blue/20">
                                         <CheckCircle2 size={48} />
                                     </div>
-                                    <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Final Appraisal Ready</h2>
+                                    <h2 className="text-3xl font-bold text-slate-900 uppercase tracking-tight">Final Appraisal Ready</h2>
                                     <p className="text-slate-500 max-w-md mx-auto font-medium">Review the calculated benchmarks and metadata before committing to the live marketplace.</p>
                                 </div>
 
                                 <div className="grid grid-cols-1 gap-6">
                                     <div className="bg-white rounded-3xl border border-slate-200 p-8 flex items-center justify-between shadow-xl">
                                         <div className="flex items-center gap-6">
-                                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 font-black text-2xl">
+                                            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-900 font-bold text-2xl">
                                                 {overallScore}
                                             </div>
                                             <div>
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Final Score</p>
+                                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Final Score</p>
                                                 <p className="text-lg font-bold text-slate-900 underline decoration-brand-blue decoration-4 underline-offset-4">Elite Professional Grade</p>
                                             </div>
                                         </div>
@@ -1059,14 +1059,14 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                     <div className="bg-[#0f172a] rounded-3xl p-10 text-white space-y-8 relative overflow-hidden">
                                         <div className="absolute top-0 right-0 w-64 h-64 bg-brand-blue/10 blur-3xl -mr-32 -mt-32" />
                                         <div className="flex items-center justify-between relative z-10">
-                                            <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Visibility Settings</h4>
-                                            <div className="px-4 py-1.5 bg-green-500/10 text-green-400 rounded-full border border-green-500/20 text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                                            <h4 className="text-sm font-bold uppercase tracking-widest text-slate-400">Visibility Settings</h4>
+                                            <div className="px-4 py-1.5 bg-green-500/10 text-green-400 rounded-full border border-green-500/20 text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">
                                                 <Globe size={12} /> Live Sync Enabled
                                             </div>
                                         </div>
                                         <div className="grid grid-cols-2 gap-8 relative z-10">
                                             <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
-                                                <p className="text-[10px] font-black text-slate-500 uppercase">Assessment Meta</p>
+                                                <p className="text-[10px] font-bold text-slate-500 uppercase">Assessment Meta</p>
                                                 <div className="space-y-3">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs font-medium text-slate-400 italic">Stage 2 Benchmark</span>
@@ -1079,7 +1079,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                                 </div>
                                             </div>
                                             <div className="p-6 bg-white/5 rounded-2xl border border-white/10 space-y-4">
-                                                <p className="text-[10px] font-black text-slate-500 uppercase">Publish Toggle</p>
+                                                <p className="text-[10px] font-bold text-slate-500 uppercase">Publish Toggle</p>
                                                 <div className="space-y-3">
                                                     <PublishToggle section="mapping" />
                                                     <PublishToggle section="scores" />
@@ -1089,7 +1089,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                                         <button
                                             onClick={() => handleSave(true)}
                                             disabled={isSaving}
-                                            className="w-full py-5 bg-brand-blue text-white rounded-2xl text-sm font-black uppercase tracking-[0.2em] shadow-2xl shadow-brand-blue/40 transform active:scale-[0.98] transition-all hover:bg-blue-500 flex items-center justify-center gap-3 relative z-10"
+                                            className="w-full py-5 bg-brand-blue text-white rounded-2xl text-sm font-bold uppercase tracking-[0.2em] shadow-2xl shadow-brand-blue/40 transform active:scale-[0.98] transition-all hover:bg-blue-500 flex items-center justify-center gap-3 relative z-10"
                                         >
                                             {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Zap size={20} className="fill-current" />}
                                             Finalise & Push Live to Marketplace
@@ -1105,7 +1105,7 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
 
                     <div className="w-80 bg-white border-l border-slate-200 p-8 space-y-8 hidden xl:block">
                         <div>
-                            <h4 className="text-xs font-semibold text-slate-600 mb-4">Broker-Fit Breakdown</h4>
+                            <h4 className="text-xs font-bold text-slate-600 mb-4">Broker-Fit Breakdown</h4>
                             <div className="space-y-3">
                                 {Object.keys(METRICS).map(key => (
                                     <div key={key} className="flex flex-col gap-1.5">
@@ -1125,13 +1125,13 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                         </div>
 
                         <div className="pt-8 border-t border-slate-100">
-                            <h4 className="text-xs font-semibold text-slate-600 mb-4">Assigned Badges</h4>
+                            <h4 className="text-xs font-bold text-slate-600 mb-4">Assigned Badges</h4>
                             <div className="flex flex-col gap-2">
                                 {selectedBadges.map(bid => {
                                     const b = BADGES.find(x => x.id === bid);
                                     return b ? (
                                         <div key={bid} className={`p-3 rounded-xl border-2 flex items-center justify-between ${b.color}`}>
-                                            <span className="text-xs font-black uppercase">{b.label}</span>
+                                            <span className="text-xs font-bold uppercase">{b.label}</span>
                                             <Award size={14} />
                                         </div>
                                     ) : null;
@@ -1141,11 +1141,11 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
                         </div>
 
                         <div className="pt-8 border-t border-slate-100">
-                            <h4 className="text-xs font-semibold text-slate-600 mb-4">Top Ranked Features</h4>
+                            <h4 className="text-xs font-bold text-slate-600 mb-4">Top Ranked Features</h4>
                             <div className="space-y-2">
                                 {features.filter(f => f.topFeatureOrder).sort((a, b) => (a.topFeatureOrder || 0) - (b.topFeatureOrder || 0)).map(f => (
                                     <div key={f.id} className="p-3 bg-orange-50 border border-orange-100 rounded-xl flex items-center gap-3">
-                                        <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0">{f.topFeatureOrder}</span>
+                                        <span className="w-6 h-6 bg-orange-500 text-white rounded-full flex items-center justify-center text-[10px] font-bold shrink-0">{f.topFeatureOrder}</span>
                                         <span className="text-xs font-bold text-slate-700 truncate">{f.name}</span>
                                     </div>
                                 ))}
@@ -1202,4 +1202,5 @@ export default function ApplicationAssessment({ isOpen, onClose, application, on
     );
 };
 
-export default ApplicationAssessment;
+
+// Removing duplicate export default

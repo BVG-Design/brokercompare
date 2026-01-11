@@ -221,7 +221,7 @@ export default async function BlogPostPage({
                           className="inline-block h-10 w-10 rounded-full ring-2 ring-[#f4f6fb] object-cover"
                         />
                       ) : (
-                        <div key={author._id} className="inline-block h-10 w-10 rounded-full bg-gray-200 ring-2 ring-[#f4f6fb] flex items-center justify-center text-xs font-semibold text-gray-600">
+                        <div key={author._id} className="inline-block h-10 w-10 rounded-full bg-gray-200 ring-2 ring-[#f4f6fb] flex items-center justify-center text-xs font-bold text-gray-600">
                           {author.name.charAt(0).toUpperCase()}
                         </div>
                       )
@@ -247,7 +247,7 @@ export default async function BlogPostPage({
                   )}
                 </div>
                 <div className="text-sm">
-                  <p className="font-semibold text-gray-900">
+                  <p className="font-bold text-brand-blue">
                     {post.authors && post.authors.length > 0
                       ? post.authors.map(a => a.name).join(' & ')
                       : (post.author?.name ?? 'BrokerMatch Team')}
@@ -277,7 +277,7 @@ export default async function BlogPostPage({
                 {mainCategory && (
                   <>
                     <span className="text-gray-300">•</span>
-                    <span className="text-indigo-600 font-medium">
+                    <span className="text-brand-blue font-bold">
                       #{mainCategory.title}
                     </span>
                   </>
@@ -289,29 +289,29 @@ export default async function BlogPostPage({
 
           {/* SHARE ICONS ROW – simple version to echo the reference */}
           <section className="mb-4 flex flex-wrap items-center gap-2">
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-black text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-brand-blue text-white text-xs font-bold">
               X
             </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#0A66C2] text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#0A66C2] text-white text-xs font-bold">
               in
             </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#1877F2] text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#1877F2] text-white text-xs font-bold">
               f
             </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#DB4437] text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#DB4437] text-white text-xs font-bold">
               M
             </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#FF4500] text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#FF4500] text-white text-xs font-bold">
               R
             </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#2563EB] text-white text-xs font-semibold">
+            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-brand-blue text-white text-xs font-bold">
               +
             </button>
           </section>
 
           {/* TITLE + SUMMARY */}
           <section className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold text-brand-blue leading-tight mb-3">
               {post.title}
             </h1>
             {post.summary && (
@@ -324,7 +324,7 @@ export default async function BlogPostPage({
           {/* BODY – plain prose, no card box */}
           <section className="mb-8">
             {post.body ? (
-              <article className="prose prose-lg max-w-none prose-headings:font-semibold prose-a:text-indigo-600">
+              <article className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-brand-orange">
                 <PortableText value={post.body} components={portableComponents} />
               </article>
             ) : (
@@ -337,13 +337,13 @@ export default async function BlogPostPage({
           {/* TAGS AT BOTTOM */}
           {post.tags && post.tags.length > 0 && (
             <section className="mt-4 flex flex-wrap items-center gap-2 mb-12">
-              <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
                 Tags:
               </span>
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-700"
+                  className="rounded-full bg-gray-50 px-3 py-1 text-xs text-brand-blue border border-gray-100"
                 >
                   #{tag}
                 </span>
@@ -354,7 +354,7 @@ export default async function BlogPostPage({
           {/* RELATED CONTENT SECTION */}
           {post.related && post.related.length > 0 && (
             <section className="mt-20 border-t border-primary/10 pt-16">
-              <h2 className="text-3xl font-black text-primary mb-10">Related</h2>
+              <h2 className="text-3xl font-bold text-brand-blue mb-10">Related</h2>
               <div className="grid grid-cols-1 gap-6">
                 {post.related.map((item: any) => {
                   const isBlog = item._type === 'blog';
@@ -385,7 +385,7 @@ export default async function BlogPostPage({
                       <div className="flex flex-col justify-center py-2">
                         <div className="flex items-center gap-3 mb-2">
                           {typeLabel && (
-                            <span className="text-[10px] font-black uppercase tracking-widest text-secondary bg-secondary/10 px-2 py-0.5 rounded-md">
+                            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded-md">
                               {typeLabel}
                             </span>
                           )}
@@ -395,11 +395,11 @@ export default async function BlogPostPage({
                             </span>
                           )}
                         </div>
-                        <h3 className="text-xl font-bold text-primary group-hover:text-secondary transition-colors mb-2 line-clamp-2">
+                        <h3 className="text-xl font-bold text-brand-blue group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
                           {item.title}
                         </h3>
                         {summary && (
-                          <p className="text-sm text-primary/60 line-clamp-2 leading-relaxed">
+                          <p className="text-sm text-brand-blue/60 line_clamp-2 leading-relaxed">
                             {summary}
                           </p>
                         )}

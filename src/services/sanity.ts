@@ -86,6 +86,9 @@ export interface UnifiedSearchResult {
   brokerType?: string[];
   listingType?: string;
   badges?: string[];
+  features?: string[];
+  rating?: number;
+  reviews?: number;
 }
 
 export const fetchUnifiedSearchResults = async (

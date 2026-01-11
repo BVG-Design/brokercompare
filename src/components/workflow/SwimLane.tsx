@@ -77,7 +77,7 @@ export default function SwimLane({
                     <div className={cn("p-2.5 rounded-xl text-white shadow-lg", config.color)}>
                         <Icon className="w-4 h-4" />
                     </div>
-                    <span className="font-black text-slate-900 text-[10px] uppercase tracking-wider">{config.label}</span>
+                    <span className="font-bold text-brand-blue text-[10px] uppercase tracking-wider">{config.label}</span>
                 </div>
             </div>
 
@@ -129,7 +129,7 @@ export default function SwimLane({
                                     <div className="w-8 h-8 rounded-full border border-dashed border-slate-200 flex items-center justify-center">
                                         <div className="w-1 h-1 rounded-full bg-slate-200" />
                                     </div>
-                                    <span className="text-[8px] font-black text-slate-300 mt-2 uppercase tracking-widest">Growth Opportunity</span>
+                                    <span className="text-[8px] font-bold text-slate-300 mt-2 uppercase tracking-widest">Growth Opportunity</span>
                                 </div>
                             )}
                         </div>

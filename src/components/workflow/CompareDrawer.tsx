@@ -27,21 +27,19 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                 {/* Header */}
                 <div className="flex items-center justify-between px-8 py-5 border-b border-slate-100 bg-white">
                     <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-[#0f172a] rounded-xl flex items-center justify-center text-white">
+                        <div className="w-10 h-10 bg-brand-blue rounded-xl flex items-center justify-center text-white">
                             <Columns size={20} />
                         </div>
                         <div>
-                            <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">Strategy Comparison</h3>
+                            <h3 className="text-sm font-bold text-brand-blue uppercase tracking-tight">Strategy Comparison</h3>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{listings.length} Solutions Selected</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="sm" onClick={onClear} className="text-[10px] font-black uppercase tracking-widest border border-slate-200 rounded-lg">
+                        <Button variant="ghost" size="sm" onClick={onClear} className="text-[10px] font-bold uppercase tracking-widest border border-slate-200 rounded-lg">
                             Clear All
                         </Button>
-                        <Button size="sm" className="bg-brand-orange text-white hover:bg-orange-600 text-[10px] font-black uppercase tracking-widest rounded-lg px-6">
-                            Download Matrix
-                        </Button>
+                        Download Matrix
                     </div>
                 </div>
 
@@ -52,7 +50,7 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                             <thead className="sticky top-0 bg-white/80 backdrop-blur-md z-10">
                                 <tr>
                                     <th className="py-6 pr-8 text-left w-64 border-b border-slate-100">
-                                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Attribute</span>
+                                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">Attribute</span>
                                     </th>
                                     {listings.map((item) => (
                                         <th key={item._id} className="p-6 min-w-[280px] border-b border-slate-100">
@@ -62,7 +60,7 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                                         {item.logo ? (
                                                             <img src={item.logo} alt={item.title} className="w-full h-full object-contain" />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center bg-slate-900 text-white font-black text-xl">
+                                                            <div className="w-full h-full flex items-center justify-center bg-brand-blue text-white font-bold text-xl">
                                                                 {item.title.charAt(0)}
                                                             </div>
                                                         )}
@@ -74,7 +72,7 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                                         <X className="w-3 h-3 stroke-[3]" />
                                                     </button>
                                                 </div>
-                                                <span className="font-black text-slate-900 text-xs uppercase tracking-tight">{item.title}</span>
+                                                <span className="font-bold text-brand-blue text-xs uppercase tracking-tight">{item.title}</span>
                                             </div>
                                         </th>
                                     ))}
@@ -84,12 +82,12 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                 {/* Score Row */}
                                 <tr className="hover:bg-white transition-colors">
                                     <td className="py-6 pr-8">
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Broker-Fit Score</span>
+                                        <span className="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Broker-Fit Score</span>
                                     </td>
                                     {listings.map((item) => (
                                         <td key={item._id} className="p-6 text-center">
-                                            <div className="inline-flex items-baseline gap-1 bg-slate-900 text-white px-3 py-1.5 rounded-lg">
-                                                <span className="text-base font-black">4.8</span>
+                                            <div className="inline-flex items-baseline gap-1 bg-brand-blue text-white px-3 py-1.5 rounded-lg">
+                                                <span className="text-base font-bold">4.8</span>
                                                 <span className="text-[8px] font-bold text-slate-400">/ 5.0</span>
                                             </div>
                                         </td>
@@ -99,11 +97,11 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                 {/* Stage Fit */}
                                 <tr className="hover:bg-white transition-colors">
                                     <td className="py-6 pr-8">
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Primary Journey Stage</span>
+                                        <span className="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Primary Journey Stage</span>
                                     </td>
                                     {listings.map((item) => (
                                         <td key={item._id} className="p-6 text-center">
-                                            <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
+                                            <span className="text-[10px] font-bold uppercase text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100">
                                                 {item.journeyStage?.title || 'General'}
                                             </span>
                                         </td>
@@ -113,7 +111,7 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                 {/* Pricing Row */}
                                 <tr className="hover:bg-white transition-colors">
                                     <td className="py-6 pr-8">
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Starting Price</span>
+                                        <span className="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Starting Price</span>
                                     </td>
                                     {listings.map((item) => (
                                         <td key={item._id} className="p-6 text-center">
@@ -127,7 +125,7 @@ export default function CompareDrawer({ listings, onRemove, onClear }: CompareDr
                                 {/* Capability Matrix Row */}
                                 <tr className="hover:bg-white transition-colors">
                                     <td className="py-6 pr-8">
-                                        <span className="text-[10px] font-black text-slate-900 uppercase tracking-widest">Core Capabilities</span>
+                                        <span className="text-[10px] font-bold text-brand-blue uppercase tracking-widest">Core Capabilities</span>
                                     </td>
                                     {listings.map((item) => (
                                         <td key={item._id} className="p-6">
