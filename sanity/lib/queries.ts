@@ -169,7 +169,8 @@ export const UNIFIED_SEARCH_QUERY = groq`
     features
   ),
   "rating": coalesce(rating, 0),
-  "reviews": count(*[_type == "review" && references(^._id)])
+  "reviews": count(*[_type == "review" && references(^._id)]),
+  "websiteUrl": coalesce(websiteURL, websiteUrl)
 }
 `;
 

@@ -36,6 +36,7 @@ export default function middleware(req: NextRequest) {
         const isDirectoryRoute = [
             '/search',
             '/partners',
+            '/listings',
             '/compare',
             '/api',
             '/_next',

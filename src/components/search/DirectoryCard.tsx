@@ -31,6 +31,7 @@ interface DirectoryCardProps {
     viewMode?: 'list' | 'grid';
     slug: string;
     resultType: string;
+    websiteUrl?: string;
 }
 
 const DirectoryCard: React.FC<DirectoryCardProps> = ({
@@ -48,14 +49,15 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
     badges = [],
     viewMode = 'grid',
     slug,
-    resultType
+    resultType,
+    websiteUrl
 }) => {
     const { addItem, isInComparison, removeItem, canAddMore } = useComparison();
     const isComparing = isInComparison(id);
     const router = useRouter();
 
     const handleCardClick = () => {
-        router.push(`${SITE_URLS.directory}/partners/${slug}`);
+        router.push(`${SITE_URLS.directory}/listings/${slug}`);
     };
 
     const onToggleCompare = (e: React.MouseEvent) => {
@@ -207,11 +209,11 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
                                 asChild
                                 className="h-12 w-full rounded-2xl bg-brand-green text-brand-blue font-bold uppercase tracking-widest text-[11px] hover:bg-gray-800 hover:text-white transition-all shadow-md active:scale-95 border-none"
                             >
-                                <a href={`${SITE_URLS.directory}/partners/${slug}`} onClick={(e) => e.stopPropagation()}>View Profile</a>
+                                <a href={`${SITE_URLS.directory}/listings/${slug}`} onClick={(e) => e.stopPropagation()}>View Profile</a>
                             </Button>
 
                             <div className="flex items-center justify-between px-1">
-                                <a href={`/directory/${slug}`} onClick={(e) => e.stopPropagation()} className="text-brand-blue hover:text-brand-blue/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all">
+                                <a href={websiteUrl || `/listings/${slug}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-brand-blue hover:text-brand-blue/80 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5 transition-all">
                                     Visit Website <ExternalLink size={12} />
                                 </a>
                                 <div
@@ -355,9 +357,9 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
                 <div className="mt-8 flex items-center justify-between border-t border-gray-100 pt-6">
                     <div className="flex items-center gap-8">
                         <Button asChild className="bg-brand-green text-brand-blue hover:bg-gray-800 hover:text-white font-bold uppercase tracking-widest text-[11px] h-12 px-10 rounded-xl transition-all shadow-md active:scale-95 border-none">
-                            <a href={`${SITE_URLS.directory}/partners/${slug}`} onClick={(e) => e.stopPropagation()}>View Profile</a>
+                            <a href={`${SITE_URLS.directory}/listings/${slug}`} onClick={(e) => e.stopPropagation()}>View Profile</a>
                         </Button>
-                        <a href={`/directory/${slug}`} onClick={(e) => e.stopPropagation()} className="text-brand-blue hover:text-brand-blue/80 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all group/link">
+                        <a href={websiteUrl || `/listings/${slug}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-brand-blue hover:text-brand-blue/80 text-[11px] font-bold uppercase tracking-widest flex items-center gap-2 transition-all group/link">
                             Visit Website <ExternalLink size={14} className="group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
                         </a>
                     </div>

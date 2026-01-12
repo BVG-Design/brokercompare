@@ -539,7 +539,7 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
     <>
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
         <Link
-          href={`/directory/${listingSlug}`}
+          href={`/listings/${listingSlug}`}
           className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
         >
           <ArrowLeft size={16} /> Back to {listingName} Review
@@ -700,7 +700,7 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
               <div className="flex flex-wrap justify-center gap-3">
                 {p.worksWith?.length ? (
                   p.worksWith.map((integration) => {
-                    const href = integration.slug ? `/directory/${integration.slug}` : '#';
+                    const href = integration.slug ? `/listings/${integration.slug}` : '#';
                     return (
                       <Link
                         key={integration.slug || integration.title}

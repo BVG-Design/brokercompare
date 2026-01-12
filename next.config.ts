@@ -47,6 +47,15 @@ const nextConfig: NextConfig = {
   // outputFileTracingRoot: path.join(__dirname, '../../../../'),
   experimental: {
   },
+  async redirects() {
+    return [
+      {
+        source: '/partners/:slug*',
+        destination: '/listings/:slug*',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

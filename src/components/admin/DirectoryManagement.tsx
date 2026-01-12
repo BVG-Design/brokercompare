@@ -15,13 +15,13 @@ import {
 import { Edit, Trash2, Search, ExternalLink, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
-import type { partnerRecord } from '@/lib/dashboard-data';
+import type { PartnerRecord } from '@/lib/dashboard-data';
 
 export default function DirectoryManagement() {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [partners, setpartners] = useState<partnerRecord[]>([]);
+  const [partners, setpartners] = useState<PartnerRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
@@ -67,7 +67,7 @@ export default function DirectoryManagement() {
     });
   }, [partners, searchTerm, statusFilter]);
 
-  const handleDeletepartner = (partnerId) => {
+  const handleDeletepartner = (partnerId: string) => {
     if (
       window.confirm(
         'Are you sure you want to delete this partner? This action cannot be undone.'
@@ -157,8 +157,8 @@ export default function DirectoryManagement() {
                             partner.status === 'approved'
                               ? 'default'
                               : partner.status === 'pending'
-                              ? 'secondary'
-                              : 'destructive'
+                                ? 'secondary'
+                                : 'destructive'
                           }
                           className={
                             partner.status === 'approved'
@@ -178,7 +178,7 @@ export default function DirectoryManagement() {
                     </div>
 
                     <div className="flex gap-2">
-                      <Link href={`/partners/${partner.id}`} passHref>
+                      <Link href={`/listings/${partner.id}`} passHref>
                         <Button asChild variant="ghost" size="sm">
                           <a>
                             <ExternalLink className="w-4 h-4" />

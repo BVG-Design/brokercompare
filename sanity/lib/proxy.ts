@@ -25,7 +25,7 @@ export const DIRECTORY_LISTING_QUERY = groq`
       defined(images[0].asset->url) => images[0].asset->url,
       defined(mainImage.asset->url) => mainImage.asset->url
     ),
-    websiteURL,
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     brokerType,
     "similarTo": similarTo[]{
       priority,
@@ -55,7 +55,7 @@ export const DIRECTORY_LISTING_QUERY = groq`
         defined(images[0].asset->url) => images[0].asset->url,
         defined(mainImage.asset->url) => mainImage.asset->url
       ),
-      websiteURL,
+      "websiteUrl": coalesce(websiteURL, websiteUrl),
       brokerType,
       "badges": badges[]->{
         title,
@@ -124,7 +124,7 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       defined(mainImage.asset->url) => mainImage.asset->url,
       defined(heroImage.asset->url) => heroImage.asset->url
     ),
-    websiteURL,
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     brokerType,
     "similarTo": similarTo[]{
       priority,
@@ -225,7 +225,7 @@ export const COMPARISON_QUERY = groq`
     listingType,
     brokerType,
     pricing,
-    websiteURL,
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     rating,
     trustMetrics,
     viewCount,

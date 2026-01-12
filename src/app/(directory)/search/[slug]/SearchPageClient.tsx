@@ -206,6 +206,7 @@ export default function SearchPageClient({
                                     features={item.features}
                                     rating={item.rating || 0}
                                     reviews={item.reviews || 0}
+                                    websiteUrl={item.websiteUrl}
                                 />
                             ))}
                         </div>

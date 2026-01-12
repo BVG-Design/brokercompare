@@ -42,7 +42,7 @@ const mapToSoftwareListing = (listing: any): SoftwareListing => ({
   tagline: listing.tagline,
   description: listing.description,
   category: listing.category?.title,
-  websiteUrl: listing.websiteURL,
+  websiteUrl: listing.websiteUrl,
   logoUrl: listing.logoUrl || listing.logo_url,
   badges: (listing.badges || []).map((b: any) => ({ title: b.title, color: b.color })),
   serviceArea: (listing.serviceAreas || [])
@@ -285,7 +285,7 @@ export const buildDirectoryPageData = async (slug: string): Promise<DirectoryPag
       priceText: formatPricing(item.pricing),
       rating: ratingValue,
       isCurrent: item.slug === slug,
-      websiteUrl: item.websiteURL,
+      websiteUrl: item.websiteUrl,
       worksWith: item.worksWith || [],
       serviceAreas: (item.serviceAreas || []).map((sa: any) => sa?.title).filter(Boolean),
       alternativesCount: item.alternativesCount,

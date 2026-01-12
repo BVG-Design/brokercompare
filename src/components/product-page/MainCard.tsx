@@ -13,6 +13,7 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import ContactModal from './ContactModal';
 
 interface MainCardProps {
     listing: SoftwareListing;
@@ -67,6 +68,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
         category
     } = listing;
 
+    const [showContactModal, setShowContactModal] = useState(false);
     const [imageError, setImageError] = useState(false);
 
     const searchParams = useSearchParams();
@@ -249,11 +251,19 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
 
                         <button
                             type="button"
-                            className="w-full mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+                            onClick={() => setShowContactModal(true)}
+                            className="w-full mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
                         >
-                            Shortlist
+                            Contact {name}
                             <Plus size={14} />
                         </button>
+
+                        <ContactModal
+                            open={showContactModal}
+                            onOpenChange={setShowContactModal}
+                            businessName={name}
+                            logoUrl={logoUrl}
+                        />
 
                         {serviceArea.length > 0 && (
                             <div className="mb-6">
@@ -286,9 +296,9 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         {brokerType.map((type, idx) => (
                                             <Tooltip key={idx}>
                                                 <TooltipTrigger asChild>
-                                                    <span className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-100 rounded text-xs cursor-pointer group relative inline-flex items-center gap-1">
+                                                    <span className="px-2 py-1 bg-blue-50 text-primary border border-blue-100 rounded text-xs cursor-pointer group relative inline-flex items-center gap-1">
                                                         {type}
-                                                        <Brain className="w-3 h-3 text-purple-500 group-hover:text-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <Brain className="w-3 h-3 text-primary/50 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     </span>
                                                 </TooltipTrigger>
                                                 <TooltipContent>

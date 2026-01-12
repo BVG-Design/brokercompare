@@ -101,7 +101,7 @@ export default function PartnerCard({ partner }: { partner: any }) {
 
         {/* Actions */}
         <div className="flex gap-2 mt-auto">
-          <Link href={`${SITE_URLS.directory}/partners/${partner.slug}`} className="flex-1">
+          <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="flex-1">
             <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
               View Details
             </Button>

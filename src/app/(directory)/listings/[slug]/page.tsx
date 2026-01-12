@@ -62,15 +62,17 @@ export default async function DirectoryProfilePage(props: PageProps) {
                 <MainCard listing={listing} />
                 <InfoGrid listing={listing} blogs={MOCK_BLOGS} reviews={reviews} />
                 <ReviewsSection listingName={listing.name} listingSlug={slug} reviews={reviews} />
-                <div className="max-w-6xl mx-auto px-4 space-y-12">
+                <div className="max-w-6xl mx-auto px-4 space-y-12 pb-24">
+                    <ProvidersSection providers={providers} />
                     <StillNotSure />
+                    {/* Hide ComparisonSummary as per user request
                     <ComparisonSummary
                         products={summaryProducts}
                         features={summaryFeatures}
                         focusName={listing.name}
-                        comparisonHref={`${SITE_URLS.directory}/partners/${slug}/comparison`}
+                        comparisonHref={`${SITE_URLS.directory}/listings/${slug}/comparison`}
                     />
-                    <ProvidersSection providers={providers} />
+                    */}
                 </div>
             </main>
         </div>

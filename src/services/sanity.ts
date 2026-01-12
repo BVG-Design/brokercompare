@@ -35,7 +35,7 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     category: item.featuredLabel || 'RESOURCE',
     ctaText: item._type === 'blog' ? 'Read' : 'Explore',
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
-    link: item._type === 'blog' ? `${SITE_URLS.resources}/blog/${item.slug}` : `${SITE_URLS.directory}/partners/${item.slug}`,
+    link: item._type === 'blog' ? `${SITE_URLS.resources}/blog/${item.slug}` : `${SITE_URLS.directory}/listings/${item.slug}`,
     featuredLabel: item.featuredLabel,
     listingType: item.listingType,
     blogType: item.blogType
@@ -97,6 +97,7 @@ export interface UnifiedSearchResult {
   features?: string[];
   rating?: number;
   reviews?: number;
+  websiteUrl?: string;
 }
 
 export const fetchUnifiedSearchResults = async (
