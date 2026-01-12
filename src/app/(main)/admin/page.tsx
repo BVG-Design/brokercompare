@@ -249,7 +249,7 @@ export default function AdminDashboard() {
         router.push('/login');
         return;
       }
-      setUserEmail(user.email);
+      setUserEmail(user.email ?? null);
 
       const { data: profile, error: profileError } = await supabase
         .from('user_profiles')
@@ -322,8 +322,8 @@ export default function AdminDashboard() {
                           key={item.id}
                           onClick={() => setActiveSection(item.id)}
                           className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${activeSection === item.id
-                              ? 'bg-[#132847] text-white shadow-sm'
-                              : 'text-gray-700 hover:bg-gray-100'
+                            ? 'bg-[#132847] text-white shadow-sm'
+                            : 'text-gray-700 hover:bg-gray-100'
                             }`}
                         >
                           <item.icon className="w-4 h-4" />

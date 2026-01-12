@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-import { BlogSearchForm } from '../../components/blog/BlogSearchForm';
+import { BlogSearchForm } from '@/components/blog/BlogSearchForm';
 import { BlogFilters } from '@/components/blog/BlogFilters';
 import { Calendar, Eye, Sparkles, MessageCircle, FileQuestion, ArrowRight, Search } from 'lucide-react';
 import { format } from 'date-fns';

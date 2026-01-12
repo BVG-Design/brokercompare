@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Send, Sparkles, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { getRecommendations } from '@/app/recommendations/actions';
+import { getRecommendations } from '@/app/(main)/recommendations/actions';
 
 export default function AIChatDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [messages, setMessages] = useState([

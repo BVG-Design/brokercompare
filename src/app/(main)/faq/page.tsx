@@ -39,7 +39,7 @@ import StillNotSure from '@/components/product-page/StillNotSure';
 import { createClient } from '@/lib/supabase/client';
 // TODO: Replace with Supabase queries when tables are ready
 // import { faqQueries } from '@/lib/supabase';
-import { submitQuestion } from '@/app/actions/ask-question';
+import { submitQuestion } from '@/app/(main)/actions/ask-question';
 
 function FAQContent() {
   const [searchQuery, setSearchQuery] = useState('');

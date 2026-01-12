@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 import BetaConsentModal from "@/components/shared/BetaConsentModal";
 import AIChatDialog from "@/components/partners/AIChatDialog";
+import { SITE_URLS } from '@/lib/config';
 
 const Home: React.FC = () => {
 
@@ -38,7 +39,7 @@ const Home: React.FC = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    router.push(`/search/${encodeURIComponent(searchQuery)}`);
+    router.push(`${SITE_URLS.directory}/search/${encodeURIComponent(searchQuery)}`);
   };
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const Home: React.FC = () => {
           </button>
 
           <div className="mt-12 flex justify-center gap-4">
-            <button onClick={() => router.push('/directory')} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
+            <button onClick={() => window.location.href = `${SITE_URLS.directory}/search`} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
               Browse All
             </button>
             <button onClick={() => router.push('/apply')} className="px-6 py-3 bg-white text-brand-blue font-bold rounded-lg hover:bg-gray-100 transition-colors">
@@ -168,7 +169,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="mt-12 text-center">
-            <button onClick={() => router.push('/blog')} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
+            <button onClick={() => window.location.href = `${SITE_URLS.resources}/blog`} className="inline-flex items-center gap-2 text-brand-blue font-semibold border-b-2 border-brand-green/30 hover:border-brand-green transition-all pb-1">
               More resources <ArrowRight size={16} />
             </button>
           </div>
@@ -206,7 +207,7 @@ const Home: React.FC = () => {
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   A directory of guides helping you or your VA to trouble shoot common integration and website issues
                 </p>
-                <button onClick={() => router.push('/blog?category=va_training_development')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
+                <button onClick={() => window.location.href = `${SITE_URLS.resources}/blog?category=va_training_development`} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
                   Explore <ArrowRight size={14} />
                 </button>
               </div>
@@ -222,7 +223,7 @@ const Home: React.FC = () => {
                 <p className="text-gray-500 text-sm mb-6 max-w-xs">
                   Access cutting-edge analytics and insights to make data-driven decisions and improve your brokerage strategies
                 </p>
-                <button onClick={() => router.push('/blog?category=workbooks_guides')} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
+                <button onClick={() => window.location.href = `${SITE_URLS.resources}/blog?category=workbooks_guides`} className="px-6 py-2 rounded-lg border border-gray-200 text-sm font-medium hover:border-brand-orange hover:text-brand-orange transition-colors flex items-center gap-2">
                   Explore <ArrowRight size={14} />
                 </button>
               </div>
@@ -250,7 +251,7 @@ const Home: React.FC = () => {
                 </div>
                 <h3 className="font-bold text-brand-blue mb-8 min-h-[3rem] flex items-center justify-center">{cat.name}</h3>
                 <button
-                  onClick={() => router.push(`/directory?category=${cat.slug}`)}
+                  onClick={() => window.location.href = `${SITE_URLS.directory}/search?category=${cat.slug}`}
                   className="text-brand-orange font-medium text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
                 >
                   Explore <ArrowRight size={16} />

@@ -186,6 +186,9 @@ export const fetchDirectoryListings = async (filters: {
     websiteURL,
     pricing,
     "listingType": coalesce(listingType->value, listingType->title, listingType),
+    "badgePriority": (badges[]->priority | order(@ asc))[0],
+    "badges": badges[]->title,
+    synonyms,
     isFeatured
   }`;
 
@@ -214,7 +217,10 @@ export const fetchDirectoryListings = async (filters: {
     viewCount: item.viewCount,
     websiteUrl: item.websiteURL,
     pricingModel: item.pricing?.type,
-    type: item.listingType
+    type: item.listingType,
+    badgePriority: item.badgePriority,
+    badges: item.badges || [],
+    synonyms: item.synonyms || []
   }));
 };
 

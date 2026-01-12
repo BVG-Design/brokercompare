@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Search, Filter, Sparkles } from 'lucide-react';
+import { Search, Filter, Sparkles, ArrowRight } from 'lucide-react';
 import PartnerCard from '@/components/partners/PartnerCard';
 import AIChatDialog from '@/components/partners/AIChatDialog';
 import { fetchDirectoryListings, fetchCategories, fetchResourcePosts } from '@/services/sanity';
@@ -39,21 +39,23 @@ function BrowsepartnersContent() {
 
         if (typeFilter === 'resourceGuide') {
           const [posts, cats] = await Promise.all([fetchResourcePosts(), fetchCategories()]);
-          fetchedListings = [];
-          setResourcePosts(posts);
-          fetchedCats = cats;
+          setResourcePosts(posts || []);
+          fetchedCats = cats || [];
         } else {
+          // If no search or filters, fetch default 21 or a larger set and let frontend sort/tip
+          const isDefault = !searchTerm && categoryFilter === 'all' && brokerTypeFilter === 'all' && typeFilter === 'all';
+
           const [listings, cats] = await Promise.all([
             fetchDirectoryListings({
-              search: searchTerm,
-              category: categoryFilter,
-              brokerType: brokerTypeFilter,
+              search: searchTerm || undefined,
+              category: categoryFilter !== 'all' ? categoryFilter : undefined,
+              brokerType: brokerTypeFilter !== 'all' ? brokerTypeFilter : undefined,
               listingType: typeFilter !== 'all' ? typeFilter : undefined
             }),
             fetchCategories()
           ]);
-          fetchedListings = listings;
-          fetchedCats = cats;
+          fetchedListings = listings || [];
+          fetchedCats = cats || [];
           setResourcePosts([]);
         }
 
@@ -93,25 +95,68 @@ function BrowsepartnersContent() {
 
   const filteredpartners = useMemo(() => {
     return partners.filter((partner) => {
-      const matchesBrokerType = brokerTypeFilter === 'all' || partner.brokerTypes?.includes(brokerTypeFilter);
+      // Check for brokerType match
+      const partnerBrokerTypes = partner.brokerType || partner.brokerTypes || [];
+      const matchesBrokerType = brokerTypeFilter === 'all' ||
+        (Array.isArray(partnerBrokerTypes)
+          ? partnerBrokerTypes.includes(brokerTypeFilter)
+          : partnerBrokerTypes === brokerTypeFilter);
       return matchesBrokerType;
     });
   }, [partners, brokerTypeFilter]);
 
   const sortedpartners = useMemo(() => {
-    return [...filteredpartners].sort((a, b) => {
+    // Helper to check if it's a CRM or Fact Find
+    const isCrmOrFactFind = (p: any) => {
+      const text = `${p.name || ''} ${p.company_name || ''} ${p.description || ''} ${p.synonyms?.join(' ') || ''}`.toLowerCase();
+      const categories = (p.categories || []).map((c: any) => (typeof c === 'string' ? c : c.title || '').toLowerCase());
+
+      const searchTerms = ['crm', 'fact find', 'factfind', 'fact-find'];
+      return searchTerms.some(term => text.includes(term)) ||
+        categories.some((cat: string) => searchTerms.some(term => cat.includes(term)));
+    };
+
+    let processed = [...filteredpartners];
+
+    processed.sort((a, b) => {
+      // 1. Badge Priority (Lower is better, e.g. 1 before 2)
       const badgeA = typeof a.badgePriority === 'number' ? a.badgePriority : 999;
       const badgeB = typeof b.badgePriority === 'number' ? b.badgePriority : 999;
       if (badgeA !== badgeB) return badgeA - badgeB;
 
+      // 2. CRM / Fact Find priority (Requested by user)
+      const isA = isCrmOrFactFind(a);
+      const isB = isCrmOrFactFind(b);
+      if (isA && !isB) return -1;
+      if (!isA && isB) return 1;
+
+      // 3. Featured Tier priority (fallback)
       const tierWeight: Record<string, number> = { featured: 3, premium: 2, free: 1 };
-      const aTier = tierWeight[a.listingTier || a.listing_tier] || 0;
-      const bTier = tierWeight[b.listingTier || b.listing_tier] || 0;
+      const aTier = tierWeight[a.listing_tier || a.listingTier] || 0;
+      const bTier = tierWeight[b.listing_tier || b.listingTier] || 0;
       if (aTier !== bTier) return bTier - aTier;
 
+      // 4. Popularity (viewCount) - Descending
+      const viewA = a.viewCount || 0;
+      const viewB = b.viewCount || 0;
+      if (viewA !== viewB) return viewB - viewA;
+
+      // 5. Alphabetical fallback
       return (a.name || a.company_name || '').localeCompare(b.name || b.company_name || '');
     });
-  }, [filteredpartners]);
+
+    // Default view: If no search/filter, limit to 21 results by popularity (and priority)
+    const hasSearch = !!searchTerm;
+    const hasFilters = (categoryFilter && categoryFilter !== 'all') ||
+      (brokerTypeFilter && brokerTypeFilter !== 'all') ||
+      (typeFilter && typeFilter !== 'all');
+
+    if (!hasSearch && !hasFilters) {
+      return processed.slice(0, 21);
+    }
+
+    return processed;
+  }, [filteredpartners, searchTerm, categoryFilter, brokerTypeFilter, typeFilter]);
 
   const clearAll = () => {
     setSearchTerm('');
@@ -128,8 +173,8 @@ function BrowsepartnersContent() {
     }));
   }, [resourcePosts]);
 
-  const handleSearch = () => {
-    // search handled by debounced effect
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
   };
 
   return (
@@ -146,42 +191,31 @@ function BrowsepartnersContent() {
             </div>
 
             {/* Search Bar */}
-            <div className="max-w-3xl mx-auto">
-              <div className="bg-background rounded-2xl shadow-2xl p-2">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search for partners, products, or services..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                      className="pl-12 pr-4 h-14 text-lg border-0 focus-visible:ring-0"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleSearch}
-                    size="lg"
-                    className="bg-secondary hover:bg-secondary/90 text-secondary-foreground px-8 h-14"
-                  >
-                    <Search className="w-5 h-5" />
-                  </Button>
-                </div>
+            <form onSubmit={handleSearch} className="relative max-w-2xl mx-auto mb-6">
+              <div className="relative flex items-center bg-white rounded-xl shadow-2xl p-2 transition-all focus-within:ring-4 focus-within:ring-brand-green/20">
+                <Search className="text-gray-400 ml-4" size={20} />
+                <input
+                  type="text"
+                  placeholder="Search for partners, products, or services..."
+                  className="w-full px-4 py-3 outline-none text-gray-700 caret-blue-600 placeholder-gray-400 bg-transparent"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                <button type="submit" className="bg-brand-orange hover:bg-orange-600 text-white p-3 rounded-lg transition-colors">
+                  <Search size={20} />
+                </button>
               </div>
+            </form>
 
-              {/* AI Chat Button */}
-              <div className="mt-4 text-center">
-                <Button
-                  onClick={() => setShowAIChat(true)}
-                  variant="ghost"
-                  className="text-primary-foreground hover:text-accent hover:bg-primary-foreground/10"
-                >
-                  <Sparkles className="w-5 h-5 mr-2" />
-                  Or ask AI for personalized recommendations
-                  <span className="ml-2">ƒ+'</span>
-                </Button>
-              </div>
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowAIChat(true)}
+                className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
+              >
+                <Sparkles size={16} className="text-brand-green" />
+                <span>Or ask AI for personalised recommendations</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
           </div>
         </div>

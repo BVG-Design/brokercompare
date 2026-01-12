@@ -48,7 +48,7 @@ export default function SearchPageClient({
     const availableListingTypes = useMemo(() => {
         const types = new Set<string>(['software', 'service']);
         (initialResults || []).forEach(item => {
-            if (item.listingType) {
+            if (item.listingType && typeof item.listingType === 'string') {
                 // Normalize for display
                 const t = item.listingType.toLowerCase();
                 if (['software', 'service', 'product', 'products', 'resourceGuide'].includes(t)) {
@@ -72,9 +72,10 @@ export default function SearchPageClient({
 
     const filteredResults = useMemo(() => {
         if (activeCategory === 'all') return (initialResults || []);
-        return (initialResults || []).filter(item =>
-            item.listingType?.toLowerCase() === activeCategory.toLowerCase()
-        );
+        return (initialResults || []).filter(item => {
+            const lType = typeof item.listingType === 'string' ? item.listingType : '';
+            return lType.toLowerCase() === activeCategory.toLowerCase();
+        });
     }, [initialResults, activeCategory]);
 
     const handleCategoryChange = (category: string) => {
@@ -195,7 +196,7 @@ export default function SearchPageClient({
                                     id={item._id}
                                     name={item.title || item.name || 'Untitled'}
                                     type={item.listingType || ''}
-                                    tagline={item.description ? (item.description.substring(0, 80) + (item.description.length > 80 ? '...' : '')) : ''}
+                                    tagline={typeof item.description === 'string' ? (item.description.substring(0, 80) + (item.description.length > 80 ? '...' : '')) : ''}
                                     description={item.description || ''}
                                     logo={item.logoUrl}
                                     viewMode={viewMode}

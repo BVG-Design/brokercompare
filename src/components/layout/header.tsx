@@ -24,10 +24,9 @@ import Image from "next/image";
 
 const navItems = [
   { href: `${SITE_URLS.directory}/search`, label: "Directory" },
-  { href: `${SITE_URLS.directory}/search?type=service`, label: "Services" },
-  { href: `${SITE_URLS.directory}/search?type=software`, label: "Software" },
-  { href: `${SITE_URLS.main}/recommendations`, label: "AI Recommender" },
-  { href: `${SITE_URLS.resources}/blog`, label: "Blog" },
+  { href: `${SITE_URLS.resources}/blog?blogType=review`, label: "Tech Reviews" },
+  { href: `${SITE_URLS.resources}/blog?blogType=podcast`, label: "Podcasts" },
+  { href: `${SITE_URLS.resources}/blog`, label: "Resources" },
 ];
 
 interface User {
@@ -59,7 +58,7 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-bold transition-colors hover:text-accent",
+                "text-base font-bold transition-colors hover:text-accent",
                 pathname.startsWith(item.href) ? "text-white" : "text-white"
               )}
             >

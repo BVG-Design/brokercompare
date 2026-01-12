@@ -44,7 +44,7 @@ const nextConfig: NextConfig = {
     ],
   },
   // Silence warning about multiple lockfiles by explicitly setting root
-  outputFileTracingRoot: path.join(__dirname, '../../../../'),
+  // outputFileTracingRoot: path.join(__dirname, '../../../../'),
   experimental: {
   },
 };

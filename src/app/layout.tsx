@@ -20,12 +20,9 @@ export const metadata: Metadata = {
 };
 
 const fallbackNavLinks: NavLink[] = [
-  { name: "AI Recommender", path: `${SITE_URLS.main}/recommendations` },
-  { name: "Workflow Automations", path: `${SITE_URLS.directory}/search?category=ai` },
-  { name: "CRMs & Fact Finds", path: `${SITE_URLS.directory}/search?category=crm` },
-  { name: "VA Services", path: `${SITE_URLS.directory}/search?category=va` },
-  { name: "Marketing & Sales", path: `${SITE_URLS.directory}/search?category=marketing` },
-  { name: "Other", path: `${SITE_URLS.directory}/search?category=other` },
+  { name: "Directory", path: `${SITE_URLS.directory}/search` },
+  { name: "Tech Reviews", path: `${SITE_URLS.resources}/blog?blogType=review` },
+  { name: "Podcasts", path: `${SITE_URLS.resources}/blog?blogType=podcast` },
   { name: "Resources", path: `${SITE_URLS.resources}/blog` },
 ];
 
@@ -43,27 +40,28 @@ export default async function RootLayout({
 }>) {
   let navLinks = fallbackNavLinks;
 
-  if (sanityConfigured) {
-    try {
-      const items = await client.fetch<SearchIntentNavItem[]>(
-        SEARCH_INTENT_NAV_QUERY
-      );
-
-      const sanitized =
-        items
-          ?.filter((item) => item?.slug && item?.title)
-          .map((item) => ({
-            name: item.title as string,
-            path: `${SITE_URLS.directory}/search/${item.slug}`,
-          })) ?? [];
-
-      if (sanitized.length > 0) {
-        navLinks = sanitized;
-      }
-    } catch (error) {
-      console.error("Failed to load Sanity nav links. Ensure 'searchIntent' documents with 'showInNav' set to true exist in your Sanity dataset.", error);
-    }
-  }
+  // Dynamic navigation from Sanity is disabled to maintain standard "Directory, Reviews, Podcasts, Resources" menu
+  // if (sanityConfigured) {
+  //   try {
+  //     const items = await client.fetch<SearchIntentNavItem[]>(
+  //       SEARCH_INTENT_NAV_QUERY
+  //     );
+  //
+  //     const sanitized =
+  //       items
+  //         ?.filter((item) => item?.slug && item?.title)
+  //         .map((item) => ({
+  //           name: item.title as string,
+  //           path: `${SITE_URLS.directory}/search/${item.slug}`,
+  //         })) ?? [];
+  //
+  //     if (sanitized.length > 0) {
+  //       navLinks = sanitized;
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load Sanity nav links. Ensure 'searchIntent' documents with 'showInNav' set to true exist in your Sanity dataset.", error);
+  //   }
+  // }
 
   return (
     <html lang="en" suppressHydrationWarning>

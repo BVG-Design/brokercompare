@@ -46,7 +46,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                     </Link>
 
                     {/* Desktop Nav */}
-                    <nav className="hidden lg:flex items-center gap-6 text-sm font-medium">
+                    <nav className="hidden lg:flex items-center gap-6 text-base font-semibold">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
@@ -84,7 +84,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                             <Link
                                 key={link.name}
                                 href={link.path}
-                                className="text-white py-2 border-b border-white/5 hover:text-brand-orange"
+                                className="text-white py-2 border-b border-white/5 hover:text-brand-orange text-base font-semibold"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 {link.name}
