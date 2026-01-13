@@ -15,6 +15,7 @@ import { computeMarketplaceScore } from '@/lib/marketplace-score';
 
 interface ServiceCardProps {
   service: Service;
+  compact?: boolean;
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {

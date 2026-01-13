@@ -95,6 +95,7 @@ export interface Software {
     };
   };
   features: string[];
+  isFeatured?: boolean;
   // Enhanced software fields
   pricingTiers?: Array<{
     name: string; // e.g., "Starter", "Pro", "Enterprise"

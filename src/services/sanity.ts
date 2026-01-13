@@ -214,6 +214,11 @@ export const fetchSearchIntents = async (): Promise<{ title: string; slug: strin
   return await client.fetch(SEARCH_INTENT_NAV_QUERY);
 };
 
+export const fetchSearchIntentBySlug = async (slug: string): Promise<any | null> => {
+  const { SEARCH_INTENT_BY_SLUG_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(SEARCH_INTENT_BY_SLUG_QUERY, { slug });
+};
+
 export const fetchDirectoryListingBySlug = async (slug: string): Promise<any | null> => {
   return await DirectoryProxy.getListingBySlug(slug);
 };

@@ -188,7 +188,17 @@ export const SERVICE_BY_ID_QUERY = groq`
 `;
 
 export const SERVICES_SLUGS_QUERY = groq`
-  *[_type == "serviceProvider" && defined(slug.current)]{
     "id": slug.current
+  }
+`;
+
+export const SEARCH_INTENT_BY_SLUG_QUERY = groq`
+  *[_type == "searchIntent" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    synonyms,
+    exampleQueries,
+    description
   }
 `;

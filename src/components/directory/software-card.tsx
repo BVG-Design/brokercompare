@@ -15,6 +15,7 @@ import { computeMarketplaceScore } from '@/lib/marketplace-score';
 
 interface SoftwareCardProps {
   software: Software;
+  compact?: boolean;
 }
 
 export function SoftwareCard({ software }: SoftwareCardProps) {
@@ -67,9 +68,11 @@ export function SoftwareCard({ software }: SoftwareCardProps) {
 
   return (
     <Card className="flex flex-col h-full w-full transform hover:-translate-y-1 transition-transform duration-300 ease-in-out shadow-md hover:shadow-xl relative">
-      <div className="absolute top-3 right-3 z-10">
-        <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">Editor's Choice</Badge>
-      </div>
+      {software.isFeatured && (
+        <div className="absolute top-3 right-3 z-10">
+          <Badge variant="secondary" className="bg-accent/20 text-accent-foreground hover:bg-accent/30">Editor's Choice</Badge>
+        </div>
+      )}
       <CardHeader className="flex-row gap-4 items-start">
         <Image
           src={software.logoUrl}
