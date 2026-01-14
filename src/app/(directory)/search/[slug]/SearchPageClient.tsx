@@ -283,7 +283,7 @@ export default function SearchPageClient({
                     <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 relative z-10 leading-tight">
                         Still Not Found What You Are After?<br />
                         <span className="text-gray-400 font-medium text-lg md:text-xl mt-4 block leading-relaxed">
-                            Try searching again or ask our AI for recommendations.
+                            Try searching again.
                         </span>
                     </h2>
 
@@ -305,7 +305,7 @@ export default function SearchPageClient({
                             </div>
                         </form>
 
-                        <div className="pt-4">
+                        {/* <div className="pt-4">
                             <button
                                 onClick={() => router.push(`${SITE_URLS.main}/recommendations`)}
                                 className="inline-flex items-center gap-3 text-white/60 hover:text-white transition-all font-bold uppercase tracking-[0.2em] text-xs group/ai"
@@ -316,7 +316,7 @@ export default function SearchPageClient({
                                 Or ask AI for personalized recommendations
                                 <ArrowRight size={16} className="group-hover/ai:translate-x-2 transition-transform" />
                             </button>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
 

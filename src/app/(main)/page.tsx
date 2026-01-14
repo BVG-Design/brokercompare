@@ -21,14 +21,14 @@ import { SITE_URLS } from '@/lib/config';
 const Home: React.FC = () => {
 
   const categories = [
-    { name: 'CRM Systems', icon: Users, slug: 'crm', bg: 'bg-white' },
-    { name: 'Document Collection', icon: FileText, slug: 'docs', bg: 'bg-white' },
-    { name: 'VA Services', icon: MessageSquare, slug: 'va', bg: 'bg-white' },
-    { name: 'AI Software and Services', icon: Sparkles, slug: 'ai', bg: 'bg-white' },
+    { name: 'CRM & Fact Find', icon: Users, slug: 'crm', bg: 'bg-white' },
+    { name: 'Loan Structure & Application Processing', icon: FileText, slug: 'broker-industry-tools', bg: 'bg-white' },
+    { name: 'Outsourcing & Staffing', icon: MessageSquare, slug: 'outsourcing-and-staffing', bg: 'bg-white' },
+    { name: 'Operations and AI Automations', icon: Sparkles, slug: 'operations-ai-automations', bg: 'bg-white' },
     { name: 'Marketing & Lead Generation', icon: Megaphone, slug: 'marketing', bg: 'bg-brand-grey' },
-    { name: 'Business Strategy & Coaching', icon: Target, slug: 'strategy', bg: 'bg-brand-grey' },
-    { name: 'Loan Structure & Application Processing', icon: HomeIcon, slug: 'loan-structure', bg: 'bg-brand-grey' },
-    { name: 'Workflow, Reporting & Operations', icon: BarChart, slug: 'workflow', bg: 'bg-brand-grey' },
+    { name: 'Business Coaching, Mindset & Client Retention', icon: Target, slug: 'business-coaching-mindset-and-client-retention', bg: 'bg-brand-grey' },
+    { name: 'Video, Podcasting and Course Content', icon: HomeIcon, slug: 'video-podcasting-course-content', bg: 'bg-brand-grey' },
+    { name: 'Technology & Systems', icon: BarChart, slug: 'technology-systems', bg: 'bg-brand-grey' },
   ];
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,14 +89,14 @@ const Home: React.FC = () => {
             </div>
           </form>
 
-          <button
+          {/* <button
             onClick={() => setShowAIChat(true)}
             className="inline-flex items-center gap-2 text-white/80 hover:text-white text-sm font-medium transition-colors"
           >
             <Sparkles size={16} className="text-brand-green" />
             <span>Or ask AI for personalized recommendations</span>
             <ArrowRight size={16} />
-          </button>
+          </button> */}
 
           <div className="mt-12 flex justify-center gap-4">
             <button onClick={() => window.location.href = `${SITE_URLS.directory}/search`} className="px-6 py-3 bg-brand-orange text-white font-bold rounded-lg hover:bg-orange-600 transition-colors shadow-lg shadow-orange-900/20">
@@ -242,21 +242,21 @@ const Home: React.FC = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {categories.map((cat, idx) => (
-              <div
+              <Link
                 key={idx}
-                className={`${cat.bg} p-8 rounded-2xl flex flex-col items-center text-center transition-all hover:-translate-y-1 hover:shadow-lg group border border-gray-100/50`}
+                href={`${SITE_URLS.directory}/search?category=${cat.slug}`}
+                className={`${cat.bg} p-8 rounded-2xl flex flex-col items-center text-center transition-all hover:-translate-y-1 hover:shadow-lg group border border-gray-100/50 block`}
               >
                 <div className="w-16 h-16 bg-brand-blue/5 rounded-full flex items-center justify-center mb-6 text-brand-blue group-hover:bg-brand-orange group-hover:text-white transition-colors duration-300">
                   <cat.icon size={28} strokeWidth={1.5} />
                 </div>
                 <h3 className="font-bold text-brand-blue mb-8 min-h-[3rem] flex items-center justify-center">{cat.name}</h3>
-                <button
-                  onClick={() => window.location.href = `${SITE_URLS.directory}/search?category=${cat.slug}`}
-                  className="text-brand-orange font-medium text-sm flex items-center gap-2 group-hover:gap-3 transition-all"
+                <div
+                  className="text-brand-orange font-medium text-sm flex items-center justify-center gap-2 group-hover:gap-3 transition-all"
                 >
                   Explore <ArrowRight size={16} />
-                </button>
-              </div>
+                </div>
+              </Link>
             ))}
           </div>
         </div>

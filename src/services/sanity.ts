@@ -160,7 +160,7 @@ export const fetchDirectoryListings = async (filters: {
   const { category, brokerType, tier, search, listingType } = filters;
 
   const query = `*[_type == "directoryListing"
-    ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
+    ${category && category !== 'all' ? '&& (category->slug.current == $category || $category in categories[]->slug.current)' : ''}
     ${brokerType && brokerType !== 'all' ? '&& $brokerType in brokerType' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
     ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
@@ -190,6 +190,7 @@ export const fetchDirectoryListings = async (filters: {
     "badgePriority": (badges[]->priority | order(@ asc))[0],
     "badges": badges[]->title,
     synonyms,
+    "tagline": tagline,
     isFeatured
   }`;
 
@@ -221,7 +222,8 @@ export const fetchDirectoryListings = async (filters: {
     type: item.listingType,
     badgePriority: item.badgePriority,
     badges: item.badges || [],
-    synonyms: item.synonyms || []
+    synonyms: item.synonyms || [],
+    tagline: item.tagline
   }));
 };
 

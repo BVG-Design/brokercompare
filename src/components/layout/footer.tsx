@@ -29,7 +29,7 @@ export function Footer() {
             <h4 className="font-semibold mb-4 font-headline">Quick Links</h4>
             <ul className="space-y-2">
               <li><Link href={`${SITE_URLS.directory}/search`} className="text-sm text-primary-foreground/80 hover:text-primary-foreground">Browse Directory</Link></li>
-              <li><Link href={`${SITE_URLS.main}/recommendations`} className="text-sm text-primary-foreground/80 hover:text-primary-foreground">AI Quiz</Link></li>
+              {/* <li><Link href={`${SITE_URLS.main}/recommendations`} className="text-sm text-primary-foreground/80 hover:text-primary-foreground">AI Quiz</Link></li> */}
               <li><Link href="/apply" className="text-sm text-primary-foreground/80 hover:text-primary-foreground">List your Business</Link></li>
             </ul>
           </div>

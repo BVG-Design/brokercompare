@@ -430,6 +430,18 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
   );
 };
 
+interface DetailedComparisonClientProps {
+  listingSlug: string;
+  listingName: string;
+  listingCategory: string;
+  listingWebsite?: string | null;
+  allProducts: ComparisonProduct[];
+  suggestedProducts: ComparisonProduct[];
+  featureGroups: ComparisonFeatureGroup[];
+  initialSelection: string[];
+  hideHeader?: boolean;
+}
+
 const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   listingSlug,
   listingName,
@@ -438,7 +450,8 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   allProducts,
   suggestedProducts,
   featureGroups,
-  initialSelection
+  initialSelection,
+  hideHeader
 }) => {
   const initial = initialSelection.length
     ? Array.from(new Set(initialSelection)).slice(0, 3)
@@ -537,49 +550,51 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <Link
-          href={`/listings/${listingSlug}`}
-          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
-        >
-          <ArrowLeft size={16} /> Back to {listingName} Review
-        </Link>
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          {selectedProducts.map((p, idx) => (
-            <React.Fragment key={p.slug}>
-              <button
-                onClick={() => openModalForSlot(idx)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
-                  }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
+      {!hideHeader && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <Link
+            href={`/listings/${listingSlug}`}
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
+          >
+            <ArrowLeft size={16} /> Back to {listingName} Review
+          </Link>
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            {selectedProducts.map((p, idx) => (
+              <React.Fragment key={p.slug}>
+                <button
+                  onClick={() => openModalForSlot(idx)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
                     }`}
                 >
-                  {p.logoUrl ? (
-                    <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain rounded" />
-                  ) : (
-                    p.name.charAt(0)
-                  )}
-                </div>
-                <span>{p.name}</span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {idx < selectedProducts.length - 1 && (
-                <span className="text-gray-400 text-sm font-semibold px-1">vs</span>
-              )}
-            </React.Fragment>
-          ))}
+                  <div
+                    className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
+                      }`}
+                  >
+                    {p.logoUrl ? (
+                      <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain rounded" />
+                    ) : (
+                      p.name.charAt(0)
+                    )}
+                  </div>
+                  <span>{p.name}</span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {idx < selectedProducts.length - 1 && (
+                  <span className="text-gray-400 text-sm font-semibold px-1">vs</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="flex gap-2 text-gray-400">
+            <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <Filter size={18} />
+            </button>
+            <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <RefreshCcw size={18} />
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2 text-gray-400">
-          <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
-            <Filter size={18} />
-          </button>
-          <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
-            <RefreshCcw size={18} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Overview */}
       <section className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">

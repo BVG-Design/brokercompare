@@ -33,13 +33,13 @@ export function BlogSidebar() {
 
             <div className="mt-8 p-4 border-t border-primary-foreground/10">
                 <div className="space-y-1">
-                    <Link
+                    {/* <Link
                         href="/recommendations"
                         className="flex items-center gap-3 px-3 py-1.5 rounded-md text-sm text-primary-foreground/70 hover:bg-primary-foreground/5 hover:text-white transition-colors"
                     >
                         <Sparkles className="w-4 h-4" />
                         <span>AI Recommendations</span>
-                    </Link>
+                    </Link> */}
                     <Link
                         href="/workflow-optimisation"
                         className="w-full flex items-center gap-3 px-3 py-1.5 rounded-md text-sm text-primary-foreground/70 hover:bg-primary-foreground/5 hover:text-white transition-colors text-left"

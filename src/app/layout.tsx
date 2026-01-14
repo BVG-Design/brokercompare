@@ -24,6 +24,7 @@ const fallbackNavLinks: NavLink[] = [
   { name: "Tech Reviews", path: `${SITE_URLS.resources}/blog?blogType=review` },
   { name: "Podcasts", path: `${SITE_URLS.resources}/blog?blogType=podcast` },
   { name: "Resources", path: `${SITE_URLS.resources}/blog` },
+  { name: "Schedule a Chat", path: "/workflow-optimisation" },
 ];
 
 type SearchIntentNavItem = {

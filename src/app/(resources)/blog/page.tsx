@@ -388,13 +388,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <div className="text-center mb-16 max-w-3xl mx-auto">
               <h2 className="text-4xl font-bold text-brand-blue mb-4">Still not sure?</h2>
               <p className="text-lg text-brand-blue/70 font-medium leading-relaxed">
-                Talk to AI, our team or take the quiz and we'll help you find the perfect solution for your brokerage
+                Talk to our team or take the quiz and we'll help you find the perfect solution for your brokerage
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* AI Recommendation */}
-              <Link href="/recommendations" className="group block h-full">
+              {/* AI Recommendation - HIDDEN */}
+              {/* <Link href="/recommendations" className="group block h-full">
                 <Card className="h-full hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-brand-orange text-white border-none rounded-3xl overflow-hidden relative">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16 blur-2xl group-hover:scale-150 transition-transform duration-700" />
                   <CardContent className="p-8 flex flex-col h-full relative z-10">
@@ -410,7 +410,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
+              </Link> */}
 
               {/* Schedule a Chat */}
               <Link href="/workflow-optimisation" className="group block h-full">

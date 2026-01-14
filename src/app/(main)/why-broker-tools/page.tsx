@@ -81,7 +81,7 @@ export default function WhyBrokerToolsPage() {
     return (
         <main className="relative min-h-screen overflow-hidden bg-brand-cream text-brand-blue">
             <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 pb-20 pt-16 lg:px-8">
-                <Slide id="methodology" >
+                <Slide id="methodology" title="Methodology">
                     <div className="grid gap-6 lg:grid-cols-[1.1fr_1fr]">
                         <div className="overflow-hidden rounded-2xl border border-brand-blue/20 bg-brand-blue/10 shadow-inner shadow-black/10">
                             <Image
@@ -100,8 +100,11 @@ export default function WhyBrokerToolsPage() {
                                     The job of a being Broker is the same for everyone -- However, the operating systems, aggregator requirements and processes change based on size, goals and interest in technology.
                                 </p><br />
                                 <p className="text-brand-cream/90">
-                                    At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries. <br /><br /><p>
-                                        These form the Methodologies we use to recommendation products, services and software. </p>
+                                    At Broker Tools, we use five lenses, inspired by the product design world, adapted to the Mortage, Asset and Commercial finance industries.
+                                </p>
+                                <br />
+                                <p className="text-brand-cream/90">
+                                    These form the Methodologies we use to recommend products, services and software.
                                 </p>
                             </div>
                             <div className="grid gap-3 sm:grid-cols-3">

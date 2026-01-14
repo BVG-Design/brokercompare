@@ -328,7 +328,7 @@ function FAQContent() {
                   Frequently Asked Questions <br />
                 </h1>
                 <p className="text-xl text-primary-foreground/80">
-                  Find answers to your questions or ask our AI assistant <br /><br />
+                  Find answers to your questions <br /><br />
                 </p>
               </div>
             </div>
@@ -376,8 +376,8 @@ function FAQContent() {
               </CardContent>
             </Card>
 
-            {/* AI Assistant Card */}
-            <Card className="border-accent bg-gradient-to-br from-accent/5 to-background">
+            {/* AI Assistant Card - HIDDEN */}
+            {/* <Card className="border-accent bg-gradient-to-br from-accent/5 to-background">
               <CardHeader>
                 <CardTitle className="text-primary text-lg flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-accent" />
@@ -396,7 +396,7 @@ function FAQContent() {
                   Ask AI
                 </Button>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Main Content */}

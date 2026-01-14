@@ -32,6 +32,9 @@ interface DirectoryCardProps {
     slug: string;
     resultType: string;
     websiteUrl?: string;
+    isComparing?: boolean;
+    onToggleCompare?: (id: string) => void;
+    disableCompare?: boolean;
 }
 
 const DirectoryCard: React.FC<DirectoryCardProps> = ({
@@ -50,10 +53,14 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
     viewMode = 'grid',
     slug,
     resultType,
-    websiteUrl
+    websiteUrl,
+    isComparing: isComparingProp,
+    onToggleCompare: onToggleCompareProp,
+    disableCompare
 }) => {
     const { addItem, isInComparison, removeItem, canAddMore } = useComparison();
-    const isComparing = isInComparison(id);
+    // Use prop if provided (for ComparisonTool), otherwise fallback to context (global behavior)
+    const isComparing = isComparingProp !== undefined ? isComparingProp : isInComparison(id);
     const router = useRouter();
 
     const handleCardClick = () => {
@@ -63,6 +70,11 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
     const onToggleCompare = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
+
+        if (onToggleCompareProp) {
+            onToggleCompareProp(id);
+            return;
+        }
 
         if (isComparing) {
             removeItem(id);
@@ -88,11 +100,12 @@ const DirectoryCard: React.FC<DirectoryCardProps> = ({
 
     const CompareCheckbox = () => (
         <label
-            className={`flex items-center gap-2 px-4 py-2 rounded-2xl border-2 transition-all cursor-pointer ${isComparing
-                ? 'bg-[#E7F6F2] text-[#2C3333] border-[#2C3333] shadow-md'
-                : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
-                } ${!canAddMore && !isComparing ? 'opacity-30 cursor-not-allowed' : ''}`}
-            onClick={onToggleCompare}
+            className={`flex items-center gap-2 px-4 py-2 rounded-2xl border-2 transition-all ${disableCompare && !isComparing ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
+                } ${isComparing
+                    ? 'bg-[#E7F6F2] text-[#2C3333] border-[#2C3333] shadow-md'
+                    : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
+                }`}
+            onClick={disableCompare && !isComparing ? (e) => { e.preventDefault(); e.stopPropagation(); } : onToggleCompare}
         >
             <div className={`w-4 h-4 rounded-md border-2 flex items-center justify-center transition-colors ${isComparing ? 'bg-[#2C3333] border-[#2C3333]' : 'bg-gray-50 border-gray-200'
                 }`}>
