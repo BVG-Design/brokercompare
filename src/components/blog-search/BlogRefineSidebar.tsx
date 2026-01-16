@@ -2,16 +2,15 @@
 
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 
-interface RefineSidebarProps {
+interface BlogRefineSidebarProps {
     categories: { title: string; value: string }[];
     filters: {
         category: string;
         brokerType: string;
-        type: string;
+        blogType: string;
     };
     onFilterChange: (key: string, value: string) => void;
     isOpen: boolean;
@@ -19,14 +18,14 @@ interface RefineSidebarProps {
     totalResults: number;
 }
 
-export default function RefineSidebar({
+export default function BlogRefineSidebar({
     categories,
     filters,
     onFilterChange,
     isOpen,
     onClose,
     totalResults,
-}: RefineSidebarProps) {
+}: BlogRefineSidebarProps) {
     return (
         <>
             {/* Mobile Overlay */}
@@ -61,17 +60,18 @@ export default function RefineSidebar({
 
                     <ScrollArea className="flex-1 px-6 py-6">
                         <div className="space-y-8">
-                            {/* Listing Type */}
+                            {/* Resource Type */}
                             <div className="space-y-4">
                                 <h3 className="text-xs font-bold uppercase tracking-widest text-gray-400">
-                                    Listing Type
+                                    Resource Type
                                 </h3>
                                 <div className="space-y-2">
                                     {[
-                                        { label: 'All Types', value: 'all' },
-                                        { label: 'Software', value: 'software' },
-                                        { label: 'Services', value: 'service' },
-                                        { label: 'Products', value: 'product' },
+                                        { label: 'All Resources', value: 'all' },
+                                        { label: 'Guides', value: 'guide' },
+                                        { label: 'Reviews', value: 'review' },
+                                        { label: 'Podcasts', value: 'podcast' },
+                                        { label: 'Articles', value: 'article' },
                                     ].map((type) => (
                                         <label
                                             key={type.value}
@@ -80,14 +80,14 @@ export default function RefineSidebar({
                                             <div className="relative flex items-center">
                                                 <input
                                                     type="radio"
-                                                    name="listingType"
+                                                    name="blogType"
                                                     className="peer h-4 w-4 border-gray-300 text-brand-blue focus:ring-brand-blue"
-                                                    checked={filters.type === type.value}
-                                                    onChange={() => onFilterChange('type', type.value)}
+                                                    checked={filters.blogType === type.value}
+                                                    onChange={() => onFilterChange('blogType', type.value)}
                                                 />
                                             </div>
                                             <span
-                                                className={`text-sm font-medium ${filters.type === type.value
+                                                className={`text-sm font-medium ${filters.blogType === type.value
                                                     ? 'text-brand-blue'
                                                     : 'text-gray-600'
                                                     }`}
@@ -201,7 +201,7 @@ export default function RefineSidebar({
                             onClick={() => {
                                 onFilterChange('category', 'all');
                                 onFilterChange('brokerType', 'all');
-                                onFilterChange('type', 'all');
+                                onFilterChange('blogType', 'all');
                             }}
                         >
                             Clear Filters

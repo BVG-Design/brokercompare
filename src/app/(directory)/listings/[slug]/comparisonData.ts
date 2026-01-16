@@ -58,6 +58,7 @@ const mapToSoftwareListing = (listing: any): SoftwareListing => ({
     max: listing.pricing?.max,
     notes: listing.pricing?.notes
   },
+  resources: listing.resources,
   worksWith: (listing.worksWith || []).map((ww: any) => ({
     name: ww.title,
     slug: ww.slug

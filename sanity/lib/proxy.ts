@@ -200,7 +200,18 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
     },
     editorNotes,
     metaDescription,
-    synonyms
+    synonyms,
+    "resources": resources[]->{
+      title,
+      "slug": slug.current,
+      summary,
+      publishedAt,
+      "category": category->title,
+      "imageUrl": select(
+        defined(heroImage.asset->url) => heroImage.asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      )
+    }
   }
 `;
 
@@ -311,7 +322,8 @@ export const DirectoryProxy = {
       features: listing.features || [],
       badges: listing.badges || [],
       similarTo: listing.similarTo || [],
-      serviceProviders: listing.serviceProviders || []
+      serviceProviders: listing.serviceProviders || [],
+      resources: listing.resources || []
     };
   },
 

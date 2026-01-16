@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { StarRating } from '@/components/shared/star-rating';
 import { X, ExternalLink, DollarSign, MapPin, Check, X as XIcon } from 'lucide-react';
 import type { Software, Service } from '@/lib/types';
+import { trackOutboundListingClick } from '@/lib/mixpanel';
 
 interface ComparisonTableProps {
   items: Array<{
@@ -221,7 +222,15 @@ export function ComparisonTable({ items }: ComparisonTableProps) {
                     size="sm"
                     className="w-full"
                   >
-                    <a href={item.data.website} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={item.data.website}
+                      onClick={(e) => trackOutboundListingClick(e, {
+                        slug: item.id,
+                        name: item.name,
+                        category: item.category,
+                        websiteUrl: item.data.website
+                      }, 'comparison_table', 'Visit Website')}
+                    >
                       <ExternalLink className="h-3 w-3 mr-1" />
                       Visit Website
                     </a>

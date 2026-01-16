@@ -9,6 +9,7 @@ import {
   Award,
   TrendingUp,
   Eye,
+  Check
 } from 'lucide-react';
 import Image from 'next/image';
 import { SITE_URLS } from '@/lib/config';
@@ -19,13 +20,22 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { trackOutboundListingClick } from '@/lib/mixpanel';
 
 export default function PartnerCard({
   partner,
-  viewMode = 'grid'
+  viewMode = 'grid',
+  isComparing,
+  onToggleCompare,
+  disableCompare,
+  maxDescriptionLines // Add to props
 }: {
   partner: any;
-  viewMode?: 'grid' | 'list'
+  viewMode?: 'grid' | 'list';
+  isComparing?: boolean;
+  onToggleCompare?: (id: string) => void;
+  disableCompare?: boolean;
+  maxDescriptionLines?: number; // Optional prop to control clamping
 }) {
   const tierBadges: Record<string, any> = {
     featured: {
@@ -138,13 +148,36 @@ export default function PartnerCard({
 
           {/* Actions - relative z-10 to sit above card link */}
           <div className="mt-auto flex gap-3 pt-2 relative z-10">
-            <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto">
-              <Button size="sm" className="bg-primary hover:bg-brand-orange text-primary-foreground px-6">
-                View Details
+            {onToggleCompare ? (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleCompare(partner.id);
+                }}
+                size="sm"
+                className={cn(
+                  "px-6 pointer-events-auto",
+                  isComparing
+                    ? "bg-brand-orange text-white hover:bg-brand-orange/90"
+                    : "bg-primary hover:bg-brand-orange text-primary-foreground"
+                )}
+              >
+                {isComparing ? 'Selected' : 'Select'}
               </Button>
-            </Link>
+            ) : (
+              <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto">
+                <Button size="sm" className="bg-primary hover:bg-brand-orange text-primary-foreground px-6">
+                  View Details
+                </Button>
+              </Link>
+            )}
             {partner.websiteUrl && (
-              <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="pointer-events-auto">
+              <a
+                href={partner.websiteUrl}
+                onClick={(e) => trackOutboundListingClick(e, partner, 'partner_card_list', 'Website')}
+                className="pointer-events-auto"
+              >
                 <Button variant="outline" size="sm" className="gap-2">
                   <ExternalLink className="w-4 h-4" />
                   Website
@@ -153,6 +186,8 @@ export default function PartnerCard({
             )}
           </div>
         </div>
+        {/* Hover effect overlay */}
+        <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </div>
     );
   }
@@ -160,10 +195,13 @@ export default function PartnerCard({
   // Grid View Layout (Original)
   return (
     <div
+      onClick={onToggleCompare ? (e) => onToggleCompare(partner.id) : undefined}
       className={cn(
         "group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border flex flex-col h-full",
         partner.listing_tier === 'featured' ? 'border-secondary' :
-          partner.listing_tier === 'premium' ? 'border-primary' : 'border-border'
+          partner.listing_tier === 'premium' ? 'border-primary' : 'border-border',
+        disableCompare && !isComparing ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer',
+        isComparing && 'ring-2 ring-brand-orange ring-offset-2'
       )}
     >
       {tierInfo && (
@@ -175,10 +213,33 @@ export default function PartnerCard({
         </div>
       )}
 
+      {/* Comparison Overlay/Checkbox */}
+      {onToggleCompare && (
+        <div className="absolute top-4 right-4 z-20">
+          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isComparing
+            ? 'bg-brand-orange border-brand-orange'
+            : 'bg-white border-gray-200 group-hover:border-brand-orange'}`}
+          >
+            {isComparing && <Check size={14} className="text-white" />}
+          </div>
+        </div>
+      )}
+
       {/* Full Card Link */}
       <Link
         href={`${SITE_URLS.directory}/listings/${partner.slug}`}
         className="absolute inset-0 z-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
+        onClick={(e) => {
+          if (onToggleCompare) {
+            // If we are in selection mode, clicking the card typically toggles selection.
+            // But we still want to be able to visit the link? 
+            // In ComparisonTool, the whole card click toggles. 
+            // Let's prevent default if onToggleCompare is present, OR handle it carefully.
+            // Usually in selection mode, we might want the card click to select, and the button to visit.
+            e.preventDefault();
+            onToggleCompare(partner.id);
+          }
+        }}
       >
         <span className="sr-only">View Listing</span>
       </Link>
@@ -200,7 +261,7 @@ export default function PartnerCard({
               {partner.company_name?.[0] || 'V'}
             </div>
           )}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pr-8">
             <h3 className="text-lg font-bold text-primary mb-1 truncate group-hover:text-secondary transition-colors">
               {partner.company_name}
             </h3>
@@ -214,7 +275,15 @@ export default function PartnerCard({
 
         {/* Description */}
         {partner.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-3 h-[3.75rem] flex-grow-0">
+          <p
+            className="text-sm text-gray-600 mb-4 flex-grow-0"
+            style={{
+              display: '-webkit-box',
+              WebkitLineClamp: maxDescriptionLines ?? 3,
+              WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}
+          >
             {partner.description}
           </p>
         )}
@@ -247,14 +316,39 @@ export default function PartnerCard({
         {/* Actions */}
         <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50 relative z-10">
           <div className="flex-1">
-            <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto block w-full">
-              <Button className="w-full bg-primary hover:bg-brand-orange text-primary-foreground">
-                View Details
+            {onToggleCompare ? (
+              <Button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onToggleCompare(partner.id);
+                }}
+                className={cn(
+                  "w-full transition-all duration-300 pointer-events-auto",
+                  isComparing
+                    ? "bg-brand-orange text-white hover:bg-brand-orange/90"
+                    : "bg-primary hover:bg-brand-orange text-primary-foreground"
+                )}
+              >
+                {isComparing ? 'Selected' : 'Select'}
               </Button>
-            </Link>
+            ) : (
+              <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto block w-full">
+                <Button className="w-full bg-primary hover:bg-brand-orange text-primary-foreground">
+                  View Details
+                </Button>
+              </Link>
+            )}
           </div>
           {partner.websiteUrl && (
-            <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="pointer-events-auto">
+            <a
+              href={partner.websiteUrl}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                trackOutboundListingClick(e, partner, 'partner_card_grid', 'Website Icon');
+              }}
+              className="pointer-events-auto"
+            >
               <Button
                 variant="outline"
                 size="icon"
@@ -268,7 +362,12 @@ export default function PartnerCard({
       </div>
 
       {/* Hover effect overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-brand-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-blue/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+      {/* Selected Overlay */}
+      {isComparing && (
+        <div className="absolute inset-0 bg-brand-orange/5 pointer-events-none" />
+      )}
     </div>
   );
 }

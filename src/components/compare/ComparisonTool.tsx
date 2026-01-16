@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, X, Scale, ArrowLeft, SlidersHorizontal, Grid, List as ListIcon, Check, Plus, AlertCircle, ChevronRight, Star } from 'lucide-react';
 import { DirectoryListing } from '@/types';
-import DirectoryCard from '@/components/search/DirectoryCard';
+import PartnerCard from '@/components/partners/PartnerCard';
 import DetailedComparisonClient from '@/components/product-page/DetailedComparisonClient';
 import { ComparisonFeatureGroup, ComparisonProduct } from '@/types/comparison';
 
@@ -30,7 +30,7 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
             if (prev.includes(id)) {
                 return prev.filter(item => item !== id);
             }
-            if (prev.length >= 3) {
+            if (prev.length >= 4) {
                 return prev;
             }
             const newIds = [...prev, id];
@@ -90,7 +90,7 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
 
 
     return (
-        <div className="flex-grow bg-[#f8fafc] min-h-screen pt-24 pb-20">
+        <div className="flex-grow bg-gray-50 min-h-screen pt-24 pb-20">
             {/* Search Modal */}
             {isSearchModalOpen && (
                 <div className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -140,8 +140,8 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
             )}
 
             {/* Comparison Header / Tray */}
-            <div className="sticky top-16 z-40 bg-brand-orange border-b border-brand-orange/10 shadow-sm transition-all duration-300 font-body">
-                <div className="max-w-6xl mx-auto px-6 py-6">
+            <div className="sticky top-16 z-40 bg-white border-b border-gray-200 shadow-xl shadow-gray-500/50 transition-all duration-300 font-body">
+                <div className="container mx-auto px-4 py-6">
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                         <div className="flex items-center gap-4">
                             {/* Back button logic can be handled by parent or left as is if just navigating view modes */}
@@ -155,13 +155,13 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                             )}
                             <div>
                                 <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight leading-none font-headline">Comparison Hub</h1>
-                                <p className="text-xs font-bold text-gray-900/60 uppercase tracking-widest mt-1 font-body">Select up to 3 tools to compare side-by-side</p>
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-widest mt-1 font-body">Select up to 3 tools to compare side-by-side</p>
                             </div>
                         </div>
 
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
-                                {[0, 1, 2].map((i) => {
+                                {[0, 1, 2, 3].map((i) => {
                                     const product = selectedProducts[i];
                                     return (
                                         <div
@@ -169,7 +169,7 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                                             onClick={() => !product && openSearchForSlot(i)}
                                             className={`w-14 h-14 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${product
                                                 ? 'bg-white border-white shadow-md scale-100 relative group'
-                                                : 'bg-white/20 border-dashed border-gray-900/20 scale-95 hover:bg-white/30 hover:scale-100'
+                                                : 'bg-gray-50 border-dashed border-gray-300 scale-95 hover:bg-white hover:border-gray-400 hover:scale-100'
                                                 }`}
                                         >
                                             {product ? (
@@ -187,21 +187,21 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                                                     </button>
                                                 </>
                                             ) : (
-                                                <Plus size={20} className="text-gray-900/40" />
+                                                <Plus size={20} className="text-gray-400" />
                                             )}
                                         </div>
                                     );
                                 })}
                             </div>
 
-                            <div className="h-10 w-px bg-gray-900/10 mx-2"></div>
+                            <div className="h-10 w-px bg-gray-200 mx-2"></div>
 
                             <button
                                 onClick={() => setViewMode(viewMode === 'selection' ? 'comparison' : 'selection')}
                                 disabled={compareIds.length < 2}
-                                className={`px-8 py-3.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 ${compareIds.length >= 2
-                                    ? 'bg-brand-cream text-gray-900 hover:bg-white shadow-gray-900/10'
-                                    : 'bg-white/50 text-gray-500 cursor-not-allowed shadow-none'
+                                className={`px-8 py-3.5 rounded-md text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 ${compareIds.length >= 2
+                                    ? 'bg-brand-blue text-white hover:bg-brand-blue/90 shadow-brand-blue/20'
+                                    : 'bg-gray-100 text-gray-400 cursor-not-allowed shadow-none'
                                     }`}
                             >
                                 {viewMode === 'selection' ? 'Generate Comparison' : 'Edit Selection'}
@@ -211,7 +211,7 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-6 mt-12">
+            <div className="container mx-auto px-4 mt-8">
                 {viewMode === 'selection' ? (
                     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                         {/* Search and Filters */}
@@ -232,9 +232,9 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                                     <button
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
-                                        className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all border ${activeCategory === cat
-                                            ? 'bg-gray-900 text-white border-gray-900 shadow-xl'
-                                            : 'bg-white text-gray-500 border-gray-100 hover:border-gray-300'
+                                        className={`px-6 py-2.5 rounded-md text-xs font-black uppercase tracking-widest transition-all border ${activeCategory === cat
+                                            ? 'bg-brand-orange text-white border-brand-orange shadow-xl'
+                                            : 'bg-white text-gray-500 border-gray-200 hover:border-gray-400 hover:text-gray-900'
                                             }`}
                                     >
                                         {cat}
@@ -248,50 +248,37 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                             <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8`}>
                                 {filteredListings.map((listing) => {
                                     const isSelected = compareIds.includes(listing.id);
-                                    const isLimitReached = compareIds.length >= 3;
+                                    const isLimitReached = compareIds.length >= 4;
 
                                     return (
-                                        <div key={listing.id} className="relative group">
-                                            <DirectoryCard
-                                                id={listing.id}
-                                                name={listing.name}
-                                                type={listing.type}
-                                                tagline={listing.tagline || listing.description?.substring(0, 60) + '...'}
-                                                description={listing.description}
-                                                rating={listing.rating}
-                                                reviews={0} // Placeholder as review count is not in DirectoryListing yet
-                                                priceRange={listing.pricingModel}
-                                                pricingType={listing.listingTier}
-                                                features={listing.tags}
-                                                logo={listing.logoUrl}
-                                                badges={listing.badges}
+                                        <div key={listing.id} className="relative group/card">
+                                            <PartnerCard
+                                                partner={{
+                                                    ...listing,
+                                                    company_name: listing.name,
+                                                    logo_url: listing.logoUrl,
+                                                    listing_tier: listing.listingTier || 'free',
+                                                    // Map other fields if necessary
+                                                }}
                                                 viewMode="grid"
-                                                slug={listing.slug}
-                                                resultType="directoryListing"
-                                                websiteUrl={listing.websiteUrl}
                                                 isComparing={isSelected}
                                                 onToggleCompare={() => onToggleCompare(listing.id)}
                                                 disableCompare={isLimitReached && !isSelected}
                                             />
-
-                                            {/* Selection Overlay Indicator */}
-                                            {isSelected && (
-                                                <div className="absolute inset-0 bg-purple-600/5 pointer-events-none rounded-[2rem] ring-2 ring-purple-600 ring-offset-2 animate-in fade-in duration-300" />
-                                            )}
                                         </div>
                                     );
                                 })}
                             </div>
                         ) : (
-                            <div className="py-32 text-center bg-white rounded-3xl border border-dashed border-gray-200">
+                            <div className="py-32 text-center bg-white rounded-3xl border border-gray-100 shadow-sm">
                                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
-                                    <AlertCircle size={32} className="text-gray-300" />
+                                    <Search size={32} className="text-gray-300" />
                                 </div>
                                 <h3 className="text-xl font-bold text-gray-900 mb-2">No matching tools found</h3>
-                                <p className="text-gray-400 text-sm">Try adjusting your search or filters to find what you're looking for.</p>
+                                <p className="text-gray-500 text-sm">Try adjusting your search or filters to find what you're looking for.</p>
                                 <button
                                     onClick={() => { setSearchQuery(''); setActiveCategory('All'); }}
-                                    className="mt-6 text-sm font-black uppercase tracking-widest text-purple-600 hover:underline"
+                                    className="mt-6 text-sm font-black uppercase tracking-widest text-brand-blue hover:underline"
                                 >
                                     Clear all filters
                                 </button>
@@ -394,15 +381,18 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
             </div>
 
             {/* Comparison Call to Action */}
-            {viewMode === 'selection' && compareIds.length === 1 && (
-                <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-10 duration-500">
-                    <div className="bg-purple-600 text-white px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-6 border border-purple-500 ring-4 ring-purple-100">
-                        <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+            {viewMode === 'selection' && compareIds.length > 0 && compareIds.length < 2 && (
+                <div
+                    className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] animate-in slide-in-from-bottom-10 duration-500 cursor-pointer"
+                    onClick={() => setIsSearchModalOpen(true)}
+                >
+                    <div className="bg-brand-orange text-white px-8 py-5 rounded-xl shadow-2xl flex items-center gap-6 border border-orange-500 ring-4 ring-orange-100 hover:scale-105 transition-transform">
+                        <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
                             <Plus size={24} />
                         </div>
                         <div>
                             <p className="text-sm font-black uppercase tracking-widest leading-none mb-1">Select one more</p>
-                            <p className="text-[10px] font-bold text-purple-100 uppercase tracking-wider">You need at least 2 items to compare</p>
+                            <p className="text-xs font-bold text-orange-100 uppercase tracking-wider">You need at least 2 items to compare</p>
                         </div>
                     </div>
                 </div>

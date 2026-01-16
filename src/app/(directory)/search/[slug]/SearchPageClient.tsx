@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 
 import { Button } from '@/components/ui/button';
 import { UnifiedSearchResult } from '@/services/sanity';
-import DirectoryCard from '@/components/search/DirectoryCard';
+import PartnerCard from '@/components/partners/PartnerCard';
 import RelatedArticles from '@/components/search/RelatedArticles';
 import StillNotSure from '@/components/product-page/StillNotSure';
 import { SITE_URLS } from '@/lib/config';
@@ -191,22 +191,17 @@ export default function SearchPageClient({
                     <>
                         <div className={`mb-12 ${viewMode === 'list' ? 'space-y-8' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
                             {paginatedResults.map((item) => (
-                                <DirectoryCard
+                                <PartnerCard
                                     key={item._id}
-                                    id={item._id}
-                                    name={item.title || item.name || 'Untitled'}
-                                    type={item.listingType || ''}
-                                    tagline={typeof item.description === 'string' ? (item.description.substring(0, 80) + (item.description.length > 80 ? '...' : '')) : ''}
-                                    description={item.description || ''}
-                                    logo={item.logoUrl}
+                                    partner={{
+                                        ...item,
+                                        company_name: item.title || item.name || 'Untitled',
+                                        logo_url: item.logoUrl,
+                                        listing_tier: 'free',
+                                        tagline: typeof item.description === 'string' ? (item.description.substring(0, 80) + (item.description.length > 80 ? '...' : '')) : '',
+                                        badges: item.badges || [], // explicitly map badges if needed or ensure it passes through
+                                    }}
                                     viewMode={viewMode}
-                                    slug={item.slug || ''}
-                                    resultType={item._type}
-                                    badges={item.badges}
-                                    features={item.features}
-                                    rating={item.rating || 0}
-                                    reviews={item.reviews || 0}
-                                    websiteUrl={item.websiteUrl}
                                 />
                             ))}
                         </div>

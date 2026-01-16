@@ -9,6 +9,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
       || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service" || listingType->value == "service" || listingType->title == "service"))
       || ($listingType == "product" && (listingType == "product" || listingType->value == "product" || listingType->title == "product"))
       || ($listingType == "resourceGuide" && _type == "blog")
+      || (_type == "blog" && blogType == $listingType)
      )
   && (
     count($searchTerms) == 0 ||

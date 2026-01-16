@@ -175,6 +175,20 @@ export const directoryListingType = defineType({
     }),
 
     defineField({
+      name: 'resources',
+      title: 'Resources (Featured Articles)',
+      type: 'array',
+      description: 'Select up to 3 resources (blogs/guides) to display on the listing page. If empty, the 3 most recent articles will be shown.',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'blog' }]
+        }
+      ],
+      validation: Rule => Rule.max(3)
+    }),
+
+    defineField({
       name: 'similarTo',
       title: 'Similar To (Alternatives)',
       type: 'array',

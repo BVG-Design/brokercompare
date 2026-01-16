@@ -6,7 +6,7 @@ import React, { useMemo, useState } from 'react';
 import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus, Brain } from 'lucide-react';
 import { SoftwareListing } from './types';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     Tooltip,
     TooltipContent,
@@ -14,6 +14,9 @@ import {
     TooltipTrigger,
 } from '@/components/ui/tooltip';
 import ContactModal from './ContactModal';
+import ReviewFormModal from './ReviewFormModal';
+import { trackOutboundListingClick } from '@/lib/mixpanel';
+import { useAuth } from '@/hooks/use-auth';
 
 interface MainCardProps {
     listing: SoftwareListing;
@@ -57,35 +60,23 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
     } = listing;
 
     const [showContactModal, setShowContactModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
     const [imageError, setImageError] = useState(false);
 
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+    const { user } = useAuth();
+
+    const handleLogin = () => {
+        router.push(`/login?next=${encodeURIComponent(pathname)}`);
+    };
     const averageRating = rating?.average || 0;
     const reviewCount = rating?.count || 0;
 
-    const utmMedium = useMemo(() => {
-        const mediumParam = searchParams?.get('utm_medium') || '';
-        const sourceParam = searchParams?.get('source') || searchParams?.get('ref') || '';
-        const mediumIsAiChat = mediumParam.toLowerCase() === 'aichat';
-        const sourceIsAiChat = sourceParam.toLowerCase() === 'ai_chat';
-        if (mediumIsAiChat || sourceIsAiChat) {
-            return 'AIChat';
-        }
-        return 'profile';
-    }, [searchParams]);
+    // UTM logic is handled by trackOutboundListingClick helper now
 
-    const trackedWebsiteUrl = useMemo(() => {
-        if (!websiteUrl) return null;
-        try {
-            const normalisedUrl = websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`;
-            const url = new URL(normalisedUrl);
-            url.searchParams.set('utm_source', 'BrokerTools');
-            url.searchParams.set('utm_medium', utmMedium);
-            return url.toString();
-        } catch {
-            return websiteUrl;
-        }
-    }, [websiteUrl, utmMedium]);
+    // UTM logic is handled by trackOutboundListingClick helper now
 
     const actionButtonClasses = "min-w-[160px] justify-center";
 
@@ -159,9 +150,10 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                 </p>
 
                                 <div className="flex flex-wrap gap-3 mb-8">
-                                    {trackedWebsiteUrl && (
+                                    {websiteUrl && (
                                         <a
-                                            href={trackedWebsiteUrl}
+                                            href={websiteUrl}
+                                            onClick={(e) => trackOutboundListingClick(e, listing, 'listing_profile', 'Visit Website')}
                                             target="_blank"
                                             rel="noreferrer"
                                             className={`bg-brand-orange hover:bg-orange-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
@@ -171,13 +163,14 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         </a>
                                     )}
 
-                                    <Link
-                                        href="/write-review"
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowReviewModal(true)}
                                         className={`bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                     >
                                         <ShieldCheck size={14} />
                                         Write Review
-                                    </Link>
+                                    </button>
 
                                     <Link
                                         href="/compare"
@@ -251,6 +244,14 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                             onOpenChange={setShowContactModal}
                             businessName={name}
                             logoUrl={logoUrl}
+                        />
+
+                        <ReviewFormModal
+                            open={showReviewModal}
+                            onClose={() => setShowReviewModal(false)}
+                            listingName={name}
+                            isAuthenticated={!!user}
+                            onRequestLogin={handleLogin}
                         />
 
 

@@ -12,6 +12,15 @@ export interface Badge {
     description?: string;
 }
 
+export interface ListingResource {
+    title: string;
+    slug: string;
+    imageUrl?: string;
+    summary?: string;
+    category?: string;
+    publishedAt?: string;
+}
+
 export interface SoftwareListing {
     name: string;
     slug: string;
@@ -20,10 +29,12 @@ export interface SoftwareListing {
     category?: string;
     websiteUrl?: string;
     location?: string;
+    serviceArea?: string[];
     logoUrl?: string;
     badges?: Badge[];
     brokerType?: string[];
     features?: string[];
+    resources?: ListingResource[];
     pricing?: {
         model?: string;
         min?: number;

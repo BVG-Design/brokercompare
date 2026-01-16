@@ -1,13 +1,14 @@
-// app/blog/[slug]/page.tsx
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import { format } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Tag } from 'lucide-react';
+import { Facebook, Linkedin, Link as LinkIcon, Twitter } from 'lucide-react';
 import { client, sanityConfigured } from '@/sanity/lib/client';
 import { urlFor } from '@/sanity/lib/image';
 import { PortableText } from '@portabletext/react';
+import StillNotSure from '@/components/product-page/StillNotSure';
+import BlogCard from '@/components/blog-search/BlogCard';
+import PartnerCard from '@/components/partners/PartnerCard';
 
 export const revalidate = 60;
 
@@ -22,33 +23,23 @@ type BlogPost = {
   tags?: string[];
   viewCount?: number;
   body?: any;
-  readTime?: number | null; // NEW
-  author?: {                 // NEW
+  readTime?: number | null;
+  author?: {
     _id: string;
     name: string;
     image?: any;
   };
-  authors?: {                // Co-Hosts
+  authors?: {
     _id: string;
     name: string;
     image?: any;
   }[];
-  seo?: {                    // if you added seo object
+  seo?: {
     title?: string;
     description?: string;
     canonicalUrl?: string;
   };
   related?: any[];
-};
-
-const categoryColors: Record<string, string> = {
-  Marketing: 'bg-blue-100 text-blue-700',
-  'Virtual Assistant': 'bg-green-100 text-green-700',
-  'Commercial Finance': 'bg-purple-100 text-purple-700',
-  CRM: 'bg-orange-100 text-orange-700',
-  'Loan Processing': 'bg-indigo-100 text-indigo-700',
-  Compliance: 'bg-pink-100 text-pink-700',
-  'Marketing Automation': 'bg-yellow-100 text-yellow-700',
 };
 
 // Fetch a single post by slug
@@ -81,10 +72,16 @@ async function getPost(slug: string): Promise<BlogPost | null> {
           summary,
           heroImage,
           blogType,
-          "listingType": coalesce(listingType->value, listingType),
-          logo,
-          tagline,
-          publishedAt
+          readTime,
+          publishedAt,
+          categories[]->{title},
+          // List Specific
+          "company_name": title,
+          "logo_url": logo.asset->url,
+          "listing_tier": listingTier,
+          badges,
+          websiteUrl,
+          tagline
         }
       }
     `,
@@ -181,150 +178,132 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const mainCategory = post.categories?.[0];
+  const allAuthors = [post.author, ...(post.authors || [])].filter(Boolean);
 
   return (
     <main className="min-h-screen bg-white">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* HERO IMAGE – centred and wide like the reference */}
-        {post.heroImage && (
-          <div className="mb-10 flex justify-center">
-            <div className="relative w-full max-w-4xl overflow-hidden rounded-2xl bg-gray-100">
-              <Image
-                src={urlFor(post.heroImage).width(1400).height(700).url()}
-                alt={post.title}
-                width={1400}
-                height={700}
-                className="w-full h-auto object-cover"
-              />
+
+        {/* BREADCRUMBS */}
+        <nav className="flex items-center text-sm text-gray-500 mb-6">
+          <Link href="/" className="hover:text-brand-blue transition-colors">Home</Link>
+          <span className="mx-2">›</span>
+          <Link href="/blog" className="hover:text-brand-blue transition-colors">Posts</Link>
+          <span className="mx-2">›</span>
+          <span className="text-gray-900 font-medium truncate max-w-[200px] md:max-w-md">
+            {post.title}
+          </span>
+        </nav>
+
+        {/* TITLE + SUMMARY */}
+        <section className="mb-8 max-w-3xl">
+          <h1 className="text-3xl md:text-5xl font-bold text-brand-blue leading-tight mb-4">
+            {post.title}
+          </h1>
+          {post.summary && (
+            <p className="text-xl text-gray-600 leading-relaxed">
+              {post.summary}
+            </p>
+          )}
+        </section>
+
+        {/* AUTHOR + SOCIAL ROW */}
+        <section className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-gray-100 pb-8">
+
+          {/* Left: Authors */}
+          <div className="flex items-center gap-4">
+            {/* Avatar Group */}
+            <div className="flex -space-x-4">
+              {allAuthors.length > 0 ? (
+                allAuthors.map((author: any) => (
+                  author.image ? (
+                    <Image
+                      key={author._id}
+                      src={urlFor(author.image).width(100).height(100).url()}
+                      alt={author.name}
+                      width={48}
+                      height={48}
+                      className="inline-block h-12 w-12 rounded-full ring-2 ring-white object-cover"
+                    />
+                  ) : (
+                    <div key={author._id} className="inline-block h-12 w-12 rounded-full bg-gray-200 ring-2 ring-white flex items-center justify-center text-xs font-bold text-gray-600">
+                      {author.name.charAt(0).toUpperCase()}
+                    </div>
+                  )
+                ))
+              ) : (
+                <div className="h-12 w-12 rounded-full bg-gray-200 ring-2 ring-white flex items-center justify-center text-xs font-bold text-gray-600">
+                  B
+                </div>
+              )}
             </div>
+
+            {/* Author Names & Date */}
+            <div className="flex flex-col">
+              <div className="flex flex-wrap items-center gap-1 text-sm font-semibold text-gray-900">
+                {allAuthors.length > 0 ? (
+                  allAuthors.map((author: any, index: number) => (
+                    <span key={author._id}>
+                      <Link
+                        href={`/blog?q=${encodeURIComponent(author.name)}`}
+                        className="underline decoration-gray-300 hover:decoration-brand-blue cursor-pointer transition-all hover:text-brand-blue"
+                      >
+                        {author.name}
+                      </Link>
+                      {index < allAuthors.length - 2 && <span>, </span>}
+                      {index === allAuthors.length - 2 && <span> & </span>}
+                    </span>
+                  ))
+                ) : (
+                  <span>BrokerMatch Team</span>
+                )}
+              </div>
+              <div className="text-sm text-gray-500 mt-0.5">
+                {post.publishedAt
+                  ? format(new Date(post.publishedAt), 'MMMM d, yyyy')
+                  : 'Draft'}
+              </div>
+            </div>
+          </div>
+
+          {/* Right: Social Sharing */}
+          <div className="flex items-center gap-2">
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-[#1877F2] hover:text-white transition-colors">
+              <Facebook size={18} />
+            </button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-black hover:text-white transition-colors">
+              <Twitter size={18} />
+            </button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-[#0A66C2] hover:text-white transition-colors">
+              <Linkedin size={18} />
+            </button>
+            <button className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-gray-500 hover:bg-gray-600 hover:text-white transition-colors">
+              <LinkIcon size={18} />
+            </button>
+          </div>
+
+        </section>
+
+        {/* HERO IMAGE */}
+        {post.heroImage && (
+          <div className="mb-12 relative w-full overflow-hidden rounded-2xl bg-gray-100 aspect-video md:aspect-[2/1]">
+            <Image
+              src={urlFor(post.heroImage).width(1600).height(800).url()}
+              alt={post.title}
+              fill
+              className="object-cover"
+              priority
+            />
           </div>
         )}
 
-        {/* CONTENT WRAPPER (narrower column like Mangoools) */}
+        {/* CONTENT WRAPPER */}
         <div className="max-w-3xl mx-auto">
-          {/* META ROW */}
-          <section className="mb-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              {/* Left: authors / co-hosts */}
-              <div className="flex items-center gap-4">
-                <div className="flex -space-x-3 overflow-hidden">
-                  {post.authors && post.authors.length > 0 ? (
-                    post.authors.map((author: any) => (
-                      author.image ? (
-                        <Image
-                          key={author._id}
-                          src={urlFor(author.image).width(80).height(80).url()}
-                          alt={author.name}
-                          width={40}
-                          height={40}
-                          className="inline-block h-10 w-10 rounded-full ring-2 ring-[#f4f6fb] object-cover"
-                        />
-                      ) : (
-                        <div key={author._id} className="inline-block h-10 w-10 rounded-full bg-gray-200 ring-2 ring-[#f4f6fb] flex items-center justify-center text-xs font-bold text-gray-600">
-                          {author.name.charAt(0).toUpperCase()}
-                        </div>
-                      )
-                    ))
-                  ) : post.author ? (
-                    post.author.image ? (
-                      <Image
-                        src={urlFor(post.author.image).width(80).height(80).url()}
-                        alt={post.author.name}
-                        width={40}
-                        height={40}
-                        className="h-10 w-10 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
-                        {post.author.name.charAt(0).toUpperCase()}
-                      </div>
-                    )
-                  ) : (
-                    <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-xs font-semibold text-gray-600">
-                      B
-                    </div>
-                  )}
-                </div>
-                <div className="text-sm">
-                  <p className="font-bold text-brand-blue">
-                    {post.authors && post.authors.length > 0
-                      ? post.authors.map(a => a.name).join(' & ')
-                      : (post.author?.name ?? 'BrokerMatch Team')}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    {post.authors && post.authors.length > 1 ? 'Co-Hosts' : 'BrokerMatch Blog'}
-                  </p>
-                </div>
-              </div>
 
-              {/* Right: date / read time / category */}
-              <div className="flex flex-wrap items-center gap-2 text-xs md:text-sm text-gray-500">
-                <span className="inline-flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {post.publishedAt
-                    ? format(new Date(post.publishedAt), 'MMM d, yyyy')
-                    : 'Draft'}
-                </span>
-
-                {post.readTime && (
-                  <>
-                    <span className="text-gray-300">•</span>
-                    <span>{post.readTime} min read</span>
-                  </>
-                )}
-
-                {mainCategory && (
-                  <>
-                    <span className="text-gray-300">•</span>
-                    <span className="text-brand-blue font-bold">
-                      #{mainCategory.title}
-                    </span>
-                  </>
-                )}
-              </div>
-
-            </div>
-          </section>
-
-          {/* SHARE ICONS ROW – simple version to echo the reference */}
-          <section className="mb-4 flex flex-wrap items-center gap-2">
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-brand-blue text-white text-xs font-bold">
-              X
-            </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#0A66C2] text-white text-xs font-bold">
-              in
-            </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#1877F2] text-white text-xs font-bold">
-              f
-            </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#DB4437] text-white text-xs font-bold">
-              M
-            </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-[#FF4500] text-white text-xs font-bold">
-              R
-            </button>
-            <button className="inline-flex h-8 w-8 items-center justify-center rounded bg-brand-blue text-white text-xs font-bold">
-              +
-            </button>
-          </section>
-
-          {/* TITLE + SUMMARY */}
-          <section className="mb-8">
-            <h1 className="text-3xl md:text-4xl font-bold text-brand-blue leading-tight mb-3">
-              {post.title}
-            </h1>
-            {post.summary && (
-              <p className="text-lg text-gray-600">
-                {post.summary}
-              </p>
-            )}
-          </section>
-
-          {/* BODY – plain prose, no card box */}
-          <section className="mb-8">
+          {/* BODY */}
+          <section className="mb-12">
             {post.body ? (
-              <article className="prose prose-lg max-w-none prose-headings:font-bold prose-a:text-brand-orange">
+              <article className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-brand-blue prose-a:text-brand-orange prose-img:rounded-xl">
                 <PortableText value={post.body} components={portableComponents} />
               </article>
             ) : (
@@ -334,9 +313,9 @@ export default async function BlogPostPage({
             )}
           </section>
 
-          {/* TAGS AT BOTTOM */}
+          {/* TAGS */}
           {post.tags && post.tags.length > 0 && (
-            <section className="mt-4 flex flex-wrap items-center gap-2 mb-12">
+            <section className="mt-8 flex flex-wrap items-center gap-2 mb-16 border-t border-gray-100 pt-8">
               <span className="text-xs font-bold uppercase tracking-wide text-gray-400">
                 Tags:
               </span>
@@ -353,64 +332,59 @@ export default async function BlogPostPage({
 
           {/* RELATED CONTENT SECTION */}
           {post.related && post.related.length > 0 && (
-            <section className="mt-20 border-t border-primary/10 pt-16">
-              <h2 className="text-3xl font-bold text-brand-blue mb-10">Related</h2>
-              <div className="grid grid-cols-1 gap-6">
+            <section className="mt-16 pt-10 border-t border-gray-100">
+              <h2 className="text-2xl font-bold text-brand-blue mb-8">Related</h2>
+
+              <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory hide-scrollbar -mx-4 px-4 md:mx-0 md:px-0 scroll-smooth">
                 {post.related.map((item: any) => {
                   const isBlog = item._type === 'blog';
-                  const slug = item.slug;
-                  const href = isBlog ? `/blog/${slug}` : `/directory/${slug}`;
-                  const image = isBlog ? item.heroImage : item.logo;
-                  const typeLabel = isBlog ? (item.blogType || 'Article') : (item.listingType || 'Listing');
-                  const summary = isBlog ? item.summary : item.tagline;
 
-                  return (
-                    <Link
-                      key={item._id}
-                      href={href}
-                      className="group flex flex-col md:flex-row gap-6 p-4 rounded-2xl bg-white/50 hover:bg-white transition-all border border-brand-orange hover:border-brand-green hover:shadow-2xl hover:shadow-brand-green/20"
-                    >
-                      <div className="relative w-full md:w-48 aspect-[16/9] md:aspect-square rounded-xl overflow-hidden flex-shrink-0 bg-gray-100">
-                        {image ? (
-                          <Image
-                            src={urlFor(image).width(400).height(400).url()}
-                            alt={item.title}
-                            fill
-                            className="object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">No Image</div>
-                        )}
+                  if (isBlog) {
+                    const blogProps = {
+                      slug: item.slug,
+                      title: item.title,
+                      heroImageUrl: item.heroImage ? urlFor(item.heroImage).url() : null,
+                      blogType: item.blogType,
+                      publishedAt: item.publishedAt,
+                      description: item.summary,
+                      category: item.categories?.[0]?.title,
+                      readTime: item.readTime
+                    };
+                    return (
+                      <div key={item._id} className="min-w-[320px] w-[320px] h-[400px] snap-start">
+                        <BlogCard post={blogProps} viewMode="grid" />
                       </div>
-                      <div className="flex flex-col justify-center py-2">
-                        <div className="flex items-center gap-3 mb-2">
-                          {typeLabel && (
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-orange bg-brand-orange/10 px-2 py-0.5 rounded-md">
-                              {typeLabel}
-                            </span>
-                          )}
-                          {isBlog && item.publishedAt && (
-                            <span className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">
-                              {format(new Date(item.publishedAt), 'MMM d, yyyy')}
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="text-xl font-bold text-brand-blue group-hover:text-brand-orange transition-colors mb-2 line-clamp-2">
-                          {item.title}
-                        </h3>
-                        {summary && (
-                          <p className="text-sm text-brand-blue/60 line_clamp-2 leading-relaxed">
-                            {summary}
-                          </p>
-                        )}
+                    );
+                  } else {
+                    // Partner/Listing
+                    const partnerProps = {
+                      id: item._id, // PartnerCard might typically use this for compare toggle, but we are just linking
+                      slug: item.slug,
+                      company_name: item.company_name,
+                      logo_url: item.logo_url,
+                      tagline: item.tagline,
+                      description: item.summary,
+                      listing_tier: item.listing_tier,
+                      badges: item.badges,
+                      websiteUrl: item.websiteUrl
+                    };
+                    return (
+                      <div key={item._id} className="min-w-[320px] w-[320px] h-[400px] snap-start">
+                        <PartnerCard partner={partnerProps} viewMode="grid" maxDescriptionLines={6} />
                       </div>
-                    </Link>
-                  );
+                    );
+                  }
                 })}
               </div>
             </section>
           )}
         </div>
+
+        {/* FOOTER CTA */}
+        <section className="mt-12 max-w-5xl mx-auto">
+          <StillNotSure />
+        </section>
+
       </div>
     </main>
   );
