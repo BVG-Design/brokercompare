@@ -246,7 +246,7 @@ export default function PartnerCard({
 
       <div className="p-6 flex flex-col flex-1 relative z-10 pointer-events-none">
         {/* Logo & Company Name */}
-        <div className="flex items-start gap-4 mb-4">
+        <div className="flex items-start gap-4 mb-6">
           {partner.logo_url ? (
             <div className="w-16 h-16 relative flex-shrink-0">
               <Image
@@ -265,11 +265,6 @@ export default function PartnerCard({
             <h3 className="text-lg font-bold text-primary mb-1 truncate group-hover:text-secondary transition-colors">
               {partner.company_name}
             </h3>
-            {partner.tagline && (
-              <p className="text-sm text-gray-600 line-clamp-1">
-                {partner.tagline}
-              </p>
-            )}
           </div>
         </div>
 
@@ -285,6 +280,13 @@ export default function PartnerCard({
             }}
           >
             {partner.description}
+          </p>
+        )}
+
+        {/* Tagline - Moved Here */}
+        {partner.tagline && (
+          <p className="text-sm text-brand-orange font-semibold mb-4 line-clamp-2">
+            {partner.tagline}
           </p>
         )}
 
@@ -327,7 +329,7 @@ export default function PartnerCard({
                   "w-full transition-all duration-300 pointer-events-auto",
                   isComparing
                     ? "bg-brand-orange text-white hover:bg-brand-orange/90"
-                    : "bg-primary hover:bg-brand-orange text-primary-foreground"
+                    : "bg-primary hover:bg-brand-blue text-primary-foreground"
                 )}
               >
                 {isComparing ? 'Selected' : 'Select'}

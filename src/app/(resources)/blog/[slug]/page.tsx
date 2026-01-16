@@ -29,6 +29,11 @@ type BlogPost = {
     name: string;
     image?: any;
   };
+  defaultAuthor?: {
+    _id: string;
+    name: string;
+    image?: any;
+  };
   authors?: {
     _id: string;
     name: string;
@@ -61,27 +66,30 @@ async function getPost(slug: string): Promise<BlogPost | null> {
         viewCount,
         body,
         readTime,
-        author->{ _id, name, image },
-        authors[]->{ _id, name, image },
+        author->{ _id, name, "image": picture },
+        "defaultAuthor": *[_type == "author" && _id == "88b22405-77ad-414f-853f-393cfa0df47b"][0]{ _id, name, "image": picture },
+        authors[]->{ _id, name, "image": picture },
         seo,
         related[]->{
           _id,
           _type,
           title,
           "slug": slug.current,
-          summary,
+          "summary": coalesce(summary, description),
           heroImage,
           blogType,
-          readTime,
+          "listingType": coalesce(listingType->value, listingType),
+          logo,
+          tagline,
           publishedAt,
-          categories[]->{title},
           // List Specific
           "company_name": title,
           "logo_url": logo.asset->url,
           "listing_tier": listingTier,
           badges,
-          websiteUrl,
-          tagline
+          "websiteUrl": websiteURL,
+          readTime,
+          categories[]->{title}
         }
       }
     `,
@@ -108,8 +116,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!post) return {};
 
   return {
-    title: `${post.title} | BrokerMatch Blog`,
-    description: post.summary ?? 'BrokerMatch blog article',
+    title: `${post.title} | Broker Tools Blog`,
+    description: post.summary ?? 'Broker Tools blog article',
   };
 }
 
@@ -178,7 +186,8 @@ export default async function BlogPostPage({
     notFound();
   }
 
-  const allAuthors = [post.author, ...(post.authors || [])].filter(Boolean);
+  const primaryAuthor = post.author || post.defaultAuthor;
+  const allAuthors = [primaryAuthor, ...(post.authors || [])].filter(Boolean);
 
   return (
     <main className="min-h-screen bg-white">
@@ -245,7 +254,7 @@ export default async function BlogPostPage({
                   allAuthors.map((author: any, index: number) => (
                     <span key={author._id}>
                       <Link
-                        href={`/blog?q=${encodeURIComponent(author.name)}`}
+                        href={`/blog?author=${encodeURIComponent(author.name)}`}
                         className="underline decoration-gray-300 hover:decoration-brand-blue cursor-pointer transition-all hover:text-brand-blue"
                       >
                         {author.name}
@@ -255,7 +264,7 @@ export default async function BlogPostPage({
                     </span>
                   ))
                 ) : (
-                  <span>BrokerMatch Team</span>
+                  <span>Broker Tools</span>
                 )}
               </div>
               <div className="text-sm text-gray-500 mt-0.5">
@@ -351,8 +360,8 @@ export default async function BlogPostPage({
                       readTime: item.readTime
                     };
                     return (
-                      <div key={item._id} className="min-w-[320px] w-[320px] h-[400px] snap-start">
-                        <BlogCard post={blogProps} viewMode="grid" />
+                      <div key={item._id} className="min-w-[320px] w-[320px] h-[350px] snap-start">
+                        <BlogCard post={blogProps} viewMode="grid" aspectRatio="aspect-[2.4/1]" />
                       </div>
                     );
                   } else {
@@ -369,8 +378,8 @@ export default async function BlogPostPage({
                       websiteUrl: item.websiteUrl
                     };
                     return (
-                      <div key={item._id} className="min-w-[320px] w-[320px] h-[400px] snap-start">
-                        <PartnerCard partner={partnerProps} viewMode="grid" maxDescriptionLines={6} />
+                      <div key={item._id} className="min-w-[320px] w-[320px] h-[350px] snap-start">
+                        <PartnerCard partner={partnerProps} viewMode="grid" maxDescriptionLines={5} />
                       </div>
                     );
                   }

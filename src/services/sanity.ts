@@ -103,7 +103,7 @@ export interface UnifiedSearchResult {
 export const fetchUnifiedSearchResults = async (
   searchTerms: string[],
   contentTypes: string[],
-  filters?: { category?: string; brokerType?: string; type?: string }
+  filters?: { category?: string; brokerType?: string; type?: string; author?: string }
 ): Promise<UnifiedSearchResult[]> => {
   const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
   if (contentTypes.length === 0) {
@@ -118,7 +118,8 @@ export const fetchUnifiedSearchResults = async (
     contentTypes,
     category: filters?.category && filters.category !== 'all' ? filters.category : null,
     brokerType: filters?.brokerType && filters.brokerType !== 'all' ? filters.brokerType : null,
-    listingType: filters?.type && filters.type !== 'all' ? filters.type : null
+    listingType: filters?.type && filters.type !== 'all' ? filters.type : null,
+    author: filters?.author && filters.author !== 'all' ? filters.author : null
   };
   console.log('[fetchUnifiedSearchResults] executing query with params:', params);
 

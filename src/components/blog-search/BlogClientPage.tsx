@@ -114,6 +114,7 @@ export default function BlogClientPage({
         category: searchParams.get('category') || 'all',
         brokerType: searchParams.get('brokerType') || 'all',
         blogType: searchParams.get('blogType') || 'all',
+        author: searchParams.get('author') || 'all',
     });
 
     // View Config
@@ -125,9 +126,12 @@ export default function BlogClientPage({
     const [isSearching, setIsSearching] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
+    // Authors Data
+    const authors = initialDashboardData?.authors || [];
+
     // Derived State: Are we in "Search Mode" or "Dashboard Mode"?
     // Search mode if: searchTerm exists OR any filter is not 'all'
-    const isSearchActive = !!searchTerm || filters.category !== 'all' || filters.brokerType !== 'all' || filters.blogType !== 'all';
+    const isSearchActive = !!searchTerm || filters.category !== 'all' || filters.brokerType !== 'all' || filters.blogType !== 'all' || filters.author !== 'all';
 
     // -- Effects --
     useEffect(() => {
@@ -137,6 +141,7 @@ export default function BlogClientPage({
             category: searchParams.get('category') || 'all',
             brokerType: searchParams.get('brokerType') || 'all',
             blogType: searchParams.get('blogType') || 'all',
+            author: searchParams.get('author') || 'all',
         });
     }, [searchParams]);
 
@@ -157,6 +162,7 @@ export default function BlogClientPage({
                 if (filters.category && filters.category !== 'all') query.set('category', filters.category);
                 if (filters.brokerType && filters.brokerType !== 'all') query.set('brokerType', filters.brokerType);
                 if (filters.blogType && filters.blogType !== 'all') query.set('blogType', filters.blogType);
+                if (filters.author && filters.author !== 'all') query.set('author', filters.author);
 
                 const res = await fetch(`/api/blog-search?${query.toString()}`);
                 const data = await res.json();
@@ -211,7 +217,7 @@ export default function BlogClientPage({
 
     const clearFilters = () => {
         setSearchTerm('');
-        setFilters({ category: 'all', brokerType: 'all', blogType: 'all' });
+        setFilters({ category: 'all', brokerType: 'all', blogType: 'all', author: 'all' });
         router.push('?');
     };
 
@@ -265,6 +271,7 @@ export default function BlogClientPage({
                 {/* Sidebar */}
                 <BlogRefineSidebar
                     categories={categories}
+                    authors={authors}
                     filters={filters}
                     onFilterChange={updateFilter}
                     isOpen={isSidebarOpen}
@@ -291,7 +298,7 @@ export default function BlogClientPage({
                                     {isLoading ? 'Searching...' : `${searchResults.length} Results Found`}
                                 </h1>
                                 {isSearchActive && (
-                                    <Button variant="ghost" onClick={clearFilters} className="text-sm text-brand-orange hover:text-brand-orange/80">
+                                    <Button variant="ghost" onClick={clearFilters} className="text-sm text-brand-orange hover:text-gray-700">
                                         Clear all filters
                                     </Button>
                                 )}

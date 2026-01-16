@@ -9,10 +9,12 @@ import { format } from 'date-fns';
 
 export default function BlogCard({
     post,
-    viewMode = 'grid'
+    viewMode = 'grid',
+    aspectRatio = 'aspect-[16/9]' // New prop with default
 }: {
     post: any;
     viewMode?: 'grid' | 'list';
+    aspectRatio?: string;
 }) {
     // List View Layout
     if (viewMode === 'list') {
@@ -21,7 +23,7 @@ export default function BlogCard({
                 href={`/blog/${post.slug}`}
                 className="group flex flex-col md:flex-row gap-6 p-4 rounded-xl hover:bg-white transition-all border border-border hover:border-brand-blue hover:shadow-2xl hover:shadow-brand-blue/20"
             >
-                <div className="relative w-full md:w-64 aspect-[16/9] md:aspect-square rounded-lg overflow-hidden flex-shrink-0">
+                <div className={`relative w-full md:w-64 aspect-[16/9] md:aspect-square rounded-lg overflow-hidden flex-shrink-0`}>
                     {post.heroImageUrl || post.imageUrl ? (
                         <Image
                             src={post.heroImageUrl || post.imageUrl}
@@ -76,7 +78,7 @@ export default function BlogCard({
             href={`/blog/${post.slug}`}
             className="group relative bg-card rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-border hover:border-brand-blue hover:shadow-brand-blue/10 flex flex-col h-full"
         >
-            <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
+            <div className={`relative w-full ${aspectRatio} bg-muted overflow-hidden`}>
                 {post.heroImageUrl || post.imageUrl ? (
                     <Image
                         src={post.heroImageUrl || post.imageUrl}

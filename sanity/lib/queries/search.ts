@@ -11,6 +11,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
       || ($listingType == "resourceGuide" && _type == "blog")
       || (_type == "blog" && blogType == $listingType)
      )
+  && ($author == null || author->name == $author || $author in authors[]->name)
   && (
     count($searchTerms) == 0 ||
     count($searchTerms[
