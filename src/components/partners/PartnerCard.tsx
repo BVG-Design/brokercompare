@@ -13,6 +13,12 @@ import {
 import Image from 'next/image';
 import { SITE_URLS } from '@/lib/config';
 import { cn } from '@/lib/utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function PartnerCard({
   partner,
@@ -42,7 +48,7 @@ export default function PartnerCard({
     return (
       <div
         className={cn(
-          "group relative bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border flex flex-col sm:flex-row p-4 gap-6",
+          "group relative bg-card rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border flex flex-col sm:flex-row p-4 gap-6",
           partner.listing_tier === 'featured' ? 'border-secondary' :
             partner.listing_tier === 'premium' ? 'border-primary' : 'border-border'
         )}
@@ -55,6 +61,14 @@ export default function PartnerCard({
             {tierInfo.label}
           </div>
         )}
+
+        {/* Full Card Link */}
+        <Link
+          href={`${SITE_URLS.directory}/listings/${partner.slug}`}
+          className="absolute inset-0 z-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
+        >
+          <span className="sr-only">View Listing</span>
+        </Link>
 
         {/* Logo Section */}
         <div className="flex-shrink-0">
@@ -97,29 +111,40 @@ export default function PartnerCard({
             )}
           </div>
 
-          {/* Expanded Categories */}
-          {partner.categories && partner.categories.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {partner.categories.slice(0, 5).map((cat: any, idx: number) => (
-                <Badge
-                  key={idx}
-                  variant="secondary"
-                  className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200"
-                >
-                  {typeof cat === 'string' ? cat : (cat.title || cat.slug?.current || cat)}
-                </Badge>
-              ))}
+          {/* Badges with Tooltips */}
+          {partner.badges && partner.badges.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4 relative z-10 pointer-events-auto">
+              <TooltipProvider>
+                {partner.badges.slice(0, 5).map((badge: any, idx: number) => (
+                  <Tooltip key={idx}>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant="secondary"
+                        className="text-xs bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 cursor-default"
+                      >
+                        {badge.title || badge}
+                      </Badge>
+                    </TooltipTrigger>
+                    {badge.description && (
+                      <TooltipContent>
+                        <p className="max-w-xs text-xs">{badge.description}</p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                ))}
+              </TooltipProvider>
             </div>
           )}
 
-          <div className="mt-auto flex gap-3 pt-2">
-            <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="w-auto">
-              <Button size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground px-6">
+          {/* Actions - relative z-10 to sit above card link */}
+          <div className="mt-auto flex gap-3 pt-2 relative z-10">
+            <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto">
+              <Button size="sm" className="bg-primary hover:bg-brand-orange text-primary-foreground px-6">
                 View Details
               </Button>
             </Link>
             {partner.websiteUrl && (
-              <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
+              <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="pointer-events-auto">
                 <Button variant="outline" size="sm" className="gap-2">
                   <ExternalLink className="w-4 h-4" />
                   Website
@@ -150,7 +175,15 @@ export default function PartnerCard({
         </div>
       )}
 
-      <div className="p-6 flex flex-col flex-1">
+      {/* Full Card Link */}
+      <Link
+        href={`${SITE_URLS.directory}/listings/${partner.slug}`}
+        className="absolute inset-0 z-0 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-xl"
+      >
+        <span className="sr-only">View Listing</span>
+      </Link>
+
+      <div className="p-6 flex flex-col flex-1 relative z-10 pointer-events-none">
         {/* Logo & Company Name */}
         <div className="flex items-start gap-4 mb-4">
           {partner.logo_url ? (
@@ -186,30 +219,42 @@ export default function PartnerCard({
           </p>
         )}
 
-        {/* Categories */}
-        {partner.categories && partner.categories.length > 0 && (
-          <div className="flex flex-wrap gap-1.5 mb-4 mt-auto">
-            {partner.categories.slice(0, 3).map((cat: any, idx: number) => (
-              <Badge
-                key={idx}
-                variant="secondary"
-                className="text-xs bg-gray-100 text-gray-700"
-              >
-                {typeof cat === 'string' ? cat : (cat.title || cat.slug?.current || cat)}
-              </Badge>
-            ))}
+        {/* Badges with Tooltips */}
+        {partner.badges && partner.badges.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4 mt-auto relative z-10 pointer-events-auto">
+            <TooltipProvider>
+              {partner.badges.slice(0, 3).map((badge: any, idx: number) => (
+                <Tooltip key={idx}>
+                  <TooltipTrigger asChild>
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 cursor-default"
+                    >
+                      {badge.title || badge}
+                    </Badge>
+                  </TooltipTrigger>
+                  {badge.description && (
+                    <TooltipContent>
+                      <p className="max-w-xs text-xs">{badge.description}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              ))}
+            </TooltipProvider>
           </div>
         )}
 
         {/* Actions */}
-        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50">
-          <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="flex-1">
-            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
-              View Details
-            </Button>
-          </Link>
+        <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50 relative z-10">
+          <div className="flex-1">
+            <Link href={`${SITE_URLS.directory}/listings/${partner.slug}`} className="pointer-events-auto block w-full">
+              <Button className="w-full bg-primary hover:bg-brand-orange text-primary-foreground">
+                View Details
+              </Button>
+            </Link>
+          </div>
           {partner.websiteUrl && (
-            <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer">
+            <a href={partner.websiteUrl} target="_blank" rel="noopener noreferrer" className="pointer-events-auto">
               <Button
                 variant="outline"
                 size="icon"
@@ -223,7 +268,7 @@ export default function PartnerCard({
       </div>
 
       {/* Hover effect overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-brand-green/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </div>
   );
 }

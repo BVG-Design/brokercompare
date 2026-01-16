@@ -7,6 +7,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
   && ($listingType == null 
       || ($listingType == "software" && (_type == "product" || listingType == "software" || listingType->value == "software" || listingType->title == "software"))
       || ($listingType == "service" && (_type == "serviceProvider" || listingType == "service" || listingType->value == "service" || listingType->title == "service"))
+      || ($listingType == "product" && (listingType == "product" || listingType->value == "product" || listingType->title == "product"))
       || ($listingType == "resourceGuide" && _type == "blog")
      )
   && (
@@ -37,7 +38,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
     _type == "blog" => "resourceGuide",
     coalesce(listingType->value, listingType->title, listingType)
   ),
-  "badges": badges[]->title,
+  "badges": badges[]->{title, description},
   "logoUrl": select(
     defined(logo.asset->url) => logo.asset->url,
     defined(organisation->logo.asset->url) => organisation->logo.asset->url,

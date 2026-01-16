@@ -1,19 +1,20 @@
 'use client';
 
-import React, { useEffect, useState, useMemo, Suspense } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Search, SlidersHorizontal, Grid, List } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import PartnerCard from '@/components/partners/PartnerCard';
 import RefineSidebar from '@/components/search/RefineSidebar';
-import { fetchUnifiedSearchResults, fetchCategories } from '@/services/sanity';
+// Removed direct service imports to ensure client-side compatibility
+// We fetch from /api/categories and /api/unified-search
 
 function SearchDemoContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    // State
+    // State via searchParams or defaults
     const [searchTerm, setSearchTerm] = useState(searchParams.get('q') || '');
     const [filters, setFilters] = useState({
         category: searchParams.get('category') || 'all',
@@ -26,29 +27,41 @@ function SearchDemoContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Load Data
+    // Load Data via Proxy API
     useEffect(() => {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const [cats, searchResults] = await Promise.all([
-                    fetchCategories(),
-                    fetchUnifiedSearchResults(
-                        [searchTerm],
-                        ['directoryListing', 'blog'], // Explicitly asking for listings and blogs
-                        filters
-                    )
+                // Construct Query Params for Search API
+                const query = new URLSearchParams();
+                if (searchTerm) query.set('q', searchTerm);
+                if (filters.category && filters.category !== 'all') query.set('category', filters.category);
+                if (filters.type && filters.type !== 'all') query.set('type', filters.type);
+                if (filters.brokerType && filters.brokerType !== 'all') query.set('brokerType', filters.brokerType);
+
+                // Fetch Categories and Search Results in parallel
+                const [catsRes, searchRes] = await Promise.all([
+                    fetch('/api/categories'),
+                    fetch(`/api/unified-search?${query.toString()}`)
                 ]);
 
-                setCategories(cats || []);
-                setResults(searchResults || []);
+                if (!catsRes.ok) throw new Error('Categories fetch failed');
+                if (!searchRes.ok) throw new Error('Search fetch failed');
+
+                const catsData = await catsRes.json();
+                const searchData = await searchRes.json();
+
+                setCategories(Array.isArray(catsData) ? catsData : []);
+                setResults(searchData.success ? searchData.results : []);
             } catch (err) {
                 console.error('Failed to fetch data:', err);
+                setResults([]); // fallback
             } finally {
                 setIsLoading(false);
             }
         };
 
+        // Debounce search
         const timer = setTimeout(loadData, 300);
         return () => clearTimeout(timer);
     }, [searchTerm, filters]);
