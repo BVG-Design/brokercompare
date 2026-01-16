@@ -19,18 +19,7 @@ interface MainCardProps {
     listing: SoftwareListing;
 }
 
-// Helper function to get tooltip description for service areas
-const getServiceAreaDescription = (area: string): string => {
-    const descriptions: Record<string, string> = {
-        'Managed IT': 'Comprehensive IT management and support services',
-        'Cybersecurity': 'Security services to protect your business from threats',
-        'Microsoft 365': 'Microsoft 365 implementation, management, and support',
-        'Cloud Infrastructure': 'Cloud computing and infrastructure services',
-        'Helpdesk Support': 'Technical support and helpdesk services',
-        'Network Management': 'Network setup, monitoring, and management',
-    };
-    return descriptions[area] || `${area} services`;
-};
+
 
 // Helper function to get tooltip description for broker types
 const getBrokerTypeDescription = (type: string): string => {
@@ -61,7 +50,6 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
         websiteUrl,
         features = [],
         pricing,
-        serviceArea = [],
         brokerType = [],
         logoUrl,
         rating,
@@ -265,28 +253,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                             logoUrl={logoUrl}
                         />
 
-                        {serviceArea.length > 0 && (
-                            <div className="mb-6">
-                                <h4 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">Service Areas</h4>
-                                <TooltipProvider>
-                                    <div className="flex flex-wrap gap-2">
-                                        {serviceArea.map((area, idx) => (
-                                            <Tooltip key={idx}>
-                                                <TooltipTrigger asChild>
-                                                    <span className="px-2 py-1 bg-white border border-gray-200 rounded text-xs text-gray-600 cursor-pointer group relative inline-flex items-center gap-1">
-                                                        {area}
-                                                        <Brain className="w-3 h-3 text-gray-400 group-hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </span>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{getServiceAreaDescription(area)}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ))}
-                                    </div>
-                                </TooltipProvider>
-                            </div>
-                        )}
+
 
                         {brokerType.length > 0 && (
                             <div>

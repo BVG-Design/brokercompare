@@ -22,7 +22,6 @@ export interface SoftwareListing {
     location?: string;
     logoUrl?: string;
     badges?: Badge[];
-    serviceArea?: string[];
     brokerType?: string[];
     features?: string[];
     pricing?: {

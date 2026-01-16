@@ -25,10 +25,17 @@ export const featureType = defineType({
             description: 'Standard definition of this feature for comparison tables'
         }),
         defineField({
-            name: 'category',
-            title: 'Category',
+            name: 'featureCategory',
+            title: 'Feature Category',
             type: 'reference',
             to: [{ type: 'featureCategory' }],
+            validation: Rule => Rule.required()
+        }),
+        defineField({
+            name: 'subCategories',
+            title: 'Sub Categories',
+            type: 'array',
+            of: [{ type: 'reference', to: [{ type: 'subCategory' }] }],
             validation: Rule => Rule.required()
         }),
         defineField({

@@ -55,6 +55,31 @@ export const directoryListingType = defineType({
     }),
 
     defineField({
+      name: 'subCategory',
+      title: 'Sub Category',
+      type: 'reference',
+      to: [{ type: 'subCategory' }],
+      options: {
+        disableNew: false,
+        filter: ({ document }) => {
+          // If a category is selected, filtering subcategories that reference that category would be ideal
+          // But subCategories reference the category, not the other way around in this schema structure?
+          // Let's check subCategory schema again. Yes, subCategory has 'category' reference.
+          // So we want to find subCategories where subCategory.category._ref == document.category._ref
+
+          if (!document?.category) {
+            return { filter: 'true' }
+          }
+          return {
+            filter: 'category._ref == $categoryId',
+            params: { categoryId: (document.category as any)._ref }
+          }
+        }
+      },
+      description: 'Specific product service type (filters by selected Category)'
+    }),
+
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',
@@ -120,12 +145,7 @@ export const directoryListingType = defineType({
       ]
     }),
 
-    defineField({
-      name: 'serviceAreas',
-      title: 'Service Areas',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
-    }),
+
 
     defineField({
       name: 'worksWith',

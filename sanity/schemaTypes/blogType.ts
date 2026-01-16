@@ -48,12 +48,7 @@ export const blogType = defineType({
       validation: Rule => Rule.required()
     }),
 
-    defineField({
-      name: 'serviceAreas',
-      title: 'Service Areas',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
-    }),
+
 
     defineField({
       name: 'brokerType',

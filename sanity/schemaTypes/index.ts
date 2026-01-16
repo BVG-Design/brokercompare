@@ -1,8 +1,6 @@
 import { blogType } from './blogType'
 import { authorType } from './author'
 import { categoryType } from './category'
-import { productType } from './product'
-import { serviceAreaType } from './serviceArea'
 import { searchIntentType } from './searchIntent'
 import { directoryListingType } from './directoryListing'
 import { featureType } from './feature'
@@ -14,13 +12,13 @@ import { journeyStageType } from './journeyStage'
 import { videoEmbedType } from './objects/videoEmbed'
 import { listingType } from './listingType'
 import { guideType } from './guideType'
+import { subCategoryType } from './subCategory'
 
 export const schemaTypes = [
   blogType,
   authorType,
   categoryType,
-  productType,
-  serviceAreaType,
+  subCategoryType,
   searchIntentType,
   directoryListingType,
   featureType,

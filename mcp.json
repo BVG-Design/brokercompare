@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--access-token",
+        "sbp_894c24cc6c6a49ec9f3e8cacf707e7c23e0c7607"
+      ]
+    },
+    "sanity": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@sanity/mcp-server",
+        "--project-id",
+        "vrf26tjl",
+        "--dataset",
+        "production"
+      ]
+    }
+  }
+}
