@@ -10,7 +10,8 @@ export const UNIFIED_SEARCH_QUERY = groq`
       || ($listingType == "resourceGuide" && _type == "blog")
      )
   && (
-  count($searchTerms[
+    count($searchTerms) == 0 ||
+    count($searchTerms[
     ^.title match @ ||
     ^.name match @ ||
     ^.description match @ ||

@@ -106,18 +106,24 @@ export const fetchUnifiedSearchResults = async (
   filters?: { category?: string; brokerType?: string; type?: string }
 ): Promise<UnifiedSearchResult[]> => {
   const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
-  if (normalizedTerms.length === 0 || contentTypes.length === 0) {
+  if (contentTypes.length === 0) {
     return [];
   }
 
+  console.log('[fetchUnifiedSearchResults] params:', { searchTerms, contentTypes, filters, normalizedTerms });
+
   const searchPatterns = normalizedTerms;
-  const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
+  const params = {
     searchTerms: searchPatterns,
     contentTypes,
     category: filters?.category && filters.category !== 'all' ? filters.category : null,
     brokerType: filters?.brokerType && filters.brokerType !== 'all' ? filters.brokerType : null,
     listingType: filters?.type && filters.type !== 'all' ? filters.type : null
-  }, { useCdn: false });
+  };
+  console.log('[fetchUnifiedSearchResults] executing query with params:', params);
+
+  const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, params, { useCdn: false });
+  console.log('[fetchUnifiedSearchResults] raw results count:', results.length);
 
   // Deduplicate by slug (preferring directoryListing, then product/serviceProvider, then blog)
   const slugFirst = new Map<string, UnifiedSearchResult>();
