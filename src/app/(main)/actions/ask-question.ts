@@ -1,5 +1,8 @@
 'use server';
 
+import { createServerActionClient } from '@supabase/auth-helpers-nextjs';
+import { cookies } from 'next/headers';
+
 export type AskQuestionPayload = {
     firstName: string;
     lastName: string;
@@ -12,7 +15,32 @@ export type AskQuestionPayload = {
 
 export async function submitQuestion(data: AskQuestionPayload) {
     try {
-        // Webhook Submission
+        // 1. Submit to Supabase
+        const supabase = createServerActionClient({ cookies });
+
+        const { error: dbError } = await supabase
+            .from('questions')
+            .insert({
+                first_name: data.firstName,
+                last_name: data.lastName,
+                email: data.email,
+                question: data.Question,
+                category: data.category,
+                listing_slug: data.listingslug,
+                listing_name: data.listingname,
+                status: 'new', // Default status
+                submitted_at: new Date().toISOString()
+            });
+
+        if (dbError) {
+            console.error('Supabase insertion error:', dbError);
+            // We'll continue to try the webhook even if DB fails, or failing here?
+            // Let's treat DB as primary but non-blocking for webhook if we want redundancy, 
+            // OR fully fail if DB fails. Given the request is "integrate into Supabase", let's return error if it fails.
+            return { error: 'Failed to save question to database' };
+        }
+
+        // 2. Webhook Submission (Legacy/Notification)
         const webhookUrl = process.env.QUESTION_SUBMISSION_WEBHOOK_URL;
 
         if (webhookUrl) {
@@ -26,13 +54,8 @@ export async function submitQuestion(data: AskQuestionPayload) {
                 });
             } catch (webhookError) {
                 console.error('Webhook submission failed:', webhookError);
-                // We typically continue to return success or error to client depending on if this is critical
-                // For this request, since Supabase is "disconnected", this is the primary method.
-                return { error: 'Failed to submit question' };
+                // Non-blocking for now since we saved to DB
             }
-        } else {
-            console.warn('QUESTION_SUBMISSION_WEBHOOK_URL is not configured.');
-            return { error: 'Configuration error' };
         }
 
         return { success: true };

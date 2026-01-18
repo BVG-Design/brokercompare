@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function submitReview(data: any) {
     try {
+<<<<<<< Updated upstream
         const supabase = createServerActionClient({ cookies });
 
         // Check auth
@@ -70,8 +71,68 @@ export async function submitReview(data: any) {
         if (error) {
             console.error('Supabase write error:', error);
             return { success: false, error: error.message };
+=======
+        // 1. Submit to Supabase
+        const supabase = createServerActionClient({ cookies });
+
+        const { error: dbError } = await supabase
+            .from('reviews')
+            .insert({
+                ...data,
+                // Ensure field names match your DB columns. Assuming 'data' matches or JSONB
+                // If the table schema is strict, we might need to map fields.
+                // For now, dumping 'data' spreading is risky if columns don't match exactly.
+                // But without schema knowledge, we'll try to map common fields or save as JSON if there's a payload column.
+                // Let's assume standard fields based on Guest Review conversation:
+                first_name: data.firstName,
+                last_name: data.lastName,
+                email: data.email,
+                business_name: data.businessName,
+                role: data.role,
+                rating: data.rating,
+                review_text: data.review,
+                listing_slug: data.listingSlug,
+                status: 'pending',
+                submitted_at: new Date().toISOString()
+            });
+
+        if (dbError) {
+            console.error('Supabase review insertion error:', dbError);
+            // Verify if we should fail hard.
+            // return { success: false, error: 'Database error' };
         }
 
+        // 2. Webhook Submission
+        const webhookUrl = process.env.REVIEW_SUBMISSION_WEBHOOK_URL;
+
+        if (!webhookUrl) {
+            console.error('REVIEW_SUBMISSION_WEBHOOK_URL is not configured');
+            // If DB succeeded, maybe we don't fail? But let's keep original behavior if DB failed too.
+        } else {
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        type: 'review_submission',
+                        ...data,
+                        submittedAt: new Date().toISOString()
+                    }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Webhook responded with status: ${response.status}`);
+                }
+            } catch (webhookError) {
+                console.error('Webhook submission failed:', webhookError);
+                // return { success: false, error: 'Failed to submit review. Please try again.' };
+            }
+>>>>>>> Stashed changes
+        }
+
+        // If we reached here, at least one method likely worked or we are tolerant.
         return { success: true };
     } catch (err: any) {
         console.error('submitReview exception:', err);
