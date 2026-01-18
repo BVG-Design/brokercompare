@@ -132,7 +132,7 @@ export default function PartnerCard({
                         variant="secondary"
                         className="text-xs bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 cursor-default"
                       >
-                        {badge.title || badge}
+                        {typeof badge === 'object' ? (badge.title || 'Badge') : badge}
                       </Badge>
                     </TooltipTrigger>
                     {badge.description && (
@@ -301,7 +301,7 @@ export default function PartnerCard({
                       variant="secondary"
                       className="text-xs bg-brand-blue/10 text-brand-blue hover:bg-brand-blue/20 cursor-default"
                     >
-                      {badge.title || badge}
+                      {typeof badge === 'object' ? (badge.title || 'Badge') : badge}
                     </Badge>
                   </TooltipTrigger>
                   {badge.description && (

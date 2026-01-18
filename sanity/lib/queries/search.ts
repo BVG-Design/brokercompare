@@ -3,6 +3,7 @@ import { groq } from 'next-sanity';
 export const UNIFIED_SEARCH_QUERY = groq`
 *[_type in $contentTypes 
   && ($category == null || category->slug.current == $category || $category in categories[]->slug.current)
+  && ($subCategory == null || $subCategory in subCategory[]->slug.current)
   && ($brokerType == null || $brokerType == brokerType || $brokerType in brokerType || $brokerType in brokerTypes || brokerType[] match $brokerType + "*" || brokerType match $brokerType + "*")
   && ($listingType == null 
       || ($listingType == "software" && (_type == "product" || listingType == "software" || listingType->value == "software" || listingType->title == "software"))
@@ -22,6 +23,7 @@ export const UNIFIED_SEARCH_QUERY = groq`
     ^.slug.current match @ ||
     ^.category->title match @ ||
     ^.categories[]->title match @ ||
+    ^.subCategory[]->title match @ ||
     ^.synonyms[] match @
   ]) > 0
 )] | order(defined(tags) desc, defined(brokerType) desc, _updatedAt desc) {

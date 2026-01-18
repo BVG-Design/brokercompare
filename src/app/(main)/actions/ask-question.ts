@@ -1,44 +1,38 @@
 'use server';
 
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-
-export type AskQuestionData = {
-    question: string;
-    context?: string;
-    category?: string;
-    sourcePage?: string;
-    postAs?: 'public' | 'private';
-    userId?: string | null;
-    userEmail?: string;
-    userName?: string;
-    isLoggedIn?: boolean;
+export type AskQuestionPayload = {
+    firstName: string;
+    lastName: string;
+    email: string;
+    Question: string;
+    category: string;
+    listingslug?: string;
+    listingname?: string;
 };
 
-export async function submitQuestion(data: AskQuestionData) {
+export async function submitQuestion(data: AskQuestionPayload) {
     try {
-        const supabase = createServerSupabaseClient();
+        // Webhook Submission
+        const webhookUrl = process.env.QUESTION_SUBMISSION_WEBHOOK_URL;
 
-        // Validate required fields
-        if (!data.question) {
-            return { error: 'Question is required' };
-        }
-
-        const { error } = await supabase.from('ask_questions').insert({
-            question: data.question,
-            context: data.context,
-            category: data.category,
-            source_page: data.sourcePage,
-            post_as: data.postAs || 'public',
-            user_id: data.userId || null,
-            user_email: data.userEmail,
-            user_name: data.userName,
-            is_logged_in: data.isLoggedIn || false,
-            status: 'pending',
-        });
-
-        if (error) {
-            console.error('Error submitting question:', error);
-            return { error: 'Failed to submit question' };
+        if (webhookUrl) {
+            try {
+                await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+            } catch (webhookError) {
+                console.error('Webhook submission failed:', webhookError);
+                // We typically continue to return success or error to client depending on if this is critical
+                // For this request, since Supabase is "disconnected", this is the primary method.
+                return { error: 'Failed to submit question' };
+            }
+        } else {
+            console.warn('QUESTION_SUBMISSION_WEBHOOK_URL is not configured.');
+            return { error: 'Configuration error' };
         }
 
         return { success: true };

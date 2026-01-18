@@ -1,10 +1,13 @@
 'use client';
 
+import React from 'react';
+
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
+import AskQuestionModal from '@/components/modals/AskQuestionModal';
 
 interface RefineSidebarProps {
     categories: { title: string; value: string }[];
@@ -27,6 +30,8 @@ export default function RefineSidebar({
     onClose,
     totalResults,
 }: RefineSidebarProps) {
+    const [isAskQuestionOpen, setIsAskQuestionOpen] = React.useState(false);
+
     return (
         <>
             {/* Mobile Overlay */}
@@ -218,13 +223,29 @@ export default function RefineSidebar({
                                         Take the Quiz
                                     </Button>
                                 </QuizWaitlistModal>
-                                <Button variant="ghost" className="w-full text-sm text-gray-600 hover:text-brand-blue">
+                                <Button
+                                    variant="ghost"
+                                    className="w-full text-sm text-gray-600 hover:text-brand-blue"
+                                    onClick={() => onClose()}
+                                >
                                     Schedule a Chat
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full text-sm text-gray-600 hover:text-brand-blue"
+                                    onClick={() => setIsAskQuestionOpen(true)}
+                                >
+                                    Ask a Question
                                 </Button>
                             </div>
                         </div>
                     </div>
                 </div>
+                <AskQuestionModal
+                    open={isAskQuestionOpen}
+                    onOpenChange={setIsAskQuestionOpen}
+                    listingName="Broker Compare Directory"
+                />
             </aside >
         </>
     );

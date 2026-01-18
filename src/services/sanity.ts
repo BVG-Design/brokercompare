@@ -103,7 +103,7 @@ export interface UnifiedSearchResult {
 export const fetchUnifiedSearchResults = async (
   searchTerms: string[],
   contentTypes: string[],
-  filters?: { category?: string; brokerType?: string; type?: string; author?: string }
+  filters?: { category?: string; brokerType?: string; type?: string; author?: string; subCategory?: string }
 ): Promise<UnifiedSearchResult[]> => {
   const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
   if (contentTypes.length === 0) {
@@ -119,7 +119,8 @@ export const fetchUnifiedSearchResults = async (
     category: filters?.category && filters.category !== 'all' ? filters.category : null,
     brokerType: filters?.brokerType && filters.brokerType !== 'all' ? filters.brokerType : null,
     listingType: filters?.type && filters.type !== 'all' ? filters.type : null,
-    author: filters?.author && filters.author !== 'all' ? filters.author : null
+    author: filters?.author && filters.author !== 'all' ? filters.author : null,
+    subCategory: filters?.subCategory && filters.subCategory !== 'all' ? filters.subCategory : null
   };
   console.log('[fetchUnifiedSearchResults] executing query with params:', params);
 
@@ -163,15 +164,17 @@ export const fetchDirectoryListings = async (filters: {
   blogType?: string;
   tier?: string;
   search?: string;
+  subCategory?: string;
 } = {}): Promise<DirectoryListing[]> => {
-  const { category, brokerType, tier, search, listingType } = filters;
+  const { category, brokerType, tier, search, listingType, subCategory } = filters;
 
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& (category->slug.current == $category || $category in categories[]->slug.current)' : ''}
+    ${subCategory && subCategory !== 'all' ? '&& $subCategory in subCategory[]->slug.current' : ''}
     ${brokerType && brokerType !== 'all' ? '&& $brokerType in brokerType' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
     ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
-    ${search ? '&& (title match $search || description match $search || synonyms[] match $search)' : ''}
+    ${search ? '&& (title match $search || description match $search || synonyms[] match $search || subCategory[]->title match $search)' : ''}
   ]{
     _id,
     _type,
@@ -203,6 +206,7 @@ export const fetchDirectoryListings = async (filters: {
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
+  if (subCategory && subCategory !== 'all') params.subCategory = subCategory;
   if (brokerType && brokerType !== 'all') params.brokerType = brokerType;
   if (search) params.search = search;
   if (listingType && listingType !== 'all') params.listingType = listingType;
@@ -287,9 +291,4 @@ export const fetchRelatedArticles = async (limit: number = 3): Promise<any[]> =>
   }`;
 
   return client.fetch(query);
-};
-
-export const fetchTopCRMs = async (): Promise<any[]> => {
-  const { TOP_CRMS_QUERY } = await import('@/sanity/lib/queries');
-  return await client.fetch(TOP_CRMS_QUERY, {}, { useCdn: false });
 };

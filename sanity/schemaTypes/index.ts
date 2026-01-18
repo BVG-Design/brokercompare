@@ -1,6 +1,7 @@
 import { blogType } from './blogType'
 import { authorType } from './author'
 import { categoryType } from './category'
+import { embed } from './objects/embed'
 import { searchIntentType } from './searchIntent'
 import { directoryListingType } from './directoryListing'
 import { featureType } from './feature'

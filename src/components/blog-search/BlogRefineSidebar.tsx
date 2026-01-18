@@ -1,9 +1,12 @@
 'use client';
 
+import React from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
+import AskQuestionModal from '@/components/modals/AskQuestionModal';
+
 
 interface BlogRefineSidebarProps {
     categories: { title: string; value: string }[];
@@ -29,6 +32,8 @@ export default function BlogRefineSidebar({
     onClose,
     totalResults,
 }: BlogRefineSidebarProps) {
+    const [isAskQuestionOpen, setIsAskQuestionOpen] = React.useState(false);
+
     return (
         <>
             {/* Mobile Overlay */}
@@ -74,7 +79,7 @@ export default function BlogRefineSidebar({
                                         { label: 'Guides', value: 'guide' },
                                         { label: 'Reviews', value: 'review' },
                                         { label: 'Podcasts', value: 'podcast' },
-                                        { label: 'Articles', value: 'article' },
+                                        { label: 'FAQs', value: 'faq' },
                                     ].map((type) => (
                                         <label
                                             key={type.value}
@@ -279,10 +284,22 @@ export default function BlogRefineSidebar({
                                 <Button variant="ghost" className="w-full text-sm text-gray-600 hover:text-brand-blue">
                                     Schedule a Chat
                                 </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full text-sm text-gray-600 hover:text-brand-blue"
+                                    onClick={() => setIsAskQuestionOpen(true)}
+                                >
+                                    Ask a Question
+                                </Button>
                             </div>
                         </div>
                     </div>
                 </div>
+                <AskQuestionModal
+                    open={isAskQuestionOpen}
+                    onOpenChange={setIsAskQuestionOpen}
+                    listingName="Broker Compare Blogs"
+                />
             </aside >
         </>
     );

@@ -148,7 +148,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, navLinks }) => {
                                         Give Feedback
                                     </button>
                                 </li>
-                                <li><Link href="/faq" className="hover:text-brand-orange transition-colors">FAQs</Link></li>
+                                <li><Link href={`${SITE_URLS.resources}/blog?blogType=faq`} className="hover:text-brand-orange transition-colors">FAQs</Link></li>
                                 <li><Link href="/terms" className="hover:text-brand-orange transition-colors">Terms of Service</Link></li>
                             </ul>
                         </div>

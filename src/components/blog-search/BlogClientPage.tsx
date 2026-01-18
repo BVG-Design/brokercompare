@@ -74,9 +74,10 @@ function DashboardView({ data, viewMode }: { data: any, viewMode: 'grid' | 'list
                 </Link>
             </div>
 
-            <DashboardSection title="How To Guides" link="/blog?blogType=guide" posts={data.guides} viewMode={viewMode} />
             <DashboardSection title="Reviews" link="/blog?blogType=review" posts={data.reviews} viewMode={viewMode} />
+            <DashboardSection title="How To Guides" link="/blog?blogType=guide" posts={data.guides} viewMode={viewMode} />
             <DashboardSection title="Podcasts" link="/blog?blogType=podcast" posts={data.podcasts} viewMode={viewMode} />
+            <DashboardSection title="FAQs" link="/blog?blogType=faq" posts={data.faqs} viewMode={viewMode} />
 
             {/* Latest Section */}
             <section className="mb-12">

@@ -86,7 +86,7 @@ async function getPost(slug: string): Promise<BlogPost | null> {
           "company_name": title,
           "logo_url": logo.asset->url,
           "listing_tier": listingTier,
-          badges,
+          badges[]->{title, description},
           "websiteUrl": websiteURL,
           readTime,
           categories[]->{title}
@@ -121,24 +121,53 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
+// Helper to extract dimensions from Sanity asset ID
+const decodeAssetId = (id: string) => {
+  const pattern = /^image-([a-f\d]+)-(\d+)x(\d+)-(\w+)$/;
+  const match = pattern.exec(id);
+  if (!match) {
+    return null;
+  }
+  const [, assetId, width, height, format] = match;
+  return {
+    assetId,
+    width: parseInt(width, 10),
+    height: parseInt(height, 10),
+    format,
+  };
+};
+
 // Custom PortableText components (tweak as you like)
 const portableComponents = {
   types: {
-    image: ({ value }: any) =>
-      value?.asset ? (
+    image: ({ value }: any) => {
+      if (!value?.asset?._ref) return null;
+
+      const dims = decodeAssetId(value.asset._ref);
+      const width = dims?.width || 1200;
+      const height = dims?.height || 600;
+
+      // Calculate height for 1200px width based on aspect ratio
+      const aspectRatio = width / height;
+      const displayWidth = 1200;
+      const displayHeight = Math.round(displayWidth / aspectRatio);
+
+      return (
         <div className="my-8">
           <Image
-            src={urlFor(value).width(1200).height(600).url()}
+            src={urlFor(value).width(displayWidth).url()}
             alt={value.alt || 'Blog image'}
-            width={1200}
-            height={600}
-            className="w-full rounded-xl border border-gray-200 object-cover"
+            width={displayWidth}
+            height={displayHeight}
+            className="w-full rounded-xl border border-gray-200"
+            style={{ objectFit: 'contain' }}
           />
           {value.caption && (
             <p className="mt-2 text-center text-sm text-gray-500">{value.caption}</p>
           )}
         </div>
-      ) : null,
+      );
+    },
   },
   block: {
     h2: ({ children }: any) => (
@@ -205,7 +234,7 @@ export default async function BlogPostPage({
         </nav>
 
         {/* TITLE + SUMMARY */}
-        <section className="mb-8 max-w-3xl">
+        <section className="mb-8 max-w-3xl mx-auto text-center">
           <h1 className="text-3xl md:text-5xl font-bold text-brand-blue leading-tight mb-4">
             {post.title}
           </h1>

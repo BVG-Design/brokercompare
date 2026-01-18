@@ -4,7 +4,8 @@ import React, { useState, useMemo } from 'react';
 import { Search, X, Scale, ArrowLeft, SlidersHorizontal, Grid, List as ListIcon, Check, Plus, AlertCircle, ChevronRight, Star } from 'lucide-react';
 import { DirectoryListing } from '@/types';
 import PartnerCard from '@/components/partners/PartnerCard';
-import DetailedComparisonClient from '@/components/product-page/DetailedComparisonClient';
+import Link from 'next/link';
+import { ComparisonTable } from './ComparisonTable';
 import { ComparisonFeatureGroup, ComparisonProduct } from '@/types/comparison';
 
 interface ComparisonToolProps {
@@ -287,95 +288,31 @@ const ComparisonTool: React.FC<ComparisonToolProps> = ({ listings, featureGroups
                     </div>
                 ) : (
                     <div className="animate-in fade-in duration-700">
-                        <div className="flex items-center justify-between mb-10">
-                            <div>
-                                <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-none uppercase">Results Matrix</h2>
-                                <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-2">Broker-Fit Analysis based on current market data</p>
-                            </div>
-                            <div className="flex items-center gap-6">
-                                <div className="flex -space-x-3">
-                                    {selectedProducts.map((p, i) => (
-                                        <div key={p.id} className="w-12 h-12 rounded-full border-4 border-white bg-white shadow-sm flex items-center justify-center overflow-hidden z-[10-i]">
-                                            {p.logoUrl ? (
-                                                <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain" />
-                                            ) : (
-                                                <span className="text-xs font-bold text-gray-400">{p.name.substring(0, 2)}</span>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                                <button
-                                    onClick={() => setViewMode('selection')}
-                                    className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-gray-500 hover:text-gray-900 transition-colors"
+
+
+                        <div className="bg-white rounded-3xl p-8 border border-gray-200 shadow-sm">
+                            <div className="mb-6 flex items-center justify-between">
+                                <Link
+                                    href="/compare"
+                                    onClick={(e) => { e.preventDefault(); setViewMode('selection'); }}
+                                    className="flex items-center gap-2 text-sm font-bold text-gray-500 hover:text-brand-blue transition-colors"
                                 >
-                                    Add/Remove Items <SlidersHorizontal size={16} />
-                                </button>
+                                    <ArrowLeft size={16} /> Back to Selection
+                                </Link>
                             </div>
+
+                            <ComparisonTable
+                                items={selectedProducts.map(listing => ({
+                                    id: listing.id,
+                                    type: listing.type === 'service' ? 'service' : 'software',
+                                    name: listing.name,
+                                    logoUrl: listing.logoUrl || '',
+                                    category: (listing.categories && listing.categories[0]) || 'General',
+                                    data: listing as any
+                                }))}
+                                onRemove={(id) => onToggleCompare(id)}
+                            />
                         </div>
-
-                        {/* Use DetailedComparisonClient but with filtered data */}
-                        {/* We need to pass required props to DetailedComparisonClient */}
-                        {/* Since DetailedComparisonClient is designed for a specific product context, we might need to adapt it or just use the inner matrix part. 
-                 However, the user asked to use DetailedComparison, assuming it refers to the client component or a sub-component.
-                 Checking the code, DetailedComparisonClient takes 'listingSlug' etc. which implies a main product context.
-                 But here we are comparing arbitrary items.
-                 Actually, DetailedComparisonClient renders ComparisonMatrix. Maybe we should use ComparisonMatrix directly if possible, 
-                 or wrap DetailedComparisonClient to fake a context, OR the user provided 'DetailedComparison' in their snippet which might be a different requested component,
-                 BUT I found DetailedComparisonClient.tsx. 
-                 Let's check if there is a 'DetailedComparison' exported, or if we should use 'DetailedComparisonClient' and maybe provide dummy main props.
-                 
-                 Looking at DetailedComparisonClient props:
-                   listingSlug, listingName... -> These seem to be for the "Back to X Review" link and context.
-                   allProducts -> list of user selectable products?
-                   initialSelection -> what's currently selected.
-                 
-                 Ideally, we should probably refactor DetailedComparisonClient to be more generic, or just use ComparisonMatrix directly if it has everything.
-                 ComparisonMatrix takes { products, featureGroups }. This looks perfect for the matrix part.
-                 But DetailedComparisonClient adds the header, overview, integrations etc. which are nice.
-                 
-                 For now, let's try to use DetailedComparisonClient and pass the first selected product as the "main" one for context, or just dummy values.
-                 Wait, the user snippet imported `DetailedComparison` from `./DetailedComparison`. 
-                 I'll assume they meant `DetailedComparisonClient` or `ComparisonMatrix`.
-                 Given the user said "Using this code as a guide", and the code renders <DetailedComparison onBack... />, 
-                 it suggests a simpler component than DetailedComparisonClient which has complex props.
-                 
-                 I will create a wrapper using DetailedComparisonClient but adapting it to the tray state. 
-                 Actually, DetailedComparisonClient manages its own state (selectedSlugs). 
-                 
-                 Better approach: Render `ComparisonMatrix` and other sections manually in `ComparisonTool` using the data we have, 
-                 recreating the layout of `DetailedComparisonClient` but controlled by `ComparisonTool`'s state.
-                 
-                 However, to save time/complexity, I will defer to `DetailedComparisonClient` by forcing it to sync with my state?
-                 No, `DetailedComparisonClient` is complex. 
-                 
-                 Let's look at `ComparisonMatrix` usage.
-                 I'll stick to the user's snippet structure for the "View Mode" and try to render `ComparisonMatrix` if available, or just a placeholder for now if I need to implement `DetailedComparison`.
-                 
-                 Actually, I see `DetailedComparisonClient` imports `ComparisonMatrix`.
-                 I will check `ComparisonMatrix` content in a moment. For now, I'll assume I can render it.
-                 
-                 Let's check imports in my `ComparisonTool`:
-                 import ComparisonMatrix from '@/components/product-page/ComparisonMatrix';
-                 
-                 And I will implement the "Results Matrix" section using `ComparisonMatrix` + the overview table from `DetailedComparisonClient` (maybe copied over).
-                 
-                 For the MVP of this task, I will try to re-use DetailedComparisonClient if possible.
-                 If I pass `initialSelection` as `compareIds`, it might work.
-                 But I need to suppress the "Back to X" link or make it generic.
-                 
-                 Let's create the file `ComparisonTool.tsx` and just placeholder the comparison part or use `DetailedComparisonClient` with best-effort props.
-             */}
-
-                        <DetailedComparisonClient
-                            listingSlug={selectedProducts[0]?.slug || ''} // Dummy or first selected
-                            listingName={selectedProducts[0]?.name || ''}
-                            allProducts={comparisonProducts}
-                            suggestedProducts={[]}
-                            featureGroups={featureGroups}
-                            initialSelection={compareIds}
-                            hideHeader={true}
-                        // We might need to hide the "Back to..." or handle it.
-                        />
                     </div>
                 )}
             </div>

@@ -43,9 +43,10 @@ type Author = {
 
 type DashboardData = {
   featured: BlogPost[];
-  guides: BlogPost[];
   reviews: BlogPost[];
+  guides: BlogPost[];
   podcasts: BlogPost[];
+  faqs: BlogPost[];
   latest: BlogPost[];
   authors: Author[];
 };
@@ -55,23 +56,27 @@ async function getBlogDashboardData(): Promise<DashboardData | null> {
 
   const query = `{
     "featured": *[_type == "blog" && isFeatured == true] | order(publishedAt desc)[0...3] {
-      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
-      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
-    },
-    "guides": *[_type == "blog" && blogType == "guide"] | order(publishedAt desc)[0...3] {
-      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
       categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "reviews": *[_type == "blog" && blogType == "review"] | order(publishedAt desc)[0...3] {
-      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
+    },
+    "guides": *[_type == "blog" && blogType == "guide"] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
       categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "podcasts": *[_type == "blog" && blogType == "podcast"] | order(publishedAt desc)[0...3] {
-      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
+      categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
+    },
+    "faqs": *[_type == "blog" && blogType == "faq"] | order(publishedAt desc)[0...3] {
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
       categories[]->{ _id, title }, tags, viewCount, readTime, blogType, "listingType": coalesce(listingType->value, listingType)
     },
     "latest": *[_type == "blog"] | order(publishedAt desc)[0...7] {
-      _id, title, "slug": slug.current, summary, publishedAt, heroImage, 
+      _id, title, "slug": slug.current, summary, publishedAt, "heroImageUrl": heroImage.asset->url, 
       categories[]->{ _id, title }, tags, viewCount, readTime, blogType, listingType,
       author->{ _id, name, image },
       authors[]->{ _id, name, image }
