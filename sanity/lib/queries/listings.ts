@@ -94,3 +94,23 @@ export const SERVICES_SLUGS_QUERY = groq`
     "id": slug.current
   }
 `;
+
+export const TOP_CRMS_QUERY = groq`
+  *[_type == "directoryListing" && count((subCategory[]->title)[@ in ["Broker CRM", "CRM & pipeline", "Fact Find & document collection"]]) > 0] | order(manualRank asc) [0...49] {
+    _id,
+    title,
+    "slug": slug.current,
+    "logo": logo.asset->url,
+    tagline,
+    rating {
+      average,
+      reviewCount
+    },
+    brokerType,
+    subCategory[]->{
+      title,
+      slug
+    },
+    manualRank
+  }
+`;

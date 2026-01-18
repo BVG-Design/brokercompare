@@ -56,27 +56,15 @@ export const directoryListingType = defineType({
 
     defineField({
       name: 'subCategory',
-      title: 'Sub Category',
-      type: 'reference',
-      to: [{ type: 'subCategory' }],
-      options: {
-        disableNew: false,
-        filter: ({ document }) => {
-          // If a category is selected, filtering subcategories that reference that category would be ideal
-          // But subCategories reference the category, not the other way around in this schema structure?
-          // Let's check subCategory schema again. Yes, subCategory has 'category' reference.
-          // So we want to find subCategories where subCategory.category._ref == document.category._ref
-
-          if (!document?.category) {
-            return { filter: 'true' }
-          }
-          return {
-            filter: 'category._ref == $categoryId',
-            params: { categoryId: (document.category as any)._ref }
-          }
+      title: 'Sub Categories',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'subCategory' }]
         }
-      },
-      description: 'Specific product service type (filters by selected Category)'
+      ],
+      description: 'Specific product service area (filters by selected Category)'
     }),
 
     defineField({
@@ -162,7 +150,7 @@ export const directoryListingType = defineType({
       ],
       description: 'Other software tools this listing integrates with',
       validation: Rule =>
-        Rule.custom((refs, context) => {
+        Rule.unique().custom((refs, context) => {
           if (!refs || !Array.isArray(refs)) return true;
 
           const selfId = context.document?._id;
@@ -282,6 +270,13 @@ export const directoryListingType = defineType({
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Used for search and AI reasoning context.'
+    }),
+
+    defineField({
+      name: 'manualRank',
+      title: 'Manual Rank',
+      type: 'number',
+      description: 'Used for manual ordering in "Top X" lists (1 = highest priority). Leave empty for standard sorting.',
     }),
 
     defineField({

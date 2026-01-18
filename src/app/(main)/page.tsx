@@ -17,6 +17,7 @@ import { QuizWaitlistModal } from '@/components/quiz/quiz-waitlist-modal';
 import BetaConsentModal from "@/components/shared/BetaConsentModal";
 import AIChatDialog from "@/components/partners/AIChatDialog";
 import { SITE_URLS } from '@/lib/config';
+import TopCRMsSection from '@/components/sections/TopCRMsSection';
 
 const Home: React.FC = () => {
 
@@ -83,6 +84,7 @@ const Home: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
+
               <button type="submit" className="bg-brand-orange hover:bg-orange-600 text-white p-3 rounded-lg transition-colors">
                 <Search size={20} />
               </button>
@@ -176,10 +178,13 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* Top 9 CRMs Section */}
+      <TopCRMsSection />
+
 
 
       {/* Promo Grid */}
-      <section className="py-16 bg-white">
+      < section className="py-16 bg-white" >
         <div className="container mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Dark Card */}
@@ -230,10 +235,10 @@ const Home: React.FC = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Categories Grid */}
-      <section className="py-24 bg-brand-cream">
+      < section className="py-24 bg-brand-cream" >
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-brand-blue mb-4">Explore by Category</h2>
@@ -260,12 +265,12 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
-      </section>
+      </section >
 
       {/* Quiz CTA */}
-      <section className="bg-brand-blue py-20 text-center px-4 relative overflow-hidden">
+      < section className="bg-brand-blue py-20 text-center px-4 relative overflow-hidden" >
         {/* Decorative grid overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        < div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" ></div >
 
         <div className="relative z-10 max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to Find Your Perfect Match?</h2>
@@ -276,10 +281,10 @@ const Home: React.FC = () => {
             </button>
           </QuizWaitlistModal>
         </div>
-      </section>
+      </section >
 
       <AIChatDialog open={showAIChat} onOpenChange={setShowAIChat} />
-    </div>
+    </div >
   );
 };
 

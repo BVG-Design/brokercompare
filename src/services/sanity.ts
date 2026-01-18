@@ -288,3 +288,8 @@ export const fetchRelatedArticles = async (limit: number = 3): Promise<any[]> =>
 
   return client.fetch(query);
 };
+
+export const fetchTopCRMs = async (): Promise<any[]> => {
+  const { TOP_CRMS_QUERY } = await import('@/sanity/lib/queries');
+  return await client.fetch(TOP_CRMS_QUERY, {}, { useCdn: false });
+};
