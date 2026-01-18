@@ -16,10 +16,10 @@ export default function PrivacyPage() {
               <Lock className="w-8 h-8" />
             </div>
             <div className="space-y-3">
-              <p className="text-sm uppercase tracking-wider text-primary-foreground/80">Privacy</p>
-              <h1 className="text-4xl font-bold font-headline">Privacy Policy</h1>
+              <p className="text-sm uppercase tracking-wider text-primary-foreground/80">Privacy Policy</p>
+              <h1 className="text-4xl font-bold font-headline">Your Data & Privacy</h1>
               <p className="text-primary-foreground/80 max-w-3xl">
-                How we collect, use, share, and protect your information while you use BrokerCompare.
+                At Broker Tools, we’re taking a human approach in the age of AI. We believe in keeping things simple, clear, and honest.
               </p>
             </div>
           </div>
@@ -74,26 +74,65 @@ export default function PrivacyPage() {
           </Link>
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold">Details</h2>
-          <div className="space-y-3 text-sm text-muted-foreground">
-            <p>
-              <strong className="text-foreground">Sharing:</strong> We do not sell personal data. We share with trusted processors only to operate the service, under agreements that protect your information.
+        <div className="space-y-8 max-w-4xl">
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">1. Your Data & Privacy</h2>
+            <p className="text-muted-foreground">
+              We do not sell your details or data to other brokers, aggregators, or third parties.
             </p>
-            <p>
-              <strong className="text-foreground">Security:</strong> Encryption, access controls, and monitoring help protect stored data. No system is perfect; report issues so we can address them quickly.
+            <div className="pl-4 border-l-2 border-primary/20 space-y-4">
+              <div>
+                <strong className="block text-foreground mb-1">What we collect:</strong>
+                <p className="text-muted-foreground">When you participate in our surveys or sign up for updates, we may collect information like your email address, survey responses, and basic details about your brokerage. We only collect what&apos;s necessary to understand the broker technology landscape.</p>
+              </div>
+              <div>
+                <strong className="block text-foreground mb-1">How we use it:</strong>
+                <p className="text-muted-foreground">Your responses help us research and map out how the tools available are being used and their potential for improvement. We may use anonymous, aggregated insights (e.g. &quot;X% of brokers said…&quot;), but your personal details remain private and are never shared in a way that identifies you.</p>
+              </div>
+              <div>
+                <strong className="block text-foreground mb-1">How we protect it:</strong>
+                <p className="text-muted-foreground">We store your information securely and only keep it for as long as needed for our research purposes.</p>
+              </div>
+              <div>
+                <strong className="block text-foreground mb-1">Third-party tools:</strong>
+                <p className="text-muted-foreground">We use trusted services with SOC II compliance to collect and manage responses. These providers are bound by their own privacy policies and only process data on our behalf.</p>
+              </div>
+              <div>
+                <strong className="block text-foreground mb-1">Your rights:</strong>
+                <p className="text-muted-foreground">You can request to see, update, or delete your personal information at any time by contacting us at <a href="mailto:privacy@brokertools.com" className="text-primary hover:underline">privacy@brokertools.com</a>. You are always in control of what you choose to share.</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">2. Affiliate & Advertising</h2>
+            <p className="text-muted-foreground">
+              Sometimes, we may recommend products or services we believe could truly benefit brokers.
             </p>
-            <p>
-              <strong className="text-foreground">Retention:</strong> We keep data only as long as needed for the purposes described or to meet legal obligations, then delete or anonymize it.
+            <p className="text-muted-foreground">
+              If you decide to click on a link and purchase, we may earn a small commission at no extra cost to you. These are called affiliate links, and we&apos;ll always be transparent when we use them.
             </p>
-            <p>
-              <strong className="text-foreground">Cookies:</strong> We use cookies to keep you signed in and to measure usage. You can manage cookies through your browser settings.
+            <div className="pl-4 border-l-2 border-primary/20 space-y-4">
+              <div>
+                <strong className="block text-foreground mb-1">Our independence:</strong>
+                <p className="text-muted-foreground">These partnerships help keep Broker Tools sustainable, but they don&apos;t influence our research or recommendations. We&apos;ll only promote tools we genuinely see value in for you, and we&apos;ll never let commissions drive what we recommend.</p>
+              </div>
+            </div>
+            <p className="text-muted-foreground font-medium">
+              You&apos;re never obligated to use our links, and our content remains helpful regardless of whether you do.
             </p>
-            <p>
-              <strong className="text-foreground">International transfers:</strong> Data may be processed in other regions with appropriate safeguards in place.
-            </p>
-            <p>
-              <strong className="text-foreground">Contact:</strong> Privacy questions? Email our support team and we will respond.
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold">3. Our Promise</h2>
+            <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
+              <li><strong>No selling of your personal information.</strong></li>
+              <li><strong>No spam:</strong> We&apos;ll only contact you if you&apos;ve opted in, and you can unsubscribe anytime.</li>
+              <li><strong>No hidden tricks:</strong> If something changes, we&apos;ll tell you.</li>
+              <li><strong>Your control:</strong> You can request to access, update, or delete your data at any time by contacting us at <a href="mailto:privacy@brokertools.com" className="text-primary hover:underline">privacy@brokertools.com</a>.</li>
+            </ul>
+            <p className="text-lg font-medium text-primary pt-2">
+              We exist to make broker tools simpler, not more complicated.
             </p>
           </div>
         </div>
