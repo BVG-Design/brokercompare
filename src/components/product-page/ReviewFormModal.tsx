@@ -1,13 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { X, ThumbsUp, ThumbsDown, Send, CheckCircle2, Sparkles } from 'lucide-react';
+import { X, ThumbsUp, ThumbsDown, Send, CheckCircle2, User } from 'lucide-react';
 
 interface ReviewFormModalProps {
   open: boolean;
   onClose: () => void;
   onSubmit?: (data: any) => void;
   listingName?: string;
-  isAuthenticated?: boolean;
-  onRequestLogin?: () => void;
+  // Auth props removed as part of guest review changes
 }
 
 type MetricKey = 'setup' | 'usability' | 'support' | 'value' | 'reliability';
@@ -22,9 +21,7 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
   open,
   onClose,
   onSubmit,
-  listingName = 'this listing',
-  isAuthenticated = false,
-  onRequestLogin
+  listingName = 'this listing'
 }) => {
   const [metrics, setMetrics] = useState<Record<MetricKey, number>>({
     setup: 0,
@@ -39,6 +36,13 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
   const [pros, setPros] = useState('');
   const [cons, setCons] = useState('');
   const [recommendations, setRecommendations] = useState<string[]>([]);
+
+  // Guest Review Fields
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [businessName, setBusinessName] = useState('');
+  const [role, setRole] = useState('');
 
   // Calculate Overall Rating as the average of all metrics
   const overallRating = useMemo(() => {
@@ -62,8 +66,9 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated) {
-      onRequestLogin?.();
+
+    // Required field validation (in addition to HTML required attribute)
+    if (!firstName || !lastName || !email) {
       return;
     }
 
@@ -75,7 +80,13 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
         content,
         pros,
         cons,
-        recommendations
+        recommendations,
+        // Guest fields
+        firstName,
+        lastName,
+        email,
+        businessName,
+        role
       });
     }
 
@@ -86,13 +97,18 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
     setPros('');
     setCons('');
     setRecommendations([]);
+    setFirstName('');
+    setLastName('');
+    setEmail('');
+    setBusinessName('');
+    setRole('');
   };
 
   const ThumbsUpRatingField = ({ label, value, onChange }: { label: string, value: number, onChange: (v: number) => void }) => {
     const [hover, setHover] = useState(0);
 
     return (
-      <div className={`flex flex-col gap-1 ${!isAuthenticated ? 'opacity-60 pointer-events-none' : ''}`}>
+      <div className="flex flex-col gap-1">
         <div className="flex items-center justify-between">
           <label className="text-xs font-bold text-gray-700 uppercase tracking-wider">{label}</label>
           <span className="text-xs font-bold text-brand-orange">{value > 0 ? value.toFixed(1) : '-'}</span>
@@ -107,7 +123,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 onMouseEnter={() => setHover(iconIdx - 0.5)}
                 onClick={() => onChange(iconIdx - 0.5)}
                 aria-label={`${label} ${iconIdx - 0.5} stars`}
-                disabled={!isAuthenticated}
               />
               {/* Right half for whole increments */}
               <button
@@ -116,7 +131,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 onMouseEnter={() => setHover(iconIdx)}
                 onClick={() => onChange(iconIdx)}
                 aria-label={`${label} ${iconIdx} stars`}
-                disabled={!isAuthenticated}
               />
               <div className="relative">
                 <ThumbsUp
@@ -162,22 +176,68 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
 
         <form onSubmit={handleSubmit} className="p-6 space-y-8">
 
-          {!isAuthenticated && (
-            <div className="rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800 flex items-start gap-3">
-              <Sparkles className="w-4 h-4 mt-0.5 text-blue-700" />
-              <div className="space-y-1">
-                <p className="font-semibold">Login required to submit</p>
-                <p className="text-blue-700/90">Sign in to save your review and have it count toward the marketplace score.</p>
-                <button
-                  type="button"
-                  onClick={onRequestLogin}
-                  className="inline-flex items-center px-3 py-1.5 bg-blue-700 text-white rounded-md text-xs font-semibold hover:bg-blue-800 transition-colors"
-                >
-                  Login to continue
-                </button>
+          {/* Personal Details Section */}
+          <div className="bg-blue-50/50 rounded-2xl border border-blue-100 p-6 space-y-4">
+            <div className="flex items-center gap-2 mb-2">
+              <User size={18} className="text-brand-blue" />
+              <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest">About You</h3>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">First Name <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  required
+                  value={firstName}
+                  onChange={e => setFirstName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue"
+                  placeholder="e.g. Sarah"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">Last Name <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  required
+                  value={lastName}
+                  onChange={e => setLastName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue"
+                  placeholder="e.g. Smith"
+                />
+              </div>
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-xs font-bold text-gray-700">Email Address <span className="text-red-500">*</span></label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue"
+                  placeholder="e.g. sarah@example.com"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">Business Name</label>
+                <input
+                  type="text"
+                  value={businessName}
+                  onChange={e => setBusinessName(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue"
+                  placeholder="e.g. Acme Finance"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-gray-700">Role / Job Title</label>
+                <input
+                  type="text"
+                  value={role}
+                  onChange={e => setRole(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue"
+                  placeholder="e.g. Senior Broker"
+                />
               </div>
             </div>
-          )}
+          </div>
 
           {/* Detailed Ratings Section */}
           <div className="bg-gray-50/50 rounded-2xl border border-gray-100 p-6 space-y-6">
@@ -211,7 +271,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               placeholder="e.g., The best project management tool I've used"
               className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all shadow-sm font-bold"
               required
-              disabled={!isAuthenticated}
             />
           </div>
 
@@ -225,7 +284,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
               rows={4}
               className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-orange focus:border-transparent text-sm transition-all resize-none shadow-sm font-medium"
               required
-              disabled={!isAuthenticated}
             />
           </div>
 
@@ -241,7 +299,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 placeholder="What impressed you the most?"
                 rows={3}
                 className="w-full px-4 py-3 bg-emerald-50/30 border border-emerald-100 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
-                disabled={!isAuthenticated}
               />
             </div>
             <div className="space-y-1.5">
@@ -254,7 +311,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                 placeholder="What could be better?"
                 rows={3}
                 className="w-full px-4 py-3 bg-rose-50/30 border border-rose-100 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent text-sm transition-all resize-none shadow-sm"
-                disabled={!isAuthenticated}
               />
             </div>
           </div>
@@ -270,7 +326,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
                   key={type.id}
                   type="button"
                   onClick={() => toggleRecommendation(type.id)}
-                  disabled={!isAuthenticated}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full border text-xs font-bold transition-all shadow-sm ${recommendations.includes(type.id)
                     ? 'bg-brand-orange text-white border-brand-orange'
                     : 'bg-white text-gray-600 border-gray-200 hover:border-brand-orange/20'
@@ -295,7 +350,6 @@ const ReviewFormModal: React.FC<ReviewFormModalProps> = ({
             <button
               type="submit"
               className="px-8 py-2.5 bg-[#0f172a] hover:bg-black text-white rounded-xl text-sm font-bold transition-all flex items-center gap-2 shadow-lg shadow-gray-300 active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-              disabled={!isAuthenticated}
             >
               Submit Review <Send size={14} />
             </button>

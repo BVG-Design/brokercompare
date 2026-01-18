@@ -172,7 +172,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         Write Review
                                     </button>
 
-                                    <Link
+                                    {/* <Link
                                         href="/compare"
                                         className={`bg-brand-green hover:bg-brand-green text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                     >
@@ -180,7 +180,7 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         <span className="flex items-center justify-center w-5 h-5 rounded border-2 border-white/80 bg-white/10 text-white font-bold leading-none">
                                             <Plus size={12} />
                                         </span>
-                                    </Link>
+                                    </Link> */}
                                 </div>
 
                                 {/* Key Features */}

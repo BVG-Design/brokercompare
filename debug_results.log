@@ -1,0 +1,4 @@
+--- Testing fetchDirectoryListings ---
+1. brokerType: 'all' -> Count: 0
+2. brokerType: 'mortgage' (lowercase) -> Count: 0
+3. brokerType: 'Mortgage' (capitalized) -> Count: 0

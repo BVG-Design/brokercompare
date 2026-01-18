@@ -171,7 +171,7 @@ export const fetchDirectoryListings = async (filters: {
   const query = `*[_type == "directoryListing"
     ${category && category !== 'all' ? '&& (category->slug.current == $category || $category in categories[]->slug.current)' : ''}
     ${subCategory && subCategory !== 'all' ? '&& $subCategory in subCategory[]->slug.current' : ''}
-    ${brokerType && brokerType !== 'all' ? '&& $brokerType in brokerType' : ''}
+    ${brokerType && brokerType !== 'all' ? '&& ($brokerType in brokerType || brokerType[] match $brokerType + "*")' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
     ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
     ${search ? '&& (title match $search || description match $search || synonyms[] match $search || subCategory[]->title match $search)' : ''}
@@ -243,6 +243,17 @@ export const fetchCategories = async (): Promise<{ title: string, value: string 
   return await client.fetch(query);
 };
 
+export const fetchSubCategories = async (categorySlug?: string): Promise<{ title: string, value: string }[]> => {
+  let query = `*[_type == "subCategory" && defined(slug.current)]`;
+  if (categorySlug && categorySlug !== 'all') {
+    query += ` && $categorySlug in categories[]->slug.current`;
+  }
+  query += ` { title, "value": slug.current } | order(title asc)`;
+
+  const params = categorySlug && categorySlug !== 'all' ? { categorySlug } : {};
+  return await client.fetch(query, params);
+};
+
 import { DirectoryProxy } from '@/sanity/lib/proxy';
 
 import { SEARCH_INTENT_NAV_QUERY } from '@/sanity/lib/queries';
@@ -291,4 +302,42 @@ export const fetchRelatedArticles = async (limit: number = 3): Promise<any[]> =>
   }`;
 
   return client.fetch(query);
+};
+
+export const fetchFaqPosts = async (filters: {
+  category?: string;
+  subCategory?: string;
+  brokerType?: string;
+  search?: string;
+} = {}): Promise<any[]> => {
+  const { category, subCategory, brokerType, search } = filters;
+
+  const query = `*[_type == "blog" && blogType == "faq"
+    ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
+    ${subCategory && subCategory !== 'all' ? '&& $subCategory in subCategory[]->slug.current' : ''}
+    ${brokerType && brokerType !== 'all' ? '&& ($brokerType in brokerType || brokerType[] match $brokerType + "*")' : ''}
+    ${search ? '&& (title match $search + "*" || summary match $search + "*")' : ''}
+  ] | order(_createdAt desc) {
+    _id,
+    "slug": slug.current,
+    "title": title,
+    "summary": summary,
+    "category": category->{
+      title,
+      "slug": slug.current
+    },
+    "subCategories": subCategory[]->{
+      title,
+      "slug": slug.current
+    },
+    brokerType
+  }`;
+
+  const params: Record<string, any> = {};
+  if (category && category !== 'all') params.category = category;
+  if (subCategory && subCategory !== 'all') params.subCategory = subCategory;
+  if (brokerType && brokerType !== 'all') params.brokerType = brokerType;
+  if (search) params.search = search;
+
+  return client.fetch(query, params);
 };
