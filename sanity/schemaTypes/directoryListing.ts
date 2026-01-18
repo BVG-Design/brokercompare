@@ -55,6 +55,19 @@ export const directoryListingType = defineType({
     }),
 
     defineField({
+      name: 'subCategory',
+      title: 'Sub Categories',
+      type: 'array',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'subCategory' }]
+        }
+      ],
+      description: 'Specific product service area (filters by selected Category)'
+    }),
+
+    defineField({
       name: 'logo',
       title: 'Logo',
       type: 'image',
@@ -120,12 +133,7 @@ export const directoryListingType = defineType({
       ]
     }),
 
-    defineField({
-      name: 'serviceAreas',
-      title: 'Service Areas',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
-    }),
+
 
     defineField({
       name: 'worksWith',
@@ -142,7 +150,7 @@ export const directoryListingType = defineType({
       ],
       description: 'Other software tools this listing integrates with',
       validation: Rule =>
-        Rule.custom((refs, context) => {
+        Rule.unique().custom((refs, context) => {
           if (!refs || !Array.isArray(refs)) return true;
 
           const selfId = context.document?._id;
@@ -152,6 +160,20 @@ export const directoryListingType = defineType({
 
           return hasSelfReference ? 'A listing cannot reference itself in Works With.' : true;
         })
+    }),
+
+    defineField({
+      name: 'resources',
+      title: 'Resources (Featured Articles)',
+      type: 'array',
+      description: 'Select up to 3 resources (blogs/guides) to display on the listing page. If empty, the 3 most recent articles will be shown.',
+      of: [
+        {
+          type: 'reference',
+          to: [{ type: 'blog' }]
+        }
+      ],
+      validation: Rule => Rule.max(3)
     }),
 
     defineField({
@@ -248,6 +270,13 @@ export const directoryListingType = defineType({
       type: 'array',
       of: [{ type: 'string' }],
       description: 'Used for search and AI reasoning context.'
+    }),
+
+    defineField({
+      name: 'manualRank',
+      title: 'Manual Rank',
+      type: 'number',
+      description: 'Used for manual ordering in "Top X" lists (1 = highest priority). Leave empty for standard sorting.',
     }),
 
     defineField({

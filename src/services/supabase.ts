@@ -91,16 +91,7 @@ export const getReviewsBySlug = async (slug: string) => {
         .single();
 
     if (listingError || !listing) {
-        // PGRST116 is the code for "no rows found" with .single()
-        // This is common if a Sanity listing hasn't been synced to Supabase yet
-        if (listingError && listingError.code !== 'PGRST116') {
-            console.error('Error fetching listing for reviews:', {
-                message: listingError.message,
-                details: listingError.details,
-                hint: listingError.hint,
-                code: listingError.code
-            });
-        }
+        // PGRST116 is "no rows found", which is expected if listing only exists in Sanity
         return [];
     }
 

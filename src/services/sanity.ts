@@ -1,6 +1,7 @@
 import { client } from '@/../sanity/lib/client';
 import { UNIFIED_SEARCH_QUERY } from '@/sanity/lib/queries';
 import { DirectoryListing, ResourcePost } from '@/types';
+import { SITE_URLS } from '@/lib/config';
 
 export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
   const query = `*[_type in ["blog", "product", "serviceProvider"] && isFeatured == true]{
@@ -13,7 +14,14 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     featuredLabel,
     "slug": slug.current,
     "imageUrl": heroImage.asset->url, 
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     "listingType": coalesce(listingType->value, listingType),
     blogType
   }`;
@@ -27,7 +35,7 @@ export const fetchResourcePosts = async (): Promise<ResourcePost[]> => {
     category: item.featuredLabel || 'RESOURCE',
     ctaText: item._type === 'blog' ? 'Read' : 'Explore',
     imageUrl: item.imageUrl || item.logoUrl, // Fallback logic
-    link: item._type === 'blog' ? `/blog/${item.slug}` : `/directory/${item.slug}`,
+    link: item._type === 'blog' ? `${SITE_URLS.resources}/blog/${item.slug}` : `${SITE_URLS.directory}/listings/${item.slug}`,
     featuredLabel: item.featuredLabel,
     listingType: item.listingType,
     blogType: item.blogType
@@ -58,7 +66,7 @@ export const fetchHomepageResourceCards = async (): Promise<ResourcePost[]> => {
       category: defaultCategory,
       ctaText: 'EXPLORE',
       imageUrl: item.imageUrl,
-      link: `/blog/${item.slug}`,
+      link: `${SITE_URLS.resources}/blog/${item.slug}`,
       blogType: item.blogType
     };
   };
@@ -89,26 +97,35 @@ export interface UnifiedSearchResult {
   features?: string[];
   rating?: number;
   reviews?: number;
+  websiteUrl?: string;
 }
 
 export const fetchUnifiedSearchResults = async (
   searchTerms: string[],
   contentTypes: string[],
-  filters?: { category?: string; brokerType?: string; type?: string }
+  filters?: { category?: string; brokerType?: string; type?: string; author?: string; subCategory?: string }
 ): Promise<UnifiedSearchResult[]> => {
   const normalizedTerms = searchTerms.map((term) => term.trim()).filter(Boolean);
-  if (normalizedTerms.length === 0 || contentTypes.length === 0) {
+  if (contentTypes.length === 0) {
     return [];
   }
 
-  const searchPatterns = normalizedTerms.map((term) => `${term}*`);
-  const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, {
+  console.log('[fetchUnifiedSearchResults] params:', { searchTerms, contentTypes, filters, normalizedTerms });
+
+  const searchPatterns = normalizedTerms;
+  const params = {
     searchTerms: searchPatterns,
     contentTypes,
     category: filters?.category && filters.category !== 'all' ? filters.category : null,
     brokerType: filters?.brokerType && filters.brokerType !== 'all' ? filters.brokerType : null,
-    listingType: filters?.type && filters.type !== 'all' ? filters.type : null
-  }, { useCdn: false });
+    listingType: filters?.type && filters.type !== 'all' ? filters.type : null,
+    author: filters?.author && filters.author !== 'all' ? filters.author : null,
+    subCategory: filters?.subCategory && filters.subCategory !== 'all' ? filters.subCategory : null
+  };
+  console.log('[fetchUnifiedSearchResults] executing query with params:', params);
+
+  const results = await client.fetch<UnifiedSearchResult[]>(UNIFIED_SEARCH_QUERY, params, { useCdn: false });
+  console.log('[fetchUnifiedSearchResults] raw results count:', results.length);
 
   // Deduplicate by slug (preferring directoryListing, then product/serviceProvider, then blog)
   const slugFirst = new Map<string, UnifiedSearchResult>();
@@ -147,20 +164,30 @@ export const fetchDirectoryListings = async (filters: {
   blogType?: string;
   tier?: string;
   search?: string;
+  subCategory?: string;
 } = {}): Promise<DirectoryListing[]> => {
-  const { category, brokerType, tier, search, listingType } = filters;
+  const { category, brokerType, tier, search, listingType, subCategory } = filters;
 
   const query = `*[_type == "directoryListing"
-    ${category && category !== 'all' ? '&& category->slug.current == $category' : ''}
+    ${category && category !== 'all' ? '&& (category->slug.current == $category || $category in categories[]->slug.current)' : ''}
+    ${subCategory && subCategory !== 'all' ? '&& $subCategory in subCategory[]->slug.current' : ''}
+    ${brokerType && brokerType !== 'all' ? '&& $brokerType in brokerType' : ''}
     ${tier && tier !== 'all' ? `&& isFeatured == ${tier === 'featured'}` : ''}
     ${listingType && listingType !== 'all' ? '&& (listingType == $listingType || listingType->value == $listingType || listingType->title == $listingType)' : ''}
-    ${search ? '&& (title match $search + "*" || description match $search + "*")' : ''}
+    ${search ? '&& (title match $search || description match $search || synonyms[] match $search || subCategory[]->title match $search)' : ''}
   ]{
     _id,
     _type,
     "name": title,
     description,
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
     "categories": [category->title],
     brokerType,
     "slug": slug.current,
@@ -170,11 +197,17 @@ export const fetchDirectoryListings = async (filters: {
     websiteURL,
     pricing,
     "listingType": coalesce(listingType->value, listingType->title, listingType),
+    "badgePriority": (badges[]->priority | order(@ asc))[0],
+    "badges": badges[]->title,
+    synonyms,
+    "tagline": tagline,
     isFeatured
   }`;
 
   const params: Record<string, any> = {};
   if (category && category !== 'all') params.category = category;
+  if (subCategory && subCategory !== 'all') params.subCategory = subCategory;
+  if (brokerType && brokerType !== 'all') params.brokerType = brokerType;
   if (search) params.search = search;
   if (listingType && listingType !== 'all') params.listingType = listingType;
 
@@ -197,7 +230,11 @@ export const fetchDirectoryListings = async (filters: {
     viewCount: item.viewCount,
     websiteUrl: item.websiteURL,
     pricingModel: item.pricing?.type,
-    type: item.listingType
+    type: item.listingType,
+    badgePriority: item.badgePriority,
+    badges: item.badges || [],
+    synonyms: item.synonyms || [],
+    tagline: item.tagline
   }));
 };
 

@@ -1,4 +1,5 @@
 "use client";
+import { SITE_URLS } from "@/lib/config";
 
 // NOT used - MainLayout.tsx is used instead
 // If you are editing this file and not seeing changes, edit MainLayout.tsx
@@ -22,11 +23,10 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 const navItems = [
-  { href: "/directory", label: "Directory" },
-  { href: "/directory?category=services", label: "Services" },
-  { href: "/directory?category=software", label: "Software" },
-  { href: "/recommendations", label: "AI Recommender" },
-  { href: "/blog", label: "Blog" },
+  { href: `${SITE_URLS.directory}/search`, label: "Directory" },
+  { href: `${SITE_URLS.resources}/blog?blogType=review`, label: "Tech Reviews" },
+  { href: `${SITE_URLS.resources}/blog?blogType=podcast`, label: "Podcasts" },
+  { href: `${SITE_URLS.resources}/blog`, label: "Resources" },
 ];
 
 interface User {
@@ -58,7 +58,7 @@ export function Header() {
               key={item.href}
               href={item.href}
               className={cn(
-                "text-sm font-bold transition-colors hover:text-accent",
+                "text-base font-bold transition-colors hover:text-accent",
                 pathname.startsWith(item.href) ? "text-white" : "text-white"
               )}
             >

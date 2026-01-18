@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { SITE_URLS } from '@/lib/config';
 import Image from 'next/image';
 import { useComparison } from './ComparisonContext';
 import { Button } from '@/components/ui/button';
@@ -101,7 +102,7 @@ export function ComparisonBar() {
 
             {items.length > 1 ? (
               <Button asChild className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                <Link href="/compare">
+                <Link href={`${SITE_URLS.directory}/compare`}>
                   Compare Now ({items.length})
                 </Link>
               </Button>

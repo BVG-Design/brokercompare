@@ -65,8 +65,50 @@ const getCategoryScore = (
 const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGroups }) => {
   if (!featureGroups.length) {
     return (
-      <div className="bg-white border border-gray-200 rounded-xl p-6 text-sm text-gray-600">
-        No comparison data available yet.
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden relative min-h-[400px]">
+        {/* Blurred Content Placeholder */}
+        <div className="absolute inset-0 z-0 opacity-30 blur-sm pointer-events-none select-none overflow-hidden">
+          <div className="p-8 space-y-8">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="space-y-4">
+                <div className="h-8 bg-gray-200 rounded w-1/4"></div>
+                <div className="grid grid-cols-4 gap-4">
+                  <div className="h-24 bg-gray-100 rounded"></div>
+                  <div className="h-24 bg-gray-100 rounded"></div>
+                  <div className="h-24 bg-gray-100 rounded"></div>
+                  <div className="h-24 bg-gray-100 rounded"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Overlay Content */}
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white/60 backdrop-blur-sm p-8 text-center">
+          <div className="max-w-md space-y-6">
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900">
+              {products.length > 0
+                ? `${products.map(p => p.name).join(', ')} ${products.length === 1 ? 'is' : 'are'} under assessment`
+                : 'Products are under assessment'
+              }
+            </h3>
+
+            <p className="text-gray-500 font-medium leading-relaxed">
+              Our team is currently reviewing the feature sets for these products. Join the waitlist to get notified when the detailed comparison is ready.
+            </p>
+
+            <button
+              className="inline-flex items-center justify-center px-8 py-3 text-sm font-bold text-white transition-all bg-brand-blue rounded-md shadow-lg hover:bg-brand-blue/90 hover:shadow-brand-blue/20 active:scale-95 uppercase tracking-wider"
+              onClick={() => alert('Added to waitlist!')}
+            >
+              Join Waitlist
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -111,7 +153,7 @@ const ComparisonMatrix: React.FC<ComparisonMatrixProps> = ({ products, featureGr
                     );
                   })}
                 </tr>
-                {group.features.map((feature) => (
+                {(group.features || []).map((feature) => (
                   <tr key={feature.title}>
                     <td className="px-4 py-3 text-sm font-medium text-gray-700">{feature.title}</td>
                     {products.map((p) => (

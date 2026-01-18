@@ -20,26 +20,13 @@ interface InfoGridProps {
 }
 
 const InfoGrid: React.FC<InfoGridProps> = ({ listing, blogs = [], reviews = [] }) => {
-    const { editor, worksWith = [], rating, name, slug, serviceArea = [], brokerType = [], trustMetrics } = listing;
+    const { editor, worksWith = [], rating, name, slug, brokerType = [], trustMetrics } = listing;
     const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
     const triggerReviewModal = () => {
         if (typeof window !== 'undefined') {
             window.dispatchEvent(new Event('open-review-modal'));
         }
-    };
-
-    // Helper function to get tooltip description for service areas
-    const getServiceAreaDescription = (area: string): string => {
-        const descriptions: Record<string, string> = {
-            'Managed IT': 'Comprehensive IT management and support services',
-            'Cybersecurity': 'Security services to protect your business from threats',
-            'Microsoft 365': 'Microsoft 365 implementation, management, and support',
-            'Cloud Infrastructure': 'Cloud computing and infrastructure services',
-            'Helpdesk Support': 'Technical support and helpdesk services',
-            'Network Management': 'Network setup, monitoring, and management',
-        };
-        return descriptions[area] || `${area} services`;
     };
 
     // Helper function to get tooltip description for broker types

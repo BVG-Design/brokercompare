@@ -2,34 +2,27 @@
 
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Star, ExternalLink, ShieldCheck, CheckCircle2, Plus, Brain } from 'lucide-react';
 import { SoftwareListing } from './types';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import {
     Tooltip,
     TooltipContent,
     TooltipProvider,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
+import ContactModal from './ContactModal';
+import ReviewFormModal from './ReviewFormModal';
+import { trackOutboundListingClick } from '@/lib/mixpanel';
+import { useAuth } from '@/hooks/use-auth';
 
 interface MainCardProps {
     listing: SoftwareListing;
 }
 
-// Helper function to get tooltip description for service areas
-const getServiceAreaDescription = (area: string): string => {
-    const descriptions: Record<string, string> = {
-        'Managed IT': 'Comprehensive IT management and support services',
-        'Cybersecurity': 'Security services to protect your business from threats',
-        'Microsoft 365': 'Microsoft 365 implementation, management, and support',
-        'Cloud Infrastructure': 'Cloud computing and infrastructure services',
-        'Helpdesk Support': 'Technical support and helpdesk services',
-        'Network Management': 'Network setup, monitoring, and management',
-    };
-    return descriptions[area] || `${area} services`;
-};
+
 
 // Helper function to get tooltip description for broker types
 const getBrokerTypeDescription = (type: string): string => {
@@ -60,40 +53,30 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
         websiteUrl,
         features = [],
         pricing,
-        serviceArea = [],
         brokerType = [],
         logoUrl,
         rating,
         category
     } = listing;
 
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [showReviewModal, setShowReviewModal] = useState(false);
+    const [imageError, setImageError] = useState(false);
+
     const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+    const { user } = useAuth();
+
+    const handleLogin = () => {
+        router.push(`/login?next=${encodeURIComponent(pathname)}`);
+    };
     const averageRating = rating?.average || 0;
     const reviewCount = rating?.count || 0;
 
-    const utmMedium = useMemo(() => {
-        const mediumParam = searchParams?.get('utm_medium') || '';
-        const sourceParam = searchParams?.get('source') || searchParams?.get('ref') || '';
-        const mediumIsAiChat = mediumParam.toLowerCase() === 'aichat';
-        const sourceIsAiChat = sourceParam.toLowerCase() === 'ai_chat';
-        if (mediumIsAiChat || sourceIsAiChat) {
-            return 'AIChat';
-        }
-        return 'profile';
-    }, [searchParams]);
+    // UTM logic is handled by trackOutboundListingClick helper now
 
-    const trackedWebsiteUrl = useMemo(() => {
-        if (!websiteUrl) return null;
-        try {
-            const normalisedUrl = websiteUrl.startsWith('http') ? websiteUrl : `https://${websiteUrl}`;
-            const url = new URL(normalisedUrl);
-            url.searchParams.set('utm_source', 'BrokerTools');
-            url.searchParams.set('utm_medium', utmMedium);
-            return url.toString();
-        } catch {
-            return websiteUrl;
-        }
-    }, [websiteUrl, utmMedium]);
+    // UTM logic is handled by trackOutboundListingClick helper now
 
     const actionButtonClasses = "min-w-[160px] justify-center";
 
@@ -107,10 +90,15 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                         <div className="flex gap-6">
                             {/* Logo Box */}
                             <div className="w-20 h-20 bg-white border border-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center p-2 overflow-hidden shadow-sm">
-                                {logoUrl ? (
-                                    <img src={logoUrl} alt={`${name} logo`} className="w-full h-full object-contain" />
+                                {logoUrl && !imageError ? (
+                                    <img
+                                        src={logoUrl}
+                                        alt={`${name} logo`}
+                                        className="w-full h-full object-contain"
+                                        onError={() => setImageError(true)}
+                                    />
                                 ) : (
-                                    <div className="text-gray-400 font-bold text-3xl">{name.charAt(0)}</div>
+                                    <div className="text-gray-400 font-bold text-3xl">{name?.charAt(0) || 'B'}</div>
                                 )}
                             </div>
 
@@ -162,9 +150,10 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                 </p>
 
                                 <div className="flex flex-wrap gap-3 mb-8">
-                                    {trackedWebsiteUrl && (
+                                    {websiteUrl && (
                                         <a
-                                            href={trackedWebsiteUrl}
+                                            href={websiteUrl}
+                                            onClick={(e) => trackOutboundListingClick(e, listing, 'listing_profile', 'Visit Website')}
                                             target="_blank"
                                             rel="noreferrer"
                                             className={`bg-brand-orange hover:bg-orange-600 text-white px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
@@ -174,13 +163,14 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         </a>
                                     )}
 
-                                    <Link
-                                        href="/write-review"
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowReviewModal(true)}
                                         className={`bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-5 py-2 rounded-md font-medium text-sm flex items-center gap-2 transition-colors transition-transform hover:-translate-y-0.5 shadow-sm hover:shadow-md ${actionButtonClasses}`}
                                     >
                                         <ShieldCheck size={14} />
                                         Write Review
-                                    </Link>
+                                    </button>
 
                                     <Link
                                         href="/compare"
@@ -242,34 +232,29 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
 
                         <button
                             type="button"
-                            className="w-full mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
+                            onClick={() => setShowContactModal(true)}
+                            className="w-full mb-6 inline-flex items-center justify-center gap-2 rounded-md bg-primary hover:bg-primary/90 px-4 py-2 text-sm font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-gray-50 transition-colors"
                         >
-                            Shortlist
+                            Contact {name}
                             <Plus size={14} />
                         </button>
 
-                        {serviceArea.length > 0 && (
-                            <div className="mb-6">
-                                <h4 className="text-xs font-semibold text-gray-900 mb-2 uppercase tracking-wide">Service Areas</h4>
-                                <TooltipProvider>
-                                    <div className="flex flex-wrap gap-2">
-                                        {serviceArea.map((area, idx) => (
-                                            <Tooltip key={idx}>
-                                                <TooltipTrigger asChild>
-                                                    <span className="px-2 py-1 bg-white border border-gray-200 rounded text-xs text-gray-600 cursor-pointer group relative inline-flex items-center gap-1">
-                                                        {area}
-                                                        <Brain className="w-3 h-3 text-gray-400 group-hover:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                                    </span>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>{getServiceAreaDescription(area)}</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        ))}
-                                    </div>
-                                </TooltipProvider>
-                            </div>
-                        )}
+                        <ContactModal
+                            open={showContactModal}
+                            onOpenChange={setShowContactModal}
+                            businessName={name}
+                            logoUrl={logoUrl}
+                        />
+
+                        <ReviewFormModal
+                            open={showReviewModal}
+                            onClose={() => setShowReviewModal(false)}
+                            listingName={name}
+                            isAuthenticated={!!user}
+                            onRequestLogin={handleLogin}
+                        />
+
+
 
                         {brokerType.length > 0 && (
                             <div>
@@ -279,9 +264,9 @@ const MainCard: React.FC<MainCardProps> = ({ listing }) => {
                                         {brokerType.map((type, idx) => (
                                             <Tooltip key={idx}>
                                                 <TooltipTrigger asChild>
-                                                    <span className="px-2 py-1 bg-purple-50 text-purple-700 border border-purple-100 rounded text-xs cursor-pointer group relative inline-flex items-center gap-1">
+                                                    <span className="px-2 py-1 bg-blue-50 text-primary border border-blue-100 rounded text-xs cursor-pointer group relative inline-flex items-center gap-1">
                                                         {type}
-                                                        <Brain className="w-3 h-3 text-purple-500 group-hover:text-purple-700 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <Brain className="w-3 h-3 text-primary/50 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                                                     </span>
                                                 </TooltipTrigger>
                                                 <TooltipContent>

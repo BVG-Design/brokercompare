@@ -47,7 +47,7 @@ const ReviewsSection: React.FC<ReviewsSectionProps> = ({ listingName = 'this lis
         listingName: listingName
       };
 
-      const { submitReview } = await import('@/app/actions/submit-review');
+      const { submitReview } = await import('@/app/(main)/actions/submit-review');
       const result = await submitReview(payload);
 
       if (result.success) {

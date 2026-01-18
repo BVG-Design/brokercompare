@@ -18,8 +18,14 @@ export const DIRECTORY_LISTING_QUERY = groq`
       title,
       "slug": slug.current
     },
-    "logoUrl": logo.asset->url,
-    websiteURL,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url
+    ),
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     brokerType,
     "similarTo": similarTo[]{
       priority,
@@ -27,7 +33,13 @@ export const DIRECTORY_LISTING_QUERY = groq`
         title,
         listingType,
         "slug": slug.current,
-        "logoUrl": logo.asset->url
+        "logoUrl": select(
+          defined(logo.asset->url) => logo.asset->url,
+          defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+          defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+          defined(images[0].asset->url) => images[0].asset->url,
+          defined(mainImage.asset->url) => mainImage.asset->url
+        )
       }
     },
     "serviceProviders": serviceProviders[]->{
@@ -36,8 +48,14 @@ export const DIRECTORY_LISTING_QUERY = groq`
       listingType,
       "slug": slug.current,
       description,
-      "logoUrl": logo.asset->url,
-      websiteURL,
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      ),
+      "websiteUrl": coalesce(websiteURL, websiteUrl),
       brokerType,
       "badges": badges[]->{
         title,
@@ -64,7 +82,6 @@ export const DIRECTORY_LISTING_QUERY = groq`
     pricing,
     trustMetrics,
     viewCount,
-    "serviceAreas": serviceAreas[]->{ title, group },
     "worksWith": worksWith[]->{
       title,
       "slug": slug.current,
@@ -98,8 +115,15 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       title,
       "slug": slug.current
     },
-    "logoUrl": logo.asset->url,
-    websiteURL,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url,
+      defined(heroImage.asset->url) => heroImage.asset->url
+    ),
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     brokerType,
     "similarTo": similarTo[]{
       priority,
@@ -107,7 +131,13 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
         title,
         listingType,
         "slug": slug.current,
-        "logoUrl": logo.asset->url
+        "logoUrl": select(
+          defined(logo.asset->url) => logo.asset->url,
+          defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+          defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+          defined(images[0].asset->url) => images[0].asset->url,
+          defined(mainImage.asset->url) => mainImage.asset->url
+        )
       }
     },
     "serviceProviders": serviceProviders[]->{
@@ -116,7 +146,13 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
       listingType,
       "slug": slug.current,
       description,
-      "logoUrl": logo.asset->url,
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      ),
       websiteURL,
       brokerType,
       "badges": badges[]->{
@@ -144,7 +180,6 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
     pricing,
     trustMetrics,
     viewCount,
-    "serviceAreas": serviceAreas[]->{ title, group },
     "worksWith": worksWith[]->{
       title,
       "slug": slug.current,
@@ -165,7 +200,18 @@ export const GET_LISTING_BY_SLUG_QUERY = groq`
     },
     editorNotes,
     metaDescription,
-    synonyms
+    synonyms,
+    "resources": resources[]->{
+      title,
+      "slug": slug.current,
+      summary,
+      publishedAt,
+      "category": category->title,
+      "imageUrl": select(
+        defined(heroImage.asset->url) => heroImage.asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      )
+    }
   }
 `;
 
@@ -177,21 +223,32 @@ export const COMPARISON_QUERY = groq`
   *[_type == "directoryListing" && slug.current in $slugs] {
     title,
     "slug": slug.current,
-    "logoUrl": logo.asset->url,
+    "logoUrl": select(
+      defined(logo.asset->url) => logo.asset->url,
+      defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+      defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+      defined(images[0].asset->url) => images[0].asset->url,
+      defined(mainImage.asset->url) => mainImage.asset->url
+    ),
     tagline,
     listingType,
     brokerType,
     pricing,
-    websiteURL,
+    "websiteUrl": coalesce(websiteURL, websiteUrl),
     rating,
     trustMetrics,
     viewCount,
     "worksWith": worksWith[]->{
       title,
       "slug": slug.current,
-      "logoUrl": logo.asset->url
+      "logoUrl": select(
+        defined(logo.asset->url) => logo.asset->url,
+        defined(organisation->logo.asset->url) => organisation->logo.asset->url,
+        defined(images[@.isLogo == true][0].asset->url) => images[@.isLogo == true][0].asset->url,
+        defined(images[0].asset->url) => images[0].asset->url,
+        defined(mainImage.asset->url) => mainImage.asset->url
+      )
     },
-    "serviceAreas": serviceAreas[]->{ title, group },
     "alternativesCount": count(similarTo),
     "badges": badges[]->{
       title,
@@ -220,16 +277,16 @@ export const COMPARISON_QUERY = groq`
  */
 export const DirectoryProxy = {
   /**
-   * Fetches all listings and normalizes them.
-   */
+    * Fetches all listings and normalizes them.
+    */
   async getAllListings() {
     const data = await client.fetch(DIRECTORY_LISTING_QUERY);
     return data.map((l: any) => this.normalizeListing(l));
   },
 
   /**
-   * Fetches a single listing by slug and normalizes features.
-   */
+    * Fetches a single listing by slug and normalizes features.
+    */
   async getListingBySlug(slug: string) {
     const data = await client.fetch(GET_LISTING_BY_SLUG_QUERY, { slug }, { useCdn: false });
     if (!data) return null;
@@ -237,14 +294,13 @@ export const DirectoryProxy = {
     const normalized = this.normalizeListing(data);
     return {
       ...normalized,
-      featuresByCategory: this.groupFeaturesByCategory(normalized.features),
-      serviceAreasByGroup: this.groupServiceAreas(normalized.serviceAreas)
+      featuresByCategory: this.groupFeaturesByCategory(normalized.features)
     };
   },
 
   /**
-   * Fetches specific listings for comparison and groups features by category.
-   */
+    * Fetches specific listings for comparison and groups features by category.
+    */
   async getComparisonMatrix(slugsList: string[]) {
     const data = await client.fetch(COMPARISON_QUERY, { slugs: slugsList });
 
@@ -256,37 +312,24 @@ export const DirectoryProxy = {
   },
 
   /**
-   * Normalization helper
-   */
+    * Normalization helper
+    */
   normalizeListing(listing: any) {
     return {
       ...listing,
       // Ensure arrays aren't null
-      serviceAreas: listing.serviceAreas || [],
       worksWith: listing.worksWith || [],
       features: listing.features || [],
       badges: listing.badges || [],
       similarTo: listing.similarTo || [],
-      serviceProviders: listing.serviceProviders || []
+      serviceProviders: listing.serviceProviders || [],
+      resources: listing.resources || []
     };
   },
 
   /**
-   * Group service areas by their group/category.
-   */
-  groupServiceAreas(areas: any[]) {
-    if (!areas) return {};
-    return areas.filter(Boolean).reduce((acc: any, area: any) => {
-      const group = area.group || 'Other';
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(area.title);
-      return acc;
-    }, {});
-  },
-
-  /**
-   * Groups the capability matrix by feature category
-   */
+    * Groups the capability matrix by feature category
+    */
   groupFeaturesByCategory(features: any[]) {
     if (!features) return {};
 

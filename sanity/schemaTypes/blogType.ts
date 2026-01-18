@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { embed } from './objects/embed'
 
 export const blogType = defineType({
   name: 'blog',
@@ -48,12 +49,6 @@ export const blogType = defineType({
       validation: Rule => Rule.required()
     }),
 
-    defineField({
-      name: 'serviceAreas',
-      title: 'Service Areas',
-      type: 'array',
-      of: [{ type: 'reference', to: [{ type: 'serviceArea' }] }]
-    }),
 
     defineField({
       name: 'brokerType',
@@ -193,7 +188,8 @@ export const blogType = defineType({
       type: 'array',
       of: [
         { type: 'block' },
-        { type: 'image' }
+        { type: 'image' },
+        { type: 'embed' }
       ],
     }),
 

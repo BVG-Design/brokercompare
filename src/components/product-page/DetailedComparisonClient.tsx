@@ -27,253 +27,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import AskQuestionModal from "@/components/modals/AskQuestionModal";
 
-interface DetailedComparisonClientProps {
-  listingSlug: string;
-  listingName: string;
-  listingCategory?: string | null;
-  listingWebsite?: string | null;
-  allProducts: ComparisonProduct[];
-  suggestedProducts: ComparisonProduct[];
-  featureGroups: ComparisonFeatureGroup[];
-  initialSelection: string[];
-}
 
-interface AskQuestionModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  listingName: string;
-  listingCategory?: string | null;
-  listingSlug: string;
-  products: ComparisonProduct[];
-}
 
-const AskQuestionModal: React.FC<AskQuestionModalProps> = ({
-  open,
-  onOpenChange,
-  listingName,
-  listingCategory,
-  listingSlug,
-  products
-}) => {
-  const router = useRouter();
-  const { user, loading: authLoading } = useAuth();
-  const [question, setQuestion] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-  const [postAs, setPostAs] = useState<"public" | "private">("public");
 
-  const options = useMemo(() => {
-    const productOptions = products.map((product) => ({
-      value: `product:${product.slug}`,
-      label: product.name,
-      hint: 'Question about this specific software/service'
-    }));
-
-    const categoryLabel = (() => {
-      if (listingCategory) return listingCategory;
-      const words = listingSlug.split('-').filter(Boolean).map((word) => word.charAt(0).toUpperCase() + word.slice(1));
-      return words.length ? words.join(' ') : listingName;
-    })();
-
-    const categoryOption = {
-      value: `category:${listingSlug}`,
-      label: categoryLabel,
-      hint: 'General question about this category'
-    };
-
-    const seen = new Set<string>();
-    return [categoryOption, ...productOptions].filter((opt) => {
-      if (seen.has(opt.value)) return false;
-      seen.add(opt.value);
-      return true;
-    });
-  }, [listingName, listingSlug, products]);
-
-  const [selectedOption, setSelectedOption] = useState<string>(options[0]?.value || '');
-
-  useEffect(() => {
-    if (open) {
-      setQuestion('');
-      setSubmitted(false);
-      setSelectedOption(options[0]?.value || '');
-      setPostAs("public");
-    }
-  }, [open, options]);
-
-  const supabase = createClient();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user || !question.trim()) return;
-
-    // Simple basic loading state via 'submitted' flag isn't enough, but for this modal, 
-    // we can just set submitted=true ONLY on success.
-    // However, we need a loading state potentially. 
-    // The current UI sets submitted=true immediately to show success message.
-    // We should await the insert.
-
-    try {
-      const { error } = await supabase
-        .from('faq')
-        .insert({
-          question: question.trim(),
-          category: selectedOption,
-          // Omitting user_id and other fields not strictly in the requested schema list, 
-          // but relying on the schema: id, question, category, helpful_count, view_count.
-        });
-
-      if (error) {
-        console.error('Error submitting question:', error);
-        // Maybe show an error toast here if we had toast imported in this component context? 
-        // This component doesn't import useToast.
-        // I will just return or alert.
-        // Actually, let's just log it and fallback to success UI to not block user, 
-        // or better, alert.
-        alert('Failed to submit question. Please try again.');
-        return;
-      }
-
-      setSubmitted(true);
-    } catch (err) {
-      console.error('Submission exception:', err);
-      alert('An error occurred.');
-    }
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-white border-4 border-brand-blue shadow-xl text-gray-800">
-        {authLoading ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-blue" />
-          </div>
-        ) : submitted ? (
-          <>
-            <DialogHeader>
-              <DialogTitle className="text-center">Thanks for your question!</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-gray-700 text-center">
-              We'll route this to the right team based on the topic you picked.
-            </p>
-            <div className="pt-4">
-              <Button className="w-full" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
-            </div>
-          </>
-        ) : !user ? (
-          <>
-            <DialogHeader>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
-                  alt="Simba profile"
-                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
-                />
-                <div className="space-y-1">
-                  <DialogTitle>Ask a question</DialogTitle>
-                  <DialogDescription className="text-gray-800">
-                    Hi, Simba here, let me know how I or the humans can help...
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-            <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg text-sm text-yellow-800">
-              You need to be logged in to ask a question. Please sign in to continue.
-            </div>
-            <div className="flex justify-end pt-4">
-              <Button variant="outline" onClick={() => router.push('/login')}>
-                Go to login
-              </Button>
-            </div>
-          </>
-        ) : (
-          <>
-            <DialogHeader>
-              <div className="flex items-center gap-3">
-                <img
-                  src="https://izjekecdocekznhwqivo.supabase.co/storage/v1/object/public/Media/Simba%20Profile.png"
-                  alt="Simba profile"
-                  className="w-14 h-14 rounded-full object-cover border-2 border-brand-blue bg-white"
-                />
-                <div className="space-y-1">
-                  <DialogTitle>Ask a question</DialogTitle>
-                  <DialogDescription className="text-gray-800">
-                    Hi, Simba here, let me know how I or the humans can help...
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-              <div className="space-y-2">
-                <Label htmlFor="question-about" className="text-sm font-medium">
-                  This is about
-                </Label>
-                <Select value={selectedOption} onValueChange={setSelectedOption}>
-                  <SelectTrigger id="question-about" className="border-gray-600 text-gray-800">
-                    <SelectValue placeholder="Choose a topic" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {options.map((opt) => (
-                      <SelectItem
-                        key={opt.value}
-                        value={opt.value}
-                        className="py-2 data-[highlighted]:bg-gray-100 hover:bg-gray-100"
-                      >
-                        <div className="flex flex-col">
-                          <span className="font-medium text-gray-900">{opt.label}</span>
-                          <span className="text-[11px] text-gray-500">{opt.hint}</span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="question-body">Your question</Label>
-                <Textarea
-                  id="question-body"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Share as much detail as you can..."
-                  rows={4}
-                  className="border-gray-600 text-gray-800 placeholder:text-gray-600 bg-white"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Post as</Label>
-                <RadioGroup value={postAs} onValueChange={(val) => setPostAs(val as "public" | "private")}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="public" id="post-public" />
-                    <Label htmlFor="post-public" className="font-normal cursor-pointer">
-                      Publically, as {user?.user_metadata?.first_name || "your account name"}
-                    </Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="private" id="post-private" />
-                    <Label htmlFor="post-private" className="font-normal cursor-pointer">
-                      Privately, support team question.
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-
-              <Button
-                type="submit"
-                className="w-full bg-brand-orange hover:bg-brand-orange/90 text-white font-semibold"
-                disabled={!question.trim()}
-              >
-                Send question
-              </Button>
-            </form>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
-};
 
 interface SelectionModalProps {
   isOpen: boolean;
@@ -430,6 +188,18 @@ const SelectionModal: React.FC<SelectionModalProps> = ({
   );
 };
 
+interface DetailedComparisonClientProps {
+  listingSlug: string;
+  listingName: string;
+  listingCategory: string;
+  listingWebsite?: string | null;
+  allProducts: ComparisonProduct[];
+  suggestedProducts: ComparisonProduct[];
+  featureGroups: ComparisonFeatureGroup[];
+  initialSelection: string[];
+  hideHeader?: boolean;
+}
+
 const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   listingSlug,
   listingName,
@@ -438,7 +208,8 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
   allProducts,
   suggestedProducts,
   featureGroups,
-  initialSelection
+  initialSelection,
+  hideHeader
 }) => {
   const initial = initialSelection.length
     ? Array.from(new Set(initialSelection)).slice(0, 3)
@@ -537,49 +308,51 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
 
   return (
     <>
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
-        <Link
-          href={`/directory/${listingSlug}`}
-          className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
-        >
-          <ArrowLeft size={16} /> Back to {listingName} Review
-        </Link>
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          {selectedProducts.map((p, idx) => (
-            <React.Fragment key={p.slug}>
-              <button
-                onClick={() => openModalForSlot(idx)}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
-                  }`}
-              >
-                <div
-                  className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
+      {!hideHeader && (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <Link
+            href={`/listings/${listingSlug}`}
+            className="text-gray-600 hover:text-gray-900 flex items-center gap-2 text-sm font-medium"
+          >
+            <ArrowLeft size={16} /> Back to {listingName} Review
+          </Link>
+          <div className="flex items-center gap-2 flex-wrap justify-center">
+            {selectedProducts.map((p, idx) => (
+              <React.Fragment key={p.slug}>
+                <button
+                  onClick={() => openModalForSlot(idx)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium bg-white transition-all hover:shadow-sm ${p.isCurrent ? 'border-gray-900 text-gray-900' : 'border-gray-200 text-gray-700'
                     }`}
                 >
-                  {p.logoUrl ? (
-                    <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain rounded" />
-                  ) : (
-                    p.name.charAt(0)
-                  )}
-                </div>
-                <span>{p.name}</span>
-                <ChevronDown size={14} className="text-gray-400" />
-              </button>
-              {idx < selectedProducts.length - 1 && (
-                <span className="text-gray-400 text-sm font-semibold px-1">vs</span>
-              )}
-            </React.Fragment>
-          ))}
+                  <div
+                    className={`w-8 h-8 rounded-md flex items-center justify-center font-bold text-xs overflow-hidden ${p.logoUrl ? 'bg-white' : 'bg-gray-900 text-white'
+                      }`}
+                  >
+                    {p.logoUrl ? (
+                      <img src={p.logoUrl} alt={p.name} className="w-8 h-8 object-contain rounded" />
+                    ) : (
+                      p.name.charAt(0)
+                    )}
+                  </div>
+                  <span>{p.name}</span>
+                  <ChevronDown size={14} className="text-gray-400" />
+                </button>
+                {idx < selectedProducts.length - 1 && (
+                  <span className="text-gray-400 text-sm font-semibold px-1">vs</span>
+                )}
+              </React.Fragment>
+            ))}
+          </div>
+          <div className="flex gap-2 text-gray-400">
+            <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <Filter size={18} />
+            </button>
+            <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <RefreshCcw size={18} />
+            </button>
+          </div>
         </div>
-        <div className="flex gap-2 text-gray-400">
-          <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
-            <Filter size={18} />
-          </button>
-          <button className="p-2 hover:bg-gray-50 rounded-lg transition-colors">
-            <RefreshCcw size={18} />
-          </button>
-        </div>
-      </div>
+      )}
 
       {/* Overview */}
       <section className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -700,7 +473,7 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
               <div className="flex flex-wrap justify-center gap-3">
                 {p.worksWith?.length ? (
                   p.worksWith.map((integration) => {
-                    const href = integration.slug ? `/directory/${integration.slug}` : '#';
+                    const href = integration.slug ? `/listings/${integration.slug}` : '#';
                     return (
                       <Link
                         key={integration.slug || integration.title}
@@ -839,7 +612,7 @@ const DetailedComparisonClient: React.FC<DetailedComparisonClientProps> = ({
         listingName={listingName}
         listingCategory={listingCategory}
         listingSlug={listingSlug}
-        products={selectedProducts}
+        products={allProducts}
       />
     </>
   );

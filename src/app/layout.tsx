@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SITE_URLS } from "@/lib/config";
 import { Toaster } from "@/components/ui/toaster";
 import { ComparisonProvider } from "@/components/compare/ComparisonContext";
 import { ComparisonBar } from "@/components/compare/ComparisonBar";
@@ -19,13 +20,11 @@ export const metadata: Metadata = {
 };
 
 const fallbackNavLinks: NavLink[] = [
-  { name: "AI Recommender", path: "/recommendations" },
-  { name: "Workflow Automations", path: "/directory?category=ai" },
-  { name: "CRMs & Fact Finds", path: "/directory?category=crm" },
-  { name: "VA Services", path: "/directory?category=va" },
-  { name: "Marketing & Sales", path: "/directory?category=marketing" },
-  { name: "Other", path: "/directory?category=other" },
-  { name: "Resources", path: "/blog" },
+  { name: "Directory", path: `${SITE_URLS.directory}/search` },
+  { name: "Tech Reviews", path: `${SITE_URLS.resources}/blog?blogType=review` },
+  { name: "Podcasts", path: `${SITE_URLS.resources}/blog?blogType=podcast` },
+  { name: "Resources", path: `${SITE_URLS.resources}/blog` },
+  { name: "Schedule a Chat", path: "/workflow-optimisation" },
 ];
 
 type SearchIntentNavItem = {
@@ -42,27 +41,28 @@ export default async function RootLayout({
 }>) {
   let navLinks = fallbackNavLinks;
 
-  if (sanityConfigured) {
-    try {
-      const items = await client.fetch<SearchIntentNavItem[]>(
-        SEARCH_INTENT_NAV_QUERY
-      );
-
-      const sanitized =
-        items
-          ?.filter((item) => item?.slug && item?.title)
-          .map((item) => ({
-            name: item.title as string,
-            path: `/search/${item.slug}`,
-          })) ?? [];
-
-      if (sanitized.length > 0) {
-        navLinks = sanitized;
-      }
-    } catch (error) {
-      console.error("Failed to load Sanity nav links. Ensure 'searchIntent' documents with 'showInNav' set to true exist in your Sanity dataset.", error);
-    }
-  }
+  // Dynamic navigation from Sanity is disabled to maintain standard "Directory, Reviews, Podcasts, Resources" menu
+  // if (sanityConfigured) {
+  //   try {
+  //     const items = await client.fetch<SearchIntentNavItem[]>(
+  //       SEARCH_INTENT_NAV_QUERY
+  //     );
+  //
+  //     const sanitized =
+  //       items
+  //         ?.filter((item) => item?.slug && item?.title)
+  //         .map((item) => ({
+  //           name: item.title as string,
+  //           path: `${SITE_URLS.directory}/search/${item.slug}`,
+  //         })) ?? [];
+  //
+  //     if (sanitized.length > 0) {
+  //       navLinks = sanitized;
+  //     }
+  //   } catch (error) {
+  //     console.error("Failed to load Sanity nav links. Ensure 'searchIntent' documents with 'showInNav' set to true exist in your Sanity dataset.", error);
+  //   }
+  // }
 
   return (
     <html lang="en" suppressHydrationWarning>

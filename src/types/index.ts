@@ -30,4 +30,7 @@ export interface DirectoryListing {
     websiteUrl?: string;
     pricingModel?: string;
     type: 'software' | 'service' | 'product'; // To distinguish source
+    badges?: string[];
+    synonyms?: string[];
+    tagline?: string;
 }
